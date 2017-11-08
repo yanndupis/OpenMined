@@ -176,10 +176,21 @@ public class FloatTensor {
 	}
 
 	public void processMessage(string[] splittedStrings, int message_offset) {
-		Debug.Log("Processing FloatTensor Message");
-		if (splittedStrings [message_offset] == "0") {
-			print ();
-		} 
+		string command = splittedStrings [message_offset];
+		Debug.LogFormat("<color=blue>FloatTensor.processMessage command: {0}</color>", command);
+
+		if (command == "0") {
+			float factor = (float)int.Parse (splittedStrings [message_offset + 1]);
+			Debug.LogFormat("<color=blue>FloatTensor.processMessage factor: {0}</color>", factor);
+
+			string before = string.Join(",", data);
+
+			scalar_mult (factor);
+
+			string after = string.Join(",", data);
+
+			Debug.LogFormat("<color=blue>FloatTensor.processMessage answer: {0} * {1} = {2}</color>", before, factor, after);
+		}
 	}
 
 }
@@ -202,13 +213,13 @@ public class SyftController {
 
 	public void processMessage(string message) {
 
-		Debug.Log("Syft: processMessage");
+		Debug.LogFormat("<color=green>SyftController.processMessage {0}</color>", message);
 
 		var splittedStrings = message.Split(' ');
 
 		if (splittedStrings [0] == "0") { // command to create a new object of some type
 
-			Debug.Log("Create new Object of some type.");
+			Debug.Log("<color=green>SyftController.processMessage: Create a tensor object</color>");
 
 			float[] fdata = new float[splittedStrings.Length - 1];
 			for (int i = 0; i < splittedStrings.Length - 1; i++) {
@@ -219,12 +230,15 @@ public class SyftController {
 			fsize [0] = splittedStrings.Length - 1;
 
 			FloatTensor x = new FloatTensor (fdata, fsize, shader);
+
 			tensors.Add (x);
 
+			string created = string.Join(",", x.data);
+			Debug.LogFormat("<color=green>SyftController.processMessage: FloatTensor created: {0}</color>", created);
 
 		} else if (splittedStrings [0] == "1") { // command to do something with a Tensor object
 
-			Debug.Log("Execute Tensor Object Command");
+			Debug.Log("<color=green>SyftController.processMessage: Execute a tensor object command</color>");
 
 			int tensor_index = int.Parse (splittedStrings [1]);
 
