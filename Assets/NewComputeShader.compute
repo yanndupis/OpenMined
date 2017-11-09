@@ -21,3 +21,15 @@ void ElementwiseMultMain (uint3 id : SV_DispatchThreadID)
 {
     data_a[id.x] = data_a[id.x] * data_b[id.x];
 }
+
+
+#pragma kernel ElementwiseSubtractMain
+
+RWStructuredBuffer<float> data_c;
+RWStructuredBuffer<float> data_d;
+
+[numthreads(4,1,1)]
+void ElementwiseSubtractMain (uint3 id : SV_DispatchThreadID)
+{
+    data_c[id.x] = data_c[id.x] - data_d[id.x];
+}
