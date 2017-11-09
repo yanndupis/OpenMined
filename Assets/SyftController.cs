@@ -19,6 +19,7 @@ public class FloatTensor {
 
 	private int ScalarMultMain;
 	private int ElementwiseMultMain;
+	private int ElementwiseSubtractMain;
 
 	public FloatTensor(float[] _data, int[] _shape, ComputeShader _shader)
 	{
@@ -46,10 +47,13 @@ public class FloatTensor {
 		shader = _shader;
 		ScalarMultMain = shader.FindKernel ("ScalarMultMain");
 		ElementwiseMultMain = shader.FindKernel ("ElementwiseMultMain");
+		ElementwiseSubtractMain = shader.FindKernel ("ElementwiseSubtractMain");
 
 	}
 
 	public void inline_elementwise_mult(FloatTensor other) {
+		Debug.LogFormat("<color=blue>FloatTensor.inline_elementwise_mult data_on_gpu: {0}</color>", data_on_gpu);
+
 		if (size () == other.size ()) { 
 			if (data_on_gpu && other.data_is_on_gpu ()) {
 
@@ -72,6 +76,8 @@ public class FloatTensor {
 	}
 
 	public void scalar_mult(float value) {
+		Debug.LogFormat("<color=blue>FloatTensor.scalar_mult data_on_gpu: {0}</color>", data_on_gpu);
+
 		if (data_on_gpu) {
 
 			ComputeBuffer scalar_buffer = send_float_to_gpu (value, "temp_scalar");
@@ -86,6 +92,30 @@ public class FloatTensor {
 			{
 				data [i] = data [i] * value;
 			}
+		}
+	}
+
+	public void inline_elementwise_subtract(FloatTensor other) {
+		Debug.LogFormat("<color=blue>FloatTensor.inline_elementwise_subtract data_on_gpu: {0}</color>", data_on_gpu);
+
+		if (size () == other.size ()) {
+			if (data_on_gpu && other.data_is_on_gpu ()) {
+
+				// correspond tensor buffers with shader kernel buffers
+				shader.SetBuffer (ElementwiseSubtractMain, "data_c", data_buffer);
+				shader.SetBuffer (ElementwiseSubtractMain, "data_d", other.data_buffer);
+
+				shader.Dispatch(ElementwiseSubtractMain, 1, 1, 1);
+
+			} else if (!data_on_gpu && !other.data_is_on_gpu ()) {
+				for (int i = 0; i < _size; i++) {
+					data [i] = data [i] - other.data [i];
+				}
+			} else {
+				Debug.Log("Data for both Tensors needs to be colocated on the same device. - CPU != GPU");
+			}
+		} else {
+			Debug.Log("Tensors do not have the same number of elements!");
 		}
 	}
 
@@ -169,24 +199,6 @@ public class FloatTensor {
 		return scalar_buffer;
 	}
 
-	public void processMessage(string[] splittedStrings, int message_offset) {
-		string command = splittedStrings [message_offset];
-		Debug.LogFormat("<color=blue>FloatTensor.processMessage command: {0}</color>", command);
-
-		if (command == "0") {
-			float factor = (float)int.Parse (splittedStrings [message_offset + 1]);
-			Debug.LogFormat("<color=blue>FloatTensor.processMessage factor: {0}</color>", factor);
-
-			string before = string.Join(",", data);
-
-			scalar_mult (factor);
-
-			string after = string.Join(",", data);
-
-			Debug.LogFormat("<color=blue>FloatTensor.processMessage answer: {0} * {1} = {2}</color>", before, factor, after);
-		}
-	}
-
 }
 
 public class SyftController {
@@ -201,8 +213,6 @@ public class SyftController {
 		shader = _shader;
 
 		tensors = new List<FloatTensor>();
-
-
 	}
 
 	public void processMessage(string message) {
@@ -238,8 +248,50 @@ public class SyftController {
 
 			FloatTensor tensor = tensors [tensor_index];
 
-			tensor.processMessage (splittedStrings, 2);
+			int message_offset = 2;
 
+			string command = splittedStrings [message_offset];
+			Debug.LogFormat("<color=green>SyftController.processMessage command: {0}</color>", command);
+
+			if (command == "0") { // command to call scalar_mult
+				float factor = (float)int.Parse (splittedStrings [message_offset + 1]);
+				Debug.LogFormat ("<color=green>SyftController.processMessage factor: {0}</color>", factor);
+
+				string before = string.Join (",", tensor.data);
+
+				tensor.gpu ();
+
+				tensor.scalar_mult (factor);
+
+				tensor.cpu ();
+
+				string after = string.Join (",", tensor.data);
+
+				Debug.LogFormat ("<color=green>SyftController.processMessage answer: {0} * {1} = {2}</color>", before, factor, after);
+
+			} else if (command == "1") { // command to call inline_elementwise_subtract
+				int other_tensor_index = int.Parse (splittedStrings [message_offset + 1]);
+				Debug.LogFormat ("<color=green>SyftController.processMessage other_tensor_index: {0}</color>", other_tensor_index);
+
+				FloatTensor other_tensor = tensors [other_tensor_index];
+
+				string before = string.Join (",", tensor.data);
+
+				string other_tensor_data = string.Join (",", other_tensor.data);
+
+				tensor.gpu ();
+				other_tensor.gpu ();
+
+				tensor.inline_elementwise_subtract (other_tensor);
+
+				tensor.cpu ();
+				other_tensor.cpu ();
+
+				string after = string.Join (",", tensor.data);
+
+				Debug.LogFormat ("<color=green>SyftController.processMessage answer: {0} - {1} = {2}</color>", before, other_tensor_data, after);
+
+			}
 		}
 
 	}
