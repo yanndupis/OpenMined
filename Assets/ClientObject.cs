@@ -29,9 +29,9 @@ public class NetMqListener
 				string frameString;
 				if (!responseSocket.TryReceiveFrameString(out frameString)) continue;
 
-				Debug.Log(frameString);
+				Debug.LogFormat("<color=purple>NetMqListener.ListenerWork: Message received {0}</color>", frameString);
 				_messageQueue.Enqueue(frameString);
-				responseSocket.SendFrame("World");
+				responseSocket.SendFrame("OK");
 			}
 
 		}
