@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class FloatTensor {
 
@@ -20,6 +21,7 @@ public class FloatTensor {
 	private int ScalarMultMain;
 	private int ElementwiseMultMain;
 	private int ElementwiseSubtractMain;
+
 
 	public FloatTensor(float[] _data, int[] _shape, ComputeShader _shader)
 	{
@@ -201,6 +203,14 @@ public class FloatTensor {
 
 }
 
+
+public class MyClass
+{
+	public int level;
+	public float timeElapsed;
+	public string playerName;
+}
+
 public class SyftController {
 
 	[SerializeField]
@@ -218,6 +228,17 @@ public class SyftController {
 	public void processMessage(string message) {
 
 		Debug.LogFormat("<color=green>SyftController.processMessage {0}</color>", message);
+
+// this code runs and serializes JSON - we could use this for the server.
+//		MyClass myObject = new MyClass();
+//		myObject.level = 1;
+//		myObject.timeElapsed = 47.5f;
+//		myObject.playerName = "Dr Charles Francis";
+//
+//		string json = JsonUtility.ToJson(myObject);
+//
+//		myObject = JsonUtility.FromJson<MyClass>(json);
+
 
 		var splittedStrings = message.Split(' ');
 
