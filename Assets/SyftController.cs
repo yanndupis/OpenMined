@@ -259,11 +259,7 @@ public class SyftController {
 
 				string before = string.Join (",", tensor.data);
 
-				tensor.gpu ();
-
 				tensor.scalar_mult (factor);
-
-				tensor.cpu ();
 
 				string after = string.Join (",", tensor.data);
 
@@ -279,13 +275,7 @@ public class SyftController {
 
 				string other_tensor_data = string.Join (",", other_tensor.data);
 
-				tensor.gpu ();
-				other_tensor.gpu ();
-
 				tensor.inline_elementwise_subtract (other_tensor);
-
-				tensor.cpu ();
-				other_tensor.cpu ();
 
 				string after = string.Join (",", tensor.data);
 
