@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class FloatTensor {
 
@@ -24,6 +25,7 @@ public class FloatTensor {
 	private int MultiplyDerivative;
 	private int AddMatrixMultiply;
 	private int ResetWeights;
+
 
 	public FloatTensor(float[] _data, int[] _shape, ComputeShader _shader)
 	{
@@ -276,6 +278,14 @@ public class FloatTensor {
 
 }
 
+
+public class MyClass
+{
+	public int level;
+	public float timeElapsed;
+	public string playerName;
+}
+
 public class SyftController {
 
 	[SerializeField]
@@ -296,6 +306,17 @@ public class SyftController {
 	public void processMessage(string message) {
 
 		Debug.LogFormat("<color=green>SyftController.processMessage {0}</color>", message);
+
+// this code runs and serializes JSON - we could use this for the server.
+//		MyClass myObject = new MyClass();
+//		myObject.level = 1;
+//		myObject.timeElapsed = 47.5f;
+//		myObject.playerName = "Dr Charles Francis";
+//
+//		string json = JsonUtility.ToJson(myObject);
+//
+//		myObject = JsonUtility.FromJson<MyClass>(json);
+
 
 		var splittedStrings = message.Split(' ');
 
@@ -337,11 +358,7 @@ public class SyftController {
 
 				string before = string.Join (",", tensor.data);
 
-				tensor.gpu ();
-
 				tensor.scalar_mult (factor);
-
-				tensor.cpu ();
 
 				string after = string.Join (",", tensor.data);
 
@@ -357,13 +374,7 @@ public class SyftController {
 
 				string other_tensor_data = string.Join (",", other_tensor.data);
 
-				tensor.gpu ();
-				other_tensor.gpu ();
-
 				tensor.inline_elementwise_subtract (other_tensor);
-
-				tensor.cpu ();
-				other_tensor.cpu ();
 
 				string after = string.Join (",", tensor.data);
 
