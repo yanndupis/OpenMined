@@ -8,7 +8,19 @@ public class BasicNeuralNetwork : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+
+		System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch ();
+
+		stopWatch.Start ();
 		train ();
+		stopWatch.Stop ();
+		Debug.LogFormat ("<color=white>BasicNeuralNetwork: ElapsedMilliseconds:</color> {0}", stopWatch.ElapsedMilliseconds);
+
+		stopWatch.Restart ();
+		trainWithGPU ();
+		stopWatch.Stop ();
+		Debug.LogFormat ("<color=cyan>BasicNeuralNetwork.withGPU Elapsed:</color> {0}", stopWatch.ElapsedMilliseconds);
+
 	}
 	
 	// Update is called once per frame
@@ -56,7 +68,7 @@ public class BasicNeuralNetwork : MonoBehaviour {
 //		# seed random numbers to make calculation
 //		# deterministic (just a good practice)
 //		np.random.seed(1)
-		Random.seed = 1;
+		Random.InitState (1);
 
 //		# initialize weights randomly with mean 0
 //		syn0 = 2*np.random.random((3,1)) - 1
@@ -121,4 +133,72 @@ public class BasicNeuralNetwork : MonoBehaviour {
 		Debug.LogFormat ("<color=white>BasicNeuralNetwork: Weights After Training:</color> {0}", string.Join(", ", syn0));
 
 	}
+
+	[SerializeField]
+	private ComputeShader shader;
+
+	void trainWithGPU () {
+
+		float[] l0_data = new float[] { 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1 };
+		int[] l0_shape = new int[] { 3, 3, 3, 3 };
+		FloatTensor l0_tensor = new FloatTensor (l0_data, l0_shape, shader);
+		Debug.LogFormat ("<color=cyan>BasicNeuralNetwork.withGPU l0_tensor:</color> {0}", string.Join (", ", l0_tensor.data));
+		l0_tensor.gpu ();
+
+		float[] l1_data = new float[] { 0, 0, 0, 0 };
+		int[] l1_shape = new int[] { 4 };
+		FloatTensor l1_tensor = new FloatTensor (l1_data, l1_shape, shader);
+		Debug.LogFormat ("<color=cyan>BasicNeuralNetwork.withGPU l1_tensor:</color> {0}", string.Join (", ", l1_tensor.data));
+		l1_tensor.gpu ();
+
+		float[] syn0_data = randomWeights (3);
+		int[] syn0_shape = new int[] { 3 };
+		FloatTensor syn0_tensor = new FloatTensor (syn0_data, syn0_shape, shader);
+		syn0_tensor.gpu ();
+
+		l1_tensor.init_sigmoid_matrix_multiply (l0_tensor);
+		syn0_tensor.init_add_matrix_multiply (l0_tensor);
+
+		float[] y_data = new float[] { 0, 0, 1, 1 };
+		int[] y_shape = new int[] { 4 };
+
+		FloatTensor l1_error_tensor = new FloatTensor (y_data, y_shape, shader);
+		l1_error_tensor.gpu ();
+
+		FloatTensor save_error_tensor = new FloatTensor (y_data, y_shape, shader);
+		save_error_tensor.gpu ();
+
+		l1_error_tensor.init_weights (save_error_tensor);
+
+		for (int i = 0; i < 10000; i++) {
+			l1_tensor.sigmoid_matrix_multiply (l0_tensor, syn0_tensor);
+
+			l1_error_tensor.reset_weights ();
+
+			l1_error_tensor.inline_elementwise_subtract (l1_tensor);
+
+			l1_error_tensor.multiply_derivative (l1_tensor);
+
+			syn0_tensor.add_matrix_multiply (l0_tensor, l1_error_tensor);
+		}
+
+		l0_tensor.cpu ();
+		l1_tensor.cpu ();
+		l1_error_tensor.cpu ();
+		save_error_tensor.cpu ();
+		syn0_tensor.cpu ();
+
+		Debug.LogFormat ("<color=cyan>BasicNeuralNetwork.withGPU Output After Training:</color> {0}", string.Join (", ", l1_tensor.data));
+		Debug.LogFormat ("<color=cyan>BasicNeuralNetwork.withGPU Weights After Training:</color> {0}", string.Join (", ", syn0_tensor.data));
+	}
+
+	float[] randomWeights (int length) {
+		Random.InitState (1);
+		float[] syn0 = new float[length];
+		for (int i = 0; i < length; i++) {
+			syn0 [i] = 2 * Random.value - 1;
+		}
+		return syn0;
+	}
+
 }
