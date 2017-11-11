@@ -278,12 +278,17 @@ public class FloatTensor {
 
 }
 
-
-public class MyClass
+public class Command
 {
-	public int level;
-	public float timeElapsed;
-	public string playerName;
+	// given that SyftController keeps lists of objects of base types 
+	// (at the time of writing this is only Tensors) then this command
+	// selects one of these generic types and performs a command.
+	public string objectType; // i.e. "tensor"
+	public int objectIndex; //
+
+	// name of the function to be called
+	public string functionCall;
+
 }
 
 public class SyftController {
@@ -307,81 +312,78 @@ public class SyftController {
 
 		Debug.LogFormat("<color=green>SyftController.processMessage {0}</color>", message);
 
-// this code runs and serializes JSON - we could use this for the server.
-//		MyClass myObject = new MyClass();
-//		myObject.level = 1;
-//		myObject.timeElapsed = 47.5f;
-//		myObject.playerName = "Dr Charles Francis";
+
+		Command myObject = JsonUtility.FromJson<Command>(message);
+		Debug.Log("Object Type:" + (myObject.objectType));
+		
+
+
+
+
+//		var splittedStrings = message.Split(' ');
 //
-//		string json = JsonUtility.ToJson(myObject);
+//		if (splittedStrings [0] == "0") { // command to create a new object of some type
 //
-//		myObject = JsonUtility.FromJson<MyClass>(json);
-
-
-		var splittedStrings = message.Split(' ');
-
-		if (splittedStrings [0] == "0") { // command to create a new object of some type
-
-			Debug.Log("<color=green>SyftController.processMessage: Create a tensor object</color>");
-
-			float[] fdata = new float[splittedStrings.Length - 1];
-			for (int i = 0; i < splittedStrings.Length - 1; i++) {
-				fdata [i] = float.Parse (splittedStrings [i + 1]);
-			}
-
-			int[] fshape = new int[1];
-			fshape [0] = splittedStrings.Length - 1;
-
-			FloatTensor x = new FloatTensor (fdata, fshape, shader);
-
-			tensors.Add (x);
-
-			string created = string.Join(",", x.data);
-			Debug.LogFormat("<color=green>SyftController.processMessage: FloatTensor created: {0}</color>", created);
-
-		} else if (splittedStrings [0] == "1") { // command to do something with a Tensor object
-
-			Debug.Log("<color=green>SyftController.processMessage: Execute a tensor object command</color>");
-
-			int tensor_index = int.Parse (splittedStrings [1]);
-
-			FloatTensor tensor = tensors [tensor_index];
-
-			int message_offset = 2;
-
-			string command = splittedStrings [message_offset];
-			Debug.LogFormat("<color=green>SyftController.processMessage command: {0}</color>", command);
-
-			if (command == "0") { // command to call scalar_mult
-				float factor = (float)int.Parse (splittedStrings [message_offset + 1]);
-				Debug.LogFormat ("<color=green>SyftController.processMessage factor: {0}</color>", factor);
-
-				string before = string.Join (",", tensor.data);
-
-				tensor.scalar_mult (factor);
-
-				string after = string.Join (",", tensor.data);
-
-				Debug.LogFormat ("<color=green>SyftController.processMessage answer: {0} * {1} = {2}</color>", before, factor, after);
-
-			} else if (command == "1") { // command to call inline_elementwise_subtract
-				int other_tensor_index = int.Parse (splittedStrings [message_offset + 1]);
-				Debug.LogFormat ("<color=green>SyftController.processMessage other_tensor_index: {0}</color>", other_tensor_index);
-
-				FloatTensor other_tensor = tensors [other_tensor_index];
-
-				string before = string.Join (",", tensor.data);
-
-				string other_tensor_data = string.Join (",", other_tensor.data);
-
-				tensor.inline_elementwise_subtract (other_tensor);
-
-				string after = string.Join (",", tensor.data);
-
-				Debug.LogFormat ("<color=green>SyftController.processMessage answer: {0} - {1} = {2}</color>", before, other_tensor_data, after);
-
-			}
-		}
+//			Debug.Log("<color=green>SyftController.processMessage: Create a tensor object</color>");
+//
+//			float[] fdata = new float[splittedStrings.Length - 1];
+//			for (int i = 0; i < splittedStrings.Length - 1; i++) {
+//				fdata [i] = float.Parse (splittedStrings [i + 1]);
+//			}
+//
+//			int[] fshape = new int[1];
+//			fshape [0] = splittedStrings.Length - 1;
+//
+//			FloatTensor x = new FloatTensor (fdata, fshape, shader);
+//
+//			tensors.Add (x);
+//
+//			string created = string.Join(",", x.data);
+//			Debug.LogFormat("<color=green>SyftController.processMessage: FloatTensor created: {0}</color>", created);
+//
+//		} else if (splittedStrings [0] == "1") { // command to do something with a Tensor object
+//
+//			Debug.Log("<color=green>SyftController.processMessage: Execute a tensor object command</color>");
+//
+//			int tensor_index = int.Parse (splittedStrings [1]);
+//
+//			FloatTensor tensor = tensors [tensor_index];
+//
+//			int message_offset = 2;
+//
+//			string command = splittedStrings [message_offset];
+//			Debug.LogFormat("<color=green>SyftController.processMessage command: {0}</color>", command);
+//
+//			if (command == "0") { // command to call scalar_mult
+//				float factor = (float)int.Parse (splittedStrings [message_offset + 1]);
+//				Debug.LogFormat ("<color=green>SyftController.processMessage factor: {0}</color>", factor);
+//
+//				string before = string.Join (",", tensor.data);
+//
+//				tensor.scalar_mult (factor);
+//
+//				string after = string.Join (",", tensor.data);
+//
+//				Debug.LogFormat ("<color=green>SyftController.processMessage answer: {0} * {1} = {2}</color>", before, factor, after);
+//
+//			} else if (command == "1") { // command to call inline_elementwise_subtract
+//				int other_tensor_index = int.Parse (splittedStrings [message_offset + 1]);
+//				Debug.LogFormat ("<color=green>SyftController.processMessage other_tensor_index: {0}</color>", other_tensor_index);
+//
+//				FloatTensor other_tensor = tensors [other_tensor_index];
+//
+//				string before = string.Join (",", tensor.data);
+//
+//				string other_tensor_data = string.Join (",", other_tensor.data);
+//
+//				tensor.inline_elementwise_subtract (other_tensor);
+//
+//				string after = string.Join (",", tensor.data);
+//
+//				Debug.LogFormat ("<color=green>SyftController.processMessage answer: {0} - {1} = {2}</color>", before, other_tensor_data, after);
+//
+//			}
+//		}
 
 	}
 

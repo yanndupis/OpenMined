@@ -5,36 +5,49 @@ using UnityEngine;
 using NetMQ.Sockets;
 using static FloatTensor;
 
+public class Job {
+	public ResponseSocket socket;
+	public string message;
+
+	public Job(ResponseSocket socket_, string message_) {
+		socket = socket_;
+		message = message_;
+	}
+}
+
 public class NetMqListener
 {
     private readonly Thread _listenerWorker;
 
     private bool _listenerCancelled;
 
-    public delegate void MessageDelegate(string message);
+    public delegate void MessageDelegate(Job message);
 
     private readonly MessageDelegate _messageDelegate;
 
-    private readonly ConcurrentQueue<string> _messageQueue = new ConcurrentQueue<string>();
+    private readonly ConcurrentQueue<Job> _messageQueue = new ConcurrentQueue<Job>();
 
 	private void ListenerWork()
 	{
 		AsyncIO.ForceDotNet.Force();
-		using (var responseSocket = new ResponseSocket("@tcp://*:5555"))
-		{
+//		using (var responseSocket = new ResponseSocket("@tcp://*:5555"))
+//		{
+		var responseSocket = new ResponseSocket("@tcp://*:5555");
 			responseSocket.Options.ReceiveHighWatermark = 1000;
 
 			while (!_listenerCancelled)
 			{
+//				var responseSocket = new ResponseSocket ("@tcp://*:5555");
 				string frameString;
 				if (!responseSocket.TryReceiveFrameString(out frameString)) continue;
 
 				Debug.LogFormat("<color=purple>NetMqListener.ListenerWork: Message received {0}</color>", frameString);
-				_messageQueue.Enqueue(frameString);
-				responseSocket.SendFrame("OK");
+				Job frameJob = new Job (responseSocket, frameString);
+				_messageQueue.Enqueue(frameJob);
+
 			}
 
-		}
+//		}
 		NetMQConfig.Cleanup();
 	}
 
@@ -62,7 +75,7 @@ public class NetMqListener
     {
         while (!_messageQueue.IsEmpty)
         {
-            string message;
+            Job message;
             if (_messageQueue.TryDequeue(out message))
             {
                 _messageDelegate(message);
@@ -102,8 +115,9 @@ public class ClientObject : MonoBehaviour
 	[SerializeField]
 	private ComputeShader shader;
 
-    private void HandleMessage(string message)
+    private void HandleMessage(Job job_with_message)
     {
+		
 //        var splittedStrings = message.Split(' ');
 //        if (splittedStrings.Length != 3) return;
 //        var x2 = float.Parse(splittedStrings[0]);
@@ -111,7 +125,11 @@ public class ClientObject : MonoBehaviour
 //        var z2 = float.Parse(splittedStrings[2]);
 //        transform.position = new Vector3(x2, y2, z2);
 
-		controller.processMessage (message);
+//		controller.processMessage (job_with_message.message);
+//		Debug.Log ("Message Processed!!");
+
+		job_with_message.socket.SendFrame ("Done!");
+		Debug.Log ("Response Sent!!");
 
     }
 
