@@ -1,12 +1,28 @@
-﻿// Each #kernel tells which function to compile; you can have many kernels
+﻿// 
+
+struct Dimensions {
+	int rows;
+	int columns;
+};
+
+float sigmoid(float x)
+{
+    return 1 / (1 + exp(-x));
+}
+
+float derivative(float x) {
+	return x * (1 - x);
+}
+
+
+// Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel ScalarMultMain
 
 RWStructuredBuffer<float> data;
 RWStructuredBuffer<float> temp_scalar;
  
 [numthreads(4,1,1)]
-void ScalarMultMain (uint3 id : SV_DispatchThreadID)
-{
+void ScalarMultMain (uint3 id : SV_DispatchThreadID) {
     data[id.x] = data[id.x] * temp_scalar[0];
 }
 
@@ -17,8 +33,7 @@ RWStructuredBuffer<float> data_a;
 RWStructuredBuffer<float> data_b;
  
 [numthreads(4,1,1)]
-void ElementwiseMultMain (uint3 id : SV_DispatchThreadID)
-{
+void ElementwiseMultMain (uint3 id : SV_DispatchThreadID) {
     data_a[id.x] = data_a[id.x] * data_b[id.x];
 }
 
@@ -29,7 +44,74 @@ RWStructuredBuffer<float> data_c;
 RWStructuredBuffer<float> data_d;
 
 [numthreads(4,1,1)]
-void ElementwiseSubtractMain (uint3 id : SV_DispatchThreadID)
-{
+void ElementwiseSubtractMain (uint3 id : SV_DispatchThreadID) {
     data_c[id.x] = data_c[id.x] - data_d[id.x];
+}
+
+
+#pragma kernel SigmoidMatrixMultiply
+
+RWStructuredBuffer<float> data_e;
+RWStructuredBuffer<float> data_f;
+RWStructuredBuffer<float> data_g;
+RWStructuredBuffer<Dimensions> dimensions_a;
+
+[numthreads(4,1,1)]
+void SigmoidMatrixMultiply (uint3 id : SV_DispatchThreadID) {
+	float columns = dimensions_a[0].columns;
+
+	float product = 0;
+
+	for (int i = 0; i < columns; i++) {
+		product += data_f[id.x * columns + i] * data_g[i];
+	}
+
+	data_e[id.x] = sigmoid(product);
+}
+
+
+#pragma kernel MultiplyDerivative
+
+RWStructuredBuffer<float> data_h;
+RWStructuredBuffer<float> data_i;
+
+[numthreads(4,1,1)]
+void MultiplyDerivative (uint3 id : SV_DispatchThreadID) {
+	data_h[id.x] = data_h[id.x] * derivative(data_i[id.x]);
+}
+
+
+#pragma kernel AddMatrixMultiply
+
+RWStructuredBuffer<float> data_j;
+RWStructuredBuffer<float> data_k;
+RWStructuredBuffer<float> data_l;
+RWStructuredBuffer<Dimensions> dimensions_b;
+
+[numthreads(4,1,1)]
+void AddMatrixMultiply (uint3 id : SV_DispatchThreadID) {
+	// transpose
+	int columns = dimensions_b[0].rows;
+	int rows = dimensions_b[0].columns;
+
+	float product = 0;
+
+	int t = 0;
+	for (int i = 0; i < columns; i++) {
+		product += data_k[id.x + t] * data_l[i];
+		t += rows;
+	}
+
+	data_j[id.x] += product;
+}
+
+
+#pragma kernel ResetWeights
+
+RWStructuredBuffer<float> weights;
+RWStructuredBuffer<float> original_weights;
+
+[numthreads(4,1,1)]
+void ResetWeights (uint3 id : SV_DispatchThreadID) {
+	weights[id.x] = original_weights[id.x];
 }
