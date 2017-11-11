@@ -67,10 +67,17 @@ public class ServerObject : MonoBehaviour
     private NetMqPublisher _netMqPublisher;
     private string _response;
 
+	private SyftController controller;
+
+	[SerializeField]
+	private ComputeShader shader;
+
     private void Start()
     {
         _netMqPublisher = new NetMqPublisher(HandleMessage);
         _netMqPublisher.Start();
+
+		controller = new SyftController (shader);
     }
 
     private void Update()
@@ -83,7 +90,7 @@ public class ServerObject : MonoBehaviour
     private string HandleMessage(string message)
     {
         // Not on main thread
-        return _response;
+		return controller.processMessage (message);;
     }
 
     private void OnDestroy()
