@@ -308,14 +308,14 @@ public class SyftController {
 
 	}
 
-	public void processMessage(string message) {
+	public string processMessage(string message) {
 
 		Debug.LogFormat("<color=green>SyftController.processMessage {0}</color>", message);
 
 
 		Command myObject = JsonUtility.FromJson<Command>(message);
 		Debug.Log("Object Type:" + (myObject.objectType));
-		
+		return "WE DID IT!!!";
 
 
 
