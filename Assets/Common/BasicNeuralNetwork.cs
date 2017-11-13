@@ -4,6 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using OpenMined.Syft;
+
 public class BasicNeuralNetwork : MonoBehaviour {
 
 	// Use this for initialization
