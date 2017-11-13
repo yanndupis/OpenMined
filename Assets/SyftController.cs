@@ -308,13 +308,20 @@ public class SyftController {
 
 	}
 
-	public string processMessage(string message) {
+	public string processMessage(string json_message) {
 
-		Debug.LogFormat("<color=green>SyftController.processMessage {0}</color>", message);
+		Debug.LogFormat("<color=green>SyftController.processMessage {0}</color>", json_message);
+	
+		Command cmd = JsonUtility.FromJson<Command>(json_message);
 
-
-		Command myObject = JsonUtility.FromJson<Command>(message);
-		Debug.Log("Object Type:" + (myObject.objectType));
+//		if (cmd.objectType == "FloatTensor") {
+//			if (cmd.functionCall == "FloatTensor") {
+//				FloatTensor x = new FloatTensor (fdata, fshape, shader);
+//				
+//				tensors.Add (x);
+//			}
+//		}
+		Debug.Log("Object Type:" + (cmd.objectType));
 		return "WE DID IT!!!";
 
 
