@@ -6,7 +6,7 @@ using NetMQ.Sockets;
 
 
 
-namespace OpenMined.Network
+namespace OpenMined.Network.Servers
 {
     public class NetMqPublisher
     {

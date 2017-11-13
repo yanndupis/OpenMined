@@ -1,5 +1,5 @@
 
-namespace OpenMined.Network
+namespace OpenMined.Network.Utils
 {
 
     public class Command

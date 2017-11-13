@@ -4,10 +4,11 @@ using System.Linq;
 
 using UnityEngine;
 
-using OpenMined.Network;
+using OpenMined.Syft;
+using OpenMined.Network.Utils;
 
 
-namespace OpenMined.Syft {
+namespace OpenMined.Network.Controllers {
 
 
 public class SyftController {

@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 
+using OpenMined.Network.Controllers;
 using OpenMined.Syft;
 
 
-namespace OpenMined.Network
+namespace OpenMined.Network.Servers
 {
 public class SyftServer : MonoBehaviour
 {
