@@ -1,10 +1,11 @@
 using System.Diagnostics;
 using System.Threading;
+using System.Collections.Concurrent;
 
 using NetMQ;
 using NetMQ.Sockets;
 
-
+using UnityEngine;
 
 namespace OpenMined.Network.Servers
 {
@@ -24,24 +25,48 @@ namespace OpenMined.Network.Servers
 
         public bool Connected;
 
+		private readonly ConcurrentQueue<Request> _requestQueue = new ConcurrentQueue<Request>();
+
+		public struct Request
+		{
+			public RouterSocket router;
+			public string identity;
+			public string message;
+
+			public Request(RouterSocket _router, string _identity, string _message)
+			{
+				router = _router;
+				identity = _identity;
+				message = _message;
+			}
+		}
+
         private void ListenerWork()
         {
             AsyncIO.ForceDotNet.Force();
-            using (var server = new ResponseSocket())
-            {
-                server.Bind("tcp://*:12346");
 
-                while (!_listenerCancelled)
-                {
-                    Connected = _contactWatch.ElapsedMilliseconds < ContactThreshold;
-                    string message;
-                    if (!server.TryReceiveFrameString(out message))
-                        continue;
-                    _contactWatch.Restart();
-                    var response = _messageDelegate(message);
-                    server.SendFrame(response);
-                }
-            }
+			using (var server = new RouterSocket())
+			{
+				server.Bind("tcp://*:5555");
+
+				while (!_listenerCancelled)
+				{
+					//server.SkipFrame(); // to skip identity
+
+					string identity;
+					if (!server.TryReceiveFrameString(out identity)) continue;
+					UnityEngine.Debug.LogFormat ("identity {0}", identity);
+
+					string message;
+					if (!server.TryReceiveFrameString(out message)) continue;
+					UnityEngine.Debug.LogFormat ("message {0}", message);
+
+					//server.SendMoreFrame(identity).SendFrame("message");
+					Request request = new Request (server, identity, message);
+					_requestQueue.Enqueue(request);
+				}
+			}
+
             NetMQConfig.Cleanup();
         }
 
@@ -58,6 +83,27 @@ namespace OpenMined.Network.Servers
             _listenerCancelled = false;
             _listenerWorker.Start();
         }
+
+		public void Update()
+		{
+			while (!_requestQueue.IsEmpty)
+			{
+				Request request;
+				if (_requestQueue.TryDequeue(out request))
+				{
+					var response = _messageDelegate(request.message);
+
+					UnityEngine.Debug.LogFormat("response: {0}", response);
+
+					request.router.SendMoreFrame (request.identity);
+					request.router.SendFrame (response);
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
 
         public void Stop()
         {
