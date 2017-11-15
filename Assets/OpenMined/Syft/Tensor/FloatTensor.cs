@@ -5,7 +5,6 @@ namespace OpenMined.Syft
 
     public class FloatTensor
     {
-
         public float[] data;
         private int[] shape;
         private int _size;
