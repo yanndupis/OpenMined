@@ -50,7 +50,9 @@ namespace OpenMined.Network.Controllers {
 
 				tensor.gpu ();
 
-				return msgObj.functionCall + ": OK";
+				string id = (tensors.Count - 1).ToString();
+
+				return id;
 
 			} else {
 
