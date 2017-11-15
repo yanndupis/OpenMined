@@ -31,7 +31,7 @@ public class SyftServer : MonoBehaviour
 
     private string HandleMessage(string message)
     {
-		Debug.LogFormat("HandleMessage... {0}", message);
+		//Debug.LogFormat("HandleMessage... {0}", message);
 		return controller.processMessage (message);
     }
 
