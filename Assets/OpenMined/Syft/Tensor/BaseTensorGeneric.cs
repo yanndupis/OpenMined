@@ -14,7 +14,7 @@ namespace OpenMined.Syft.Tensor
             long offset = 0;
             for (int i = 0; i < indices.Length; ++i)
             {
-                if(indices[i] >= shape[i])
+                if(indices[i] >= shape[i] || indices[i] < 0)
                     throw new IndexOutOfRangeException();
                 offset += indices[i] * strides[i];
             }
