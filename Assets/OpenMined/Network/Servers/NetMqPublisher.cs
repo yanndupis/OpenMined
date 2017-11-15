@@ -55,11 +55,11 @@ namespace OpenMined.Network.Servers
 
 					string identity;
 					if (!server.TryReceiveFrameString(out identity)) continue;
-					UnityEngine.Debug.LogFormat ("identity {0}", identity);
+					//UnityEngine.Debug.LogFormat ("identity {0}", identity);
 
 					string message;
 					if (!server.TryReceiveFrameString(out message)) continue;
-					UnityEngine.Debug.LogFormat ("message {0}", message);
+					//UnityEngine.Debug.LogFormat ("message {0}", message);
 
 					//server.SendMoreFrame(identity).SendFrame("message");
 					Request request = new Request (server, identity, message);
@@ -93,7 +93,7 @@ namespace OpenMined.Network.Servers
 				{
 					var response = _messageDelegate(request.message);
 
-					UnityEngine.Debug.LogFormat("response: {0}", response);
+					//UnityEngine.Debug.LogFormat("response: {0}", response);
 
 					request.router.SendMoreFrame (request.identity);
 					request.router.SendFrame (response);

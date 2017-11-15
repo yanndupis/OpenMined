@@ -8,6 +8,8 @@ using OpenMined.Syft;
 
 public class BasicNeuralNetwork : MonoBehaviour {
 
+	private int ITERATIONS = 100;
+
 	// Use this for initialization
 	void Start () {
 
@@ -84,7 +86,7 @@ public class BasicNeuralNetwork : MonoBehaviour {
 		float[] l1 = new float[4];
 
 //		for iter in range(10000):
-		for (int r = 0; r < 10000; r++) {
+		for (int r = 0; r < ITERATIONS; r++) {
 
 //			# forward propagation
 //			l0 = X
@@ -172,7 +174,7 @@ public class BasicNeuralNetwork : MonoBehaviour {
 
 		l1_error_tensor.init_weights (save_error_tensor);
 
-		for (int i = 0; i < 10000; i++) {
+		for (int i = 0; i < ITERATIONS; i++) {
 			l1_tensor.sigmoid_matrix_multiply (l0_tensor, syn0_tensor);
 
 			l1_error_tensor.reset_weights ();
