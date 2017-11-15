@@ -51,7 +51,7 @@ namespace OpenMined.Syft.Tensor
                 acc *= _shape[i];
             }
 
-            if (acc > this.size)
+            if (acc != this.size)
                 throw new FormatException("Tensor shape and data do not match");
 
             this.data = (T[])_data.Clone();
