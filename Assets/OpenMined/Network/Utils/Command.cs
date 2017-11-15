@@ -15,5 +15,9 @@ namespace OpenMined.Network.Utils
         // name of the function to be called
         public string functionCall;
 
+		public float[] data;
+		public int[] shape;
+
+		public int[] tensorIndexParams;
     }
 }

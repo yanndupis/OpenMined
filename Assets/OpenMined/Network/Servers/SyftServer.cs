@@ -3,7 +3,6 @@
 using OpenMined.Network.Controllers;
 using OpenMined.Syft;
 
-
 namespace OpenMined.Network.Servers
 {
 public class SyftServer : MonoBehaviour
@@ -27,14 +26,13 @@ public class SyftServer : MonoBehaviour
 
     private void Update()
     {
-        //TODO: Is this code below really required?
-        //Connected = _netMqPublisher.Connected;
+		_netMqPublisher.Update();
     }
 
     private string HandleMessage(string message)
     {
-        // Not on main thread
-		return controller.processMessage (message);;
+		Debug.LogFormat("HandleMessage... {0}", message);
+		return controller.processMessage (message);
     }
 
     private void OnDestroy()
