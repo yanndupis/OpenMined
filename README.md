@@ -29,10 +29,10 @@ On Jupyter Notebook:
 
 6. Run the Jupyter Notebook
 
-#### Extra checks
+#### Extra considerations
 
-Q: How to know if the Server is running?
-A: It should run on port 5555 and this can be checked by running the following command on CMD with administrator permissions.
+*Check if the Server is running*
+It should run on port 5555 and this can be checked by running the following command on CMD with administrator permissions.
 ```
 netstat -a -b | findstr :5555
 ```
@@ -46,4 +46,12 @@ TCP    0.0.0.0:5555           YOUR_PC_NAME:0      LISTENING
 TCP    127.0.0.1:5555         YOUR_PC_NAME:63956  ESTABLISHED
 TCP    127.0.0.1:63956        YOUR_PC_NAME:5555   ESTABLISHED
 ```
+
+*Jupyter Notebook only works if Unity has focus*
+By default, the "Run in background" options is disabled. So if the Unity Editor loses focus then the Jupyter Notebook won't work.
+Go to Edit -> Project Settings -> Player. The inspector pane will now change to show the player settings. Look for the option that says "Run In Background" and check it [1]
+
+### References
+
+[1] [stop unity pausing when it loses focus](https://answers.unity.com/questions/42509/stop-unity-pausing-when-it-loses-focus.html)
 
