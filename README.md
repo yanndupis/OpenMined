@@ -1,54 +1,70 @@
 OpenMined Unity Application
 =============================================
+## Introduction
+OpenMined Unity Application is an attempt to port over the [PySyft](https://github.com/OpenMined/PySyft) library into Unity. The impetus for this change was because _____. Please see the PySyft repository README.md for more details on the intent of OpenMined and to familiarize yourself more with the project.
 
-## Fast setup
+## Quick Setup
 
-Open this project in Unity, hit play, then open the jupyter notebook in "notebooks". If everything if working fine, you are done. If not, go to "Detailed Setup".
+1. Download Unity from [here](https://store.unity.com/). I chose the personal version. This will provide you a .dmg installer, which will download and install the necessary components (~800mb). 
+    - If you do not already have one, you will have to create a Unity account when you open the Application for the first time.
+2. Open project in Unity `[File -> Open Project -> Directory/To/OpenMined`]
 
-## Detailed Setup
+3. Open Juptyer Notebooks in the `notebooks` directory.  
 
-### Windows
+## Setup Troubleshooting 
 
-**On Unity:**
+If you have an issue, refer to the following steps for a more detailed project setup. These steps were confirmed to work under a Windows enviornment, though the steps should be applicable to alternative operating systems. 
 
-1. Open this project in Unity
+The steps come in two parts:   
+**Part 1:** Unity Setup   
+**Part 2:** Jupyter Setup
 
-2. Check "Main Camera" object has "SyftServer.cs" component attached to it
+**Unity Setup**  
 
- Go to "Assets/OpenMined/Network/Servers" drag "SyftServer.cs" to "Main Camera" object
+1. Download Unity from [here](https://store.unity.com/). I chose the personal version. This will provide you a .dmg installer, which will download and install the necessary components (~800mb).  
+2. Open project in Unity `[Open(Top Right of Home Screen) -> Directory/To/OpenMined`]
+3. Check `Main Camera` object has `SyftServer.cs` component attached to it
+4. Go to `Assets/OpenMined/Network/Servers` drag `SyftServer.cs` to `Main Camera` object
+5. Add a `Compute Shader` to the `Shader` variable of `SyftServer.cs` script
+6. Go to `Assets/OpenMined/Syft/Math/Shaers` drag `NewComputeShader` to `SyftServer (Script)` component recently attached to `Main Camera`
+7. Hit `Play` on the Unity Editor
 
-3. Add a "Compute Shader" to the "Shader" variable of "SyftServer.cs" script
+**Jupyter Setup**
 
- Go to "Assets/OpenMined/Syft/Math/Shaers" drag "NewComputeShader" to "SyftServer (Script)" component recently attached to "Main Camera"
+1. Open `basic-python-network-gpu.ipynb` 
+2. Run the Jupyter Notebook
 
-4. Hit "Play" on the Unity Editor
+### OSX (High Sierra)
 
-**On Jupyter Notebook:**
+1. Download Unity from [here](https://store.unity.com/). I chose the personal version. This will provide you a .dmg installer, which will download and install the necessary components (~800mb). 
 
-5. Open "basic-python-network-gpu.ipynb" 
+## General Troubleshooting
 
-6. Run the Jupyter Notebook
+1) *If my applications do not seem to be communicating between eachother...*
 
-#### Extra considerations
-
-**Check if the Server is running**
-It should run on port 5555 and this can be checked by running the following command on CMD with administrator permissions.
+**Check if the Server is running...**
+___    
+It should run on port 5555 and this can be checked by running the following command on CMD with administrator permissions.  
 ```
 netstat -a -b | findstr :5555
-```
-If just the Server is running, the output should be:
+```  
+If just the Server is running, the output should be:  
 ```
 TCP    0.0.0.0:5555           YOUR_PC_NAME:0      LISTENING
-```
-If both Server and Jupyter Notebook are running and communicating, the output should be:
+```  
+If both Server and Jupyter Notebook are running and communicating, the output should be:  
+
 ```
 TCP    0.0.0.0:5555           YOUR_PC_NAME:0      LISTENING
 TCP    127.0.0.1:5555         YOUR_PC_NAME:63956  ESTABLISHED
 TCP    127.0.0.1:63956        YOUR_PC_NAME:5555   ESTABLISHED
-```
+```  
 ---
-**Jupyter Notebook only works if Unity has focus**
-By default, the "Run in background" options is disabled. So if the Unity Editor loses focus then the Jupyter Notebook won't work.
+
+2) *My application randomly stops working.*   
+
+**Jupyter Notebook only works if Unity has focus**  
+	By default, the "Run in background" options is disabled. So if the Unity Editor loses focus then the Jupyter Notebook won't work.
 Go to Edit -> Project Settings -> Player. The inspector pane will now change to show the player settings. Look for the option that says "Run In Background" and check it [1]
 
 ### References
