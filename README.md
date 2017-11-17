@@ -1,7 +1,7 @@
 OpenMined Unity Application
 =============================================
 ## Introduction
-OpenMined Unity Application is an attempt to port over the [PySyft](https://github.com/OpenMined/PySyft) library into Unity. The impetus for this change was because _____. Please see the PySyft repository README.md for more details on the intent of OpenMined and to familiarize yourself more with the project.
+OpenMined Unity Application applies the [PySyft](https://github.com/OpenMined/PySyft) library into a Unity Application. Please see the PySyft repository README.md for more details on the intent of OpenMined and to familiarize yourself more with the basic concepts of the project.
 
 ## Quick Setup
 
@@ -22,9 +22,9 @@ The steps come in two parts:
 **Unity Setup**  
 
 1. Download Unity from [here](https://store.unity.com/). I chose the personal version. This will provide you a .dmg installer, which will download and install the necessary components (~800mb).  
-2. Open project in Unity `[Open(Top Right of Home Screen) -> Directory/To/OpenMined`]
-3. Check `Main Camera` object has `SyftServer.cs` component attached to it
-4. Go to `Assets/OpenMined/Network/Servers` drag `SyftServer.cs` to `Main Camera` object
+2. Open project in Unity `[Open(Top Right of Home Screen)	 -> Directory/To/OpenMined`]
+3. On the right menu: Check `Main Camera` object has `SyftServer.cs` component attached to it
+4. On the bottom dialog: Go to `Assets/OpenMined/Network/Servers` drag `SyftServer.cs` to `Main Camera` object
 5. Add a `Compute Shader` to the `Shader` variable of `SyftServer.cs` script
 6. Go to `Assets/OpenMined/Syft/Math/Shaers` drag `NewComputeShader` to `SyftServer (Script)` component recently attached to `Main Camera`
 7. Hit `Play` on the Unity Editor
@@ -34,9 +34,9 @@ The steps come in two parts:
 1. Open `basic-python-network-gpu.ipynb` 
 2. Run the Jupyter Notebook
 
-### OSX (High Sierra)
+### For OSX (High Sierra)
 
-1. Download Unity from [here](https://store.unity.com/). I chose the personal version. This will provide you a .dmg installer, which will download and install the necessary components (~800mb). 
+Same steps as above. Download Unity from [here](https://store.unity.com/). I chose the personal version. This will provide you a .dmg installer, which will download and install the necessary components (~800mb). 
 
 ## General Troubleshooting
 
@@ -46,7 +46,7 @@ The steps come in two parts:
 ___    
 It should run on port 5555 and this can be checked by running the following command on CMD with administrator permissions.  
 ```
-netstat -a -b | findstr :5555
+netstat -a -b | findstr :5555  
 ```  
 If just the Server is running, the output should be:  
 ```
@@ -59,6 +59,17 @@ TCP    0.0.0.0:5555           YOUR_PC_NAME:0      LISTENING
 TCP    127.0.0.1:5555         YOUR_PC_NAME:63956  ESTABLISHED
 TCP    127.0.0.1:63956        YOUR_PC_NAME:5555   ESTABLISHED
 ```  
+Another way:   
+**Osx/Linux**  
+
+```  
+lsof -i :5555
+```  
+Result should be:   
+
+```  
+Unity   1709 user   38u  IPv4 0x59e297c6d0d734e31      0t0  TCP *:personal-agent (LISTEN)
+```
 ---
 
 2) *My application randomly stops working.*   
