@@ -84,14 +84,14 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
 
+
 		public FloatTensor Neg() {
 
-			Gpu (); // this moves the data to the GPU.
 
 			if (dataOnGpu) {
 				
 				NegGPU ();
-				Cpu ();
+
 
 			} else {
 				// run CPU code
@@ -148,7 +148,7 @@ namespace OpenMined.Syft.Tensor
             }
             return this;
         }
-        
+
         public FloatTensor ElementwiseSubtract(FloatTensor other)
         {
             //Debug.LogFormat("<color=blue>FloatTensor.inline_elementwise_subtract dataOnGpu: {0}</color>", dataOnGpu);
@@ -197,7 +197,7 @@ namespace OpenMined.Syft.Tensor
             }
             return this;
         }
-        
+
         public FloatTensor MultiplyDerivative(FloatTensor other)
         {
             // TODO: check for corner cases
