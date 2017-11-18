@@ -4,7 +4,7 @@ using System.Linq;
 
 using UnityEngine;
 
-using OpenMined.Syft;
+using OpenMined.Syft.Tensor;
 using OpenMined.Network.Utils;
 
 
@@ -43,12 +43,13 @@ namespace OpenMined.Network.Controllers {
 
 			if (msgObj.functionCall == "createTensor") {
 				
-				FloatTensor tensor = new FloatTensor (msgObj.data, msgObj.shape, shader);
+				FloatTensor tensor = new FloatTensor (msgObj.data, msgObj.shape);
+				tensor.Shader = shader;
 				tensors.Add (tensor);
 
-				Debug.LogFormat ("<color=magenta>createTensor:</color> {0}", string.Join (", ", tensor.data));
+				Debug.LogFormat ("<color=magenta>createTensor:</color> {0}", string.Join (", ", tensor.Data));
 
-				tensor.gpu ();
+				tensor.Gpu();
 
 				string id = (tensors.Count - 1).ToString();
 
@@ -130,9 +131,9 @@ namespace OpenMined.Network.Controllers {
 
 					} else if (msgObj.functionCall == "print") {
 
-						tensor.cpu ();
+						tensor.Cpu ();
 
-						string data = string.Join (", ", tensor.data);
+						string data = string.Join (", ", tensor.Data);
 						Debug.LogFormat ("<color=cyan>print:</color> {0}", data);
 
 						return data;
@@ -149,21 +150,23 @@ namespace OpenMined.Network.Controllers {
 
 			float[] xdata = new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 			int[] xshape = new int[] { 3, 3, 3, 3 };
-			FloatTensor xtensor = new FloatTensor (xdata, xshape, shader);
-			xtensor.gpu ();
+			FloatTensor xtensor = new FloatTensor (xdata, xshape);
+			xtensor.Shader = shader;
+			xtensor.Gpu ();
 
 			//float[] ydata = new float[] { 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1 };
 			float[] ydata = new float[] { 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
 			int[] yshape = new int[] { 3, 3, 3, 3 };
-			FloatTensor ytensor = new FloatTensor (ydata, yshape, shader);
-			ytensor.gpu ();
+			FloatTensor ytensor = new FloatTensor (ydata, yshape);
+			ytensor.Shader = shader;
+			ytensor.Gpu ();
 
 			xtensor.inline_elementwise_subtract (ytensor);
 
-			xtensor.cpu ();
-			ytensor.cpu ();
+			xtensor.Cpu ();
+			ytensor.Cpu ();
 
-			Debug.LogFormat ("<color=green>SyftController.test_inline_elementwise_subtract: {0}</color>", string.Join (",", xtensor.data));
+			Debug.LogFormat ("<color=green>SyftController.test_inline_elementwise_subtract: {0}</color>", string.Join (",", xtensor.Data));
 		}
 	}
 }

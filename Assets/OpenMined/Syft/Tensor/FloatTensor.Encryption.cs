@@ -1,6 +1,6 @@
 namespace OpenMined.Syft.Tensor
 {
-    public partial class BaseTensorGeneric<T>
+    public partial class FloatTensor
     {
         private bool isEncrypted;
 

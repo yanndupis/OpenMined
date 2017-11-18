@@ -2,7 +2,7 @@ using System;
 
 namespace OpenMined.Syft.Tensor
 {
-    public partial class BaseTensorGeneric<T> : IDisposable
+    public partial class FloatTensor : IDisposable
     {
 
         private bool disposed = false;
@@ -28,7 +28,7 @@ namespace OpenMined.Syft.Tensor
             disposed = true;
         }
 
-        ~BaseTensorGeneric()
+        ~FloatTensor()
         {
             Dispose(false);
         }
