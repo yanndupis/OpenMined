@@ -37,10 +37,10 @@ namespace OpenMined.Tests
         [Test]
         public void Create1DTensor()
         {
-            double[] array = { 1, 2, 3, 4, 5 };
-            long[] shape = { 5 };
+            float[] array = { 1, 2, 3, 4, 5 };
+            int[] shape = { 5 };
 
-            var tensor = new BaseTensorGeneric<double>(array, shape);
+            var tensor = new FloatTensor(array, shape);
 
             Assert.AreEqual(array.Length, tensor.Size);
 
@@ -53,12 +53,12 @@ namespace OpenMined.Tests
         [Test]
         public void Create2DTensor()
         {
-            double[,] array = { { 1, 2, 3, 4, 5 }, { 6, 7, 8, 9, 10 } };
+            float[,] array = { { 1, 2, 3, 4, 5 }, { 6, 7, 8, 9, 10 } };
 
-            double[] data = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-            long[] shape = { 2, 5 };
+            float[] data = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            int[] shape = { 2, 5 };
 
-            var tensor = new BaseTensorGeneric<double>(data, shape);
+            var tensor = new FloatTensor(data, shape);
 
             Assert.AreEqual(array.GetLength(0), tensor.Shape[0]);
             Assert.AreEqual(array.GetLength(1), tensor.Shape[1]);
@@ -75,12 +75,12 @@ namespace OpenMined.Tests
         [Test]
         public void Create3DTensor()
         {
-            double[,,] array = { { { 1, 2 }, { 3, 4 }, { 5, 6 } }, { { 7, 8 }, { 9, 10 }, { 11, 12 } } };
+            float[,,] array = { { { 1, 2 }, { 3, 4 }, { 5, 6 } }, { { 7, 8 }, { 9, 10 }, { 11, 12 } } };
 
-            double[] data = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-            long[] shape = { 2, 3, 2 };
+            float[] data = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+            int[] shape = { 2, 3, 2 };
 
-            var tensor = new BaseTensorGeneric<double>(data, shape);
+            var tensor = new FloatTensor(data, shape);
 
             Assert.AreEqual(array.GetLength(0), tensor.Shape[0]);
             Assert.AreEqual(array.GetLength(1), tensor.Shape[1]);
@@ -101,14 +101,14 @@ namespace OpenMined.Tests
         [Test]
         public void Transpose2D()
         {
-            double[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-            long[] shape1 = { 2, 5};
+            float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            int[] shape1 = { 2, 5};
             
-			double[] data2 = { 1, 6, 2, 7, 3, 8, 4, 9, 5, 10 };
-            long[] shape2 = { 5, 2 };
+			float[] data2 = { 1, 6, 2, 7, 3, 8, 4, 9, 5, 10 };
+            int[] shape2 = { 5, 2 };
 
-            var tensor = new BaseTensorGeneric<double>(data1, shape1);
-            var transpose = new BaseTensorGeneric<double>(data2, shape2);
+            var tensor = new FloatTensor(data1, shape1);
+            var transpose = new FloatTensor(data2, shape2);
 
             for (int i = 0; i < tensor.Shape[0]; i++)
             {

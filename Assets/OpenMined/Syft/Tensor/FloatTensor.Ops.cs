@@ -2,8 +2,15 @@ using System;
 
 namespace OpenMined.Syft.Tensor
 {
-    public partial class BaseTensorGeneric<T>
+    public partial class FloatTensor
     {
+        private	void SwapElements(ref int[] target, int index1, int index2)
+        {
+            int tmp = target[index1];
+            target[index1] = target[index2];
+            target[index2] = tmp;
+        }
+        
         private	void SwapElements(ref long[] target, int index1, int index2)
         {
             long tmp = target[index1];
@@ -11,7 +18,7 @@ namespace OpenMined.Syft.Tensor
             target[index2] = tmp;
         }
 
-        public BaseTensorGeneric<T> Transpose()
+        public FloatTensor Transpose()
         {
             if (shape.Length != 2)
                 throw new InvalidOperationException("Need to specify parameters for tensors with more than 2 dims.");
@@ -19,7 +26,7 @@ namespace OpenMined.Syft.Tensor
             return Transpose(0, 1);
         }
 
-        public BaseTensorGeneric<T> Transpose(int dimension1, int dimension2)
+        public FloatTensor Transpose(int dimension1, int dimension2)
         {
             //TODO: Should we create a new Tensor object here?
             
