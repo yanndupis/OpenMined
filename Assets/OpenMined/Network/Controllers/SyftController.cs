@@ -47,8 +47,6 @@ namespace OpenMined.Network.Controllers {
 
 				Debug.LogFormat ("<color=magenta>createTensor:</color> {0}", string.Join (", ", tensor.Data));
 
-				tensor.Gpu();
-
 				string id = (tensors.Count - 1).ToString();
 
 				return id;
@@ -65,7 +63,7 @@ namespace OpenMined.Network.Controllers {
 
 					if (msgObj.functionCall == "init_sigmoid_matrix_multiply") {
 
-						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams[0]];
+						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
 
 						tensor.init_sigmoid_matrix_multiply (tensor_1);
 
@@ -73,7 +71,7 @@ namespace OpenMined.Network.Controllers {
 
 					} else if (msgObj.functionCall == "init_add_matrix_multiply") {
 
-						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams[0]];
+						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
 
 						tensor.init_add_matrix_multiply (tensor_1);
 
@@ -81,7 +79,7 @@ namespace OpenMined.Network.Controllers {
 
 					} else if (msgObj.functionCall == "init_weights") {
 
-						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams[0]];
+						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
 
 						tensor.init_weights (tensor_1);
 
@@ -89,8 +87,8 @@ namespace OpenMined.Network.Controllers {
 
 					} else if (msgObj.functionCall == "sigmoid_matrix_multiply") {
 
-						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams[0]];
-						FloatTensor tensor_2 = tensors [msgObj.tensorIndexParams[1]];
+						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
+						FloatTensor tensor_2 = tensors [msgObj.tensorIndexParams [1]];
 
 						tensor.sigmoid_matrix_multiply (tensor_1, tensor_2);
 
@@ -104,7 +102,7 @@ namespace OpenMined.Network.Controllers {
 
 					} else if (msgObj.functionCall == "inline_elementwise_subtract") {
 						
-						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams[0]];
+						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
 
 						tensor.inline_elementwise_subtract (tensor_1);
 
@@ -112,7 +110,7 @@ namespace OpenMined.Network.Controllers {
 
 					} else if (msgObj.functionCall == "multiply_derivative") {
 
-						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams[0]];
+						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
 
 						tensor.multiply_derivative (tensor_1);
 
@@ -120,8 +118,8 @@ namespace OpenMined.Network.Controllers {
 
 					} else if (msgObj.functionCall == "add_matrix_multiply") {
 
-						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams[0]];
-						FloatTensor tensor_2 = tensors [msgObj.tensorIndexParams[1]];
+						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
+						FloatTensor tensor_2 = tensors [msgObj.tensorIndexParams [1]];
 
 						tensor.add_matrix_multiply (tensor_1, tensor_2);
 
@@ -135,6 +133,13 @@ namespace OpenMined.Network.Controllers {
 						Debug.LogFormat ("<color=cyan>print:</color> {0}", data);
 
 						return data;
+					} else if (msgObj.functionCall == "abs") {
+						
+						// calls the function on our tensor object
+						tensor.Abs ();
+
+						// returns the function call name with the OK status
+						return msgObj.functionCall + ": OK";
 					}
 				}
 

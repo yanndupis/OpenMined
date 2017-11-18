@@ -46,5 +46,20 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
 
+		public FloatTensor Abs() 
+		{
+			if (dataOnGpu) {
+				// GPU Absolute Value Code Here
+			} else {
+				for (int i = 0; i < size; i++) {
+					if (data [i] < 0) {
+						data [i] = -data [i];
+					} else {
+						// do nothing
+					}
+				}
+			}
+			return this;
+		}
     }
 }

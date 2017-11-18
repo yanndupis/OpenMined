@@ -10,6 +10,9 @@ namespace OpenMined.Syft.Tensor
         private int[] shape;
         private int size;
 
+//		private bool dataOnGpu;
+//		public bool DataOnGpu => dataOnGpu;
+
         private long GetIndex(params int[] indices)
         {
             long offset = 0;
