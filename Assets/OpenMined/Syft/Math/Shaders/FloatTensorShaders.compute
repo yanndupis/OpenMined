@@ -26,6 +26,14 @@ void ScalarMultMain (uint3 id : SV_DispatchThreadID) {
     data[id.x] = data[id.x] * temp_scalar[0];
 }
 
+#pragma kernel NegateValues
+
+RWStructuredBuffer<float> data_neg;
+
+[numthreads(4,1,1)]
+void NegateValues (uint3 id: SV_DispatchThreadID) {
+	data_neg[id.x] = -data_neg[id.x];
+}
 
 #pragma kernel ElementwiseMultMain
 
@@ -36,7 +44,6 @@ RWStructuredBuffer<float> data_b;
 void ElementwiseMultMain (uint3 id : SV_DispatchThreadID) {
     data_a[id.x] = data_a[id.x] * data_b[id.x];
 }
-
 
 #pragma kernel ElementwiseSubtractMain
 

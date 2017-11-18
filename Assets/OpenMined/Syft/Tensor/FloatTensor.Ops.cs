@@ -47,6 +47,24 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
 
+		public FloatTensor Add(FloatTensor x) {
+
+			FloatTensor output = new FloatTensor (this.shape, dataOnGpu);
+
+
+			if (dataOnGpu) {
+				// GPU Add Code Here
+			} else {
+
+				for (int i = 0; i < size; i++) {
+					output.data [i] = x.Data [i] + this.data [i];
+				}
+			}
+
+			return output;
+
+		}
+
         public FloatTensor Abs()
         {
             if (dataOnGpu)
@@ -65,6 +83,27 @@ namespace OpenMined.Syft.Tensor
             }
             return this;
         }
+
+		public FloatTensor Neg() {
+
+			Gpu (); // this moves the data to the GPU.
+
+			if (dataOnGpu) {
+				
+				NegGPU ();
+				Cpu ();
+
+			} else {
+				// run CPU code
+				for (int i = 0; i < size; i++) {
+					
+					data [i] = -data [i];
+
+				}
+			}
+			return this;
+		}
+
 
         public FloatTensor ElementwiseMultiplication(FloatTensor other)
         {
