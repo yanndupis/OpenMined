@@ -1,7 +1,32 @@
 OpenMined Unity Application
 =============================================
+Table of Contents:   
+
+ * [Introduction](#introduction)
+ * [Quick Setup](#quick-setup)
+ * [General Troubleshooting](#general-troubleshooting)
+ * [Links and HowTos](#links-and-how-tos)
+ * [References](#references)
+ 
 ## Introduction
+
 OpenMined Unity Application applies the [PySyft](https://github.com/OpenMined/PySyft) library into a Unity Application. Please see the PySyft repository README.md for more details on the intent of OpenMined and to familiarize yourself more with the basic concepts of the project.
+
+**Why Unity?**
+
+Unity has a few advantages that we are leveraging for this project
+
+1. It's portable. 
+2. It's free
+3. It has versitile GPU access.  
+4. It can be used for high end graphics gmaing consoles (Playstation, XBox, etc)
+
+**Marketplace Mechanics**  
+`TODO` 
+
+### Architecture
+
+![Open Mined Architecture](images/architecture.png)
 
 ## Quick Setup
 
@@ -37,6 +62,12 @@ The steps come in two parts:
 ### For OSX (High Sierra)
 
 Same steps as above. Download Unity from [here](https://store.unity.com/). I chose the personal version. This will provide you a .dmg installer, which will download and install the necessary components (~800mb). 
+
+**If on OSX turn on Metal Support**  
+
+- Within Unity editor select: `Edit -> Project Settings -> Player`
+    - In the Inspector, scroll down until you find `Metal Editor Support` under `Other Settings` and click the checkbox to turn it on. (skip this if not on Mac OSX)
+    - In the Inspector, expand `Resolution` and check the box for `Run in Background`
 
 ## General Troubleshooting
 
@@ -78,7 +109,19 @@ Unity   1709 user   38u  IPv4 0x59e297c6d0d734e31      0t0  TCP *:personal-agent
 	By default, the "Run in background" options is disabled. So if the Unity Editor loses focus then the Jupyter Notebook won't work.
 Go to Edit -> Project Settings -> Player. The inspector pane will now change to show the player settings. Look for the option that says "Run In Background" and check it [1]
 
-### References
+
+## Links and How Tos
+
+##### How Tos:
+---  
+[How to add a Function to Float Tensor](https://docs.google.com/document/d/1WRd7gGLFN0Awtf86AICYIHtg3gfFWLBa5wYTthsB3i0/edit?usp=sharing)
+
+##### Video Links:
+---
+[Introduction](https://www.youtube.com/watch?v=sXFmKquiVnk)  
+[Architecture Proposal](https://www.youtube.com/watch?v=47enlQQcMQc)  
+
+## References
 
 [1] [stop unity pausing when it loses focus](https://answers.unity.com/questions/42509/stop-unity-pausing-when-it-loses-focus.html)
 
