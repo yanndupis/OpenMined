@@ -1,17 +1,18 @@
+using UnityEngine;
 using System;
 
 namespace OpenMined.Syft.Tensor
 {
     public partial class FloatTensor
     {
-        private	void SwapElements(ref int[] target, int index1, int index2)
+        private void SwapElements(ref int[] target, int index1, int index2)
         {
             int tmp = target[index1];
             target[index1] = target[index2];
             target[index2] = tmp;
         }
-        
-        private	void SwapElements(ref long[] target, int index1, int index2)
+
+        private void SwapElements(ref long[] target, int index1, int index2)
         {
             long tmp = target[index1];
             target[index1] = target[index2];
@@ -29,7 +30,7 @@ namespace OpenMined.Syft.Tensor
         public FloatTensor Transpose(int dimension1, int dimension2)
         {
             //TODO: Should we create a new Tensor object here?
-            
+
             if (dimension1 < 0 || dimension1 >= shape.Length)
                 throw new ArgumentOutOfRangeException("dimension1");
             if (dimension2 < 0 || dimension2 >= shape.Length)
@@ -46,20 +47,132 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
 
-		public FloatTensor Abs() 
-		{
-			if (dataOnGpu) {
-				// GPU Absolute Value Code Here
-			} else {
-				for (int i = 0; i < size; i++) {
-					if (data [i] < 0) {
-						data [i] = -data [i];
-					} else {
-						// do nothing
-					}
-				}
-			}
-			return this;
-		}
+        public FloatTensor Abs()
+        {
+            if (dataOnGpu)
+            {
+                // GPU Absolute Value Code Here
+            }
+            else
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    if (data[i] < 0)
+                    {
+                        data[i] = -data[i];
+                    }
+                }
+            }
+            return this;
+        }
+
+        public FloatTensor ElementwiseMultiplication(FloatTensor other)
+        {
+            //TODO: make a better check. comparing size is not enough
+            if (size == other.Size)
+            {
+                if (dataOnGpu && other.DataOnGpu)
+                {
+                    ElementwiseMultiplicationOnGpu(other);
+                }
+                else if (!dataOnGpu && !other.DataOnGpu)
+                {
+                    for (int i = 0; i < size; i++)
+                    {
+                        data[i] = data[i] * other.data[i];
+                    }
+                }
+                else
+                {
+                    Debug.Log("Data for both Tensors needs to be colocated on the same device. - CPU != GPU");
+                }
+            }
+            else
+            {
+                Debug.Log("Tensors do not have the same number of elements!");
+            }
+            return this;
+        }
+
+        public FloatTensor ScalarMultiplication(float scalar)
+        {
+            if (dataOnGpu)
+            {
+                ScalarMultiplicationOnGpu(scalar);
+            }
+            else
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    data[i] = data[i] * scalar;
+                }
+            }
+            return this;
+        }
+        
+        public FloatTensor ElementwiseSubtract(FloatTensor other)
+        {
+            //Debug.LogFormat("<color=blue>FloatTensor.inline_elementwise_subtract dataOnGpu: {0}</color>", dataOnGpu);
+
+            if (size == other.Size)
+            {
+                if (dataOnGpu && other.DataOnGpu)
+                {
+                    ElementwiseSubtractOnGpu(other);
+                }
+                else if (!dataOnGpu && !other.dataOnGpu)
+                {
+                    for (int i = 0; i < size; i++)
+                    {
+                        data[i] = data[i] - other.data[i];
+                    }
+                }
+                else
+                {
+                    Debug.Log("Data for both Tensors needs to be colocated on the same device. - CPU != GPU");
+                }
+            }
+            else
+            {
+                Debug.Log("Tensors do not have the same number of elements!");
+            }
+            return this;
+        }
+
+        public FloatTensor AddMatrixMultiply(FloatTensor tensor1, FloatTensor tensor2)
+        {
+            // TODO: check for corner cases
+
+            bool gpu = dataOnGpu & tensor1.DataOnGpu & tensor2.DataOnGpu;
+            bool cpu = !(dataOnGpu | tensor1.DataOnGpu | tensor2.DataOnGpu);
+
+            if (gpu)
+            {
+                AddMatrixMultiplyOnGpu(tensor1, tensor2);
+            }else if (cpu)
+            {
+                //TODO: implement the function
+            } else
+            {
+                Debug.Log("Data for all Tensors needs to be colocated on the same device. - CPU != GPU");
+            }
+            return this;
+        }
+        
+        public FloatTensor MultiplyDerivative(FloatTensor other)
+        {
+            // TODO: check for corner cases
+            if (dataOnGpu & other.DataOnGpu)
+            {
+                MultiplyDerivativeOnGpu(other);
+            }else if (!dataOnGpu & !other.DataOnGpu)
+            {
+                //TODO: implement the function
+            } else
+            {
+                Debug.Log("Data for all Tensors needs to be colocated on the same device. - CPU != GPU");
+            }
+            return this;
+        }
     }
 }
