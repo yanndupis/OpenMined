@@ -23,11 +23,12 @@ The steps come in two parts:
 
 1. Download Unity from [here](https://store.unity.com/). I chose the personal version. This will provide you a .dmg installer, which will download and install the necessary components (~800mb).  
 2. Open project in Unity `[Open(Top Right of Home Screen)	 -> Directory/To/OpenMined`]
-3. On the right menu: Check `Main Camera` object has `SyftServer.cs` component attached to it
-4. On the bottom dialog: Go to `Assets/OpenMined/Network/Servers` drag `SyftServer.cs` to `Main Camera` object
-5. Add a `Compute Shader` to the `Shader` variable of `SyftServer.cs` script
-6. Go to `Assets/OpenMined/Syft/Math/Shaers` drag `NewComputeShader` to `SyftServer (Script)` component recently attached to `Main Camera`
-7. Hit `Play` on the Unity Editor
+3. In the Project Pane (usually below), Double Click Assets/_Scenes/DefaultScene. If you can't find the file for some reason:
+- On the right menu: Check `Main Camera` object has `SyftServer.cs` component attached to it
+- On the bottom dialog: Go to `Assets/OpenMined/Network/Servers` drag `SyftServer.cs` to `Main Camera` object
+- Add a `Compute Shader` to the `Shader` variable of `SyftServer.cs` script
+- Go to `Assets/OpenMined/Syft/Math/Shaers` drag `NewComputeShader` to `SyftServer (Script)` component recently attached to `Main Camera`
+4. Hit `Play` on the Unity Editor
 
 **Jupyter Setup**
 
