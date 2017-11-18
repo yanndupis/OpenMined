@@ -22,8 +22,6 @@ namespace OpenMined.Network.Controllers {
 			shader = _shader;
 
 			tensors = new List<FloatTensor>();
-
-			test_inline_elementwise_subtract ();
 		}
 		
 		private float[] randomWeights (int length) {
@@ -146,27 +144,5 @@ namespace OpenMined.Network.Controllers {
 
 		}
 
-		void test_inline_elementwise_subtract () {
-
-			float[] xdata = new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-			int[] xshape = new int[] { 3, 3, 3, 3 };
-			FloatTensor xtensor = new FloatTensor (xdata, xshape);
-			xtensor.Shader = shader;
-			xtensor.Gpu ();
-
-			//float[] ydata = new float[] { 0, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1 };
-			float[] ydata = new float[] { 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
-			int[] yshape = new int[] { 3, 3, 3, 3 };
-			FloatTensor ytensor = new FloatTensor (ydata, yshape);
-			ytensor.Shader = shader;
-			ytensor.Gpu ();
-
-			xtensor.inline_elementwise_subtract (ytensor);
-
-			xtensor.Cpu ();
-			ytensor.Cpu ();
-
-			Debug.LogFormat ("<color=green>SyftController.test_inline_elementwise_subtract: {0}</color>", string.Join (",", xtensor.Data));
-		}
 	}
 }
