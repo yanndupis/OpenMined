@@ -111,6 +111,14 @@ namespace OpenMined.Network.Controllers
                         // returns the function call name with the OK status
                         return msgObj.functionCall + ": OK";
                     }
+                    else if (msgObj.functionCall == "neg")
+                    {
+                        // calls the function on our tensor object
+                        tensor.Neg();
+
+                        // returns the function call name with the OK status
+                        return msgObj.functionCall + ": OK";
+                    }
                 }
             }
 
