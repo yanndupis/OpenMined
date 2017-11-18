@@ -66,6 +66,23 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
 
+        public FloatTensor Neg()
+        {
+            if (dataOnGpu)
+            {
+                //TODO: Add GPU Method
+                // GPU Absolute Value Code Here
+            }
+            else
+            {
+                for (int i = 0; i < size; i++)
+                {
+                  data[i] = -data[i];
+                }
+            }
+            return this;
+        }
+
         public FloatTensor ElementwiseMultiplication(FloatTensor other)
         {
             //TODO: make a better check. comparing size is not enough
@@ -109,7 +126,7 @@ namespace OpenMined.Syft.Tensor
             }
             return this;
         }
-        
+
         public FloatTensor ElementwiseSubtract(FloatTensor other)
         {
             //Debug.LogFormat("<color=blue>FloatTensor.inline_elementwise_subtract dataOnGpu: {0}</color>", dataOnGpu);
@@ -158,7 +175,7 @@ namespace OpenMined.Syft.Tensor
             }
             return this;
         }
-        
+
         public FloatTensor MultiplyDerivative(FloatTensor other)
         {
             // TODO: check for corner cases
