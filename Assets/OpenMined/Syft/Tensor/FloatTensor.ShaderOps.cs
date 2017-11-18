@@ -6,13 +6,12 @@ namespace OpenMined.Syft.Tensor
     {
         private ComputeShader shader;
 
-        [SerializeField] private int ScalarMultMain;
-        private int ElementwiseMultMain;
-        private int ElementwiseSubtractMain;
-        private int SigmoidMatrixMultiply;
-        private int MultiplyDerivative;
-        private int AddMatrixMultiply;
-        private int ResetWeights;
+        [SerializeField] 
+        private static int ScalarMultMainKernel;
+        private static int ElementwiseMultMainKernel;
+        private static int ElementwiseSubtractMainKernel;
+        private static int MultiplyDerivativeKernel;
+        private static int AddMatrixMultiplyKernel;
 
         public ComputeShader Shader
         {
@@ -22,17 +21,15 @@ namespace OpenMined.Syft.Tensor
                 shader = value;
 
                 // save shaders and kernels
-                ScalarMultMain = shader.FindKernel("ScalarMultMain");
-                ElementwiseMultMain = shader.FindKernel("ElementwiseMultMain");
-                ElementwiseSubtractMain = shader.FindKernel("ElementwiseSubtractMain");
-                SigmoidMatrixMultiply = shader.FindKernel("SigmoidMatrixMultiply");
-                MultiplyDerivative = shader.FindKernel("MultiplyDerivative");
-                AddMatrixMultiply = shader.FindKernel("AddMatrixMultiply");
-                ResetWeights = shader.FindKernel("ResetWeights");
+                ScalarMultMainKernel = shader.FindKernel("ScalarMultMain");
+                ElementwiseMultMainKernel = shader.FindKernel("ElementwiseMultMain");
+                ElementwiseSubtractMainKernel = shader.FindKernel("ElementwiseSubtractMain");
+                MultiplyDerivativeKernel = shader.FindKernel("MultiplyDerivative");
+                AddMatrixMultiplyKernel = shader.FindKernel("AddMatrixMultiply");
             }
         }
 
-        public void inline_elementwise_mult(FloatTensor other)
+        public void ElementwiseMultiplicationOnGpu(FloatTensor other)
         {
             Debug.LogFormat("<color=blue>FloatTensor.inline_elementwise_mult dataOnGpu: {0}</color>", dataOnGpu);
 
@@ -41,21 +38,10 @@ namespace OpenMined.Syft.Tensor
                 if (dataOnGpu && other.DataOnGpu)
                 {
                     // correspond tensor buffers with shader kernel buffers
-                    shader.SetBuffer(ElementwiseMultMain, "data_a", dataBuffer);
-                    shader.SetBuffer(ElementwiseMultMain, "data_b", other.DataBuffer);
+                    shader.SetBuffer(ElementwiseMultMainKernel, "data_a", dataBuffer);
+                    shader.SetBuffer(ElementwiseMultMainKernel, "data_b", other.DataBuffer);
 
-                    shader.Dispatch(ElementwiseMultMain, 1, 1, 1);
-                }
-                else if (!dataOnGpu && !other.DataOnGpu)
-                {
-                    for (int i = 0; i < size; i++)
-                    {
-                        data[i] = data[i] * other.data[i];
-                    }
-                }
-                else
-                {
-                    Debug.Log("Data for both Tensors needs to be colocated on the same device. - CPU != GPU");
+                    shader.Dispatch(ElementwiseMultMainKernel, 1, 1, 1);
                 }
             }
             else
@@ -64,29 +50,22 @@ namespace OpenMined.Syft.Tensor
             }
         }
 
-        public void scalar_mult(float value)
+        public void ScalarMultiplicationOnGpu(float value)
         {
             Debug.LogFormat("<color=blue>FloatTensor.scalar_mult dataOnGpu: {0}</color>", dataOnGpu);
 
             if (dataOnGpu)
             {
-                ComputeBuffer scalar_buffer = send_float_to_gpu(value, "temp_scalar");
+                ComputeBuffer scalarBuffer = SendFloatToGpu(value, "temp_scalar");
 
-                shader.SetBuffer(ScalarMultMain, "data", dataBuffer);
-                shader.Dispatch(ScalarMultMain, 1, 1, 1);
+                shader.SetBuffer(ScalarMultMainKernel, "data", dataBuffer);
+                shader.Dispatch(ScalarMultMainKernel, 1, 1, 1);
 
-                scalar_buffer.Release();
-            }
-            else
-            {
-                for (int i = 0; i < size; i++)
-                {
-                    data[i] = data[i] * value;
-                }
+                scalarBuffer.Release();
             }
         }
 
-        public void inline_elementwise_subtract(FloatTensor other)
+        public void ElementwiseSubtractOnGpu(FloatTensor other)
         {
             //Debug.LogFormat("<color=blue>FloatTensor.inline_elementwise_subtract dataOnGpu: {0}</color>", dataOnGpu);
 
@@ -95,10 +74,10 @@ namespace OpenMined.Syft.Tensor
                 if (dataOnGpu && other.DataOnGpu)
                 {
                     // correspond tensor buffers with shader kernel buffers
-                    shader.SetBuffer(ElementwiseSubtractMain, "data_c", dataBuffer);
-                    shader.SetBuffer(ElementwiseSubtractMain, "data_d", other.DataBuffer);
+                    shader.SetBuffer(ElementwiseSubtractMainKernel, "data_c", dataBuffer);
+                    shader.SetBuffer(ElementwiseSubtractMainKernel, "data_d", other.DataBuffer);
 
-                    shader.Dispatch(ElementwiseSubtractMain, size, 1, 1);
+                    shader.Dispatch(ElementwiseSubtractMainKernel, size, 1, 1);
                 }
                 else if (!dataOnGpu && !other.dataOnGpu)
                 {
@@ -118,7 +97,8 @@ namespace OpenMined.Syft.Tensor
             }
         }
 
-        public void init_sigmoid_matrix_multiply(FloatTensor tensor_1)
+        // TODO we should split these functions. i.e. sigmoid_matrix_multiply -> sigmoid and multiply 
+       /* public void init_sigmoid_matrix_multiply(FloatTensor tensor_1)
         {
             Dimensions[] dim = new Dimensions[]
             {
@@ -138,14 +118,15 @@ namespace OpenMined.Syft.Tensor
             shader.SetBuffer(SigmoidMatrixMultiply, "data_g", tensor_2.dataBuffer);
             shader.Dispatch(SigmoidMatrixMultiply, size, 1, 1);
         }
-
-        public void multiply_derivative(FloatTensor tensor_1)
+*/
+        public void MultiplyDerivativeOnGpu(FloatTensor tensor_1)
         {
             //Debug.LogFormat("<color=blue>FloatTensor.multiply_derivative dataOnGpu: {0}</color>", dataOnGpu);
-            shader.SetBuffer(MultiplyDerivative, "data_h", dataBuffer);
-            shader.SetBuffer(MultiplyDerivative, "data_i", tensor_1.DataBuffer);
-            shader.Dispatch(MultiplyDerivative, size, 1, 1);
+            shader.SetBuffer(MultiplyDerivativeKernel, "data_h", dataBuffer);
+            shader.SetBuffer(MultiplyDerivativeKernel, "data_i", tensor_1.DataBuffer);
+            shader.Dispatch(MultiplyDerivativeKernel, size, 1, 1);
         }
+
 
         public struct Dimensions
         {
@@ -157,54 +138,43 @@ namespace OpenMined.Syft.Tensor
                 columns = _columns;
             }
 
-            public int stride()
+            public int Stride()
             {
                 return 2 * sizeof(int);
             }
         }
 
-        public void init_add_matrix_multiply(FloatTensor tensor_1)
+        public void InitAddMatrixMultiplyOnGpu(FloatTensor tensor_1)
         {
             Dimensions[] dim = new Dimensions[]
             {
                 new Dimensions(tensor_1.shape.Length, tensor_1.shape[0])
             };
 
-            ComputeBuffer dim_buffer = new ComputeBuffer(dim.Length, dim[0].stride());
-            dim_buffer.SetData(dim);
-            shader.SetBuffer(AddMatrixMultiply, "dimensions_b", dim_buffer);
+            ComputeBuffer dimBuffer = new ComputeBuffer(dim.Length, dim[0].Stride());
+            dimBuffer.SetData(dim);
+            shader.SetBuffer(AddMatrixMultiplyKernel, "dimensions_b", dimBuffer);
         }
 
-        public void add_matrix_multiply(FloatTensor tensor_1, FloatTensor tensor_2)
+        public void AddMatrixMultiplyOnGpu(FloatTensor tensor_1, FloatTensor tensor_2)
         {
             //Debug.LogFormat("<color=blue>FloatTensor.add_matrix_multiply dataOnGpu: {0}</color>", dataOnGpu);
-            shader.SetBuffer(AddMatrixMultiply, "data_j", dataBuffer);
-            shader.SetBuffer(AddMatrixMultiply, "data_k", tensor_1.DataBuffer); //d
-            shader.SetBuffer(AddMatrixMultiply, "data_l", tensor_2.DataBuffer);
-            shader.Dispatch(AddMatrixMultiply, size, 1, 1);
+            shader.SetBuffer(AddMatrixMultiplyKernel, "data_j", dataBuffer);
+            shader.SetBuffer(AddMatrixMultiplyKernel, "data_k", tensor_1.DataBuffer); //d
+            shader.SetBuffer(AddMatrixMultiplyKernel, "data_l", tensor_2.DataBuffer);
+            shader.Dispatch(AddMatrixMultiplyKernel, size, 1, 1);
         }
 
-        public void init_weights(FloatTensor save_tensor)
+        private ComputeBuffer SendFloatToGpu(float value, string name)
         {
-            shader.SetBuffer(ResetWeights, "weights", dataBuffer);
-            shader.SetBuffer(ResetWeights, "original_weights", save_tensor.DataBuffer);
-        }
+            float[] scalarArray = new float[1];
+            scalarArray[0] = value;
 
-        public void reset_weights()
-        {
-            shader.Dispatch(ResetWeights, size, 1, 1);
-        }
+            ComputeBuffer scalarBuffer = new ComputeBuffer(1, sizeof(float));
+            scalarBuffer.SetData(scalarArray);
+            shader.SetBuffer(ScalarMultMainKernel, name, scalarBuffer);
 
-        private ComputeBuffer send_float_to_gpu(float value, string name)
-        {
-            float[] scalar_array = new float[1];
-            scalar_array[0] = value;
-
-            ComputeBuffer scalar_buffer = new ComputeBuffer(1, sizeof(float));
-            scalar_buffer.SetData(scalar_array);
-            shader.SetBuffer(ScalarMultMain, name, scalar_buffer);
-
-            return scalar_buffer;
+            return scalarBuffer;
         }
     }
 }
