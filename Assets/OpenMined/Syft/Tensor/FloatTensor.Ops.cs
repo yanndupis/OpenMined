@@ -19,7 +19,7 @@ namespace OpenMined.Syft.Tensor
             target[index1] = target[index2];
             target[index2] = tmp;
         }
-
+        
         public FloatTensor Transpose()
         {
             if (shape.Length != 2)
@@ -96,24 +96,12 @@ namespace OpenMined.Syft.Tensor
             else
             {
                 int nCpu = SystemInfo.processorCount;
-                var tasks = new Task[nCpu];
-                for (int taskNumber = 0; taskNumber < nCpu; taskNumber++)
+                Parallel.For(0, nCpu, workerId =>
                 {
-                    // capturing taskNumber in lambda wouldn't work correctly
-                    int taskNumberCopy = taskNumber;
-                    tasks[taskNumber] = Task.Factory.StartNew(
-                        () =>
-                        {
-                            var max = Data.Length * (taskNumberCopy + 1) / nCpu;
-                            for (int i = Data.Length * taskNumberCopy / nCpu;
-                                i < max;
-                                i++)
-                            {
-                                Data[i] = -Data[i];
-                            }
-                        });
-                }
-                Task.WaitAll(tasks);
+                    var max = data.Length * (workerId + 1) / nCpu;
+                    for (int i = data.Length * workerId / nCpu; i < max; i++)
+                        data[i] = -data[i];
+                });
             }
             return this;
         }
