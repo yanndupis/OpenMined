@@ -52,9 +52,11 @@ namespace OpenMined.Network.Controllers
             {
                 if (msgObj.objectType == "tensor")
                 {
+
 	                //Below check needs additions/fix.
                     bool success = true;
                     if (msgObj.objectIndex > FloatTensor.CreatedObjectCount)
+
                     {
                         return "Invalid objectIndex: " + msgObj.objectIndex;
                     }
