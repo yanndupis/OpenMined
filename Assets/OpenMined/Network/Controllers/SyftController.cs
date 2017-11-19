@@ -54,6 +54,7 @@ namespace OpenMined.Network.Controllers
             {
                 if (msgObj.objectType == "tensor")
                 {
+                    bool success = true;
                     if (msgObj.objectIndex > tensors.Count)
                     {
                         return "Invalid objectIndex: " + msgObj.objectIndex;
@@ -66,24 +67,18 @@ namespace OpenMined.Network.Controllers
                         FloatTensor tensor_1 = tensors[msgObj.tensorIndexParams[0]];
 
                         tensor.ElementwiseMultiplication(tensor_1);
-
-                        return msgObj.functionCall + ": OK";
                     }
                     else if (msgObj.functionCall == "inline_elementwise_subtract")
                     {
                         FloatTensor tensor_1 = tensors[msgObj.tensorIndexParams[0]];
 
                         tensor.ElementwiseSubtract(tensor_1);
-
-                        return msgObj.functionCall + ": OK";
                     }
                     else if (msgObj.functionCall == "multiply_derivative")
                     {
                         FloatTensor tensor_1 = tensors[msgObj.tensorIndexParams[0]];
 
                         tensor.MultiplyDerivative(tensor_1);
-
-                        return msgObj.functionCall + ": OK";
                     }
                     else if (msgObj.functionCall == "add_matrix_multiply")
                     {
@@ -91,8 +86,6 @@ namespace OpenMined.Network.Controllers
                         FloatTensor tensor_2 = tensors[msgObj.tensorIndexParams[1]];
 
                         tensor.AddMatrixMultiply(tensor_1, tensor_2);
-
-                        return msgObj.functionCall + ": OK";
                     }
                     else if (msgObj.functionCall == "print")
                     {
@@ -100,15 +93,25 @@ namespace OpenMined.Network.Controllers
 
                         string data = string.Join(", ", tensor.Data);
                         Debug.LogFormat("<color=cyan>print:</color> {0}", data);
-
                         return data;
                     }
                     else if (msgObj.functionCall == "abs")
                     {
                         // calls the function on our tensor object
                         tensor.Abs();
+                    }
+                    else if (msgObj.functionCall == "scalar_multiply")
+                    {
+                        //get the scalar, cast it and multiply
+                        tensor.ScalarMultiplication((float)msgObj.tensorIndexParams[0]);
+                    }
+                    else
+                    {
+                        success = false;
+                    }
 
-                        // returns the function call name with the OK status
+                    if (success)
+                    {
                         return msgObj.functionCall + ": OK";
                     }
                 }
