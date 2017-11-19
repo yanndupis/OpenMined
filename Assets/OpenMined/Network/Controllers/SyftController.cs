@@ -97,6 +97,7 @@ namespace OpenMined.Network.Controllers
 						string id = (tensors.Count - 1).ToString();
 						return id;
 					}
+
                     else if (msgObj.functionCall == "scalar_multiply")
                     {
                         //get the scalar, cast it and multiply

@@ -79,8 +79,7 @@ namespace OpenMined.Syft.Tensor
             this.data = (float[])_data.Clone();
 			this.shape = (int[])_shape.Clone();
         }
-
-
+        
         public float this[params int[] indices]
         {
             get
