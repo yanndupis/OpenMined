@@ -93,8 +93,7 @@ namespace OpenMined.Syft.Tensor
             // IDEs might show a warning, but ref and volatile seems to be working with Interlocked API.
             this.Id = System.Threading.Interlocked.Increment(ref nCreated); 
         }
-
-
+        
         public float this[params int[] indices]
         {
             get
@@ -106,8 +105,8 @@ namespace OpenMined.Syft.Tensor
                 Data[GetIndex(indices)] = value;
             }
         }
-        
-        
+
+
         public string Print()
         {
             if (dataOnGpu)
