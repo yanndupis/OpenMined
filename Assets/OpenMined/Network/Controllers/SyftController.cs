@@ -89,11 +89,7 @@ namespace OpenMined.Network.Controllers
                     }
                     else if (msgObj.functionCall == "print")
                     {
-                        tensor.Cpu();
-
-                        string data = string.Join(", ", tensor.Data);
-                        Debug.LogFormat("<color=cyan>print:</color> {0}", data);
-                        return data;
+                        return tensor.Print();
                     }
                     else if (msgObj.functionCall == "abs")
                     {

@@ -63,8 +63,7 @@ namespace OpenMined.Syft.Tensor
             this.data = (float[])_data.Clone();
             this.shape = _shape;
         }
-
-
+        
         public float this[params int[] indices]
         {
             get
@@ -76,19 +75,42 @@ namespace OpenMined.Syft.Tensor
                 data[GetIndex(indices)] = value;
             }
         }
-        
-        
-        public void Print()
+             
+        public string Print()
         {
             if (dataOnGpu)
             {
                 CopyGpuToCpu();
             }
 
-            for (int i = 0; i < size; i++)
+            string print = "";
+
+            int d1 = shape[0];
+            int d2 = 1;
+            if (shape.Length > 1)
+                d2 = shape[1];
+            int d3 = 1;
+            if (shape.Length > 2)
+                d3 = shape[2];
+            if (shape.Length > 3)
+                print += "Only printing first layer in dimesnions >= 4\n";
+                
+            for (int k = 0; k < d3; k++)
             {
-                Debug.Log(data[i]);
+                for (int i = 0; i < d1; i++)
+                {
+                    for (int j = 0; j < d2; j++)
+                    {
+                        float f = data[i * d2 + j + k * d1 * d2];                            
+                        print += f.ToString() + "\t";
+                    }
+                    if(i < d1 - 1)
+                        print += "\n\n";
+                }
+                if(k < d3 - 1)
+                    print += "\n\n-----------\n\n";
             }
+            return print;
         }
     }
 }
