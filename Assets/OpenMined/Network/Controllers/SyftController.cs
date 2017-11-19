@@ -56,15 +56,14 @@ namespace OpenMined.Network.Controllers
                 {
                     return "Invalid objectIndex: " + msgObj.objectIndex;
                 }
-								else
-								{
-										// Process message's function
-										return processMessageFunction(msgObj);
-								}
-						}
-						else
-						{
-                // If not executing createTensor or tensor function, return default error.
+                else
+                {
+                    // Process message's function
+                    return processMessageFunction(msgObj);
+                }
+            }else
+	    {
+	     // If not executing createTensor or tensor function, return default error.
 								return "SyftController.processMessage: Command not found.";
 						}
 				}
