@@ -102,6 +102,7 @@ namespace OpenMined.Network.Controllers
                     {
                         //get the scalar, cast it and multiply
                         tensor.ScalarMultiplication((float)msgObj.tensorIndexParams[0]);
+
                     }
                     else
                     {
