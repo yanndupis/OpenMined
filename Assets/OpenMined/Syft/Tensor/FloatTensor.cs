@@ -5,7 +5,7 @@ namespace OpenMined.Syft.Tensor
     public partial class FloatTensor
     {
         // Should we put a check incase this variable overflows?
-        private static volatile int _nCreated = 0;
+        private static volatile int nCreated = 0;
 
         private float[] data;
         private long[] strides;
@@ -48,6 +48,11 @@ namespace OpenMined.Syft.Tensor
             set { id = value; }
         }
 
+        public static int CreatedObjectCount
+        {
+            get { return nCreated; }
+        }
+
         public FloatTensor(int[] _shape, bool _initOnGpu) {
 
             this.shape = (int[])_shape.Clone ();
@@ -86,7 +91,7 @@ namespace OpenMined.Syft.Tensor
             this.shape = (int[])_shape.Clone();
             
             // IDEs might show a warning, but ref and volatile seems to be working with Interlocked API.
-            this.Id = System.Threading.Interlocked.Increment(ref _nCreated); 
+            this.Id = System.Threading.Interlocked.Increment(ref nCreated); 
         }
 
 
