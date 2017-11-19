@@ -96,47 +96,26 @@ namespace OpenMined.Syft.Tensor
             }
             else
             {
-                // run CPU code
-                for (int i = 0; i < size; i++)
+                int nCpu = SystemInfo.processorCount;
+                var tasks = new Task[nCpu];
+                for (int taskNumber = 0; taskNumber < nCpu; taskNumber++)
                 {
-                    data[i] = -data[i];
-                }
-            }
-            return this;
-        }
-
-        public FloatTensor ParallelNeg()
-        {
-            int nCpu = SystemInfo.processorCount;
-            var tasks = new Task[nCpu];
-            for (int taskNumber = 0; taskNumber < nCpu; taskNumber++)
-            {
-                // capturing taskNumber in lambda wouldn't work correctly
-                int taskNumberCopy = taskNumber;
-
-                tasks[taskNumber] = Task.Factory.StartNew(
-                    () =>
-                    {
-                        var max = data.Length * (taskNumberCopy + 1) / nCpu;
-                        for (int i = data.Length * taskNumberCopy / nCpu;
-                            i < max;
-                            i++)
+                    // capturing taskNumber in lambda wouldn't work correctly
+                    int taskNumberCopy = taskNumber;
+                    tasks[taskNumber] = Task.Factory.StartNew(
+                        () =>
                         {
-                            data[i] = -data[i];
-                        }
-                    });
+                            var max = data.Length * (taskNumberCopy + 1) / nCpu;
+                            for (int i = data.Length * taskNumberCopy / nCpu;
+                                i < max;
+                                i++)
+                            {
+                                data[i] = -data[i];
+                            }
+                        });
+                }
+                Task.WaitAll(tasks);
             }
-            Task.WaitAll(tasks);
-            return this;
-        }
-        
-        public FloatTensor ParallelBNeg()
-        {
-            int nCpu = SystemInfo.processorCount;
-            Parallel.For(0, data.Length, i =>
-            {
-                data[i] = -data[i];
-            });
             return this;
         }
 
