@@ -42,6 +42,22 @@ namespace OpenMined.Syft.Tensor
             get { return size; }
         }
 
+		public FloatTensor(int[] _shape, bool init_on_gpu) {
+
+			this.shape = (int[])_shape.Clone ();
+			this.size = _shape[0];
+
+			for (int i = 1; i < _shape.Length; i++) {
+				this.size *= _shape [i];
+			}
+
+			this.data = new float[this.size];
+
+			if (init_on_gpu) {
+				Gpu ();
+			}
+		}
+
         public FloatTensor(float[] _data, int[] _shape)
         {
             //TODO: Can contigous allocation might be a problem?
@@ -61,7 +77,7 @@ namespace OpenMined.Syft.Tensor
                 throw new FormatException("Tensor shape and data do not match");
 
             this.data = (float[])_data.Clone();
-            this.shape = _shape;
+			this.shape = (int[])_shape.Clone();
         }
 
 

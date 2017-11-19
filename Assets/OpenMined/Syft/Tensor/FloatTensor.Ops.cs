@@ -47,6 +47,24 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
 
+		public FloatTensor Add(FloatTensor x) {
+
+			FloatTensor output = new FloatTensor (this.shape, dataOnGpu);
+
+
+			if (dataOnGpu) {
+				// GPU Add Code Here
+			} else {
+
+				for (int i = 0; i < size; i++) {
+					output.data [i] = x.Data [i] + this.data [i];
+				}
+			}
+
+			return output;
+
+		}
+
         public FloatTensor Abs()
         {
             if (dataOnGpu)
@@ -65,6 +83,27 @@ namespace OpenMined.Syft.Tensor
             }
             return this;
         }
+
+
+		public FloatTensor Neg() {
+
+
+			if (dataOnGpu) {
+				
+				NegGPU ();
+
+
+			} else {
+				// run CPU code
+				for (int i = 0; i < size; i++) {
+					
+					data [i] = -data [i];
+
+				}
+			}
+			return this;
+		}
+
 
         public FloatTensor ElementwiseMultiplication(FloatTensor other)
         {
@@ -109,7 +148,7 @@ namespace OpenMined.Syft.Tensor
             }
             return this;
         }
-        
+
         public FloatTensor ElementwiseSubtract(FloatTensor other)
         {
             //Debug.LogFormat("<color=blue>FloatTensor.inline_elementwise_subtract dataOnGpu: {0}</color>", dataOnGpu);
@@ -158,7 +197,7 @@ namespace OpenMined.Syft.Tensor
             }
             return this;
         }
-        
+
         public FloatTensor MultiplyDerivative(FloatTensor other)
         {
             // TODO: check for corner cases

@@ -58,59 +58,73 @@ namespace OpenMined.Network.Controllers
                 }
 								else
 								{
-										// Process existing function
+										// Process message's function
 										return processMessageFunction(msgObj);
 								}
 						}
 						else
 						{
+                // If not executing createTensor or tensor function, return default error.
 								return "SyftController.processMessage: Command not found.";
 						}
 				}
 
 				public string processMessageFunction(Command msgObj)
 				{
-						FloatTensor tensor = tensors[msgObj.objectIndex];
+						FloatTensor tensor = tensors [msgObj.objectIndex];
 						switch (msgObj.functionCall)
 						{
 								case "abs":
 								{
 										// calls the function on our tensor object
-										tensor.Abs();
+										tensor.Abs ();
 										// returns the function call name with the OK status
+										return msgObj.functionCall + ": OK";
+								}
+                case "add":
+                {
+                    FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
+                    FloatTensor output = tensor_1.Add (tensor_1);
+                    tensors.Add (output);
+                    string id = (tensors.Count - 1).ToString ();
+                    return id;
+					      }
+								case "add_matrix_multiply":
+								{
+										FloatTensor tensor_1 = tensors[msgObj.tensorIndexParams [0]];
+										FloatTensor tensor_2 = tensors[msgObj.tensorIndexParams [1]];
+										tensor.AddMatrixMultiply (tensor_1, tensor_2);
 										return msgObj.functionCall + ": OK";
 								}
 								case "init_add_matrix_multiply":
 								{
-										FloatTensor tensor_1 = tensors[msgObj.tensorIndexParams[0]];
-										tensor.ElementwiseMultiplication(tensor_1);
+										FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
+										tensor.ElementwiseMultiplication (tensor_1);
 										return msgObj.functionCall + ": OK";
 								}
 								 case "inline_elementwise_subtract":
 								{
-										FloatTensor tensor_1 = tensors[msgObj.tensorIndexParams[0]];
-										tensor.ElementwiseSubtract(tensor_1);
+										FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
+										tensor.ElementwiseSubtract (tensor_1);
 										return msgObj.functionCall + ": OK";
 								}
 								case "multiply_derivative":
 								{
-										FloatTensor tensor_1 = tensors[msgObj.tensorIndexParams[0]];
-										tensor.MultiplyDerivative(tensor_1);
+										FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
+										tensor.MultiplyDerivative (tensor_1);
 										return msgObj.functionCall + ": OK";
 								}
-								case "add_matrix_multiply":
-								{
-										FloatTensor tensor_1 = tensors[msgObj.tensorIndexParams[0]];
-										FloatTensor tensor_2 = tensors[msgObj.tensorIndexParams[1]];
-										tensor.AddMatrixMultiply(tensor_1, tensor_2);
-										return msgObj.functionCall + ": OK";
-								}
+                case "neg":
+                {
+                    tensor.Neg ();
+                    return msgObj.functionCall + ": OK";
+                }
 								case "print":
 								{
-										tensor.Cpu();
+										tensor.Cpu ();
 
-										string data = string.Join(", ", tensor.Data);
-										Debug.LogFormat("<color=cyan>print:</color> {0}", data);
+										string data = string.Join (", ", tensor.Data);
+										Debug.LogFormat ("<color=cyan>print:</color> {0}", data);
 
 										return data;
 								}
