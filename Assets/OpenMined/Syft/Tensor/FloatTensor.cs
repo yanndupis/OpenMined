@@ -92,19 +92,40 @@ namespace OpenMined.Syft.Tensor
                 data[GetIndex(indices)] = value;
             }
         }
-        
-        
-        public void Print()
+
+        public string Print()
         {
             if (dataOnGpu)
             {
                 CopyGpuToCpu();
             }
 
-            for (int i = 0; i < size; i++)
+            string print = "";
+
+            if (shape.Length > 3)
+                print += "Only printing the last 3 dimesnions\n";
+            int d3 = 1;
+            if (shape.Length > 2)
+                d3 = shape[shape.Length - 3];
+            int d2 = 1;
+            if (shape.Length > 1)
+                d2 = shape[shape.Length-2];
+            int d1 = shape[shape.Length-1];
+
+            for (int k = 0; k < d3; k++)
             {
-                Debug.Log(data[i]);
+                for (int j = 0; j < d2; j++)
+                {
+                    for (int i = 0; i < d1; i++)
+                    {
+                        float f = data[i + j * d2 + k * d1 * d2 ];
+                        print += f.ToString() + ",\t";
+                    }
+                    print += "\n";
+                }
+                print += "\n";
             }
+            return print;
         }
     }
 }
