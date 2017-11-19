@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEditor;
 using NUnit.Framework;
@@ -7,7 +9,7 @@ using OpenMined.Syft.Tensor;
 namespace OpenMined.Tests
 {
 
-    public class BaseTensorTest
+    public class FloatTensorTest
     {
 
         [TestFixtureSetUp]
@@ -127,6 +129,27 @@ namespace OpenMined.Tests
                     Assert.AreEqual(tensor[i, j], transpose[i, j]);	
                 }
             }
+        }
+        
+        [Test]
+        public void ParallelNeg()
+        {
+            float[] data1 = new float[100 * 1000];
+            int[] shape1 = { 100, 1000};
+            
+            var tensor = new FloatTensor(data1, shape1);
+            
+            Stopwatch sw = Stopwatch.StartNew();
+            tensor.Neg();
+            Console.WriteLine("Serial: {0:f10} s", sw.Elapsed.TotalSeconds);
+            
+            sw = Stopwatch.StartNew();
+            tensor.ParallelNeg();
+            Console.WriteLine("Custom Parallel: {0:f10} s", sw.Elapsed.TotalSeconds);
+            
+            sw = Stopwatch.StartNew();
+            tensor.ParallelBNeg();
+            Console.WriteLine("Parallel For: {0:f10} s", sw.Elapsed.TotalSeconds);
         }
     }
 }
