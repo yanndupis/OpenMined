@@ -41,7 +41,7 @@ namespace OpenMined.Syft.Tensor
         private void CopyGpuToCpu()
         {
             data = new float[size];
-            dataBuffer.GetData(data);
+            dataBuffer.GetData(Data);
         }
         
         private void CopyCputoGpu()
@@ -49,7 +49,7 @@ namespace OpenMined.Syft.Tensor
             dataBuffer = new ComputeBuffer(size, sizeof(float));
             shapeBuffer = new ComputeBuffer(shape.Length, sizeof(int));
 
-            dataBuffer.SetData(data);	
+            dataBuffer.SetData(Data);	
             shapeBuffer.SetData(shape);
         }
 

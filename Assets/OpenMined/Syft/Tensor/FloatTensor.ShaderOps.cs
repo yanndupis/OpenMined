@@ -92,7 +92,7 @@ namespace OpenMined.Syft.Tensor
                 {
                     for (int i = 0; i < size; i++)
                     {
-                        data[i] = data[i] - other.data[i];
+                        Data[i] = Data[i] - other.Data[i];
                     }
                 }
                 else

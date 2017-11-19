@@ -52,7 +52,6 @@ namespace OpenMined.Syft.Tensor
         {
             FloatTensor output = new FloatTensor(this.shape, dataOnGpu);
 
-
             if (dataOnGpu)
             {
                 // GPU Add Code Here
@@ -61,7 +60,7 @@ namespace OpenMined.Syft.Tensor
             {
                 for (int i = 0; i < size; i++)
                 {
-                    output.data[i] = x.Data[i] + this.data[i];
+                    output.Data[i] = x.Data[i] + this.Data[i];
                 }
             }
 
@@ -78,9 +77,9 @@ namespace OpenMined.Syft.Tensor
             {
                 for (int i = 0; i < size; i++)
                 {
-                    if (data[i] < 0)
+                    if (Data[i] < 0)
                     {
-                        data[i] = -data[i];
+                        Data[i] = -Data[i];
                     }
                 }
             }
@@ -105,12 +104,12 @@ namespace OpenMined.Syft.Tensor
                     tasks[taskNumber] = Task.Factory.StartNew(
                         () =>
                         {
-                            var max = data.Length * (taskNumberCopy + 1) / nCpu;
-                            for (int i = data.Length * taskNumberCopy / nCpu;
+                            var max = Data.Length * (taskNumberCopy + 1) / nCpu;
+                            for (int i = Data.Length * taskNumberCopy / nCpu;
                                 i < max;
                                 i++)
                             {
-                                data[i] = -data[i];
+                                Data[i] = -Data[i];
                             }
                         });
                 }
@@ -133,7 +132,7 @@ namespace OpenMined.Syft.Tensor
                 {
                     for (int i = 0; i < size; i++)
                     {
-                        data[i] = data[i] * other.data[i];
+                        Data[i] = Data[i] * other.Data[i];
                     }
                 }
                 else
@@ -158,7 +157,7 @@ namespace OpenMined.Syft.Tensor
             {
                 for (int i = 0; i < size; i++)
                 {
-                    data[i] = data[i] * scalar;
+                    Data[i] = Data[i] * scalar;
                 }
             }
             return this;
@@ -178,7 +177,7 @@ namespace OpenMined.Syft.Tensor
                 {
                     for (int i = 0; i < size; i++)
                     {
-                        data[i] = data[i] - other.data[i];
+                        Data[i] = Data[i] - other.Data[i];
                     }
                 }
                 else
