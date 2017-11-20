@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using OpenMined.Syft.Tensor;
 using OpenMined.Network.Utils;
@@ -12,13 +10,13 @@ namespace OpenMined.Network.Controllers
     {
         [SerializeField] private ComputeShader shader;
 
-        private List<FloatTensor> tensors;
+        private Dictionary<int, FloatTensor> tensors;
 
         public SyftController(ComputeShader _shader)
         {
             shader = _shader;
 
-            tensors = new List<FloatTensor>();
+            tensors = new Dictionary<int, FloatTensor>();
         }
 
         private float[] randomWeights(int length)
@@ -42,11 +40,11 @@ namespace OpenMined.Network.Controllers
             {
                 FloatTensor tensor = new FloatTensor(msgObj.data, msgObj.shape);
                 tensor.Shader = shader;
-                tensors.Add(tensor);
+                tensors.Add(tensor.Id, tensor);
 
                 Debug.LogFormat("<color=magenta>createTensor:</color> {0}", string.Join(", ", tensor.Data));
 
-                string id = (tensors.Count - 1).ToString();
+	            string id = tensor.Id.ToString();
 
                 return id;
             }
@@ -54,8 +52,11 @@ namespace OpenMined.Network.Controllers
             {
                 if (msgObj.objectType == "tensor")
                 {
+
+	                //Below check needs additions/fix.
                     bool success = true;
-                    if (msgObj.objectIndex > tensors.Count)
+                    if (msgObj.objectIndex > FloatTensor.CreatedObjectCount)
+
                     {
                         return "Invalid objectIndex: " + msgObj.objectIndex;
                     }
@@ -93,8 +94,8 @@ namespace OpenMined.Network.Controllers
 						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
 
 						FloatTensor output = tensor_1.Add (tensor_1);
-						tensors.Add(output);
-						string id = (tensors.Count - 1).ToString();
+						tensors.Add(output.Id, output);
+						string id = output.Id.ToString();
 						return id;
 					}
 

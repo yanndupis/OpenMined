@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEditor;
 using NUnit.Framework;
@@ -7,7 +9,7 @@ using OpenMined.Syft.Tensor;
 namespace OpenMined.Tests
 {
 
-    public class BaseTensorTest
+    public class FloatTensorTest
     {
 
         [TestFixtureSetUp]
@@ -128,5 +130,19 @@ namespace OpenMined.Tests
                 }
             }
         }
+        
+        [Test]
+        public void TensorId()
+        {
+            float[] data = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+            int[] shape = { 2, 3, 2 };
+
+            var tensor1 = new FloatTensor(data, shape);
+            var tensor2 = new FloatTensor(data, shape);
+            
+            Assert.AreNotEqual(tensor1.Id, tensor2.Id);
+            Assert.AreEqual(tensor1.Id + 1, tensor2.Id);
+        }
+        
     }
 }

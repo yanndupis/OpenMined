@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Threading.Tasks;
 
 namespace OpenMined.Syft.Tensor
 {
@@ -18,7 +19,7 @@ namespace OpenMined.Syft.Tensor
             target[index1] = target[index2];
             target[index2] = tmp;
         }
-
+        
         public FloatTensor Transpose()
         {
             if (shape.Length != 2)
@@ -47,23 +48,24 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
 
-		public FloatTensor Add(FloatTensor x) {
+        public FloatTensor Add(FloatTensor x)
+        {
+            FloatTensor output = new FloatTensor(this.shape, dataOnGpu);
 
-			FloatTensor output = new FloatTensor (this.shape, dataOnGpu);
+            if (dataOnGpu)
+            {
+                // GPU Add Code Here
+            }
+            else
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    output.Data[i] = x.Data[i] + this.Data[i];
+                }
+            }
 
-
-			if (dataOnGpu) {
-				// GPU Add Code Here
-			} else {
-
-				for (int i = 0; i < size; i++) {
-					output.data [i] = x.Data [i] + this.data [i];
-				}
-			}
-
-			return output;
-
-		}
+            return output;
+        }
 
         public FloatTensor Abs()
         {
@@ -75,9 +77,9 @@ namespace OpenMined.Syft.Tensor
             {
                 for (int i = 0; i < size; i++)
                 {
-                    if (data[i] < 0)
+                    if (Data[i] < 0)
                     {
-                        data[i] = -data[i];
+                        Data[i] = -Data[i];
                     }
                 }
             }
@@ -85,24 +87,24 @@ namespace OpenMined.Syft.Tensor
         }
 
 
-		public FloatTensor Neg() {
-
-
-			if (dataOnGpu) {
-				
-				NegGPU ();
-
-
-			} else {
-				// run CPU code
-				for (int i = 0; i < size; i++) {
-					
-					data [i] = -data [i];
-
-				}
-			}
-			return this;
-		}
+        public FloatTensor Neg()
+        {
+            if (dataOnGpu)
+            {
+                NegGPU();
+            }
+            else
+            {
+                int nCpu = SystemInfo.processorCount;
+                Parallel.For(0, nCpu, workerId =>
+                {
+                    var max = data.Length * (workerId + 1) / nCpu;
+                    for (int i = data.Length * workerId / nCpu; i < max; i++)
+                        data[i] = -data[i];
+                });
+            }
+            return this;
+        }
 
 
         public FloatTensor ElementwiseMultiplication(FloatTensor other)
@@ -118,7 +120,7 @@ namespace OpenMined.Syft.Tensor
                 {
                     for (int i = 0; i < size; i++)
                     {
-                        data[i] = data[i] * other.data[i];
+                        Data[i] = Data[i] * other.Data[i];
                     }
                 }
                 else
@@ -143,7 +145,7 @@ namespace OpenMined.Syft.Tensor
             {
                 for (int i = 0; i < size; i++)
                 {
-                    data[i] = data[i] * scalar;
+                    Data[i] = Data[i] * scalar;
                 }
             }
             return this;
@@ -163,7 +165,7 @@ namespace OpenMined.Syft.Tensor
                 {
                     for (int i = 0; i < size; i++)
                     {
-                        data[i] = data[i] - other.data[i];
+                        Data[i] = Data[i] - other.Data[i];
                     }
                 }
                 else
@@ -188,10 +190,12 @@ namespace OpenMined.Syft.Tensor
             if (gpu)
             {
                 AddMatrixMultiplyOnGpu(tensor1, tensor2);
-            }else if (cpu)
+            }
+            else if (cpu)
             {
                 //TODO: implement the function
-            } else
+            }
+            else
             {
                 Debug.Log("Data for all Tensors needs to be colocated on the same device. - CPU != GPU");
             }
@@ -204,10 +208,12 @@ namespace OpenMined.Syft.Tensor
             if (dataOnGpu & other.DataOnGpu)
             {
                 MultiplyDerivativeOnGpu(other);
-            }else if (!dataOnGpu & !other.DataOnGpu)
+            }
+            else if (!dataOnGpu & !other.DataOnGpu)
             {
                 //TODO: implement the function
-            } else
+            }
+            else
             {
                 Debug.Log("Data for all Tensors needs to be colocated on the same device. - CPU != GPU");
             }

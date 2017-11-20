@@ -1,18 +1,19 @@
-using UnityEngine;
 using System;
 
 namespace OpenMined.Syft.Tensor
 {
     public partial class FloatTensor
     {
+        // Should we put a check incase this variable overflows?
+        private static volatile int nCreated = 0;
+
         private float[] data;
         private long[] strides;
         private int[] shape;
         private int size;
-
-//		private bool dataOnGpu;
-//		public bool DataOnGpu => dataOnGpu;
-
+        
+        private int id;
+        
         private long GetIndex(params int[] indices)
         {
             long offset = 0;
@@ -27,9 +28,7 @@ namespace OpenMined.Syft.Tensor
 
         public float[] Data
         {
-            get { return data; }
-            
-            set { data = value;  }
+            get { return data; }            
         }
 
         public int[] Shape
@@ -42,21 +41,33 @@ namespace OpenMined.Syft.Tensor
             get { return size; }
         }
 
-		public FloatTensor(int[] _shape, bool init_on_gpu) {
+        public int Id
+        {
+            get { return id; }
+            
+            set { id = value; }
+        }
 
-			this.shape = (int[])_shape.Clone ();
-			this.size = _shape[0];
+        public static int CreatedObjectCount
+        {
+            get { return nCreated; }
+        }
 
-			for (int i = 1; i < _shape.Length; i++) {
-				this.size *= _shape [i];
-			}
+        public FloatTensor(int[] _shape, bool _initOnGpu) {
 
-			this.data = new float[this.size];
+            this.shape = (int[])_shape.Clone ();
+            this.size = _shape[0];
 
-			if (init_on_gpu) {
-				Gpu ();
-			}
-		}
+            for (int i = 1; i < _shape.Length; i++) {
+                this.size *= _shape [i];
+            }
+
+            this.data = new float[this.size];
+
+            if (_initOnGpu) {
+                Gpu ();
+            }
+        }
 
         public FloatTensor(float[] _data, int[] _shape)
         {
@@ -77,20 +88,24 @@ namespace OpenMined.Syft.Tensor
                 throw new FormatException("Tensor shape and data do not match");
 
             this.data = (float[])_data.Clone();
-			this.shape = (int[])_shape.Clone();
+            this.shape = (int[])_shape.Clone();
+            
+            // IDEs might show a warning, but ref and volatile seems to be working with Interlocked API.
+            this.Id = System.Threading.Interlocked.Increment(ref nCreated); 
         }
         
         public float this[params int[] indices]
         {
             get
             {
-                return data[GetIndex(indices)];
+                return Data[GetIndex(indices)];
             }
             set
             {
-                data[GetIndex(indices)] = value;
+                Data[GetIndex(indices)] = value;
             }
         }
+
 
         public string Print()
         {
