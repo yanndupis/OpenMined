@@ -139,22 +139,24 @@ namespace OpenMined.Syft.Tensor
             // Verify tensors are compatible for this operation
             SameSizeDimensionsAndShape (ref other);
 
-            if (dataOnGpu && other.DataOnGpu)
+            FloatTensor output = new FloatTensor(this.shape, dataOnGpu);
+
+            if (this.dataOnGpu && other.DataOnGpu)
             {
                 ElementwiseMultiplicationOnGpu(other);
             }
-            else if (!dataOnGpu && !other.DataOnGpu)
+            else if (!this.dataOnGpu && !other.DataOnGpu)
             {
-                for (int i = 0; i < size; i++)
+                for (int i = 0; i < this.size; i++)
                 {
-                    Data[i] = data[i] * other.Data[i];
+                    output.Data[i] = this.data[i] * other.Data[i];
                 }
             }
             else
             {
                 throw new InvalidOperationException ("Data for both Tensors needs to be colocated on the same device. - CPU != GPU");
             }
-            return this;
+            return output;
         }
 
         public FloatTensor ScalarMultiplication(float scalar)
