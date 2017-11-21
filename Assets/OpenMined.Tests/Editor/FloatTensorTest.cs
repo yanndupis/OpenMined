@@ -171,7 +171,7 @@ namespace OpenMined.Tests
 		public void TransposeNoDimensionsSpecified()
 		{
 			float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-			int[] shape1 = { 3, 2, 2};
+			int[] shape1 = { 3, 2, 2 };
 
 			// Test Tensor with more than 2 dimensions
 			var tensor = new FloatTensor(data1, shape1);
@@ -179,9 +179,9 @@ namespace OpenMined.Tests
 				Throws.TypeOf<InvalidOperationException>());
 
 			// Test tensor with less than 2 dimensions
-			float[] data2 = {};
-			int[] shape2 = {};
-			tensor = new FloatTensor(data1, shape1);
+			float[] data2 = { 1, 2, 3, 4, 5 };
+			int[] shape2 = { 5 };
+			tensor = new FloatTensor(data2, shape2);
 			Assert.That(() => tensor.Transpose(),
 				Throws.TypeOf<InvalidOperationException>());
 		}
