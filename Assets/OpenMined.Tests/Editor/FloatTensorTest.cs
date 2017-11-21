@@ -166,6 +166,46 @@ namespace OpenMined.Tests
 				}
 			}
 		}
+
+		[Test]
+		public void TransposeNoDimensionsSpecified()
+		{
+			float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+			int[] shape1 = { 3, 2, 2};
+
+			// Test Tensor with more than 2 dimensions
+			var tensor = new FloatTensor(data1, shape1);
+			Assert.That(() => tensor.Transpose(),
+				Throws.TypeOf<InvalidOperationException>());
+
+			// Test tensor with less than 2 dimensions
+			float[] data2 = {};
+			int[] shape2 = {};
+			tensor = new FloatTensor(data1, shape1);
+			Assert.That(() => tensor.Transpose(),
+				Throws.TypeOf<InvalidOperationException>());
+		}
+
+		[Test]
+		public void TransposeDimensionsOutOfRange()
+		{
+			float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+			int[] shape1 = {3, 2, 2};
+
+			// Test negative dimension indexes
+			var tensor = new FloatTensor(data1, shape1);
+			Assert.That(() => tensor.Transpose(-1, 0),
+				Throws.TypeOf<ArgumentOutOfRangeException>());
+			Assert.That(() => tensor.Transpose(0, -1),
+				Throws.TypeOf<ArgumentOutOfRangeException>());
+
+			// Test dimension indexes bigger than tensor's shape lenght
+			var tensor2 = new FloatTensor(data1, shape1);
+			Assert.That(() => tensor2.Transpose(3, 0),
+				Throws.TypeOf<ArgumentOutOfRangeException>());
+			Assert.That(() => tensor2.Transpose(0, 3),
+				Throws.TypeOf<ArgumentOutOfRangeException>());
+		}
         
         [Test]
         public void TensorId()
