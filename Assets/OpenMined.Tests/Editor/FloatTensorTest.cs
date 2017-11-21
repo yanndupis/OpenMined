@@ -290,6 +290,25 @@ namespace OpenMined.Tests
 			}
 		}
 
+		[Test]
+		public void Neg()
+		{
+			float[] data1 = { -1, 0, 1, float.MaxValue, float.MinValue };
+			int[] shape1 = { 5 };
+			var tensor1 = new FloatTensor(data1, shape1);
+
+			float[] data2 = { 1, 0, -1, -float.MaxValue, -float.MinValue };
+			int[] shape2 = { 5 };
+			var tensorNeg = new FloatTensor(data2, shape2);
+
+			tensor1.Neg ();
+
+			for (int i = 0; i < tensor1.Size; i++)
+			{
+				Assert.AreEqual (tensor1.Data[i], tensorNeg.Data[i]);
+			}
+		}
+
         [Test]
         public void TensorId()
         {
