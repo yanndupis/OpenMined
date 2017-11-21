@@ -386,5 +386,53 @@ namespace OpenMined.Tests
             Assert.AreNotEqual(tensor1.Id, tensor2.Id);
             Assert.AreEqual(tensor1.Id + 1, tensor2.Id);
         }
+
+        [Test]
+        public void ScalarMultiplication()
+        {
+            float[] data1 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
+            int[] shape1 = {2, 4};
+            var tensor1 = new FloatTensor(data1, shape1);
+            var tensor2 = new FloatTensor(data1, shape1);
+
+            // Test multiplication by 0
+            float scalar = 0;
+            tensor1.ScalarMultiplication (scalar);
+
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+                Assert.AreEqual (tensor2.Data [i] * scalar, tensor1.Data [i] );
+            }
+
+            // Test multiplication by positive
+            tensor1 = new FloatTensor(data1, shape1);
+            scalar = 99;
+            tensor1.ScalarMultiplication (scalar);
+
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+                Assert.AreEqual (tensor2.Data [i] * scalar, tensor1.Data [i] );
+            }
+
+            // Test multiplication by negative
+            tensor1 = new FloatTensor(data1, shape1);
+            scalar = -99;
+            tensor1.ScalarMultiplication (scalar);
+
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+                Assert.AreEqual (tensor2.Data [i] * scalar, tensor1.Data [i] );
+            }
+
+            // Test multiplication by decimal
+            tensor1 = new FloatTensor(data1, shape1);
+            scalar = 0.000001f;
+            tensor1.ScalarMultiplication (scalar);
+
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+                Assert.AreEqual (tensor2.Data [i] * scalar, tensor1.Data [i] );
+            }
+        }
     }
 }
