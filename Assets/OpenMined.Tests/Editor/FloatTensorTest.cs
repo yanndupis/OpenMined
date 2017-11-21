@@ -130,6 +130,43 @@ namespace OpenMined.Tests
                 }
             }
         }
+
+		[Test]
+		public void Transpose3D()
+		{
+			float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+			int[] shape1 = { 3, 2, 2};
+
+			float[] data2 = { 1, 5, 9, 3, 7, 11, 2, 6, 10, 4, 8, 12 };
+			int[] shape2 = { 2, 2, 3 };
+
+			var tensor = new FloatTensor(data1, shape1);
+			var transpose = new FloatTensor(data2, shape2);
+
+			for (int i = 0; i < tensor.Shape[0]; i++)
+			{
+				for (int j = 0; j < tensor.Shape[1]; j++)
+				{
+					for (int k = 0; k < tensor.Shape [2]; k++) 
+					{
+						Assert.AreEqual (tensor [i, j, k], transpose [k, j, i]);	
+					}
+				}
+			}
+
+			tensor.Transpose();
+
+			for (int i = 0; i < tensor.Shape[0]; i++)
+			{
+				for (int j = 0; j < tensor.Shape[1]; j++)
+				{
+					for (int k = 0; k < tensor.Shape [2]; k++) 
+					{
+						Assert.AreEqual(tensor[i, j, k], transpose[i, j, k]);	
+					}
+				}
+			}
+		}
         
         [Test]
         public void TensorId()
