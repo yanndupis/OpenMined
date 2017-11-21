@@ -145,12 +145,12 @@ namespace OpenMined.Syft.Tensor
                 }
                 else
                 {
-                    Debug.Log("Data for both Tensors needs to be colocated on the same device. - CPU != GPU");
+					throw new InvalidOperationException ("Data for both Tensors needs to be colocated on the same device. - CPU != GPU");
                 }
             }
             else
             {
-                Debug.Log("Tensors do not have the same number of elements!");
+				throw new InvalidOperationException ("Tensors do not have the same number of elements!");
             }
             return this;
         }
