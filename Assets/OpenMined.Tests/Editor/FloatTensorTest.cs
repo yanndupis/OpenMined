@@ -375,6 +375,18 @@ namespace OpenMined.Tests
         }
 
         [Test]
+        public void ElementwiseMultiplicationDataOnDifferent()
+        {
+            int[] shape1 = { 2, 3 };
+            var tensor1 = new FloatTensor(shape1, true);
+            int[] shape2 = { 2, 3 };
+            var tensor2 = new FloatTensor(shape2, false);
+
+            Assert.That(() => tensor1.ElementwiseMultiplication(tensor2),
+                Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
         public void TensorId()
         {
             float[] data = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
@@ -467,7 +479,7 @@ namespace OpenMined.Tests
             int[] shape2 = { 2, 6 };
             var tensor2 = new FloatTensor(data2, shape2);
 
-            Assert.That(() => tensor1.ElementwiseMultiplication(tensor2),
+            Assert.That(() => tensor1.ElementwiseSubtract(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
 
@@ -482,7 +494,7 @@ namespace OpenMined.Tests
             int[] shape2 = { 2, 2 };
             var tensor2 = new FloatTensor(data2, shape2);
 
-            Assert.That(() => tensor1.ElementwiseMultiplication(tensor2),
+            Assert.That(() => tensor1.ElementwiseSubtract(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
 
@@ -497,7 +509,7 @@ namespace OpenMined.Tests
             int[] shape2 = { 3, 2 };
             var tensor2 = new FloatTensor(data2, shape2);
 
-            Assert.That(() => tensor1.ElementwiseMultiplication(tensor2),
+            Assert.That(() => tensor1.ElementwiseSubtract(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
 
@@ -509,7 +521,7 @@ namespace OpenMined.Tests
             int[] shape2 = { 2, 3 };
             var tensor2 = new FloatTensor(shape2, false);
 
-            Assert.That(() => tensor1.ElementwiseMultiplication(tensor2),
+            Assert.That(() => tensor1.ElementwiseSubtract(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
 
