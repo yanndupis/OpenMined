@@ -271,6 +271,25 @@ namespace OpenMined.Tests
 				Throws.TypeOf<InvalidOperationException>());
 		}
 
+		[Test]
+		public void Abs()
+		{
+			float[] data1 = { -1, 0, 1, float.MaxValue, float.MinValue };
+			int[] shape1 = { 5 };
+			var tensor1 = new FloatTensor(data1, shape1);
+
+			float[] data2 = { 1, 0, 1, float.MaxValue, -float.MinValue };
+			int[] shape2 = { 5 };
+			var tensorAbs = new FloatTensor(data2, shape2);
+
+			tensor1.Abs ();
+
+			for (int i = 0; i < tensor1.Size; i++)
+			{
+				Assert.AreEqual (tensor1.Data[i], tensorAbs.Data[i]);
+			}
+		}
+
         [Test]
         public void TensorId()
         {
