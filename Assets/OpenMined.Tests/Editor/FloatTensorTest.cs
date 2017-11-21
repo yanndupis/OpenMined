@@ -512,5 +512,8 @@ namespace OpenMined.Tests
             Assert.That(() => tensor1.ElementwiseMultiplication(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
+
+        // TODO: AddMatrixMultiplyTests when implemented on CPU
+        // TODO: MultiplyDerivative when implemented on CPU
     }
 }
