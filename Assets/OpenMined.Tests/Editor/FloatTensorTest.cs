@@ -153,8 +153,7 @@ namespace OpenMined.Tests
 					}
 				}
 			}
-
-			tensor.Transpose();
+			tensor.Transpose(0, 2);
 
 			for (int i = 0; i < tensor.Shape[0]; i++)
 			{
