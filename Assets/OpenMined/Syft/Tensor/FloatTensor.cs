@@ -74,9 +74,9 @@ namespace OpenMined.Syft.Tensor
             //TODO: Can contigous allocation might be a problem?
             //TODO: Should we create different allocation methods for CPU and GPU?
 
-			if (_shape == null || _shape.Length == 0) {
-				throw new InvalidOperationException("Tensor shape can't be an empty array.");
-			}
+            if (_shape == null || _shape.Length == 0) {
+                throw new InvalidOperationException("Tensor shape can't be an empty array.");
+            }
             this.size = _data.Length;
             this.strides = new long[_shape.Length];
 
