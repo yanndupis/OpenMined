@@ -50,6 +50,25 @@ namespace OpenMined.Syft.Tensor
 
         public FloatTensor Add(FloatTensor x)
         {
+			// Check if both tensors have same size
+			if (x.Size != size)
+			{
+				throw new InvalidOperationException ("Tensors cannot be added since they have different sizes.");
+			}
+			// Check if both tensors have same number of dimensions
+			if (x.Shape.Length != shape.Length)
+			{
+				throw new InvalidOperationException ("Tensors cannot be added since they have different number of dimensions.");
+			}
+			// Check if both tensors have same shapes
+			for (int i = 0; i < shape.Length; i++)
+			{
+				if (shape [i] != x.Shape [i])
+				{
+					throw new InvalidOperationException ("Tensors cannot be added since they have different shapes.");
+				}
+			}
+
             FloatTensor output = new FloatTensor(this.shape, dataOnGpu);
 
             if (dataOnGpu)
@@ -60,6 +79,7 @@ namespace OpenMined.Syft.Tensor
             {
                 for (int i = 0; i < size; i++)
                 {
+					// TODO: Fix positive and negative overflow
                     output.Data[i] = x.Data[i] + this.Data[i];
                 }
             }

@@ -207,6 +207,70 @@ namespace OpenMined.Tests
 				Throws.TypeOf<ArgumentOutOfRangeException>());
 		}
         
+		[Test]
+		public void Add()
+		{
+			float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+			int[] shape1 = {2, 5};
+			var tensor1 = new FloatTensor(data1, shape1);
+
+			float[] data2 = { 3, 2, 6, 9, 10, 1, 4, 8, 5, 7};
+			int[] shape2 = {2, 5};
+			var tensor2 = new FloatTensor(data2, shape2);
+
+			var tensorSum = tensor1.Add (tensor2);
+
+			for (int i = 0; i < tensorSum.Size; i++)
+			{
+				Assert.AreEqual (tensor1.Data [i] + tensor2.Data [i], tensorSum.Data [i]);
+			}
+		}
+
+		[Test]
+		public void AddUnequalSizes()
+		{
+			float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+			int[] shape1 = { 2, 5 };
+			var tensor1 = new FloatTensor(data1, shape1);
+
+			float[] data2 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+			int[] shape2 = { 2, 6 };
+			var tensor2 = new FloatTensor(data2, shape2);
+
+			Assert.That(() => tensor1.Add(tensor2),
+				Throws.TypeOf<InvalidOperationException>());
+		}
+
+		[Test]
+		public void AddUnequalDimensions()
+		{
+			float[] data1 = { 1, 2, 3, 4 };
+			int[] shape1 = { 4 };
+			var tensor1 = new FloatTensor(data1, shape1);
+
+			float[] data2 = { 1, 2, 3, 4 };
+			int[] shape2 = { 2, 2 };
+			var tensor2 = new FloatTensor(data2, shape2);
+
+			Assert.That(() => tensor1.Add(tensor2),
+				Throws.TypeOf<InvalidOperationException>());
+		}
+
+		[Test]
+		public void AddUnequalShapes()
+		{
+			float[] data1 = { 1, 2, 3, 4, 5, 6 };
+			int[] shape1 = { 2, 3 };
+			var tensor1 = new FloatTensor(data1, shape1);
+
+			float[] data2 = { 1, 2, 3, 4, 5, 6 };
+			int[] shape2 = { 3, 2 };
+			var tensor2 = new FloatTensor(data2, shape2);
+
+			Assert.That(() => tensor1.Add(tensor2),
+				Throws.TypeOf<InvalidOperationException>());
+		}
+
         [Test]
         public void TensorId()
         {
