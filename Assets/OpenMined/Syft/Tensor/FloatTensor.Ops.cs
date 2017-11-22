@@ -6,6 +6,28 @@ namespace OpenMined.Syft.Tensor
 {
     public partial class FloatTensor
     {
+
+        private void SameSizeDimensionsAndShape( ref FloatTensor tensor )
+        {
+            // Check if both tensors have same size
+            if (tensor.Size != size)
+            {
+                throw new InvalidOperationException ("Tensors cannot be added since they have different sizes.");
+            }
+            // Check if both tensors have same number of dimensions
+            if (tensor.Shape.Length != shape.Length)
+            {
+                throw new InvalidOperationException ("Tensors cannot be added since they have different number of dimensions.");
+            }
+            // Check if both tensors have same shapes
+            for (int i = 0; i < shape.Length; i++)
+            {
+                if (shape [i] != tensor.Shape [i])
+                {
+                    throw new InvalidOperationException ("Tensors cannot be added since they have different shapes.");
+                }
+            }
+        }
         private void SwapElements(ref int[] target, int index1, int index2)
         {
             int tmp = target[index1];
@@ -50,6 +72,10 @@ namespace OpenMined.Syft.Tensor
 
         public FloatTensor Add(FloatTensor x)
         {
+
+            // Check if both tensors are compatible for sum
+            SameSizeDimensionsAndShape(ref x);
+
             FloatTensor output = new FloatTensor(this.shape, dataOnGpu);
 
             if (dataOnGpu)
@@ -60,6 +86,7 @@ namespace OpenMined.Syft.Tensor
             {
                 for (int i = 0; i < size; i++)
                 {
+                    // TODO: Fix positive and negative overflow
                     output.Data[i] = x.Data[i] + this.Data[i];
                 }
             }
@@ -109,30 +136,27 @@ namespace OpenMined.Syft.Tensor
 
         public FloatTensor ElementwiseMultiplication(FloatTensor other)
         {
-            //TODO: make a better check. comparing size is not enough
-            if (size == other.Size)
+            // Verify tensors are compatible for this operation
+            SameSizeDimensionsAndShape (ref other);
+
+            FloatTensor output = new FloatTensor(this.shape, dataOnGpu);
+
+            if (this.dataOnGpu && other.DataOnGpu)
             {
-                if (dataOnGpu && other.DataOnGpu)
+                ElementwiseMultiplicationOnGpu(other);
+            }
+            else if (!this.dataOnGpu && !other.DataOnGpu)
+            {
+                for (int i = 0; i < this.size; i++)
                 {
-                    ElementwiseMultiplicationOnGpu(other);
-                }
-                else if (!dataOnGpu && !other.DataOnGpu)
-                {
-                    for (int i = 0; i < size; i++)
-                    {
-                        Data[i] = Data[i] * other.Data[i];
-                    }
-                }
-                else
-                {
-                    Debug.Log("Data for both Tensors needs to be colocated on the same device. - CPU != GPU");
+                    output.Data[i] = this.data[i] * other.Data[i];
                 }
             }
             else
             {
-                Debug.Log("Tensors do not have the same number of elements!");
+                throw new InvalidOperationException ("Data for both Tensors needs to be colocated on the same device. - CPU != GPU");
             }
-            return this;
+            return output;
         }
 
         public FloatTensor ScalarMultiplication(float scalar)
@@ -154,28 +178,22 @@ namespace OpenMined.Syft.Tensor
         public FloatTensor ElementwiseSubtract(FloatTensor other)
         {
             //Debug.LogFormat("<color=blue>FloatTensor.inline_elementwise_subtract dataOnGpu: {0}</color>", dataOnGpu);
+            SameSizeDimensionsAndShape(ref other);
 
-            if (size == other.Size)
+            if (dataOnGpu && other.DataOnGpu)
             {
-                if (dataOnGpu && other.DataOnGpu)
+                ElementwiseSubtractOnGpu(other);
+            }
+            else if (!dataOnGpu && !other.dataOnGpu)
+            {
+                for (int i = 0; i < size; i++)
                 {
-                    ElementwiseSubtractOnGpu(other);
-                }
-                else if (!dataOnGpu && !other.dataOnGpu)
-                {
-                    for (int i = 0; i < size; i++)
-                    {
-                        Data[i] = Data[i] - other.Data[i];
-                    }
-                }
-                else
-                {
-                    Debug.Log("Data for both Tensors needs to be colocated on the same device. - CPU != GPU");
+                    Data[i] = Data[i] - other.Data[i];
                 }
             }
             else
             {
-                Debug.Log("Tensors do not have the same number of elements!");
+                throw new InvalidOperationException ("Data for both Tensors needs to be colocated on the same device. - CPU != GPU");
             }
             return this;
         }
