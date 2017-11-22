@@ -12,6 +12,8 @@ Table of Contents:
 
 OpenMined Unity Application applies the [PySyft](https://github.com/OpenMined/PySyft) library into a Unity Application. Please see the PySyft repository README.md for more details on the intent of OpenMined and to familiarize yourself more with the basic concepts of the project.
 
+Also check out the [Docs](https://github.com/OpenMined/Docs) for more information! We are working toward consolidating all the documentation to make it easier for new contributors. 
+
 **Why Unity?**
 
 Unity has a few advantages that we are leveraging for this project
