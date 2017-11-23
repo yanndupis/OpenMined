@@ -13,6 +13,7 @@ namespace OpenMined.Syft.Tensor
         private static int MultiplyDerivativeKernel;
         private static int AddMatrixMultiplyKernel;
 		private static int NegateValuesKernel;
+        private static int CeilValuesKernel;
 
         public ComputeShader Shader
         {
@@ -28,6 +29,7 @@ namespace OpenMined.Syft.Tensor
                 MultiplyDerivativeKernel = shader.FindKernel("MultiplyDerivative");
                 AddMatrixMultiplyKernel = shader.FindKernel("AddMatrixMultiply");
 				NegateValuesKernel = shader.FindKernel ("NegateValues");
+                CeilValuesKernel = shader.FindKernel ("CeilValues");
             }
         }
 
@@ -73,6 +75,17 @@ namespace OpenMined.Syft.Tensor
                 scalarBuffer.Release();
             }
         }
+
+        public void CeilOnGpu() {
+            Debug.LogFormat("<color=blue>FloatTensor.scalar_mult dataOnGpu: {0}</color>", dataOnGpu);
+
+            if (dataOnGpu)
+            {
+                shader.SetBuffer (CeilValuesKernel, "data_ceil", dataBuffer);
+			    shader.Dispatch (CeilValuesKernel, 1, 1, 1);
+            }
+		}
+
 
         public void ElementwiseSubtractOnGpu(FloatTensor other)
         {
