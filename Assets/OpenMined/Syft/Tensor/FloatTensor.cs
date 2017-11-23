@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace OpenMined.Syft.Tensor
 {
@@ -53,35 +54,46 @@ namespace OpenMined.Syft.Tensor
             get { return nCreated; }
         }
 
-        public FloatTensor(int[] _shape, bool _initOnGpu) {
+        public FloatTensor(int[] _shape, bool _initOnGpu = false) {
 
-            this.shape = (int[])_shape.Clone ();
-            this.size = _shape[0];
+            this.size = 1;
+            this.shape = (int[])_shape.Clone();
+            this.strides = new long[_shape.Length];
 
-            for (int i = 1; i < _shape.Length; i++) {
-                this.size *= _shape [i];
+            for (var i = _shape.Length - 1; i >= 0; --i)
+            {
+                this.strides[i] = this.size;
+                this.size *= _shape[i];
             }
 
-            this.data = new float[this.size];
-
-            if (_initOnGpu) {
-                Gpu ();
+            if (_initOnGpu)
+            {
+                this.dataOnGpu = true;
+                this.dataBuffer = new ComputeBuffer(this.size, sizeof(float));
+                this.shapeBuffer = new ComputeBuffer(this.shape.Length, sizeof(int));
             }
+            else
+            {
+                this.data = new float[this.size];
+            }
+            
+            this.id = System.Threading.Interlocked.Increment(ref nCreated);
         }
 
-        public FloatTensor(float[] _data, int[] _shape)
+        public FloatTensor(float[] _data, int[] _shape, bool _initOnGpu = false)
         {
             //TODO: Can contigous allocation might be a problem?
-            //TODO: Should we create different allocation methods for CPU and GPU?
 
             if (_shape == null || _shape.Length == 0) {
                 throw new InvalidOperationException("Tensor shape can't be an empty array.");
             }
+            
             this.size = _data.Length;
+            this.shape = (int[])_shape.Clone();
             this.strides = new long[_shape.Length];
 
             long acc = 1;
-            for (int i = _shape.Length - 1; i >= 0; --i)
+            for (var i = _shape.Length - 1; i >= 0; --i)
             {
                 this.strides[i] = acc;
                 acc *= _shape[i];
@@ -90,11 +102,23 @@ namespace OpenMined.Syft.Tensor
             if (acc != this.size)
                 throw new FormatException("Tensor shape and data do not match.");
 
-            this.data = (float[])_data.Clone();
-            this.shape = (int[])_shape.Clone();
-            
+            if (_initOnGpu)
+            {
+                this.dataOnGpu = true;
+                
+                this.dataBuffer = new ComputeBuffer(this.size, sizeof(float));
+                this.dataBuffer.SetData(_data);	
+                
+                this.shapeBuffer = new ComputeBuffer(this.shape.Length, sizeof(int));
+                this.shapeBuffer.SetData(this.shape);
+            }
+            else
+            {
+                this.data = (float[])_data.Clone();
+            }
+
             // IDEs might show a warning, but ref and volatile seems to be working with Interlocked API.
-            this.Id = System.Threading.Interlocked.Increment(ref nCreated); 
+            this.id = System.Threading.Interlocked.Increment(ref nCreated); 
         }
         
         public float this[params int[] indices]
