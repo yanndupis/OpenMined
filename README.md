@@ -37,13 +37,14 @@ Unity has a few advantages that we are leveraging for this project
     - Linux users: Download it from [here](http://beta.unity3d.com/download/ee86734cf592/public_download.html)
 
 note: If you do not already have one, you will have to create a Unity account when you open the Application for the first time.
+
 2. Open project in Unity `[File -> Open Project -> Directory/To/OpenMined`]
 
 3. Open Juptyer Notebooks in the `notebooks` directory.  
 
 ## Setup Troubleshooting 
 
-If you have an issue, refer to the following steps for a more detailed project setup. These steps were confirmed to work under a Windows enviornment, though the steps should be applicable to alternative operating systems. 
+If you have an issue, refer to the following steps for a more detailed project setup. These steps were confirmed to work under a Windows/linux enviornment, though the steps should be applicable to alternative operating systems. 
 
 The steps come in two parts:   
 **Part 1:** Unity Setup   
@@ -51,7 +52,7 @@ The steps come in two parts:
 
 **Unity Setup**  
 
-1. Download Unity from [here](https://store.unity.com/). I chose the personal version. This will provide you a .dmg installer, which will download and install the necessary components (~800mb).  
+1. Download Unity from [here](https://store.unity.com/) or [here](http://beta.unity3d.com/download/ee86734cf592/public_download.html)(linux)  
   2. Open project in Unity `[Open(Top Right of Home Screen) -> Directory/To/OpenMined`]
 2. In the Project Pane (usually below), Double Click Assets/_Scenes/DefaultScene. If you can't find the file for some reason:
 - On the right menu: Check `Main Camera` object has `SyftServer.cs` component attached to it
