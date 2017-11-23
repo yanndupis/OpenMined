@@ -75,23 +75,25 @@ namespace OpenMined.Syft.Tensor
 
             // Check if both tensors are compatible for sum
             SameSizeDimensionsAndShape(ref x);
-
-            FloatTensor output = new FloatTensor(this.shape, dataOnGpu);
-
+            
             if (dataOnGpu)
             {
                 // GPU Add Code Here
             }
             else
             {
-                for (int i = 0; i < size; i++)
+                var output = new float[this.size];
+                var nCpu = SystemInfo.processorCount;
+                Parallel.For(0, nCpu, workerId =>
                 {
-                    // TODO: Fix positive and negative overflow
-                    output.Data[i] = x.Data[i] + this.Data[i];
-                }
+                    var max = this.size * (workerId + 1) / nCpu;
+                    for (var i = this.size * workerId / nCpu; i < max; i++)
+                        output[i] = x.Data[i] + this.Data[i];
+                });
+                return new FloatTensor(output, this.shape, false);
             }
 
-            return output;
+            return this;
         }
 
         public FloatTensor Abs()
