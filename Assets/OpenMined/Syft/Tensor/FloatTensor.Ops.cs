@@ -135,6 +135,26 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
 
+		public FloatTensor Zero_()
+		{
+			if (dataOnGpu)
+			{
+				ZeroGPU_ ();
+			}
+			else
+			{
+				int nCpu = SystemInfo.processorCount;
+				Parallel.For(0, nCpu, workerId =>
+				{
+					var max = data.Length * (workerId + 1) / nCpu;
+					for (int i = data.Length * workerId / nCpu; i < max; i++)
+						data[i] = 0;
+				});
+			}
+
+			return this;
+		}
+
 
         public FloatTensor ElementwiseMultiplication(FloatTensor other)
         {

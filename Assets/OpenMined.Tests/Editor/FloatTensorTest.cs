@@ -310,6 +310,25 @@ namespace OpenMined.Tests
         }
 
         [Test]
+        public void Zero_()
+        {
+            float[] data1 = { -1, 0, 1, float.MaxValue, float.MinValue };
+            int[] shape1 = { 5 };
+            var tensor1 = new FloatTensor(data1, shape1);
+
+            float[] data2 = { 0, 0, 0, 0, 0 };
+            int[] shape2 = { 5 };
+            var tensorZero = new FloatTensor(data2, shape2);
+
+            tensor1.Zero_ ();
+
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+                Assert.AreEqual (tensor1.Data[i], tensorZero.Data[i]);
+            }
+        }
+
+        [Test]
         public void ElementwiseMultiplication()
         {
             float[] data1 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };

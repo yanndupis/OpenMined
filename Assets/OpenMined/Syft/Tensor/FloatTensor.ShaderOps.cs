@@ -13,6 +13,7 @@ namespace OpenMined.Syft.Tensor
         private static int MultiplyDerivativeKernel;
         private static int AddMatrixMultiplyKernel;
 		private static int NegateValuesKernel;
+		private static int ZeroValuesKernel;
 
         public ComputeShader Shader
         {
@@ -35,6 +36,13 @@ namespace OpenMined.Syft.Tensor
 
 			shader.SetBuffer (NegateValuesKernel, "data_neg", dataBuffer);
 			shader.Dispatch (NegateValuesKernel, 1, 1, 1);
+
+		}
+
+		public void ZeroGPU_() {
+
+			shader.SetBuffer (ZeroValuesKernel, "data_zero_", dataBuffer);
+			shader.Dispatch (ZeroValuesKernel, 1, 1, 1);
 
 		}
 
