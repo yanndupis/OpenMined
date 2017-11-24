@@ -13,6 +13,7 @@ namespace OpenMined.Syft.Tensor
         private static int MultiplyDerivativeKernel;
         private static int AddMatrixMultiplyKernel;
 		private static int NegateValuesKernel;
+        private static int Add_MainKernel;
 
         public ComputeShader Shader
         {
@@ -28,6 +29,7 @@ namespace OpenMined.Syft.Tensor
                 MultiplyDerivativeKernel = shader.FindKernel("MultiplyDerivative");
                 AddMatrixMultiplyKernel = shader.FindKernel("AddMatrixMultiply");
 				NegateValuesKernel = shader.FindKernel ("NegateValues");
+                Add_MainKernel = shader.FindKernel("Add_Main");
             }
         }
 
@@ -172,6 +174,21 @@ namespace OpenMined.Syft.Tensor
             shader.SetBuffer(AddMatrixMultiplyKernel, "data_k", tensor_1.DataBuffer); //d
             shader.SetBuffer(AddMatrixMultiplyKernel, "data_l", tensor_2.DataBuffer);
             shader.Dispatch(AddMatrixMultiplyKernel, size, 1, 1);
+        }
+
+        public void Add_OnGpu(float value)
+        {
+            Debug.LogFormat("<color=blue>FloatTensor.add_ dataOnGpu: {0}</color>", dataOnGpu);
+
+            if (dataOnGpu)
+            {
+                ComputeBuffer valBuffer = SendFloatToGpu(value, "temp_adder");
+
+                shader.SetBuffer(Add_MainKernel, "data_m", dataBuffer);
+                shader.Dispatch(Add_MainKernel, 1, 1, 1);
+
+                valBuffer.Release();
+            }
         }
 
         private ComputeBuffer SendFloatToGpu(float value, string name)
