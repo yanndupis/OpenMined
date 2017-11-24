@@ -47,6 +47,11 @@ namespace OpenMined.Network.Controllers
 	            string id = tensor.Id.ToString();
 
                 return id;
+            } else if (msgObj.functionCall == "deleteTensor")
+            {
+	            var tensor = tensors[msgObj.objectIndex];
+	            tensors.Remove(msgObj.objectIndex);
+	            tensor.Dispose();
             }
             else
             {
