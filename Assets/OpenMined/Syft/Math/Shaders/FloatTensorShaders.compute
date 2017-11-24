@@ -41,7 +41,7 @@ RWStructuredBuffer<float> data_ceil;
 
 [numthreads(4,1,1)]
 void CeilValues (uint3 id: SV_DispatchThreadID) {
-		data_ceil[id.x] = asint(ceil(data_ceil[id.x]));	
+		data_ceil[id.x] = ceil(data_ceil[id.x]);
 }
 
 #pragma kernel ElementwiseMultMain

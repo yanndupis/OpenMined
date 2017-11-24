@@ -248,8 +248,7 @@ namespace OpenMined.Syft.Tensor
             else
             {
                 for (int i = 0; i < size; i++)
-                    // Data[i] = (int)(Data[i] + 0.5);
-                    Data[i] = (int)(Math.Ceiling(Data[i]));
+                    Data[i] = (float)(Math.Ceiling(Data[i]));
             }
             return this;
         }
