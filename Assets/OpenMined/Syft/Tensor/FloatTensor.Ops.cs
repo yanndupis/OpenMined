@@ -115,6 +115,19 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
 
+        public FloatTensor Add_(float value){
+            if(dataOnGpu){
+                // GPU Code goes here
+            }
+            else{
+                for(int i = 0; i < size; i++)
+                {
+                    Data[i] += value;
+                }
+            }
+            return this;
+        }
+
 
         public FloatTensor Neg()
         {
