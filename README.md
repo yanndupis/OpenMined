@@ -12,19 +12,19 @@ Table of Contents:
 
 OpenMined Unity Application applies the [PySyft](https://github.com/OpenMined/PySyft) library into a Unity Application. Please see the PySyft repository README.md for more details on the intent of OpenMined and to familiarize yourself more with the basic concepts of the project.
 
-Also check out the [Docs](https://github.com/OpenMined/Docs) for more information! We are working toward consolidating all the documentation to make it easier for new contributors. 
+Also check out the [Docs](https://github.com/OpenMined/Docs) for more information! We are working toward consolidating all the documentation to make it easier for new contributors.
 
 **Why Unity?**
 
 Unity has a few advantages that we are leveraging for this project
 
-1. It's portable. 
+1. It's portable.
 2. It's free
 3. It has versitile GPU access.  
 4. It can be used for high end graphics gmaing consoles (Playstation, XBox, etc)
 
 **Marketplace Mechanics**  
-`TODO` 
+`TODO`
 
 ### Architecture
 
@@ -33,7 +33,7 @@ Unity has a few advantages that we are leveraging for this project
 ## Quick Setup
 
 1. Install Unity:
-    - Windows & Mac users: Download it from [here](https://store.unity.com/). 
+    - Windows & Mac users: Download it from [here](https://store.unity.com/).
     - Linux users: Download it from [here](http://beta.unity3d.com/download/ee86734cf592/public_download.html)
 
 note: If you do not already have one, you will have to create a Unity account when you open the Application for the first time.
@@ -42,9 +42,9 @@ note: If you do not already have one, you will have to create a Unity account wh
 
 3. Open Juptyer Notebooks in the `notebooks` directory.  
 
-## Setup Troubleshooting 
+## Setup Troubleshooting
 
-If you have an issue, refer to the following steps for a more detailed project setup. These steps were confirmed to work under a Windows/linux enviornment, though the steps should be applicable to alternative operating systems. 
+If you have an issue, refer to the following steps for a more detailed project setup. These steps were confirmed to work under a Windows/linux enviornment, though the steps should be applicable to alternative operating systems.
 
 The steps come in two parts:   
 **Part 1:** Unity Setup   
@@ -63,12 +63,12 @@ The steps come in two parts:
 
 **Jupyter Setup**
 
-1. Open `basic-python-network-gpu.ipynb` 
+1. Open `basic-python-network-gpu.ipynb`
 2. Run the Jupyter Notebook
 
 ### For OSX (High Sierra)
 
-Same steps as above. Download Unity from [here](https://store.unity.com/). I chose the personal version. This will provide you a .dmg installer, which will download and install the necessary components (~800mb). 
+Same steps as above. Download Unity from [here](https://store.unity.com/). I chose the personal version. This will provide you a .dmg installer, which will download and install the necessary components (~800mb).
 
 **If on OSX turn on Metal Support**  
 
@@ -116,6 +116,13 @@ Unity   1709 user   38u  IPv4 0x59e297c6d0d734e31      0t0  TCP *:personal-agent
 	By default, the "Run in background" options is disabled. So if the Unity Editor loses focus then the Jupyter Notebook won't work.
 Go to Edit -> Project Settings -> Player. The inspector pane will now change to show the player settings. Look for the option that says "Run In Background" and check it [1]
 
+# Automated Testing (For MacOS X/Linux only)
+To run unit tests automatically, locate your terminal in the repository's main directory (not 'UnityProject'), and execute:
+```
+sh scripts/test.sh
+```
+It is required that you have the Unity application closed, otherwise it won't work.
+Search for the :white_check_mark: or :x:, which will indicate if the tests passed or failed. In any case, a JSON object will be displayed with the execution results. If there's a compilation error, a debug log will show up instead.
 
 ## Links and How Tos
 
@@ -131,4 +138,3 @@ Go to Edit -> Project Settings -> Player. The inspector pane will now change to 
 ## References
 
 [1] [stop unity pausing when it loses focus](https://answers.unity.com/questions/42509/stop-unity-pausing-when-it-loses-focus.html)
-
