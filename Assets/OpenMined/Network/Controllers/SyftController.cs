@@ -47,6 +47,11 @@ namespace OpenMined.Network.Controllers
 	            string id = tensor.Id.ToString();
 
                 return id;
+            } else if (msgObj.functionCall == "deleteTensor")
+            {
+	            var tensor = tensors[msgObj.objectIndex];
+	            tensors.Remove(msgObj.objectIndex);
+	            tensor.Dispose();
             }
             else
             {
@@ -66,24 +71,23 @@ namespace OpenMined.Network.Controllers
 					if (msgObj.functionCall == "init_add_matrix_multiply") {
 						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
 						tensor.ElementwiseMultiplication (tensor_1);
-					}
-                    else if (msgObj.functionCall == "inline_elementwise_subtract") {
+					} else if (msgObj.functionCall == "inline_elementwise_subtract") {
 						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
 						tensor.ElementwiseSubtract (tensor_1);
-					}
-                    else if (msgObj.functionCall == "multiply_derivative") {
+					} else if (msgObj.functionCall == "multiply_derivative") {
 						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
 						tensor.MultiplyDerivative (tensor_1);
-					}
-                    else if (msgObj.functionCall == "add_matrix_multiply") {
+					} else if (msgObj.functionCall == "add_matrix_multiply") {
 						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
 						FloatTensor tensor_2 = tensors [msgObj.tensorIndexParams [1]];
-                        tensor.AddMatrixMultiply (tensor_1, tensor_2);
-					}
-                    else if (msgObj.functionCall == "print") {
-						return tensor.Print();
-					}
-                    else if (msgObj.functionCall == "abs") {
+						tensor.AddMatrixMultiply (tensor_1, tensor_2);
+					} else if (msgObj.functionCall == "print") {
+						return tensor.Print ();
+					} else if (msgObj.functionCall == "gpu") {
+						tensor.Gpu ();
+					} else if (msgObj.functionCall == "cpu") {
+						tensor.Cpu ();
+					}else if (msgObj.functionCall == "abs") {
 						// calls the function on our tensor object
 						tensor.Abs ();
 					}
@@ -98,6 +102,9 @@ namespace OpenMined.Network.Controllers
 						string id = output.Id.ToString();
 						return id;
 					}
+                    else if (msgObj.functionCall == "add_"){
+                        tensor.Add_((float)msgObj.tensorIndexParams[0]);
+                    }
 
                     else if (msgObj.functionCall == "scalar_multiply")
                     {
@@ -106,8 +113,11 @@ namespace OpenMined.Network.Controllers
 
                     }
                     else if (msgObj.functionCall == "ceil") {
-						tensor.Ceil ();
-					}
+						          tensor.Ceil ();
+          					}
+                    else if (msgObj.functionCall == "zero_") {
+                        tensor.Zero_ ();
+                    }
                     else
                     {
                         success = false;

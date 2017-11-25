@@ -29,6 +29,11 @@ namespace OpenMined.Syft.Tensor
                 data = null;
                 shape = null;
                 strides = null;
+
+                if (dataOnGpu)
+                {
+                    EraseGpu();
+                }
             }
 
             disposed = true;
