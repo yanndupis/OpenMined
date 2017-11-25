@@ -3,9 +3,7 @@
 UNITY_EXECUTABLE="/Applications/Unity/Unity.app/Contents/MacOS/Unity"
 PROJECT_FOLDER="$(pwd)/UnityProject"
 RESULTS_FILENAME="results.xml"
-RESULTS_FILEPATH="$(pwd)/$RESULTS_FILENAME"
-JSON_RESULTS_FILENAME="results.json"
-JSON_RESULTS_FILEPATH="$(pwd)/$JSON_RESULTS_FILENAME"
+RESULTS_FILEPATH="$(pwd)"/$RESULTS_FILENAME
 EDITOR_LOG_FILEPATH=" $(echo ~/Library/Logs/Unity/Editor.log)"
 
 echo $PROJECT_FOLDER
@@ -28,7 +26,6 @@ UNITY_PID=$!
 
 echo "Editor log: $EDITOR_LOG_FILEPATH"
 # Wait for the tests to begin
-echo
 sleep 5
 
 # Wait until tests have been executed
@@ -36,7 +33,6 @@ while ! [ -f $RESULTS_FILEPATH ]
 do
   # Verify if process closed (if it does, it means an unexpected error)
   echo $UNITY_PID
-  ps aux|grep -i $UNITY_PID
   NUMBER=$(ps aux |grep -i $UNITY_PID|wc -l)
   if [ $NUMBER  -eq 1 ]; then
     echo "travis_fold:end:editor_tests"
@@ -81,12 +77,13 @@ python \
 
 echo "travis_fold:end:editor_test_results_file"
 
+# Default exit code
+EXIT_CODE=0
+# Set exit code 1 if tests failed
+if $(grep -q Failed $RESULTS_FILEPATH); then
+  EXIT_CODE=1
+fi
 # Delete xml results file
 rm $RESULTS_FILEPATH
 
-## Exit with status code
-if $(grep -q Failed $RESULTS_FILENAME); then
-  exit 1
-else
-  exit 0
-fi
+exit $EXIT_CODE
