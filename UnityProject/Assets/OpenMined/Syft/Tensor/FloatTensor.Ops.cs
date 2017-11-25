@@ -12,6 +12,7 @@ namespace OpenMined.Syft.Tensor
             if (dataOnGpu)
             {
                 // GPU Absolute Value Code Here
+				AbsGPU_();
             }
             else
             {
