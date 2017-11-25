@@ -159,7 +159,7 @@ namespace OpenMined.Syft.Tensor
 					return ctrl.addTensor (output).ToString ();
 				}
 
-			case "add_matrix_multiply":
+			case "addmm_":
 				{
 					FloatTensor tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams [0]);
 					FloatTensor tensor_2 = ctrl.getTensor(msgObj.tensorIndexParams [1]);
@@ -188,22 +188,15 @@ namespace OpenMined.Syft.Tensor
 					}
 				}
 
-			case "init_add_matrix_multiply":
+			case "mul":
 				{
 					FloatTensor tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams [0]);
 					this.MulElementwise (tensor_1);
 					return msgObj.functionCall + ": OK";
 				}
-			case "inline_elementwise_subtract":
+			case "mul_scalar":
 				{
-					FloatTensor tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams [0]);
-					this.ElementwiseSubtract (tensor_1);
-					return msgObj.functionCall + ": OK";
-				}
-			case "multiply_derivative":
-				{
-					FloatTensor tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams [0]);
-					this.MultiplyDerivative (tensor_1);
+					this.MulScalar((float)msgObj.tensorIndexParams[0]);
 					return msgObj.functionCall + ": OK";
 				}
 			case "neg":
@@ -231,9 +224,10 @@ namespace OpenMined.Syft.Tensor
 					return data;
 
 				}
-			case "scalar_multiply":
+			case "sub_":
 				{
-					this.MulScalar((float)msgObj.tensorIndexParams[0]);
+					FloatTensor tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams [0]);
+					this.ElementwiseSubtract (tensor_1);
 					return msgObj.functionCall + ": OK";
 				}
 			case "zero_":
