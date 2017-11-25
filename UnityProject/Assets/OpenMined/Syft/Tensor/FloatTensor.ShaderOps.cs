@@ -6,7 +6,10 @@ namespace OpenMined.Syft.Tensor
     {
         private ComputeShader shader;
 
+
         [SerializeField] private static int ScalarMultMainKernel;
+    		private static int Abs_Kernel;
+        private static int ScalarMultMainKernel;
         private static int ElementwiseMultMainKernel;
         private static int ElementwiseSubtractMainKernel;
         private static int MultiplyDerivativeKernel;
@@ -24,6 +27,7 @@ namespace OpenMined.Syft.Tensor
                 shader = value;
 
                 // save shaders and kernels
+        				Abs_Kernel = shader.FindKernel("AbsMain");
                 ScalarMultMainKernel = shader.FindKernel("ScalarMultMain");
                 ElementwiseMultMainKernel = shader.FindKernel("ElementwiseMultMain");
                 ElementwiseSubtractMainKernel = shader.FindKernel("ElementwiseSubtractMain");
@@ -36,7 +40,15 @@ namespace OpenMined.Syft.Tensor
             }
         }
 
-        public FloatTensor MulScalarGPU(float value)
+		public void AbsGPU_() {
+			if (dataOnGpu) {
+				shader.SetBuffer (Abs_Kernel, "abs_data", dataBuffer);
+				shader.Dispatch (Abs_Kernel, this.size, 1, 1);
+			}
+		}
+
+        public void MulScalarGPU(float value)
+
         {
             Debug.LogFormat("<color=blue>FloatTensor.scalar_mult dataOnGpu: {0}</color>", dataOnGpu);
 

@@ -6,6 +6,27 @@ namespace OpenMined.Syft.Tensor
 {
     public partial class FloatTensor
     {
+
+        public FloatTensor Abs_()
+        {
+            if (dataOnGpu)
+            {
+                // GPU Absolute Value Code Here
+				AbsGPU_();
+            }
+            else
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    if (Data[i] < 0)
+                    {
+                        Data[i] = -Data[i];
+                    }
+                }
+            }
+            return this;
+        }
+
         public FloatTensor Add(FloatTensor x)
         {
             // Check if both tensors are compatible for sum
