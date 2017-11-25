@@ -38,7 +38,7 @@ namespace OpenMined.Network.Controllers
 
 		public int addTensor(FloatTensor tensor) {
 			tensors.Add (tensor.Id, tensor);
-			return (tensors.Count - 1);
+			return (tensors.Count);
 		}
 
         public string processMessage(string json_message)

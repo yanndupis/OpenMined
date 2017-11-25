@@ -11,6 +11,8 @@ namespace OpenMined.Syft.Tensor
 		private static int AbsKernel_;
 		private static int AddScalarKernel_;
 		private static int AddElemKernel_;
+		private static int AddScalarKernel;
+		private static int AddElemKernel;
 		private static int AddMMKernel_;
 		private static int CeilKernel;
 		private static int MultElemKernel;
@@ -30,6 +32,8 @@ namespace OpenMined.Syft.Tensor
 				AbsKernel_ = shader.FindKernel("Abs_");
 				AddScalarKernel_ = shader.FindKernel("AddScalar_");
 				AddElemKernel_ = shader.FindKernel("AddElem_");
+				AddScalarKernel = shader.FindKernel("AddScalar");
+				AddElemKernel = shader.FindKernel("AddElem");
 				AddMMKernel_ = shader.FindKernel("AddMM_");
 				CeilKernel = shader.FindKernel("Ceil");
 				MultElemKernel = shader.FindKernel("MultElem");
@@ -73,6 +77,35 @@ namespace OpenMined.Syft.Tensor
 				shader.SetBuffer(AddScalarKernel_, "add_data_data_a_", dataBuffer);
 				shader.SetBuffer(AddScalarKernel_, "add_data_data_b_", tensor.dataBuffer);
 				shader.Dispatch(AddScalarKernel_, 1, 1, 1);
+
+			}
+		}
+
+		public void AddScalarGPU(float value)
+		{
+			Debug.LogFormat("<color=blue>FloatTensor.add_ dataOnGpu: {0}</color>", dataOnGpu);
+
+			if (dataOnGpu)
+			{
+				var valBuffer = SendFloatToGpu(AddScalarKernel, value, "add_scalar_scalar");
+
+				shader.SetBuffer(AddScalarKernel, "add_scalar_data", dataBuffer);
+				shader.Dispatch(AddScalarKernel, 1, 1, 1);
+
+				valBuffer.Release();
+			}
+		}
+
+		public void AddElemGPU(FloatTensor tensor)
+		{
+			Debug.LogFormat("<color=blue>FloatTensor.add_ dataOnGpu: {0}</color>", dataOnGpu);
+
+			if (dataOnGpu)
+			{
+
+				shader.SetBuffer(AddScalarKernel, "add_data_data_a", dataBuffer);
+				shader.SetBuffer(AddScalarKernel, "add_data_data_b", tensor.dataBuffer);
+				shader.Dispatch(AddScalarKernel, 1, 1, 1);
 
 			}
 		}
