@@ -191,7 +191,7 @@ namespace OpenMined.Syft.Tensor
 			case "init_add_matrix_multiply":
 				{
 					FloatTensor tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams [0]);
-					this.ElementwiseMultiplication (tensor_1);
+					this.MulElementwise (tensor_1);
 					return msgObj.functionCall + ": OK";
 				}
 			case "inline_elementwise_subtract":
@@ -233,7 +233,7 @@ namespace OpenMined.Syft.Tensor
 				}
 			case "scalar_multiply":
 				{
-					this.ScalarMultiplication((float)msgObj.tensorIndexParams[0]);
+					this.MulScalar((float)msgObj.tensorIndexParams[0]);
 					return msgObj.functionCall + ": OK";
 				}
 			case "zero_":

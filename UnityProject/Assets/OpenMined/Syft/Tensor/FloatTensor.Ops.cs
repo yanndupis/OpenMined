@@ -126,7 +126,7 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
         
-        public FloatTensor ElementwiseMultiplication(FloatTensor other)
+        public FloatTensor MulElementwise(FloatTensor other)
         {
             // Verify tensors are compatible for this operation
             SameSizeDimensionsAndShape (ref other);
@@ -135,7 +135,7 @@ namespace OpenMined.Syft.Tensor
 
             if (this.dataOnGpu && other.DataOnGpu)
             {
-                ElementwiseMultiplicationOnGpu(other);
+                MulElementwiseGPU(other);
             }
             else if (!this.dataOnGpu && !other.DataOnGpu)
             {
@@ -149,6 +149,22 @@ namespace OpenMined.Syft.Tensor
                 throw new InvalidOperationException ("Data for both Tensors needs to be colocated on the same device. - CPU != GPU");
             }
             return output;
+        }
+        
+        public FloatTensor MulScalar(float scalar)
+        {
+            if (dataOnGpu)
+            {
+                MulScalarGPU(scalar);
+            }
+            else
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    Data[i] = Data[i] * scalar;
+                }
+            }
+            return this;
         }
         
         public FloatTensor MultiplyDerivative(FloatTensor other)
@@ -208,22 +224,6 @@ namespace OpenMined.Syft.Tensor
                     throw new InvalidOperationException ("Tensors cannot be added since they have different shapes.");
                 }
             }
-        }
-
-        public FloatTensor ScalarMultiplication(float scalar)
-        {
-            if (dataOnGpu)
-            {
-                ScalarMultiplicationOnGpu(scalar);
-            }
-            else
-            {
-                for (int i = 0; i < size; i++)
-                {
-                    Data[i] = Data[i] * scalar;
-                }
-            }
-            return this;
         }
                 
         private void SwapElements(ref int[] target, int index1, int index2)

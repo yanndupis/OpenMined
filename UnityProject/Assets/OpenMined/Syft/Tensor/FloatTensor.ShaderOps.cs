@@ -37,22 +37,23 @@ namespace OpenMined.Syft.Tensor
   
             }
         }
+        
+        public void MulScalarGPU(float value)
+        {
+            Debug.LogFormat("<color=blue>FloatTensor.scalar_mult dataOnGpu: {0}</color>", dataOnGpu);
 
-		public void NegGPU() {
+            if (dataOnGpu)
+            {
+                ComputeBuffer scalarBuffer = SendFloatToGpu(value, "temp_scalar");
 
-			shader.SetBuffer (NegateValuesKernel, "data_neg", dataBuffer);
-			shader.Dispatch (NegateValuesKernel, 1, 1, 1);
+                shader.SetBuffer(ScalarMultMainKernel, "data", dataBuffer);
+                shader.Dispatch(ScalarMultMainKernel, 1, 1, 1);
 
-		}
+                scalarBuffer.Release();
+            }
+        }
 
-		public void ZeroGPU_() {
-
-			shader.SetBuffer (ZeroValuesKernel, "data_zero_", dataBuffer);
-			shader.Dispatch (ZeroValuesKernel, 1, 1, 1);
-
-		}
-
-        public void ElementwiseMultiplicationOnGpu(FloatTensor other)
+        public void MulElementwiseGPU(FloatTensor other)
         {
             Debug.LogFormat("<color=blue>FloatTensor.inline_elementwise_mult dataOnGpu: {0}</color>", dataOnGpu);
 
@@ -72,21 +73,20 @@ namespace OpenMined.Syft.Tensor
                 Debug.Log("Tensors do not have the same number of elements!");
             }
         }
+        
+		public void NegGPU() {
 
-        public void ScalarMultiplicationOnGpu(float value)
-        {
-            Debug.LogFormat("<color=blue>FloatTensor.scalar_mult dataOnGpu: {0}</color>", dataOnGpu);
+			shader.SetBuffer (NegateValuesKernel, "data_neg", dataBuffer);
+			shader.Dispatch (NegateValuesKernel, 1, 1, 1);
 
-            if (dataOnGpu)
-            {
-                ComputeBuffer scalarBuffer = SendFloatToGpu(value, "temp_scalar");
+		}
 
-                shader.SetBuffer(ScalarMultMainKernel, "data", dataBuffer);
-                shader.Dispatch(ScalarMultMainKernel, 1, 1, 1);
+		public void ZeroGPU_() {
 
-                scalarBuffer.Release();
-            }
-        }
+			shader.SetBuffer (ZeroValuesKernel, "data_zero_", dataBuffer);
+			shader.Dispatch (ZeroValuesKernel, 1, 1, 1);
+
+		}
 
         public void CeilOnGpu() {
             Debug.LogFormat("<color=blue>FloatTensor.scalar_mult dataOnGpu: {0}</color>", dataOnGpu);
@@ -131,28 +131,6 @@ namespace OpenMined.Syft.Tensor
             }
         }
 
-        // TODO we should split these functions. i.e. sigmoid_matrix_multiply -> sigmoid and multiply 
-       /* public void init_sigmoid_matrix_multiply(FloatTensor tensor_1)
-        {
-            Dimensions[] dim = new Dimensions[]
-            {
-                new Dimensions(tensor_1.Shape.Length, tensor_1.Shape[0])
-            };
-
-            ComputeBuffer dim_buffer = new ComputeBuffer(dim.Length, dim[0].stride());
-            dim_buffer.SetData(dim);
-            shader.SetBuffer(SigmoidMatrixMultiply, "dimensions_a", dim_buffer);
-        }
-
-        public void sigmoid_matrix_multiply(FloatTensor tensor_1, FloatTensor tensor_2)
-        {
-            //Debug.LogFormat("<color=blue>FloatTensor.sigmoid_matrix_multiply dataOnGpu: {0}</color>", dataOnGpu);
-            shader.SetBuffer(SigmoidMatrixMultiply, "data_e", dataBuffer);
-            shader.SetBuffer(SigmoidMatrixMultiply, "data_f", tensor_1.dataBuffer);
-            shader.SetBuffer(SigmoidMatrixMultiply, "data_g", tensor_2.dataBuffer);
-            shader.Dispatch(SigmoidMatrixMultiply, size, 1, 1);
-        }
-*/
         public void MultiplyDerivativeOnGpu(FloatTensor tensor_1)
         {
             //Debug.LogFormat("<color=blue>FloatTensor.multiply_derivative dataOnGpu: {0}</color>", dataOnGpu);
@@ -225,5 +203,28 @@ namespace OpenMined.Syft.Tensor
 
             return scalarBuffer;
         }
+        
+        // TODO we should split these functions. i.e. sigmoid_matrix_multiply -> sigmoid and multiply 
+        /* public void init_sigmoid_matrix_multiply(FloatTensor tensor_1)
+         {
+             Dimensions[] dim = new Dimensions[]
+             {
+                 new Dimensions(tensor_1.Shape.Length, tensor_1.Shape[0])
+             };
+ 
+             ComputeBuffer dim_buffer = new ComputeBuffer(dim.Length, dim[0].stride());
+             dim_buffer.SetData(dim);
+             shader.SetBuffer(SigmoidMatrixMultiply, "dimensions_a", dim_buffer);
+         }
+ 
+         public void sigmoid_matrix_multiply(FloatTensor tensor_1, FloatTensor tensor_2)
+         {
+             //Debug.LogFormat("<color=blue>FloatTensor.sigmoid_matrix_multiply dataOnGpu: {0}</color>", dataOnGpu);
+             shader.SetBuffer(SigmoidMatrixMultiply, "data_e", dataBuffer);
+             shader.SetBuffer(SigmoidMatrixMultiply, "data_f", tensor_1.dataBuffer);
+             shader.SetBuffer(SigmoidMatrixMultiply, "data_g", tensor_2.dataBuffer);
+             shader.Dispatch(SigmoidMatrixMultiply, size, 1, 1);
+         }
+ */
     }
 }
