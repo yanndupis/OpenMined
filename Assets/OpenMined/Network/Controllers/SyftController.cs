@@ -67,11 +67,10 @@ namespace OpenMined.Network.Controllers
                     return processMessageFunction(msgObj);
                 }
             }
-            else
-	    {
+         
 	        // If not executing createTensor or tensor function, return default error.
-                return "SyftController.processMessage: Command not found.";
-            }
+            return "SyftController.processMessage: Command not found.";
+            
         }
 
         public string processMessageFunction(Command msgObj)
@@ -86,19 +85,20 @@ namespace OpenMined.Network.Controllers
                     // returns the function call name with the OK status    
                     return msgObj.functionCall + ": OK";
                 }
-                
+				case "add_":
+				{
+					tensor.Add_((float)msgObj.tensorIndexParams[0]); 
+					return msgObj.functionCall + ": OK";
+				}
                 case "add":
                 {
                     FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
                     FloatTensor output = tensor_1.Add (tensor_1);
-                    tensors.Add (output);
+					tensors.Add (output.Id, output);
                     string id = (tensors.Count - 1).ToString ();
                     return id;
                 }
-                 case "add_":
-                {
-                    tensor.Add_((float)msgObj.tensorIndexParams[0]); 
-                }
+                
                 case "add_matrix_multiply":
                 {
                     FloatTensor tensor_1 = tensors[msgObj.tensorIndexParams [0]];
@@ -109,14 +109,17 @@ namespace OpenMined.Network.Controllers
               case "ceil":
                 {
                  tensor.Ceil (); 
+					return msgObj.functionCall + ": OK";
                 }
               case "cpu":
                 {
                   tensor.Cpu(); 
+					return msgObj.functionCall + ": OK";
                 }
               case "gpu":
                 {
                  tensor.Gpu(); 
+					return msgObj.functionCall + ": OK";
                 }
                 
                 case "init_add_matrix_multiply":
@@ -156,10 +159,12 @@ namespace OpenMined.Network.Controllers
                 case "scalar_multiply":
                 {
                   tensor.ScalarMultiplication((float)msgObj.tensorIndexParams[0]);
+					return msgObj.functionCall + ": OK";
                 }
               case "zero_":
                 {
                  tensor.Zero_ (); 
+					return msgObj.functionCall + ": OK";
                 }
                 default: break;
             }

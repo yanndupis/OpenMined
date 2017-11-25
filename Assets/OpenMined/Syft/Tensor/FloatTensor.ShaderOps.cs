@@ -14,7 +14,6 @@ namespace OpenMined.Syft.Tensor
         private static int AddMatrixMultiplyKernel;
     		private static int NegateValuesKernel;
         private static int CeilValuesKernel;
-    		private static int NegateValuesKernel;
 		    private static int ZeroValuesKernel;
         private static int Add_MainKernel;
 
