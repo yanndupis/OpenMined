@@ -32,6 +32,15 @@ namespace OpenMined.Network.Controllers
             return syn0;
         }
 
+		public FloatTensor getTensor (int index) {
+			return tensors [index];
+		}
+
+		public int addTensor(FloatTensor tensor) {
+			tensors.Add (tensor.Id, tensor);
+			return tensor.Id;
+		}
+
         public string processMessage(string json_message)
         {
             //Debug.LogFormat("<color=green>SyftController.processMessage {0}</color>", json_message);
