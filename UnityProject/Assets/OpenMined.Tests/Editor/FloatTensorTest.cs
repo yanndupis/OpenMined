@@ -272,7 +272,7 @@ namespace OpenMined.Tests
         }
 
         [Test]
-        public void Abs()
+        public void Abs_()
         {
             float[] data1 = { -1, 0, 1, float.MaxValue, float.MinValue };
             int[] shape1 = { 5 };
@@ -282,7 +282,7 @@ namespace OpenMined.Tests
             int[] shape2 = { 5 };
             var tensorAbs = new FloatTensor(data2, shape2);
 
-            tensor1.Abs ();
+            tensor1.Abs_ ();
 
             for (int i = 0; i < tensor1.Size; i++)
             {

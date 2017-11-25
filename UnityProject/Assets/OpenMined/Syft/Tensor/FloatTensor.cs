@@ -140,12 +140,12 @@ namespace OpenMined.Syft.Tensor
 
 			switch (msgObj.functionCall)
 			{
-			case "abs":
+			case "abs_":
 				{
 					// calls the function on our tensor object
-					this.Abs ();
+					this.Abs_();
 					// returns the function call name with the OK status    
-					return msgObj.functionCall + ": OK";
+					return this.Id.toString()
 				}
 			case "add_":
 				{
