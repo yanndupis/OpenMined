@@ -64,15 +64,10 @@ namespace OpenMined.Network.Controllers
 
             Command msgObj = JsonUtility.FromJson<Command>(json_message);
 
-            Debug.LogFormat("<color=magenta>Message Received:</color> {0}", json_message);
-            Debug.LogFormat("<color=magenta>Switch:</color> {0}", msgObj.objectType);
             switch (msgObj.objectType)
             {
                 case "tensor":
                 {
-                    Debug.Log("Tensor switch running");
-                    Debug.LogFormat("<color=magenta>Index is {0}.</color>", msgObj.objectIndex);
-
                     if (msgObj.objectIndex == 0 && msgObj.functionCall=="create" )
                     {
                         FloatTensor tensor = new FloatTensor(msgObj.data, msgObj.shape);
@@ -83,12 +78,10 @@ namespace OpenMined.Network.Controllers
                     }
                     else if( msgObj.objectIndex > tensors.Count)
                     {
-                        Debug.Log("Why???");
                         return "Invalid objectIndex: " + msgObj.objectIndex;
                     }
                     else
                     {
-                        Debug.LogFormat("<color=magenta>Getting tensor {0}.</color>", msgObj.objectIndex);
                         FloatTensor tensor = this.getTensor(msgObj.objectIndex);
                         // Process message's function
                         return tensor.processMessage(msgObj, this);
@@ -96,8 +89,7 @@ namespace OpenMined.Network.Controllers
                 }
                 default: break;                
             }
-            Debug.Log("Missed the switch");
-
+ 
             // If not executing createTensor or tensor function, return default error.
             return "SyftController.processMessage: Command not found.";            
         }        
