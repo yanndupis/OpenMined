@@ -1,6 +1,9 @@
 OpenMined Unity Application
 =============================================
-[![Build Status](https://travis-ci.org/OpenMined/OpenMined.svg?branch=master)](https://travis-ci.org/OpenMined/OpenMined)
+
+[![Build Status](https://travis-ci.org/OpenMined/OpenMined.svg?branch=master)](https://travis-ci.org/OpenMined/OpenMined) 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 
 Table of Contents:   
 
@@ -12,7 +15,7 @@ Table of Contents:
 
 ## Introduction
 
-OpenMined Unity Application applies the [PySyft](https://github.com/OpenMined/PySyft) library into a Unity Application. Please see the PySyft repository README.md for more details on the intent of OpenMined, to familiarize yourself more with the basic concepts of the project, as well as an installation/contribution guide.
+OpenMined Unity Application applies the [PySyft](https://github.com/OpenMined/PySyft) library into a Unity Application. Please see the PySyft repository README.md for more details on the intent of OpenMined and to familiarize yourself more with the basic concepts of the project.
 
 Also check out the [Docs](https://github.com/OpenMined/Docs) for more information! We are working toward consolidating all the documentation to make it easier for new contributors.
 
