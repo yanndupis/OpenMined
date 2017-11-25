@@ -7,8 +7,8 @@ namespace OpenMined.Syft.Tensor
         private ComputeShader shader;
 
 
-        [SerializeField] private static int ScalarMultMainKernel;
-    		private static int Abs_Kernel;
+        [SerializeField]
+    	private static int Abs_Kernel;
         private static int ScalarMultMainKernel;
         private static int ElementwiseMultMainKernel;
         private static int ElementwiseSubtractMainKernel;
@@ -27,7 +27,7 @@ namespace OpenMined.Syft.Tensor
                 shader = value;
 
                 // save shaders and kernels
-        				Abs_Kernel = shader.FindKernel("AbsMain");
+        		Abs_Kernel = shader.FindKernel("AbsMain");
                 ScalarMultMainKernel = shader.FindKernel("ScalarMultMain");
                 ElementwiseMultMainKernel = shader.FindKernel("ElementwiseMultMain");
                 ElementwiseSubtractMainKernel = shader.FindKernel("ElementwiseSubtractMain");
@@ -47,7 +47,7 @@ namespace OpenMined.Syft.Tensor
 			}
 		}
 
-        public void MulScalarGPU(float value)
+        public FloatTensor MulScalarGPU(float value)
 
         {
             Debug.LogFormat("<color=blue>FloatTensor.scalar_mult dataOnGpu: {0}</color>", dataOnGpu);
@@ -80,7 +80,7 @@ namespace OpenMined.Syft.Tensor
                     // correspond tensor buffers with shader kernel buffers
                     shader.SetBuffer(ElementwiseMultMainKernel, "data_a", dataBuffer);
                     shader.SetBuffer(ElementwiseMultMainKernel, "data_b", other.DataBuffer);
-                    shader.SetBuffer(ElementwiseMultMainKernel, "result", result.DataBuffer);
+					shader.SetBuffer(ElementwiseMultMainKernel, "result_elem", result.DataBuffer);
 
                     shader.Dispatch(ElementwiseMultMainKernel, 1, 1, 1);
                     return result;
@@ -137,7 +137,7 @@ namespace OpenMined.Syft.Tensor
                     // correspond tensor buffers with shader kernel buffers
                     shader.SetBuffer(ElementwiseSubtractMainKernel, "data_c", dataBuffer);
                     shader.SetBuffer(ElementwiseSubtractMainKernel, "data_d", other.DataBuffer);
-                    shader.SetBuffer(ElementwiseSubtractMainKernel, "result", result.DataBuffer);
+					shader.SetBuffer(ElementwiseSubtractMainKernel, "result_sub", result.DataBuffer);
                     shader.Dispatch(ElementwiseSubtractMainKernel, size, 1, 1);
 
                     return result;
