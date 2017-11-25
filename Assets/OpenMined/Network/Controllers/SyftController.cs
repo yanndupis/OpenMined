@@ -107,6 +107,9 @@ namespace OpenMined.Network.Controllers
                         tensor.ScalarMultiplication((float)msgObj.tensorIndexParams[0]);
 
                     }
+                    else if (msgObj.functionCall == "zero_") {
+                        tensor.Zero_ ();
+                    }
                     else
                     {
                         success = false;

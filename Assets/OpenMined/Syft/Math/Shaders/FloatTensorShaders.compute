@@ -133,3 +133,12 @@ RWStructuredBuffer<float> original_weights;
 void ResetWeights (uint3 id : SV_DispatchThreadID) {
 	weights[id.x] = original_weights[id.x];
 }
+
+#pragma kernel ZeroValues
+
+RWStructuredBuffer<float> zeroData;
+
+[numthreads(4,1,1)]
+void ZeroValues (uint3 id: SV_DispatchThreadID) {
+       zeroData[id.x] = 0;
+}
