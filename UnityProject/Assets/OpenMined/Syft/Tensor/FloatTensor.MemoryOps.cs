@@ -18,13 +18,15 @@ namespace OpenMined.Syft.Tensor
             set { dataBuffer = value; }
         }
         
-        public void Gpu()
+        public bool Gpu()
         {
             if (!dataOnGpu)
             {
                 CopyCputoGpu();
                 EraseCpu();
+                return true;
             }
+            return false;
         }
 
         public void Cpu()

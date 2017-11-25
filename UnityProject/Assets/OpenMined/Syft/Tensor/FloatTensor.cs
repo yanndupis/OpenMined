@@ -178,8 +178,14 @@ namespace OpenMined.Syft.Tensor
 				}
 			case "gpu":
 				{
-					this.Gpu(); 
-					return msgObj.functionCall + ": OK";
+					if (this.Gpu())
+					{
+						return msgObj.functionCall + ": OK : Moved data to GPU.";
+					}
+					else
+					{
+						return msgObj.functionCall + ": FAILED : Did not move data.";
+					}
 				}
 
 			case "init_add_matrix_multiply":
@@ -208,11 +214,20 @@ namespace OpenMined.Syft.Tensor
 
 			case "print":
 				{
-					this.Cpu ();
+					bool dataOriginallyOnGpu = dataOnGpu;
+					if (dataOnGpu)
+					{
+						this.Cpu();
+					}
 
 					string data = string.Join (", ", this.Data);
 					Debug.LogFormat ("<color=cyan>print:</color> {0}", data);
 
+					if (dataOriginallyOnGpu)
+					{
+						this.Gpu();
+					}
+					
 					return data;
 
 				}
@@ -233,9 +248,11 @@ namespace OpenMined.Syft.Tensor
 
         public string Print()
         {
+
+	        bool dataOriginallyOnGpu = dataOnGpu;
             if (dataOnGpu)
             {
-                CopyGpuToCpu();
+	            Cpu();
             }
 
             string print = "";
@@ -263,7 +280,13 @@ namespace OpenMined.Syft.Tensor
                 }
                 print += "\n";
             }
-            return print;
+
+	        if (dataOriginallyOnGpu)
+	        {
+		        Gpu();
+
+	        }
+	        return print;
         }
     }
 }
