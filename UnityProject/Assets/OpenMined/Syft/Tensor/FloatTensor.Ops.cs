@@ -6,7 +6,7 @@ namespace OpenMined.Syft.Tensor
 {
     public partial class FloatTensor
     {
-
+		
         public FloatTensor Abs_()
         {
             if (dataOnGpu)
