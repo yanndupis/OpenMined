@@ -37,6 +37,20 @@ namespace OpenMined.Tests
         }
 
         [Test]
+        public void Copy()
+        {
+            float[] array = { 1, 2, 3, 4, 5 };
+            int[] shape = { 5 };
+
+            var tensor = new FloatTensor(array, shape);
+            var copy = tensor.Copy();
+
+            Assert.AreEqual(copy.Shape,tensor.Shape);
+            Assert.AreEqual(copy.Data, tensor.Data);
+            Assert.AreNotEqual(copy.Id, tensor.Id);
+        }
+
+        [Test]
         public void Create1DTensor()
         {
             float[] array = { 1, 2, 3, 4, 5 };

@@ -122,7 +122,13 @@ namespace OpenMined.Syft.Tensor
             // IDEs might show a warning, but ref and volatile seems to be working with Interlocked API.
             this.id = System.Threading.Interlocked.Increment(ref nCreated); 
         }
-        
+
+        public FloatTensor Copy()
+        {
+            FloatTensor copy = new FloatTensor(this.data, this.shape, this.dataOnGpu);
+            return copy;
+        }
+
         public float this[params int[] indices]
         {
             get
@@ -135,48 +141,60 @@ namespace OpenMined.Syft.Tensor
             }
         }
 
-		public string processMessage(Command msgObj, SyftController ctrl) {
-			
+		public string processMessage(Command msgObj, SyftController ctrl)
+        {
+            Debug.LogFormat("<color=magenta>Running function call {0}.</color>", msgObj.functionCall);
 
-			switch (msgObj.functionCall)
+            switch (msgObj.functionCall)
 			{
-			case "abs_":
+                case "abs_":
 				{
 					// calls the function on our tensor object
 					this.Abs_();
 					// returns the function call name with the OK status    
 					return this.Id + "";
 				}
-			case "add_":
+                case "add_":
 				{
 					this.Add_((float)msgObj.tensorIndexParams[0]); 
 					return msgObj.functionCall + ": OK";
 				}
-			case "add":
+                case "add":
 				{
 					FloatTensor tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams [0]);
 					FloatTensor output = tensor_1.Add (tensor_1);
 					return ctrl.addTensor (output).ToString ();
 				}
-
-			case "addmm_":
+                case "addmm_":
 				{
 					FloatTensor tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams [0]);
 					FloatTensor tensor_2 = ctrl.getTensor(msgObj.tensorIndexParams [1]);
 					this.AddMatrixMultiply (tensor_1, tensor_2);
 					return msgObj.functionCall + ": OK";
 				}
-			case "ceil":
-				{
-					this.Ceil (); 
-					return msgObj.functionCall + ": OK";
-				}
-			case "cpu":
+                case "ceil":
+                {
+                    this.Ceil();
+                    return msgObj.functionCall + ": OK";
+                }
+                case "copy":
+                {
+                    FloatTensor copy = this.Copy();
+                    copy.Shader = ctrl.Shader;
+                    ctrl.addTensor(copy);
+                    return copy.Id.ToString();
+                }
+                case "cpu":
 				{
 					this.Cpu(); 
 					return msgObj.functionCall + ": OK";
 				}
-			case "gpu":
+                case "delete":
+                {
+                    ctrl.RemoveTensor(msgObj.objectIndex);
+                    return "";
+                }
+                case "gpu":
 				{
 					if (this.Gpu())
 					{
@@ -187,25 +205,23 @@ namespace OpenMined.Syft.Tensor
 						return msgObj.functionCall + ": FAILED : Did not move data.";
 					}
 				}
-
-			case "mul":
+			    case "mul":
 				{
 					FloatTensor tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams [0]);
 					this.MulElementwise (tensor_1);
 					return msgObj.functionCall + ": OK";
 				}
-			case "mul_scalar":
+                case "mul_scalar":
 				{
 					this.MulScalar((float)msgObj.tensorIndexParams[0]);
 					return msgObj.functionCall + ": OK";
 				}
-			case "neg":
+			    case "neg":
 				{
 					this.Neg ();
 					return msgObj.functionCall + ": OK";
 				}
-
-			case "print":
+			    case "print":
 				{
 					bool dataOriginallyOnGpu = dataOnGpu;
 					if (dataOnGpu)
@@ -224,18 +240,18 @@ namespace OpenMined.Syft.Tensor
 					return data;
 
 				}
-			case "sub_":
+			    case "sub_":
 				{
 					FloatTensor tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams [0]);
 					this.ElementwiseSubtract (tensor_1);
 					return msgObj.functionCall + ": OK";
 				}
-			case "zero_":
+			    case "zero_":
 				{
 					this.Zero_ (); 
 					return msgObj.functionCall + ": OK";
 				}
-			default: break;
+			    default: break;
 			}
 			return "SyftController.processMessage: Command not found.";
 		}

@@ -21,6 +21,11 @@ namespace OpenMined.Network.Controllers
             tensors = new Dictionary<int, FloatTensor>();
         }
 
+        public ComputeShader Shader
+        {
+            get { return shader; }
+        }
+
         private float[] randomWeights(int length)
         {
             Random.InitState(1);
@@ -36,7 +41,19 @@ namespace OpenMined.Network.Controllers
 			return tensors [index];
 		}
 
-		public int addTensor(FloatTensor tensor) {
+        public ComputeShader GetShader()
+        {
+            return shader;
+        }
+
+        public void RemoveTensor(int index)
+        {
+            var tensor = tensors[index];
+            tensors.Remove(index);
+            tensor.Dispose();
+        }
+
+        public int addTensor(FloatTensor tensor) {
 			tensors.Add (tensor.Id, tensor);
 			return (tensors.Count - 1);
 		}
@@ -47,42 +64,42 @@ namespace OpenMined.Network.Controllers
 
             Command msgObj = JsonUtility.FromJson<Command>(json_message);
 
-            if (msgObj.functionCall == "createTensor")
+            Debug.LogFormat("<color=magenta>Message Received:</color> {0}", json_message);
+            Debug.LogFormat("<color=magenta>Switch:</color> {0}", msgObj.objectType);
+            switch (msgObj.objectType)
             {
-                FloatTensor tensor = new FloatTensor(msgObj.data, msgObj.shape);
-                tensor.Shader = shader;
-                tensors.Add(tensor.Id, tensor);
-
-                Debug.LogFormat("<color=magenta>createTensor:</color> {0}", string.Join(", ", tensor.Data));
-
-	            string id = tensor.Id.ToString();
-
-                return id;
-            } else if (msgObj.functionCall == "deleteTensor")
-            {
-	            var tensor = tensors[msgObj.objectIndex];
-	            tensors.Remove(msgObj.objectIndex);
-	            tensor.Dispose();
-            }
-            else if (msgObj.objectType == "tensor")
-            {
-                if (msgObj.objectIndex > tensors.Count)
+                case "tensor":
                 {
-                    return "Invalid objectIndex: " + msgObj.objectIndex;
-                }
-                else
-                {
-					FloatTensor tensor = this.getTensor(msgObj.objectIndex);    
-                    // Process message's function
-					return tensor.processMessage(msgObj,this);
-                }
-            }
-         
-	        // If not executing createTensor or tensor function, return default error.
-            return "SyftController.processMessage: Command not found.";
-            
-        }
+                    Debug.Log("Tensor switch running");
+                    Debug.LogFormat("<color=magenta>Index is {0}.</color>", msgObj.objectIndex);
 
-        
+                    if (msgObj.objectIndex == 0 && msgObj.functionCall=="create" )
+                    {
+                        FloatTensor tensor = new FloatTensor(msgObj.data, msgObj.shape);
+                        tensor.Shader = Shader;
+                        this.addTensor(tensor);
+                        Debug.LogFormat("<color=magenta>createTensor:</color> {0}", string.Join(", ", tensor.Data));
+                        return tensor.Id.ToString();
+                    }
+                    else if( msgObj.objectIndex > tensors.Count)
+                    {
+                        Debug.Log("Why???");
+                        return "Invalid objectIndex: " + msgObj.objectIndex;
+                    }
+                    else
+                    {
+                        Debug.LogFormat("<color=magenta>Getting tensor {0}.</color>", msgObj.objectIndex);
+                        FloatTensor tensor = this.getTensor(msgObj.objectIndex);
+                        // Process message's function
+                        return tensor.processMessage(msgObj, this);
+                    }
+                }
+                default: break;                
+            }
+            Debug.Log("Missed the switch");
+
+            // If not executing createTensor or tensor function, return default error.
+            return "SyftController.processMessage: Command not found.";            
+        }        
     }
 }
