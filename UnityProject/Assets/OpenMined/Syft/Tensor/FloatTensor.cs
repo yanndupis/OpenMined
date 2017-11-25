@@ -145,7 +145,7 @@ namespace OpenMined.Syft.Tensor
 					// calls the function on our tensor object
 					this.Abs_();
 					// returns the function call name with the OK status    
-					return this.Id.toString()
+					return this.Id + "";
 				}
 			case "add_":
 				{
