@@ -123,7 +123,7 @@ namespace OpenMined.Syft.Tensor
         {
             if (dataOnGpu)
             {
-                MulScalarGPU(scalar);
+                return MulScalarGPU(scalar);
             }
 
             var result = new FloatTensor(shape, dataOnGpu);

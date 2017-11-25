@@ -12,6 +12,7 @@ namespace OpenMined.Syft.Tensor
             if (dataOnGpu)
             {
                 Add_OnGpu(value);
+                return;
             }
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
@@ -27,6 +28,7 @@ namespace OpenMined.Syft.Tensor
             if (dataOnGpu)
             {
                 // GPU Absolute Value Code Here
+                return;
             }
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
@@ -43,6 +45,7 @@ namespace OpenMined.Syft.Tensor
             if (dataOnGpu)
             {
                 ZeroGPU_();
+                return;
             }
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
