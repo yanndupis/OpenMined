@@ -30,9 +30,9 @@ namespace OpenMined.Syft.Tensor
                 ElementwiseSubtractMainKernel = shader.FindKernel("ElementwiseSubtractMain");
                 MultiplyDerivativeKernel = shader.FindKernel("MultiplyDerivative");
                 AddMatrixMultiplyKernel = shader.FindKernel("AddMatrixMultiply");
-        				NegateValuesKernel = shader.FindKernel ("NegateValues");
+        		NegateValuesKernel = shader.FindKernel ("NegateValues");
                 CeilValuesKernel = shader.FindKernel ("CeilValues");
-				        NegateValuesKernel = shader.FindKernel ("NegateValues");
+				NegateValuesKernel = shader.FindKernel ("NegateValues");
                 Add_MainKernel = shader.FindKernel("Add_Main");
   
             }

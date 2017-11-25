@@ -7,70 +7,6 @@ namespace OpenMined.Syft.Tensor
     public partial class FloatTensor
     {
 
-        private void SameSizeDimensionsAndShape( ref FloatTensor tensor )
-        {
-            // Check if both tensors have same size
-            if (tensor.Size != size)
-            {
-                throw new InvalidOperationException ("Tensors cannot be added since they have different sizes.");
-            }
-            // Check if both tensors have same number of dimensions
-            if (tensor.Shape.Length != shape.Length)
-            {
-                throw new InvalidOperationException ("Tensors cannot be added since they have different number of dimensions.");
-            }
-            // Check if both tensors have same shapes
-            for (int i = 0; i < shape.Length; i++)
-            {
-                if (shape [i] != tensor.Shape [i])
-                {
-                    throw new InvalidOperationException ("Tensors cannot be added since they have different shapes.");
-                }
-            }
-        }
-        
-        private void SwapElements(ref int[] target, int index1, int index2)
-        {
-            int tmp = target[index1];
-            target[index1] = target[index2];
-            target[index2] = tmp;
-        }
-
-        private void SwapElements(ref long[] target, int index1, int index2)
-        {
-            long tmp = target[index1];
-            target[index1] = target[index2];
-            target[index2] = tmp;
-        }
-        
-        public FloatTensor Transpose()
-        {
-            if (shape.Length != 2)
-                throw new InvalidOperationException("Need to specify parameters for tensors with more than 2 dims.");
-
-            return Transpose(0, 1);
-        }
-
-        public FloatTensor Transpose(int dimension1, int dimension2)
-        {
-            //TODO: Should we create a new Tensor object here?
-
-            if (dimension1 < 0 || dimension1 >= shape.Length)
-                throw new ArgumentOutOfRangeException("dimension1");
-            if (dimension2 < 0 || dimension2 >= shape.Length)
-                throw new ArgumentOutOfRangeException("dimension2");
-
-            if (dimension1 == dimension2)
-            {
-                return this;
-            }
-
-            SwapElements(ref strides, dimension1, dimension2);
-            SwapElements(ref shape, dimension1, dimension2);
-
-            return this;
-        }
-
         public FloatTensor Abs()
         {
             if (dataOnGpu)
@@ -251,7 +187,28 @@ namespace OpenMined.Syft.Tensor
             }
             return this;
         }
-
+        
+        private void SameSizeDimensionsAndShape( ref FloatTensor tensor )
+        {
+            // Check if both tensors have same size
+            if (tensor.Size != size)
+            {
+                throw new InvalidOperationException ("Tensors cannot be added since they have different sizes.");
+            }
+            // Check if both tensors have same number of dimensions
+            if (tensor.Shape.Length != shape.Length)
+            {
+                throw new InvalidOperationException ("Tensors cannot be added since they have different number of dimensions.");
+            }
+            // Check if both tensors have same shapes
+            for (int i = 0; i < shape.Length; i++)
+            {
+                if (shape [i] != tensor.Shape [i])
+                {
+                    throw new InvalidOperationException ("Tensors cannot be added since they have different shapes.");
+                }
+            }
+        }
 
         public FloatTensor ScalarMultiplication(float scalar)
         {
@@ -266,6 +223,48 @@ namespace OpenMined.Syft.Tensor
                     Data[i] = Data[i] * scalar;
                 }
             }
+            return this;
+        }
+                
+        private void SwapElements(ref int[] target, int index1, int index2)
+        {
+            int tmp = target[index1];
+            target[index1] = target[index2];
+            target[index2] = tmp;
+        }
+
+        private void SwapElements(ref long[] target, int index1, int index2)
+        {
+            long tmp = target[index1];
+            target[index1] = target[index2];
+            target[index2] = tmp;
+        }
+                
+        public FloatTensor Transpose()
+        {
+            if (shape.Length != 2)
+                throw new InvalidOperationException("Need to specify parameters for tensors with more than 2 dims.");
+
+            return Transpose(0, 1);
+        }
+
+        public FloatTensor Transpose(int dimension1, int dimension2)
+        {
+            //TODO: Should we create a new Tensor object here?
+
+            if (dimension1 < 0 || dimension1 >= shape.Length)
+                throw new ArgumentOutOfRangeException("dimension1");
+            if (dimension2 < 0 || dimension2 >= shape.Length)
+                throw new ArgumentOutOfRangeException("dimension2");
+
+            if (dimension1 == dimension2)
+            {
+                return this;
+            }
+
+            SwapElements(ref strides, dimension1, dimension2);
+            SwapElements(ref shape, dimension1, dimension2);
+
             return this;
         }
         
