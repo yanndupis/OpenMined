@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using OpenMined.Syft.Tensor;
 using OpenMined.Network.Utils;
@@ -53,83 +55,114 @@ namespace OpenMined.Network.Controllers
 	            tensors.Remove(msgObj.objectIndex);
 	            tensor.Dispose();
             }
-            else
+            else if (msgObj.objectType == "tensor")
             {
-                if (msgObj.objectType == "tensor")
+                if (msgObj.objectIndex > tensors.Count)
                 {
-
-	                //Below check needs additions/fix.
-                    bool success = true;
-                    if (msgObj.objectIndex > FloatTensor.CreatedObjectCount)
-
-                    {
-                        return "Invalid objectIndex: " + msgObj.objectIndex;
-                    }
-
-                    FloatTensor tensor = tensors[msgObj.objectIndex];
-
-					if (msgObj.functionCall == "init_add_matrix_multiply") {
-						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
-						tensor.ElementwiseMultiplication (tensor_1);
-					} else if (msgObj.functionCall == "inline_elementwise_subtract") {
-						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
-						tensor.ElementwiseSubtract (tensor_1);
-					} else if (msgObj.functionCall == "multiply_derivative") {
-						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
-						tensor.MultiplyDerivative (tensor_1);
-					} else if (msgObj.functionCall == "add_matrix_multiply") {
-						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
-						FloatTensor tensor_2 = tensors [msgObj.tensorIndexParams [1]];
-						tensor.AddMatrixMultiply (tensor_1, tensor_2);
-					} else if (msgObj.functionCall == "print") {
-						return tensor.Print ();
-					} else if (msgObj.functionCall == "gpu") {
-						tensor.Gpu ();
-					} else if (msgObj.functionCall == "cpu") {
-						tensor.Cpu ();
-					}else if (msgObj.functionCall == "abs") {
-						// calls the function on our tensor object
-						tensor.Abs ();
-					}
-                    else if (msgObj.functionCall == "neg") {
-						tensor.Neg ();
-					}
-                    else if (msgObj.functionCall == "add") {
-						FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
-
-						FloatTensor output = tensor_1.Add (tensor_1);
-						tensors.Add(output.Id, output);
-						string id = output.Id.ToString();
-						return id;
-					}
-                    else if (msgObj.functionCall == "add_"){
-                        tensor.Add_((float)msgObj.tensorIndexParams[0]);
-                    }
-
-                    else if (msgObj.functionCall == "scalar_multiply")
-                    {
-                        //get the scalar, cast it and multiply
-                        tensor.ScalarMultiplication((float)msgObj.tensorIndexParams[0]);
-
-                    }
-                    else if (msgObj.functionCall == "ceil") {
-						          tensor.Ceil ();
-          					}
-                    else if (msgObj.functionCall == "zero_") {
-                        tensor.Zero_ ();
-                    }
-                    else
-                    {
-                        success = false;
-                    }
-
-                    if (success)
-                    {
-                        return msgObj.functionCall + ": OK";
-                    }
+                    return "Invalid objectIndex: " + msgObj.objectIndex;
+                }
+                else
+                {
+                    // Process message's function
+                    return processMessageFunction(msgObj);
                 }
             }
+            else
+	    {
+	        // If not executing createTensor or tensor function, return default error.
+                return "SyftController.processMessage: Command not found.";
+            }
+        }
 
+        public string processMessageFunction(Command msgObj)
+        {
+            FloatTensor tensor = tensors [msgObj.objectIndex];    
+            switch (msgObj.functionCall)
+            {
+                case "abs":
+                {
+                    // calls the function on our tensor object
+                    tensor.Abs ();
+                    // returns the function call name with the OK status    
+                    return msgObj.functionCall + ": OK";
+                }
+                
+                case "add":
+                {
+                    FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
+                    FloatTensor output = tensor_1.Add (tensor_1);
+                    tensors.Add (output);
+                    string id = (tensors.Count - 1).ToString ();
+                    return id;
+                }
+                 case "add_":
+                {
+                    tensor.Add_((float)msgObj.tensorIndexParams[0]); 
+                }
+                case "add_matrix_multiply":
+                {
+                    FloatTensor tensor_1 = tensors[msgObj.tensorIndexParams [0]];
+                    FloatTensor tensor_2 = tensors[msgObj.tensorIndexParams [1]];
+                    tensor.AddMatrixMultiply (tensor_1, tensor_2);
+                    return msgObj.functionCall + ": OK";
+                }
+              case "ceil":
+                {
+                 tensor.Ceil (); 
+                }
+              case "cpu":
+                {
+                  tensor.Cpu(); 
+                }
+              case "gpu":
+                {
+                 tensor.Gpu(); 
+                }
+                
+                case "init_add_matrix_multiply":
+                {
+                    FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
+                    tensor.ElementwiseMultiplication (tensor_1);
+                    return msgObj.functionCall + ": OK";
+                }
+                case "inline_elementwise_subtract":
+                {
+                    FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
+                    tensor.ElementwiseSubtract (tensor_1);
+                    return msgObj.functionCall + ": OK";
+                }
+                case "multiply_derivative":
+                {
+                    FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
+                    tensor.MultiplyDerivative (tensor_1);
+                    return msgObj.functionCall + ": OK";
+                }
+                case "neg":
+                {
+                    tensor.Neg ();
+                    return msgObj.functionCall + ": OK";
+                }
+                
+                case "print":
+                {
+                    tensor.Cpu ();
+
+                    string data = string.Join (", ", tensor.Data);
+                    Debug.LogFormat ("<color=cyan>print:</color> {0}", data);
+
+                    return data;
+
+                }
+                case "scalar_multiply":
+                {
+                  tensor.ScalarMultiplication((float)msgObj.tensorIndexParams[0]);
+                }
+              case "zero_":
+                {
+                 tensor.Zero_ (); 
+                }
+                default: break;
+            }
             return "SyftController.processMessage: Command not found.";
         }
     }
