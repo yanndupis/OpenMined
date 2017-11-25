@@ -12,7 +12,11 @@ namespace OpenMined.Syft.Tensor
         private static int ElementwiseSubtractMainKernel;
         private static int MultiplyDerivativeKernel;
         private static int AddMatrixMultiplyKernel;
-		private static int NegateValuesKernel;
+    		private static int NegateValuesKernel;
+        private static int CeilValuesKernel;
+    		private static int NegateValuesKernel;
+		    private static int ZeroValuesKernel;
+        private static int Add_MainKernel;
 
         public ComputeShader Shader
         {
@@ -27,7 +31,11 @@ namespace OpenMined.Syft.Tensor
                 ElementwiseSubtractMainKernel = shader.FindKernel("ElementwiseSubtractMain");
                 MultiplyDerivativeKernel = shader.FindKernel("MultiplyDerivative");
                 AddMatrixMultiplyKernel = shader.FindKernel("AddMatrixMultiply");
-				NegateValuesKernel = shader.FindKernel ("NegateValues");
+        				NegateValuesKernel = shader.FindKernel ("NegateValues");
+                CeilValuesKernel = shader.FindKernel ("CeilValues");
+				        NegateValuesKernel = shader.FindKernel ("NegateValues");
+                Add_MainKernel = shader.FindKernel("Add_Main");
+  
             }
         }
 
@@ -35,6 +43,13 @@ namespace OpenMined.Syft.Tensor
 
 			shader.SetBuffer (NegateValuesKernel, "data_neg", dataBuffer);
 			shader.Dispatch (NegateValuesKernel, 1, 1, 1);
+
+		}
+
+		public void ZeroGPU_() {
+
+			shader.SetBuffer (ZeroValuesKernel, "data_zero_", dataBuffer);
+			shader.Dispatch (ZeroValuesKernel, 1, 1, 1);
 
 		}
 
@@ -74,6 +89,17 @@ namespace OpenMined.Syft.Tensor
             }
         }
 
+        public void CeilOnGpu() {
+            Debug.LogFormat("<color=blue>FloatTensor.scalar_mult dataOnGpu: {0}</color>", dataOnGpu);
+
+            if (dataOnGpu)
+            {
+                shader.SetBuffer (CeilValuesKernel, "data_ceil", dataBuffer);
+			    shader.Dispatch (CeilValuesKernel, 1, 1, 1);
+            }
+		}
+
+
         public void ElementwiseSubtractOnGpu(FloatTensor other)
         {
             //Debug.LogFormat("<color=blue>FloatTensor.inline_elementwise_subtract dataOnGpu: {0}</color>", dataOnGpu);
@@ -92,7 +118,7 @@ namespace OpenMined.Syft.Tensor
                 {
                     for (int i = 0; i < size; i++)
                     {
-                        data[i] = data[i] - other.data[i];
+                        Data[i] = Data[i] - other.Data[i];
                     }
                 }
                 else
@@ -172,6 +198,21 @@ namespace OpenMined.Syft.Tensor
             shader.SetBuffer(AddMatrixMultiplyKernel, "data_k", tensor_1.DataBuffer); //d
             shader.SetBuffer(AddMatrixMultiplyKernel, "data_l", tensor_2.DataBuffer);
             shader.Dispatch(AddMatrixMultiplyKernel, size, 1, 1);
+        }
+
+        public void Add_OnGpu(float value)
+        {
+            Debug.LogFormat("<color=blue>FloatTensor.add_ dataOnGpu: {0}</color>", dataOnGpu);
+
+            if (dataOnGpu)
+            {
+                ComputeBuffer valBuffer = SendFloatToGpu(value, "temp_adder");
+
+                shader.SetBuffer(Add_MainKernel, "data_m", dataBuffer);
+                shader.Dispatch(Add_MainKernel, 1, 1, 1);
+
+                valBuffer.Release();
+            }
         }
 
         private ComputeBuffer SendFloatToGpu(float value, string name)

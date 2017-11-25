@@ -1,18 +1,20 @@
-using UnityEngine;
 using System;
+using UnityEngine;
 
 namespace OpenMined.Syft.Tensor
 {
     public partial class FloatTensor
     {
+        // Should we put a check incase this variable overflows?
+        private static volatile int nCreated = 0;
+
         private float[] data;
         private long[] strides;
         private int[] shape;
         private int size;
-
-//		private bool dataOnGpu;
-//		public bool DataOnGpu => dataOnGpu;
-
+        
+        private int id;
+        
         private long GetIndex(params int[] indices)
         {
             long offset = 0;
@@ -27,9 +29,7 @@ namespace OpenMined.Syft.Tensor
 
         public float[] Data
         {
-            get { return data; }
-            
-            set { data = value;  }
+            get { return data; }            
         }
 
         public int[] Shape
@@ -42,69 +42,131 @@ namespace OpenMined.Syft.Tensor
             get { return size; }
         }
 
-		public FloatTensor(int[] _shape, bool init_on_gpu) {
+        public int Id
+        {
+            get { return id; }
+            
+            set { id = value; }
+        }
 
-			this.shape = (int[])_shape.Clone ();
-			this.size = _shape[0];
+        public static int CreatedObjectCount
+        {
+            get { return nCreated; }
+        }
 
-			for (int i = 1; i < _shape.Length; i++) {
-				this.size *= _shape [i];
-			}
+        public FloatTensor(int[] _shape, bool _initOnGpu = false) {
 
-			this.data = new float[this.size];
+            this.size = 1;
+            this.shape = (int[])_shape.Clone();
+            this.strides = new long[_shape.Length];
 
-			if (init_on_gpu) {
-				Gpu ();
-			}
-		}
+            for (var i = _shape.Length - 1; i >= 0; --i)
+            {
+                this.strides[i] = this.size;
+                this.size *= _shape[i];
+            }
 
-        public FloatTensor(float[] _data, int[] _shape)
+            if (_initOnGpu)
+            {
+                this.dataOnGpu = true;
+                this.dataBuffer = new ComputeBuffer(this.size, sizeof(float));
+                this.shapeBuffer = new ComputeBuffer(this.shape.Length, sizeof(int));
+            }
+            else
+            {
+                this.data = new float[this.size];
+            }
+            
+            this.id = System.Threading.Interlocked.Increment(ref nCreated);
+        }
+
+        public FloatTensor(float[] _data, int[] _shape, bool _initOnGpu = false)
         {
             //TODO: Can contigous allocation might be a problem?
-            //TODO: Should we create different allocation methods for CPU and GPU?
 
+            if (_shape == null || _shape.Length == 0) {
+                throw new InvalidOperationException("Tensor shape can't be an empty array.");
+            }
+            
             this.size = _data.Length;
+            this.shape = (int[])_shape.Clone();
             this.strides = new long[_shape.Length];
 
             long acc = 1;
-            for (int i = _shape.Length - 1; i >= 0; --i)
+            for (var i = _shape.Length - 1; i >= 0; --i)
             {
                 this.strides[i] = acc;
                 acc *= _shape[i];
             }
 
             if (acc != this.size)
-                throw new FormatException("Tensor shape and data do not match");
+                throw new FormatException("Tensor shape and data do not match.");
 
-            this.data = (float[])_data.Clone();
-			this.shape = (int[])_shape.Clone();
+            if (_initOnGpu)
+            {
+                this.dataOnGpu = true;
+                
+                this.dataBuffer = new ComputeBuffer(this.size, sizeof(float));
+                this.dataBuffer.SetData(_data);	
+                
+                this.shapeBuffer = new ComputeBuffer(this.shape.Length, sizeof(int));
+                this.shapeBuffer.SetData(this.shape);
+            }
+            else
+            {
+                this.data = (float[])_data.Clone();
+            }
+
+            // IDEs might show a warning, but ref and volatile seems to be working with Interlocked API.
+            this.id = System.Threading.Interlocked.Increment(ref nCreated); 
         }
-
-
+        
         public float this[params int[] indices]
         {
             get
             {
-                return data[GetIndex(indices)];
+                return Data[GetIndex(indices)];
             }
             set
             {
-                data[GetIndex(indices)] = value;
+                Data[GetIndex(indices)] = value;
             }
         }
-        
-        
-        public void Print()
+
+
+        public string Print()
         {
             if (dataOnGpu)
             {
                 CopyGpuToCpu();
             }
 
-            for (int i = 0; i < size; i++)
+            string print = "";
+
+            if (shape.Length > 3)
+                print += "Only printing the last 3 dimesnions\n";
+            int d3 = 1;
+            if (shape.Length > 2)
+                d3 = shape[shape.Length - 3];
+            int d2 = 1;
+            if (shape.Length > 1)
+                d2 = shape[shape.Length-2];
+            int d1 = shape[shape.Length-1];
+
+            for (int k = 0; k < d3; k++)
             {
-                Debug.Log(data[i]);
+                for (int j = 0; j < d2; j++)
+                {
+                    for (int i = 0; i < d1; i++)
+                    {
+                        float f = data[i + j * d2 + k * d1 * d2 ];
+                        print += f.ToString() + ",\t";
+                    }
+                    print += "\n";
+                }
+                print += "\n";
             }
+            return print;
         }
     }
 }

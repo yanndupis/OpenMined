@@ -12,13 +12,13 @@ namespace OpenMined.Network.Controllers
     {
         [SerializeField] private ComputeShader shader;
 
-        private List<FloatTensor> tensors;
+        private Dictionary<int, FloatTensor> tensors;
 
         public SyftController(ComputeShader _shader)
         {
             shader = _shader;
 
-            tensors = new List<FloatTensor>();
+            tensors = new Dictionary<int, FloatTensor>();
         }
 
         private float[] randomWeights(int length)
@@ -42,13 +42,18 @@ namespace OpenMined.Network.Controllers
             {
                 FloatTensor tensor = new FloatTensor(msgObj.data, msgObj.shape);
                 tensor.Shader = shader;
-                tensors.Add(tensor);
+                tensors.Add(tensor.Id, tensor);
 
                 Debug.LogFormat("<color=magenta>createTensor:</color> {0}", string.Join(", ", tensor.Data));
 
-                string id = (tensors.Count - 1).ToString();
+	            string id = tensor.Id.ToString();
 
                 return id;
+            } else if (msgObj.functionCall == "deleteTensor")
+            {
+	            var tensor = tensors[msgObj.objectIndex];
+	            tensors.Remove(msgObj.objectIndex);
+	            tensor.Dispose();
             }
             else if (msgObj.objectType == "tensor")
             {
@@ -81,6 +86,7 @@ namespace OpenMined.Network.Controllers
                     // returns the function call name with the OK status    
                     return msgObj.functionCall + ": OK";
                 }
+                
                 case "add":
                 {
                     FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
@@ -89,6 +95,10 @@ namespace OpenMined.Network.Controllers
                     string id = (tensors.Count - 1).ToString ();
                     return id;
                 }
+                 case "add_":
+                {
+                    tensor.Add_((float)msgObj.tensorIndexParams[0]); 
+                }
                 case "add_matrix_multiply":
                 {
                     FloatTensor tensor_1 = tensors[msgObj.tensorIndexParams [0]];
@@ -96,6 +106,19 @@ namespace OpenMined.Network.Controllers
                     tensor.AddMatrixMultiply (tensor_1, tensor_2);
                     return msgObj.functionCall + ": OK";
                 }
+              case "ceil":
+                {
+                 tensor.Ceil (); 
+                }
+              case "cpu":
+                {
+                  tensor.Cpu(); 
+                }
+              case "gpu":
+                {
+                 tensor.Gpu(); 
+                }
+                
                 case "init_add_matrix_multiply":
                 {
                     FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
@@ -119,6 +142,7 @@ namespace OpenMined.Network.Controllers
                     tensor.Neg ();
                     return msgObj.functionCall + ": OK";
                 }
+                
                 case "print":
                 {
                     tensor.Cpu ();
@@ -127,6 +151,15 @@ namespace OpenMined.Network.Controllers
                     Debug.LogFormat ("<color=cyan>print:</color> {0}", data);
 
                     return data;
+
+                }
+                case "scalar_multiply":
+                {
+                  tensor.ScalarMultiplication((float)msgObj.tensorIndexParams[0]);
+                }
+              case "zero_":
+                {
+                 tensor.Zero_ (); 
                 }
                 default: break;
             }

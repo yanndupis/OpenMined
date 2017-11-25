@@ -7,10 +7,12 @@ Table of Contents:
  * [General Troubleshooting](#general-troubleshooting)
  * [Links and HowTos](#links-and-how-tos)
  * [References](#references)
- 
+
 ## Introduction
 
 OpenMined Unity Application applies the [PySyft](https://github.com/OpenMined/PySyft) library into a Unity Application. Please see the PySyft repository README.md for more details on the intent of OpenMined and to familiarize yourself more with the basic concepts of the project.
+
+Also check out the [Docs](https://github.com/OpenMined/Docs) for more information! We are working toward consolidating all the documentation to make it easier for new contributors. 
 
 **Why Unity?**
 
@@ -30,15 +32,19 @@ Unity has a few advantages that we are leveraging for this project
 
 ## Quick Setup
 
-1. Download Unity from [here](https://store.unity.com/). I chose the personal version. This will provide you a .dmg installer, which will download and install the necessary components (~800mb). 
-    - If you do not already have one, you will have to create a Unity account when you open the Application for the first time.
+1. Install Unity:
+    - Windows & Mac users: Download it from [here](https://store.unity.com/). 
+    - Linux users: Download it from [here](http://beta.unity3d.com/download/ee86734cf592/public_download.html)
+
+note: If you do not already have one, you will have to create a Unity account when you open the Application for the first time.
+
 2. Open project in Unity `[File -> Open Project -> Directory/To/OpenMined`]
 
 3. Open Juptyer Notebooks in the `notebooks` directory.  
 
 ## Setup Troubleshooting 
 
-If you have an issue, refer to the following steps for a more detailed project setup. These steps were confirmed to work under a Windows enviornment, though the steps should be applicable to alternative operating systems. 
+If you have an issue, refer to the following steps for a more detailed project setup. These steps were confirmed to work under a Windows/linux enviornment, though the steps should be applicable to alternative operating systems. 
 
 The steps come in two parts:   
 **Part 1:** Unity Setup   
@@ -46,13 +52,13 @@ The steps come in two parts:
 
 **Unity Setup**  
 
-1. Download Unity from [here](https://store.unity.com/). I chose the personal version. This will provide you a .dmg installer, which will download and install the necessary components (~800mb).  
-2. Open project in Unity `[Open(Top Right of Home Screen)	 -> Directory/To/OpenMined`]
-3. In the Project Pane (usually below), Double Click Assets/_Scenes/DefaultScene. If you can't find the file for some reason:
+1. Download Unity from [here](https://store.unity.com/) or [here](http://beta.unity3d.com/download/ee86734cf592/public_download.html)(linux)  
+  2. Open project in Unity `[Open(Top Right of Home Screen) -> Directory/To/OpenMined`]
+2. In the Project Pane (usually below), Double Click Assets/_Scenes/DefaultScene. If you can't find the file for some reason:
 - On the right menu: Check `Main Camera` object has `SyftServer.cs` component attached to it
 - On the bottom dialog: Go to `Assets/OpenMined/Network/Servers` drag `SyftServer.cs` to `Main Camera` object
 - Add a `Compute Shader` to the `Shader` variable of `SyftServer.cs` script
-- Go to `Assets/OpenMined/Syft/Math/Shaers` drag `NewComputeShader` to `SyftServer (Script)` component recently attached to `Main Camera`
+- Go to `Assets/OpenMined/Syft/Math/Shaders` drag `NewComputeShader` to `SyftServer (Script)` component recently attached to `Main Camera`
 4. Hit `Play` on the Unity Editor
 
 **Jupyter Setup**
@@ -75,28 +81,28 @@ Same steps as above. Download Unity from [here](https://store.unity.com/). I cho
 1) *If my applications do not seem to be communicating between eachother...*
 
 **Check if the Server is running...**
-___    
+___
 It should run on port 5555 and this can be checked by running the following command on CMD with administrator permissions.  
 ```
 netstat -a -b | findstr :5555  
-```  
+```
 If just the Server is running, the output should be:  
 ```
 TCP    0.0.0.0:5555           YOUR_PC_NAME:0      LISTENING
-```  
+```
 If both Server and Jupyter Notebook are running and communicating, the output should be:  
 
 ```
 TCP    0.0.0.0:5555           YOUR_PC_NAME:0      LISTENING
 TCP    127.0.0.1:5555         YOUR_PC_NAME:63956  ESTABLISHED
 TCP    127.0.0.1:63956        YOUR_PC_NAME:5555   ESTABLISHED
-```  
+```
 Another way:   
 **Osx/Linux**  
 
 ```  
 lsof -i :5555
-```  
+```
 Result should be:   
 
 ```  
@@ -114,7 +120,7 @@ Go to Edit -> Project Settings -> Player. The inspector pane will now change to 
 ## Links and How Tos
 
 ##### How Tos:
----  
+---
 [How to add a Function to Float Tensor](https://docs.google.com/document/d/1WRd7gGLFN0Awtf86AICYIHtg3gfFWLBa5wYTthsB3i0/edit?usp=sharing)
 
 ##### Video Links:
