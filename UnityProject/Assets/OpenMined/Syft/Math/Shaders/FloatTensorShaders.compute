@@ -39,39 +39,41 @@ void AbsMain (uint3 id : SV_DispatchThreadID) {
 #pragma kernel NegateValues
 
 RWStructuredBuffer<float> data_neg;
-
+RWStructuredBuffer<float> result_neg;
 [numthreads(4,1,1)]
 void NegateValues (uint3 id: SV_DispatchThreadID) {
-	data_neg[id.x] = -data_neg[id.x];
+	result_neg[id.x] = -data_neg[id.x];
 }
 
 #pragma kernel CeilValues
 
 RWStructuredBuffer<float> data_ceil;
-
+RWStructuredBuffer<float> result_ceil;
 [numthreads(4,1,1)]
 void CeilValues (uint3 id: SV_DispatchThreadID) {
-		data_ceil[id.x] = ceil(data_ceil[id.x]);
+		result_ceil[id.x] = ceil(data_ceil[id.x]);
 }
 
 #pragma kernel ElementwiseMultMain
 
 RWStructuredBuffer<float> data_a;
 RWStructuredBuffer<float> data_b;
- 
+RWStructuredBuffer<float> result_elem;
+
 [numthreads(4,1,1)]
 void ElementwiseMultMain (uint3 id : SV_DispatchThreadID) {
-    data_a[id.x] = data_a[id.x] * data_b[id.x];
+    result_elem[id.x] = data_a[id.x] * data_b[id.x];
 }
 
 #pragma kernel ElementwiseSubtractMain
 
 RWStructuredBuffer<float> data_c;
 RWStructuredBuffer<float> data_d;
+RWStructuredBuffer<float> result_sub;
 
 [numthreads(4,1,1)]
 void ElementwiseSubtractMain (uint3 id : SV_DispatchThreadID) {
-    data_c[id.x] = data_c[id.x] - data_d[id.x];
+    result_sub[id.x] = data_c[id.x] - data_d[id.x];
 }
 
 

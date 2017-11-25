@@ -74,7 +74,7 @@ namespace OpenMined.Network.Controllers
                 {
 					FloatTensor tensor = this.getTensor(msgObj.objectIndex);    
                     // Process message's function
-					return tensor.processMessage(msgObj,this);
+					return tensor.ProcessMessage(msgObj,this);
                 }
             }
          
