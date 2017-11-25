@@ -1,5 +1,7 @@
 OpenMined Unity Application
 =============================================
+[![Build Status](https://travis-ci.org/OpenMined/OpenMined.svg?branch=master)](https://travis-ci.org/OpenMined/OpenMined) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 Table of Contents:   
 
  * [Introduction](#introduction)
@@ -10,7 +12,7 @@ Table of Contents:
 
 ## Introduction
 
-OpenMined Unity Application applies the [PySyft](https://github.com/OpenMined/PySyft) library into a Unity Application. Please see the PySyft repository README.md for more details on the intent of OpenMined, to familiarize yourself more with the basic concepts of the project, as well as an installation/contribution guide.
+OpenMined Unity Application applies the [PySyft](https://github.com/OpenMined/PySyft) library into a Unity Application. Please see the PySyft repository README.md for more details on the intent of OpenMined and to familiarize yourself more with the basic concepts of the project.
 
 Also check out the [Docs](https://github.com/OpenMined/Docs) for more information! We are working toward consolidating all the documentation to make it easier for new contributors.
 
@@ -116,13 +118,6 @@ Unity   1709 user   38u  IPv4 0x59e297c6d0d734e31      0t0  TCP *:personal-agent
 	By default, the "Run in background" options is disabled. So if the Unity Editor loses focus then the Jupyter Notebook won't work.
 Go to Edit -> Project Settings -> Player. The inspector pane will now change to show the player settings. Look for the option that says "Run In Background" and check it [1]
 
-# Automated Testing (For MacOS X/Linux only)
-To run unit tests automatically, locate your terminal in the repository's main directory (not 'UnityProject'), and execute:
-```
-sh scripts/test.sh
-```
-It is required that you have the Unity application closed, otherwise it won't work.
-Search for the :white_check_mark: or :x:, which will indicate if the tests passed or failed. In any case, a JSON object will be displayed with the execution results. If there's a compilation error, a debug log will show up instead.
 
 ## Links and How Tos
 
