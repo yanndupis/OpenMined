@@ -273,5 +273,20 @@ namespace OpenMined.Syft.Tensor
             }
             return this;
         }
+
+        public FloatTensor Ceil()
+        // Returns a new Tensor with the smallest integer greater than or equal to each element
+        {
+            if (dataOnGpu)
+            {
+                CeilOnGpu();
+            }
+            else
+            {
+                for (int i = 0; i < size; i++)
+                    Data[i] = (float)(Math.Ceiling(Data[i]));
+            }
+            return this;
+        }
     }
 }

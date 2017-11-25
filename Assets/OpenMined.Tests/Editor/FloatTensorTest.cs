@@ -465,6 +465,24 @@ namespace OpenMined.Tests
                 Assert.AreEqual (tensor2.Data [i] * scalar, tensor1.Data [i] );
             }
         }
+        [Test]
+        public void Ceil()
+        {
+            float[] data1 = { 5.89221f, -20.11f, 9.0f, 100.4999f, 100.5001f };
+            int[] shape1 = { 5 };
+            var tensor1 = new FloatTensor(data1, shape1);
+
+            float[] data2 = { 6, -20, 9, 101, 101 };
+            int[] shape2 = { 5 };
+            var tensorCeil = new FloatTensor(data2, shape2);
+
+            tensor1.Ceil ();
+
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+                Assert.AreEqual (tensor1.Data[i], tensorCeil.Data[i]);
+            }
+        }
 
         [Test]
         public void Add_()

@@ -112,6 +112,9 @@ namespace OpenMined.Network.Controllers
                         tensor.ScalarMultiplication((float)msgObj.tensorIndexParams[0]);
 
                     }
+                    else if (msgObj.functionCall == "ceil") {
+						          tensor.Ceil ();
+          					}
                     else if (msgObj.functionCall == "zero_") {
                         tensor.Zero_ ();
                     }
