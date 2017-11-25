@@ -225,7 +225,7 @@ namespace OpenMined.Syft.Tensor
                 case "sub_":
                 {
                     var tensor1 = ctrl.getTensor(msgObj.tensorIndexParams[0]);
-                    var result = ElementwiseSubtract(tensor1);
+					var result = SubtractElementwise(tensor1);
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }
