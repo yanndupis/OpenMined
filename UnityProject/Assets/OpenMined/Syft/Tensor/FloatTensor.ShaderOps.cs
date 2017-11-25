@@ -10,6 +10,7 @@ namespace OpenMined.Syft.Tensor
         [SerializeField]
 		private static int AbsKernel_;
 		private static int AddScalarKernel_;
+		private static int AddElemKernel_;
 		private static int AddMMKernel_;
 		private static int CeilKernel;
 		private static int MultElemKernel;
@@ -28,6 +29,7 @@ namespace OpenMined.Syft.Tensor
                 // save shaders and kernels
 				AbsKernel_ = shader.FindKernel("Abs_");
 				AddScalarKernel_ = shader.FindKernel("AddScalar_");
+				AddElemKernel_ = shader.FindKernel("AddElem_");
 				AddMMKernel_ = shader.FindKernel("AddMM_");
 				CeilKernel = shader.FindKernel("Ceil");
 				MultElemKernel = shader.FindKernel("MultElem");
@@ -41,7 +43,7 @@ namespace OpenMined.Syft.Tensor
 
 		public void AbsGPU_() {
 			if (dataOnGpu) {
-				shader.SetBuffer (AbsKernel_, "abs_data", dataBuffer);
+				shader.SetBuffer (AbsKernel_, "abs_data_", dataBuffer);
 				shader.Dispatch (AbsKernel_, this.size, 1, 1);
 			}
 		}
@@ -52,12 +54,26 @@ namespace OpenMined.Syft.Tensor
 
 			if (dataOnGpu)
 			{
-				var valBuffer = SendFloatToGpu(AddScalarKernel_, value, "add_scalar_scalar");
+				var valBuffer = SendFloatToGpu(AddScalarKernel_, value, "add_scalar_scalar_");
 
-				shader.SetBuffer(AddScalarKernel_, "add_scalar_data", dataBuffer);
+				shader.SetBuffer(AddScalarKernel_, "add_scalar_data_", dataBuffer);
 				shader.Dispatch(AddScalarKernel_, 1, 1, 1);
 
 				valBuffer.Release();
+			}
+		}
+
+		public void AddElemGPU_(FloatTensor tensor)
+		{
+			Debug.LogFormat("<color=blue>FloatTensor.add_ dataOnGpu: {0}</color>", dataOnGpu);
+
+			if (dataOnGpu)
+			{
+
+				shader.SetBuffer(AddScalarKernel_, "add_data_data_a_", dataBuffer);
+				shader.SetBuffer(AddScalarKernel_, "add_data_data_b_", tensor.dataBuffer);
+				shader.Dispatch(AddScalarKernel_, 1, 1, 1);
+
 			}
 		}
 
@@ -127,9 +143,9 @@ namespace OpenMined.Syft.Tensor
 
 			if (dataOnGpu)
 			{
-				var scalarBuffer = SendFloatToGpu(MultScalarKernel_, value, "mult_scalar_scalar");
+				var scalarBuffer = SendFloatToGpu(MultScalarKernel_, value, "mult_scalar_scalar_");
 
-				shader.SetBuffer(MultScalarKernel_, "mult_scalar_data", dataBuffer);
+				shader.SetBuffer(MultScalarKernel_, "mult_scalar_data_", dataBuffer);
 				shader.Dispatch(MultScalarKernel_, 1, 1, 1);
 
 				scalarBuffer.Release();
@@ -178,7 +194,7 @@ namespace OpenMined.Syft.Tensor
 
         public void ZeroGPU_()
         {
-			shader.SetBuffer(ZeroKernel_, "zero_data", dataBuffer);
+			shader.SetBuffer(ZeroKernel_, "zero_data_", dataBuffer);
 			shader.Dispatch(ZeroKernel_, 1, 1, 1);
         }
 
