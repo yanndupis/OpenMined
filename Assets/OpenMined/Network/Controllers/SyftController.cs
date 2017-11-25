@@ -97,6 +97,9 @@ namespace OpenMined.Network.Controllers
 						string id = output.Id.ToString();
 						return id;
 					}
+                    else if (msgObj.functionCall == "add_"){
+                        tensor.Add_((float)msgObj.tensorIndexParams[0]);
+                    }
 
                     else if (msgObj.functionCall == "scalar_multiply")
                     {
