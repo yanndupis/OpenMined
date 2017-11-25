@@ -198,10 +198,6 @@ namespace OpenMined.Syft.Tensor
             }
         }
 
-
-
-        
-
         private ComputeBuffer SendFloatToGpu(int kernel, float value, string name)
         {
             float[] scalarArray = new float[1];
@@ -214,27 +210,5 @@ namespace OpenMined.Syft.Tensor
             return scalarBuffer;
         }
 
-        // TODO we should split these functions. i.e. sigmoid_matrix_multiply -> sigmoid and multiply 
-        /* public void init_sigmoid_matrix_multiply(FloatTensor tensor_1)
-         {
-             Dimensions[] dim = new Dimensions[]
-             {
-                 new Dimensions(tensor_1.Shape.Length, tensor_1.Shape[0])
-             };
- 
-             ComputeBuffer dim_buffer = new ComputeBuffer(dim.Length, dim[0].stride());
-             dim_buffer.SetData(dim);
-             shader.SetBuffer(SigmoidMatrixMultiply, "dimensions_a", dim_buffer);
-         }
- 
-         public void sigmoid_matrix_multiply(FloatTensor tensor_1, FloatTensor tensor_2)
-         {
-             //Debug.LogFormat("<color=blue>FloatTensor.sigmoid_matrix_multiply dataOnGpu: {0}</color>", dataOnGpu);
-             shader.SetBuffer(SigmoidMatrixMultiply, "data_e", dataBuffer);
-             shader.SetBuffer(SigmoidMatrixMultiply, "data_f", tensor_1.dataBuffer);
-             shader.SetBuffer(SigmoidMatrixMultiply, "data_g", tensor_2.dataBuffer);
-             shader.Dispatch(SigmoidMatrixMultiply, size, 1, 1);
-         }
- */
     }
 }
