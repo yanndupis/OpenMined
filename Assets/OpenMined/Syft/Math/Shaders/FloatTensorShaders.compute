@@ -112,6 +112,17 @@ void AddMatrixMultiply (uint3 id : SV_DispatchThreadID) {
 	data_j[id.x] += product;
 }
 
+#pragma kernel Add_Main
+
+RWStructuredBuffer<float> data_m;
+RWStructuredBuffer<float> temp_adder;
+
+[numthreads(4,1,1)]
+void Add_Main (uint3 id: SV_DispatchThreadID) {
+	data_m[id.x] = data_m[id.x] + temp_adder[0];
+}
+
+
 
 #pragma kernel ResetWeights
 
