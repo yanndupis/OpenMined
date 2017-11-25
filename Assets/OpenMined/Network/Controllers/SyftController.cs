@@ -38,7 +38,7 @@ namespace OpenMined.Network.Controllers
 
 		public int addTensor(FloatTensor tensor) {
 			tensors.Add (tensor.Id, tensor);
-			return tensor.Id;
+			return (tensors.Count - 1);
 		}
 
         public string processMessage(string json_message)
@@ -72,8 +72,9 @@ namespace OpenMined.Network.Controllers
                 }
                 else
                 {
+					FloatTensor tensor = this.getTensor(msgObj.objectIndex);    
                     // Process message's function
-                    return processMessageFunction(msgObj);
+					return tensor.processMessage(msgObj,this);
                 }
             }
          
@@ -82,102 +83,6 @@ namespace OpenMined.Network.Controllers
             
         }
 
-        public string processMessageFunction(Command msgObj)
-        {
-            FloatTensor tensor = tensors [msgObj.objectIndex];    
-            switch (msgObj.functionCall)
-            {
-                case "abs":
-                {
-                    // calls the function on our tensor object
-                    tensor.Abs ();
-                    // returns the function call name with the OK status    
-                    return msgObj.functionCall + ": OK";
-                }
-				case "add_":
-				{
-					tensor.Add_((float)msgObj.tensorIndexParams[0]); 
-					return msgObj.functionCall + ": OK";
-				}
-                case "add":
-                {
-                    FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
-                    FloatTensor output = tensor_1.Add (tensor_1);
-					tensors.Add (output.Id, output);
-                    string id = (tensors.Count - 1).ToString ();
-                    return id;
-                }
-                
-                case "add_matrix_multiply":
-                {
-                    FloatTensor tensor_1 = tensors[msgObj.tensorIndexParams [0]];
-                    FloatTensor tensor_2 = tensors[msgObj.tensorIndexParams [1]];
-                    tensor.AddMatrixMultiply (tensor_1, tensor_2);
-                    return msgObj.functionCall + ": OK";
-                }
-              case "ceil":
-                {
-                 tensor.Ceil (); 
-					return msgObj.functionCall + ": OK";
-                }
-              case "cpu":
-                {
-                  tensor.Cpu(); 
-					return msgObj.functionCall + ": OK";
-                }
-              case "gpu":
-                {
-                 tensor.Gpu(); 
-					return msgObj.functionCall + ": OK";
-                }
-                
-                case "init_add_matrix_multiply":
-                {
-                    FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
-                    tensor.ElementwiseMultiplication (tensor_1);
-                    return msgObj.functionCall + ": OK";
-                }
-                case "inline_elementwise_subtract":
-                {
-                    FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
-                    tensor.ElementwiseSubtract (tensor_1);
-                    return msgObj.functionCall + ": OK";
-                }
-                case "multiply_derivative":
-                {
-                    FloatTensor tensor_1 = tensors [msgObj.tensorIndexParams [0]];
-                    tensor.MultiplyDerivative (tensor_1);
-                    return msgObj.functionCall + ": OK";
-                }
-                case "neg":
-                {
-                    tensor.Neg ();
-                    return msgObj.functionCall + ": OK";
-                }
-                
-                case "print":
-                {
-                    tensor.Cpu ();
-
-                    string data = string.Join (", ", tensor.Data);
-                    Debug.LogFormat ("<color=cyan>print:</color> {0}", data);
-
-                    return data;
-
-                }
-                case "scalar_multiply":
-                {
-                  tensor.ScalarMultiplication((float)msgObj.tensorIndexParams[0]);
-					return msgObj.functionCall + ": OK";
-                }
-              case "zero_":
-                {
-                 tensor.Zero_ (); 
-					return msgObj.functionCall + ": OK";
-                }
-                default: break;
-            }
-            return "SyftController.processMessage: Command not found.";
-        }
+        
     }
 }

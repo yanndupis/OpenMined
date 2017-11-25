@@ -1,5 +1,7 @@
 using System;
 using UnityEngine;
+using OpenMined.Network.Utils;
+using OpenMined.Network.Controllers;
 
 namespace OpenMined.Syft.Tensor
 {
@@ -133,6 +135,101 @@ namespace OpenMined.Syft.Tensor
             }
         }
 
+		public string processMessage(Command msgObj, SyftController ctrl) {
+			
+
+			switch (msgObj.functionCall)
+			{
+			case "abs":
+				{
+					// calls the function on our tensor object
+					this.Abs ();
+					// returns the function call name with the OK status    
+					return msgObj.functionCall + ": OK";
+				}
+			case "add_":
+				{
+					this.Add_((float)msgObj.tensorIndexParams[0]); 
+					return msgObj.functionCall + ": OK";
+				}
+			case "add":
+				{
+					FloatTensor tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams [0]);
+					FloatTensor output = tensor_1.Add (tensor_1);
+					return ctrl.addTensor (output).ToString ();
+				}
+
+			case "add_matrix_multiply":
+				{
+					FloatTensor tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams [0]);
+					FloatTensor tensor_2 = ctrl.getTensor(msgObj.tensorIndexParams [1]);
+					this.AddMatrixMultiply (tensor_1, tensor_2);
+					return msgObj.functionCall + ": OK";
+				}
+			case "ceil":
+				{
+					this.Ceil (); 
+					return msgObj.functionCall + ": OK";
+				}
+			case "cpu":
+				{
+					this.Cpu(); 
+					return msgObj.functionCall + ": OK";
+				}
+			case "gpu":
+				{
+					this.Gpu(); 
+					return msgObj.functionCall + ": OK";
+				}
+
+			case "init_add_matrix_multiply":
+				{
+					FloatTensor tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams [0]);
+					this.ElementwiseMultiplication (tensor_1);
+					return msgObj.functionCall + ": OK";
+				}
+			case "inline_elementwise_subtract":
+				{
+					FloatTensor tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams [0]);
+					this.ElementwiseSubtract (tensor_1);
+					return msgObj.functionCall + ": OK";
+				}
+			case "multiply_derivative":
+				{
+					FloatTensor tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams [0]);
+					this.MultiplyDerivative (tensor_1);
+					return msgObj.functionCall + ": OK";
+				}
+			case "neg":
+				{
+					this.Neg ();
+					return msgObj.functionCall + ": OK";
+				}
+
+			case "print":
+				{
+					this.Cpu ();
+
+					string data = string.Join (", ", this.Data);
+					Debug.LogFormat ("<color=cyan>print:</color> {0}", data);
+
+					return data;
+
+				}
+			case "scalar_multiply":
+				{
+					this.ScalarMultiplication((float)msgObj.tensorIndexParams[0]);
+					return msgObj.functionCall + ": OK";
+				}
+			case "zero_":
+				{
+					this.Zero_ (); 
+					return msgObj.functionCall + ": OK";
+				}
+			default: break;
+			}
+			return "SyftController.processMessage: Command not found.";
+		}
 
         public string Print()
         {
