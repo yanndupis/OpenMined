@@ -124,6 +124,12 @@ namespace OpenMined.Syft.Tensor
             id = System.Threading.Interlocked.Increment(ref nCreated);
         }
 
+        public FloatTensor Copy()
+        {
+            FloatTensor copy = new FloatTensor(this.data, this.shape, this.dataOnGpu);
+            return copy;
+        }
+
         public float this[params int[] indices]
         {
             get { return Data[GetIndex(indices)]; }
@@ -238,7 +244,6 @@ namespace OpenMined.Syft.Tensor
             }
             return "SyftController.processMessage: Command not found.";
         }
-
 
         public string Print()
         {
