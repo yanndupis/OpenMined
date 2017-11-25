@@ -14,152 +14,107 @@ float derivative(float x) {
 	return x * (1 - x);
 }
 
-// Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel ScalarMultMain
-
-RWStructuredBuffer<float> data;
-RWStructuredBuffer<float> temp_scalar;
- 
-[numthreads(4,1,1)]
-void ScalarMultMain (uint3 id : SV_DispatchThreadID) {
-    data[id.x] = data[id.x] * temp_scalar[0];
-}
-
-#pragma kernel AbsMain
+#pragma kernel Abs_
 
 RWStructuredBuffer<float> abs_data;
  
 [numthreads(1,1,1)]
-void AbsMain (uint3 id : SV_DispatchThreadID) {
+void Abs_ (uint3 id : SV_DispatchThreadID) {
 	if(abs_data[id.x] < 0) {
 		abs_data[id.x] = -abs_data[id.x];
 	}
 }
 
-#pragma kernel NegateValues
+#pragma kernel AddScalar_
 
-RWStructuredBuffer<float> data_neg;
-RWStructuredBuffer<float> result_neg;
+RWStructuredBuffer<float> add_scalar_data;
+RWStructuredBuffer<float> add_scalar_scalar;
+
 [numthreads(4,1,1)]
-void NegateValues (uint3 id: SV_DispatchThreadID) {
-	result_neg[id.x] = -data_neg[id.x];
+void AddScalar_ (uint3 id: SV_DispatchThreadID) {
+	add_scalar_data[id.x] = add_scalar_data[id.x] + add_scalar_scalar[0];
 }
 
-#pragma kernel CeilValues
+#pragma kernel AddMM_
 
-RWStructuredBuffer<float> data_ceil;
-RWStructuredBuffer<float> result_ceil;
-[numthreads(4,1,1)]
-void CeilValues (uint3 id: SV_DispatchThreadID) {
-		result_ceil[id.x] = ceil(data_ceil[id.x]);
-}
-
-#pragma kernel ElementwiseMultMain
-
-RWStructuredBuffer<float> data_a;
-RWStructuredBuffer<float> data_b;
-RWStructuredBuffer<float> result_elem;
+RWStructuredBuffer<float> addmm_data_a;
+RWStructuredBuffer<float> addmm_data_b;
+RWStructuredBuffer<float> addmm_data_c;
+RWStructuredBuffer<Dimensions> addmm_dimensions;
 
 [numthreads(4,1,1)]
-void ElementwiseMultMain (uint3 id : SV_DispatchThreadID) {
-    result_elem[id.x] = data_a[id.x] * data_b[id.x];
-}
-
-#pragma kernel ElementwiseSubtractMain
-
-RWStructuredBuffer<float> data_c;
-RWStructuredBuffer<float> data_d;
-RWStructuredBuffer<float> result_sub;
-
-[numthreads(4,1,1)]
-void ElementwiseSubtractMain (uint3 id : SV_DispatchThreadID) {
-    result_sub[id.x] = data_c[id.x] - data_d[id.x];
-}
-
-
-#pragma kernel SigmoidMatrixMultiply
-
-RWStructuredBuffer<float> data_e;
-RWStructuredBuffer<float> data_f;
-RWStructuredBuffer<float> data_g;
-RWStructuredBuffer<Dimensions> dimensions_a;
-
-[numthreads(4,1,1)]
-void SigmoidMatrixMultiply (uint3 id : SV_DispatchThreadID) {
-	float columns = dimensions_a[0].columns;
-
-	float product = 0;
-
-	for (int i = 0; i < columns; i++) {
-		product += data_f[id.x * columns + i] * data_g[i];
-	}
-
-	data_e[id.x] = sigmoid(product);
-}
-
-
-#pragma kernel MultiplyDerivative
-
-RWStructuredBuffer<float> data_h;
-RWStructuredBuffer<float> data_i;
-
-[numthreads(4,1,1)]
-void MultiplyDerivative (uint3 id : SV_DispatchThreadID) {
-	data_h[id.x] = data_h[id.x] * derivative(data_i[id.x]);
-}
-
-
-#pragma kernel AddMatrixMultiply
-
-RWStructuredBuffer<float> data_j;
-RWStructuredBuffer<float> data_k;
-RWStructuredBuffer<float> data_l;
-RWStructuredBuffer<Dimensions> dimensions_b;
-
-[numthreads(4,1,1)]
-void AddMatrixMultiply (uint3 id : SV_DispatchThreadID) {
+void AddMM_ (uint3 id : SV_DispatchThreadID) {
 	// transpose
-	int columns = dimensions_b[0].rows;
-	int rows = dimensions_b[0].columns;
+	int columns = addmm_dimensions[0].rows;
+	int rows = addmm_dimensions[0].columns;
 
 	float product = 0;
 
 	int t = 0;
 	for (int i = 0; i < columns; i++) {
-		product += data_k[id.x + t] * data_l[i];
+		product += addmm_data_b[id.x + t] * addmm_data_c[i];
 		t += rows;
 	}
 
-	data_j[id.x] += product;
+	addmm_data_a[id.x] += product;
 }
 
-#pragma kernel Add_Main
+#pragma kernel Ceil
 
-RWStructuredBuffer<float> data_m;
-RWStructuredBuffer<float> temp_adder;
-
+RWStructuredBuffer<float> ceil_data;
+RWStructuredBuffer<float> ceil_result;
 [numthreads(4,1,1)]
-void Add_Main (uint3 id: SV_DispatchThreadID) {
-	data_m[id.x] = data_m[id.x] + temp_adder[0];
+void Ceil (uint3 id: SV_DispatchThreadID) {
+		ceil_result[id.x] = ceil(ceil_data[id.x]);
 }
 
+#pragma kernel MultElem
 
-
-#pragma kernel ResetWeights
-
-RWStructuredBuffer<float> weights;
-RWStructuredBuffer<float> original_weights;
+RWStructuredBuffer<float> mult_elem_data_a;
+RWStructuredBuffer<float> mult_elem_data_b;
+RWStructuredBuffer<float> mult_elem_result;
 
 [numthreads(4,1,1)]
-void ResetWeights (uint3 id : SV_DispatchThreadID) {
-	weights[id.x] = original_weights[id.x];
+void MultElem (uint3 id : SV_DispatchThreadID) {
+    mult_elem_result[id.x] = mult_elem_data_a[id.x] * mult_elem_data_b[id.x];
 }
 
-#pragma kernel ZeroValues
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel MultScalar_
 
-RWStructuredBuffer<float> zeroData;
+RWStructuredBuffer<float> mult_scalar_data;
+RWStructuredBuffer<float> mult_scalar_scalar;
+ 
+[numthreads(4,1,1)]
+void MultScalar_ (uint3 id : SV_DispatchThreadID) {
+    mult_scalar_data[id.x] = mult_scalar_data[id.x] * mult_scalar_scalar[0];
+}
+
+#pragma kernel Negate
+
+RWStructuredBuffer<float> negate_data;
+RWStructuredBuffer<float> negate_result;
+[numthreads(4,1,1)]
+void Negate (uint3 id: SV_DispatchThreadID) {
+	negate_result[id.x] = -negate_data[id.x];
+}
+
+#pragma kernel SubElem
+
+RWStructuredBuffer<float> sub_elem_data_a;
+RWStructuredBuffer<float> sub_elem_data_b;
+RWStructuredBuffer<float> sub_elem_result;
 
 [numthreads(4,1,1)]
-void ZeroValues (uint3 id: SV_DispatchThreadID) {
-       zeroData[id.x] = 0;
+void SubElem (uint3 id : SV_DispatchThreadID) {
+    sub_elem_result[id.x] = sub_elem_data_a[id.x] - sub_elem_data_b[id.x];
+}
+
+#pragma kernel Zero_
+
+RWStructuredBuffer<float> zero_data;
+
+[numthreads(4,1,1)]
+void Zero_ (uint3 id: SV_DispatchThreadID) {
+       zero_data[id.x] = 0;
 }
