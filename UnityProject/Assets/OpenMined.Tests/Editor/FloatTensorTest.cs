@@ -296,7 +296,7 @@ namespace OpenMined.Tests
             int[] shape2 = { 5 };
             var tensorAbs = new FloatTensor(data2, shape2);
 
-            tensor1.Abs_ ();
+            tensor1.Abs_();
 
             for (int i = 0; i < tensor1.Size; i++)
             {
@@ -315,11 +315,11 @@ namespace OpenMined.Tests
             int[] shape2 = { 5 };
             var tensorNeg = new FloatTensor(data2, shape2);
 
-            tensor1.Neg ();
+            var result = tensor1.Neg ();
 
             for (int i = 0; i < tensor1.Size; i++)
             {
-                Assert.AreEqual (tensor1.Data[i], tensorNeg.Data[i]);
+                Assert.AreEqual (result.Data[i], tensorNeg.Data[i]);
             }
         }
 
@@ -442,41 +442,40 @@ namespace OpenMined.Tests
 
             // Test multiplication by 0
             float scalar = 0;
-			tensor1.MulScalar (scalar);
-
+			var result = tensor1.MulScalar (scalar);
             for (int i = 0; i < tensor1.Size; i++)
             {
-                Assert.AreEqual (tensor2.Data [i] * scalar, tensor1.Data [i] );
+                Assert.AreEqual (tensor2.Data [i] * scalar, result.Data [i] );
             }
 
             // Test multiplication by positive
             tensor1 = new FloatTensor(data1, shape1);
             scalar = 99;
-			tensor1.MulScalar (scalar);
+            result = tensor1.MulScalar (scalar);
 
             for (int i = 0; i < tensor1.Size; i++)
             {
-                Assert.AreEqual (tensor2.Data [i] * scalar, tensor1.Data [i] );
+                Assert.AreEqual (tensor2.Data [i] * scalar, result.Data [i] );
             }
 
             // Test multiplication by negative
             tensor1 = new FloatTensor(data1, shape1);
             scalar = -99;
-			tensor1.MulScalar (scalar);
+            result = tensor1.MulScalar (scalar);
 
             for (int i = 0; i < tensor1.Size; i++)
             {
-                Assert.AreEqual (tensor2.Data [i] * scalar, tensor1.Data [i] );
+                Assert.AreEqual (tensor2.Data [i] * scalar, result.Data [i] );
             }
 
             // Test multiplication by decimal
             tensor1 = new FloatTensor(data1, shape1);
             scalar = 0.000001f;
-			tensor1.MulScalar (scalar);
+            result = tensor1.MulScalar (scalar);
 
             for (int i = 0; i < tensor1.Size; i++)
             {
-                Assert.AreEqual (tensor2.Data [i] * scalar, tensor1.Data [i] );
+                Assert.AreEqual (tensor2.Data [i] * scalar, result.Data [i] );
             }
         }
         [Test]
@@ -490,11 +489,11 @@ namespace OpenMined.Tests
             int[] shape2 = { 5 };
             var tensorCeil = new FloatTensor(data2, shape2);
 
-            tensor1.Ceil ();
+            var result = tensor1.Ceil ();
 
             for (int i = 0; i < tensor1.Size; i++)
             {
-                Assert.AreEqual (tensor1.Data[i], tensorCeil.Data[i]);
+                Assert.AreEqual (result.Data[i], tensorCeil.Data[i]);
             }
         }
 
@@ -557,8 +556,7 @@ namespace OpenMined.Tests
             int[] shape2 = {2, 4};
             var tensor2 = new FloatTensor(data2, shape2);
 
-            var tensor = new FloatTensor(data1, shape1);
-            tensor.ElementwiseSubtract (tensor2);
+			var tensor = tensor1.SubtractElementwise (tensor2);
 
             for (int i = 0; i < tensor.Size; i++)
             {
@@ -578,7 +576,7 @@ namespace OpenMined.Tests
             int[] shape2 = { 2, 6 };
             var tensor2 = new FloatTensor(data2, shape2);
 
-            Assert.That(() => tensor1.ElementwiseSubtract(tensor2),
+			Assert.That(() => tensor1.SubtractElementwise(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
 
@@ -593,7 +591,7 @@ namespace OpenMined.Tests
             int[] shape2 = { 2, 2 };
             var tensor2 = new FloatTensor(data2, shape2);
 
-            Assert.That(() => tensor1.ElementwiseSubtract(tensor2),
+			Assert.That(() => tensor1.SubtractElementwise(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
 
@@ -608,7 +606,7 @@ namespace OpenMined.Tests
             int[] shape2 = { 3, 2 };
             var tensor2 = new FloatTensor(data2, shape2);
 
-            Assert.That(() => tensor1.ElementwiseSubtract(tensor2),
+			Assert.That(() => tensor1.SubtractElementwise(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
 
@@ -620,7 +618,7 @@ namespace OpenMined.Tests
             int[] shape2 = { 2, 3 };
             var tensor2 = new FloatTensor(shape2, false);
 
-            Assert.That(() => tensor1.ElementwiseSubtract(tensor2),
+			Assert.That(() => tensor1.SubtractElementwise(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
 
