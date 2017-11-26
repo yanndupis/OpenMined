@@ -221,8 +221,8 @@ namespace OpenMined.Syft.Tensor
                         Cpu();
                     }
 
-                    string data = string.Join(", ", Data);
-                    Debug.LogFormat("<color=cyan>print:</color> {0}", data);
+                    string data = this.Print();
+                    Debug.LogFormat("<color=cyan>Print:</color> {0}", this.Data);
 
                     if (dataOriginallyOnGpu)
                     {
@@ -274,7 +274,7 @@ namespace OpenMined.Syft.Tensor
                 {
                     for (int i = 0; i < d1; i++)
                     {
-                        float f = data[i + j * d2 + k * d1 * d2];
+                        float f = data[i + j * d1 + k * d1 * d2];
                         print += f.ToString() + ",\t";
                     }
                     print += "\n";
