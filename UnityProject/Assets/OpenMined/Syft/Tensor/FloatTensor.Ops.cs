@@ -54,13 +54,14 @@ namespace OpenMined.Syft.Tensor
                 Parallel.For(0, nCpu, workerId =>
                 {
                     var max = size * (workerId + 1) / nCpu;
-                    for (var i = size * workerId / nCpu; i < max; i++)
+                    for (var idx = size * workerId / nCpu; idx < max; idx++)
                     {
-                        int actual2 = i % res_shape[1];
-                        int actual1 = (i - actual2) / res_shape[1];
+                        int col = idx % res_shape[1];
+                        int row = (idx - col) / res_shape[1];
+                        int row_offset = row * shape1[1];
                         for (var j = 0; j < shape1[1]; j++)
                         {
-                            Data[i] += tensor1.Data[j + actual1 * shape1[1]] * tensor2.Data[j * shape2[1] + actual2];
+                            Data[idx] += tensor1.Data[j + row_offset] * tensor2.Data[j * shape2[1] + col];
                         }
                     }
                 });
