@@ -30,18 +30,41 @@ namespace OpenMined.Syft.Tensor
 
         public FloatTensor AddMatrixMultiply(FloatTensor tensor1, FloatTensor tensor2)
         {
-            // TODO: check for corner cases
-
             bool gpu = dataOnGpu & tensor1.DataOnGpu & tensor2.DataOnGpu;
             bool cpu = !(dataOnGpu | tensor1.DataOnGpu | tensor2.DataOnGpu);
 
+            int[] res_shape = this.Shape;
+            int[] shape1 = tensor1.Shape;
+            int[] shape2 = tensor2.Shape;
+
+            if (shape1[1] != shape2[0])
+                throw new InvalidOperationException(String.Format("Matrix multiply not possible: {0} & {1}.", shape1[1], shape2[0]));
+            if (res_shape[0] != shape1[0])
+                throw new InvalidOperationException(String.Format("First dimension doesn't match: {0} vs {1}.", res_shape[0], shape1[0]));
+            if (res_shape[1] != shape2[1])
+                throw new InvalidOperationException(String.Format("Last dimension doesn't match: {0} vs {1}.", res_shape[res_shape.Length - 1],shape2[shape2.Length - 1]));
+
             if (gpu)
             {
-				AddMatrixMultiplyGPU(tensor1, tensor2);
+                AddMatrixMultiplyGPU(tensor1, tensor2);
             }
             else if (cpu)
             {
-                //TODO: implement the function
+                var nCpu = SystemInfo.processorCount;
+                Parallel.For(0, nCpu, workerId =>
+                {
+                    var max = size * (workerId + 1) / nCpu;
+                    for (var i = size * workerId / nCpu; i < max; i++)
+                    {
+                        int actual2 = i % res_shape[1];
+                        int actual1 = (i - actual2) / res_shape[1];
+                        for (var j = 0; j < shape1[1]; j++)
+                        {
+                            Data[i] += tensor1.Data[j + actual1 * shape1[1]] * tensor2.Data[j * shape2[1] + actual2];
+                        }
+                    }
+                });
+                return this;
             }
             else
             {
