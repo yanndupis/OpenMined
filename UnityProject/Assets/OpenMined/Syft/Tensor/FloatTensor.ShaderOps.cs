@@ -98,7 +98,6 @@ namespace OpenMined.Syft.Tensor
 
         public void FloorGPU_()
         {
-            Debug.LogFormat("<color=blue>FloatTensor.floor_ dataOnGpu: {0}</color>", dataOnGpu);
             if (DataOnGpu)
             {
                 shader.SetBuffer(FloorKernel_, "floor_data", dataBuffer);
