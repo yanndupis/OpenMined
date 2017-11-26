@@ -16,8 +16,8 @@ namespace OpenMined.Syft.Tensor
 		private static int MultElemKernel;
 		private static int MultScalarKernel_;
 		private static int NegateKernel;
-        private static int SigmoidKernel_;
-        private static int SubElemKernel;
+		private static int SigmoidKernel_;
+		private static int SubElemKernel;
 		private static int ZeroKernel_;
 
         public ComputeShader Shader
@@ -36,10 +36,9 @@ namespace OpenMined.Syft.Tensor
 				MultElemKernel = shader.FindKernel("MultElem");
 				MultScalarKernel_ = shader.FindKernel("MultScalar_");
 				NegateKernel = shader.FindKernel("Negate");
-                SigmoidKernel_ = shader.FindKernel("Sigmoid_");
-                SubElemKernel = shader.FindKernel("SubElem");
+				SigmoidKernel_ = shader.FindKernel("Sigmoid_");
+				SubElemKernel = shader.FindKernel("SubElem");
 				ZeroKernel_ = shader.FindKernel("Zero_");
-
             }
         }
 
