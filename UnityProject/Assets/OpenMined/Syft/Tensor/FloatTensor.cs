@@ -159,7 +159,6 @@ namespace OpenMined.Syft.Tensor
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }
-
                 case "addmm_":
                 {
                     var tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams[0]);
@@ -170,6 +169,12 @@ namespace OpenMined.Syft.Tensor
                 case "ceil":
                 {
                     var result = Ceil();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+                case "copy":
+                {
+                    var result = Copy();
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }
@@ -189,7 +194,6 @@ namespace OpenMined.Syft.Tensor
                         return msgObj.functionCall + ": FAILED : Did not move data.";
                     }
                 }
-
                 case "mul":
                 {
                     FloatTensor tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams[0]);
@@ -209,7 +213,6 @@ namespace OpenMined.Syft.Tensor
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }
-
                 case "print":
                 {
                     bool dataOriginallyOnGpu = dataOnGpu;
