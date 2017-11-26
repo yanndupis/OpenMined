@@ -129,6 +129,15 @@ void Negate (uint3 id: SV_DispatchThreadID) {
 	negate_result[id.x] = -negate_data[id.x];
 }
 
+#pragma kernel Sigmoid_
+
+RWStructuredBuffer<float> sigmoid_data_;
+
+[numthreads(1,1,1)]
+void Sigmoid_ (uint3 id : SV_DispatchThreadID) {
+	sigmoid_data_[id.x] = sigmoid(sigmoid_data_[id.x])
+}
+
 #pragma kernel SubElem
 
 RWStructuredBuffer<float> sub_elem_data_a;
