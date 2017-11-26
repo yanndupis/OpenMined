@@ -100,7 +100,7 @@ namespace OpenMined.Syft.Tensor
         	{
             		if (DataOnGpu)
             		{
-                		shader.SetBuffer(FloorKernel_, "floor_data", dataBuffer);
+                		shader.SetBuffer(FloorKernel_, "floor_data_", dataBuffer);
                 		shader.Dispatch(FloorKernel_, 1, 1, 1);
             		}
         	}

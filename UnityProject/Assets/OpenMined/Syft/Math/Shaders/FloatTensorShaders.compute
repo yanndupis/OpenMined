@@ -70,11 +70,11 @@ void Ceil (uint3 id: SV_DispatchThreadID) {
 
 #pragma kernel Floor_
 
-RWStructuredBuffer<float> floor_data;
+RWStructuredBuffer<float> floor_data_;
 
 [numthreads(4,1,1)]
 void Floor_ (uint3 id: SV_DispatchThreadID) {
-		floor_data[id.x] = floor(floor_data[id.x]);
+		floor_data_[id.x] = floor(floor_data_[id.x]);
 }
 
 #pragma kernel MultElem
