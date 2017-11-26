@@ -18,14 +18,15 @@ namespace OpenMined.Syft.Tensor
             set { dataBuffer = value; }
         }
         
-        public void Gpu()
+        public bool Gpu()
         {
             if (!dataOnGpu)
             {
                 CopyCputoGpu();
                 EraseCpu();
-                dataOnGpu = true;
+                return true;
             }
+            return false;
         }
 
         public void Cpu()
@@ -34,14 +35,13 @@ namespace OpenMined.Syft.Tensor
             {
                 CopyGpuToCpu();
                 EraseGpu();
-                dataOnGpu = false;
             } 
         }
         
         private void CopyGpuToCpu()
         {
             data = new float[size];
-            dataBuffer.GetData(data);
+            dataBuffer.GetData(Data);
         }
         
         private void CopyCputoGpu()
@@ -49,8 +49,10 @@ namespace OpenMined.Syft.Tensor
             dataBuffer = new ComputeBuffer(size, sizeof(float));
             shapeBuffer = new ComputeBuffer(shape.Length, sizeof(int));
 
-            dataBuffer.SetData(data);	
+            dataBuffer.SetData(Data);	
             shapeBuffer.SetData(shape);
+            
+            dataOnGpu = true;
         }
 
         private void EraseCpu()
@@ -62,6 +64,7 @@ namespace OpenMined.Syft.Tensor
         {
             dataBuffer.Release();
             shapeBuffer.Release();
+            dataOnGpu = false;
         }
     }
 }
