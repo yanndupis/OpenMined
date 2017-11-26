@@ -180,7 +180,7 @@ namespace OpenMined.Syft.Tensor
         }
 
 
-        public FloatTensor SubElemGPU(FloatTensor other)
+		public FloatTensor SubElemGPU(FloatTensor other)
 		{
 			//Debug.LogFormat("<color=blue>FloatTensor.inline_elementwise_subtract dataOnGpu: {0}</color>", dataOnGpu);
 
