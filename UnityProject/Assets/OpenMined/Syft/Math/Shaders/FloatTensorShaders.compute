@@ -68,6 +68,15 @@ void Ceil (uint3 id: SV_DispatchThreadID) {
 		ceil_result[id.x] = ceil(ceil_data[id.x]);
 }
 
+#pragma kernel Floor_
+
+RWStructuredBuffer<float> floor_data;
+
+[numthreads(4,1,1)]
+void Floor_ (uint3 id: SV_DispatchThreadID) {
+		floor_data[id.x] = floor(floor_data[id.x]);
+}
+
 #pragma kernel MultElem
 
 RWStructuredBuffer<float> mult_elem_data_a;

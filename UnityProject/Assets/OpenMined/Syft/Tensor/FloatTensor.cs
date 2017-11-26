@@ -172,6 +172,11 @@ namespace OpenMined.Syft.Tensor
                     Cpu();
                     return msgObj.functionCall + ": OK";
                 }
+                case "floor_":
+                    {
+                        Floor_();
+                        return id.ToString();
+                    }
                 case "gpu":
                 {
                     if (Gpu())

@@ -41,6 +41,23 @@ namespace OpenMined.Syft.Tensor
             });
         }
 
+        public void Floor_()
+        {
+            if (dataOnGpu)
+            {
+                FloorGPU_();
+                return;
+            }
+            var nCpu = SystemInfo.processorCount;
+            Parallel.For(0, nCpu, workerId =>
+            {
+                var max = size * (workerId + 1) / nCpu;
+                for (var i = size * workerId / nCpu; i < max; i++)
+                    Data[i] = (float)(Math.Floor(Data[i]));
+            });
+        }
+
+
         public void Zero_()
         {
             if (dataOnGpu)
