@@ -231,7 +231,12 @@ namespace OpenMined.Syft.Tensor
 
                     return data;
                 }
-                case "sub_":
+                case "sigmoid_":
+                {
+                    Sigmoid_();
+                    return msgObj.functionCall + ": OK";
+                }
+                case "sub":
                 {
                     var tensor1 = ctrl.getTensor(msgObj.tensorIndexParams[0]);
 					var result = SubtractElementwise(tensor1);
