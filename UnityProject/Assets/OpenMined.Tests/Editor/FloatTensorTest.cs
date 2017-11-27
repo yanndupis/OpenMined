@@ -667,7 +667,6 @@ namespace OpenMined.Tests
             base1.AddMatrixMultiply(tensor1, tensor2);
             base2.AddMatrixMultiply(tensor2, tensor1);
 
-            UnityEngine.Debug.Log("Test first");
             for (int i = 0; i < base1_shape[0]; i++)
             {
                 for (int j = 0; j < base1_shape[1]; j++)
