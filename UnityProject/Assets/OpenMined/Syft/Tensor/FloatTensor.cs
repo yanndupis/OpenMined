@@ -124,6 +124,12 @@ namespace OpenMined.Syft.Tensor
             id = System.Threading.Interlocked.Increment(ref nCreated);
         }
 
+        public FloatTensor Copy()
+        {
+            FloatTensor copy = new FloatTensor(this.data, this.shape, this.dataOnGpu);
+            return copy;
+        }
+
         public float this[params int[] indices]
         {
             get { return Data[GetIndex(indices)]; }
@@ -142,30 +148,32 @@ namespace OpenMined.Syft.Tensor
                     return id.ToString();
                 }
 
-				case "add_elem":
-				{
-					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
-					var result = this.Add(tensor_1);
 
-					return ctrl.addTensor(result) + "";
-				}
-				case "add_elem_":
-				{
-					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
-					this.Add_(tensor_1);
-					return this.id + "";
-				}
-				case "add_scalar":
-				{
-					FloatTensor result = Add(float.Parse(msgObj.tensorIndexParams[0]));
+                case "add_elem":
+                {
+                  var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+                  var result = this.Add(tensor_1);
 
-					return ctrl.addTensor (result) + "";
-				}
-				case "add_scalar_":
-				{	
-					this.Add_(float.Parse( msgObj.tensorIndexParams[0]));
-					return this.id + "";
-				}
+                  return ctrl.addTensor(result) + "";
+                }
+                case "add_elem_":
+                {
+                  var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+                  this.Add_(tensor_1);
+                  return this.id + "";
+                }
+                case "add_scalar":
+                {
+                  FloatTensor result = Add(float.Parse(msgObj.tensorIndexParams[0]));
+
+                  return ctrl.addTensor (result) + "";
+                }
+                case "add_scalar_":
+                {	
+                  this.Add_(float.Parse( msgObj.tensorIndexParams[0]));
+                  return this.id + "";
+                }
+
                 case "addmm_":
                 {
 					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
@@ -179,11 +187,22 @@ namespace OpenMined.Syft.Tensor
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }
+                case "copy":
+                {
+                    var result = Copy();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
                 case "cpu":
                 {
                     Cpu();
                     return msgObj.functionCall + ": OK";
                 }
+                case "floor_":
+                    {
+                        Floor_();
+                        return id.ToString();
+                    }
                 case "gpu":
                 {
                     if (Gpu())
@@ -195,7 +214,6 @@ namespace OpenMined.Syft.Tensor
                         return msgObj.functionCall + ": FAILED : Did not move data.";
                     }
                 }
-
                 case "mul":
                 {
 					FloatTensor tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
@@ -215,7 +233,6 @@ namespace OpenMined.Syft.Tensor
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }
-
                 case "print":
                 {
                     bool dataOriginallyOnGpu = dataOnGpu;
@@ -224,8 +241,8 @@ namespace OpenMined.Syft.Tensor
                         Cpu();
                     }
 
-                    string data = string.Join(", ", Data);
-                    Debug.LogFormat("<color=cyan>print:</color> {0}", data);
+                    string data = this.Print();
+                    Debug.LogFormat("<color=cyan>Print:</color> {0}", this.Data);
 
                     if (dataOriginallyOnGpu)
                     {
@@ -234,7 +251,12 @@ namespace OpenMined.Syft.Tensor
 
                     return data;
                 }
-                case "sub_":
+                case "sigmoid_":
+                {
+                    Sigmoid_();
+                    return msgObj.functionCall + ": OK";
+                }
+                case "sub":
                 {
 					var tensor1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
 					var result = SubtractElementwise(tensor1);
@@ -250,7 +272,6 @@ namespace OpenMined.Syft.Tensor
             }
             return "SyftController.processMessage: Command not found.";
         }
-
 
         public string Print()
         {
@@ -278,7 +299,7 @@ namespace OpenMined.Syft.Tensor
                 {
                     for (int i = 0; i < d1; i++)
                     {
-                        float f = data[i + j * d2 + k * d1 * d2];
+                        float f = data[i + j * d1 + k * d1 * d2];
                         print += f.ToString() + ",\t";
                     }
                     print += "\n";

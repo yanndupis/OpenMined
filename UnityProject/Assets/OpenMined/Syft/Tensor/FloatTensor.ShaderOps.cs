@@ -15,9 +15,11 @@ namespace OpenMined.Syft.Tensor
 		private static int AddElemKernel;
 		private static int AddMMKernel_;
 		private static int CeilKernel;
+	    	private static int FloorKernel_;
 		private static int MultElemKernel;
 		private static int MultScalarKernel_;
 		private static int NegateKernel;
+		private static int SigmoidKernel_;
 		private static int SubElemKernel;
 		private static int ZeroKernel_;
 
@@ -36,12 +38,13 @@ namespace OpenMined.Syft.Tensor
 				AddElemKernel = shader.FindKernel("AddElem");
 				AddMMKernel_ = shader.FindKernel("AddMM_");
 				CeilKernel = shader.FindKernel("Ceil");
+                		FloorKernel_ = shader.FindKernel("Floor_");
 				MultElemKernel = shader.FindKernel("MultElem");
 				MultScalarKernel_ = shader.FindKernel("MultScalar_");
 				NegateKernel = shader.FindKernel("Negate");
+				SigmoidKernel_ = shader.FindKernel("Sigmoid_");
 				SubElemKernel = shader.FindKernel("SubElem");
 				ZeroKernel_ = shader.FindKernel("Zero_");
-
             }
         }
 
@@ -147,7 +150,16 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
-        
+        	public void FloorGPU_()
+        	{
+            		if (DataOnGpu)
+            		{
+                		shader.SetBuffer(FloorKernel_, "floor_data_", dataBuffer);
+                		shader.Dispatch(FloorKernel_, 1, 1, 1);
+            		}
+        	}
+
+
         public FloatTensor MultElemGPU(FloatTensor other)
         {
             Debug.LogFormat("<color=blue>FloatTensor.elementwise_mult dataOnGpu: {0}</color>", dataOnGpu);
@@ -205,6 +217,16 @@ namespace OpenMined.Syft.Tensor
             }
             return this;
         }
+
+        public void SigmoidGPU_()
+        {
+            if (dataOnGpu)
+            {
+                shader.SetBuffer(SigmoidKernel_, "sigmoid_data_", dataBuffer);
+                shader.Dispatch(SigmoidKernel_, this.size, 1, 1);
+            }
+        }
+
 
 		public FloatTensor SubElemGPU(FloatTensor other)
 		{
