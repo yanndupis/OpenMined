@@ -56,11 +56,15 @@ namespace OpenMined.Syft.Tensor
             get { return nCreated; }
         }
 
-        public FloatTensor(int[] _shape, bool _initOnGpu = false)
+
+		public FloatTensor(int[] _shape, ComputeShader _shader, bool _initOnGpu = false)
         {
             size = 1;
             shape = (int[]) _shape.Clone();
             strides = new long[_shape.Length];
+			shader = _shader;
+
+			initShaderKernels ();
 
             for (var i = _shape.Length - 1; i >= 0; --i)
             {
@@ -82,7 +86,36 @@ namespace OpenMined.Syft.Tensor
             id = System.Threading.Interlocked.Increment(ref nCreated);
         }
 
-        public FloatTensor(float[] _data, int[] _shape, bool _initOnGpu = false)
+		public FloatTensor(float[] _data, int[] _shape)
+		{
+			//TODO: Can contigous allocation might be a problem?
+
+			if (_shape == null || _shape.Length == 0)
+			{
+				throw new InvalidOperationException("Tensor shape can't be an empty array.");
+			}
+
+			size = _data.Length;
+			shape = (int[]) _shape.Clone();
+			strides = new long[_shape.Length];
+
+			long acc = 1;
+			for (var i = _shape.Length - 1; i >= 0; --i)
+			{
+				strides[i] = acc;
+				acc *= _shape[i];
+			}
+
+			if (acc != size)
+				throw new FormatException("Tensor shape and data do not match.");
+			
+			data = (float[]) _data.Clone();
+
+			// IDEs might show a warning, but ref and volatile seems to be working with Interlocked API.
+			id = System.Threading.Interlocked.Increment(ref nCreated);
+		}
+
+		public FloatTensor(float[] _data, int[] _shape, ComputeShader _shader, bool _initOnGpu = false)
         {
             //TODO: Can contigous allocation might be a problem?
 
@@ -94,6 +127,9 @@ namespace OpenMined.Syft.Tensor
             size = _data.Length;
             shape = (int[]) _shape.Clone();
             strides = new long[_shape.Length];
+			shader = _shader;
+
+			initShaderKernels ();
 
             long acc = 1;
             for (var i = _shape.Length - 1; i >= 0; --i)
@@ -126,7 +162,7 @@ namespace OpenMined.Syft.Tensor
 
         public FloatTensor Copy()
         {
-            FloatTensor copy = new FloatTensor(this.data, this.shape, this.dataOnGpu);
+			FloatTensor copy = new FloatTensor(this.data, this.shape, this.shader, this.dataOnGpu);
             return copy;
         }
 
@@ -151,6 +187,7 @@ namespace OpenMined.Syft.Tensor
 
                 case "add_elem":
                 {
+				  Debug.LogFormat("add_elem");
                   var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
                   var result = this.Add(tensor_1);
 
@@ -158,18 +195,21 @@ namespace OpenMined.Syft.Tensor
                 }
                 case "add_elem_":
                 {
+					Debug.LogFormat("add_elem_");
                   var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
                   this.Add_(tensor_1);
                   return this.id + "";
                 }
                 case "add_scalar":
                 {
+					Debug.LogFormat("add_scalar");
                   FloatTensor result = Add(float.Parse(msgObj.tensorIndexParams[0]));
 
                   return ctrl.addTensor (result) + "";
                 }
                 case "add_scalar_":
                 {	
+					Debug.LogFormat("add_scalar_");
                   this.Add_(float.Parse( msgObj.tensorIndexParams[0]));
                   return this.id + "";
                 }
@@ -214,19 +254,30 @@ namespace OpenMined.Syft.Tensor
                         return msgObj.functionCall + ": FAILED : Did not move data.";
                     }
                 }
-                case "mul":
-                {
-					FloatTensor tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
-                    var result = MulElementwise(tensor_1);
-                    ctrl.addTensor(result);
-                    return result.Id.ToString();
-                }
-                case "mul_scalar":
-                {
-					var result = MulScalar(float.Parse(msgObj.tensorIndexParams[0]));
-                    ctrl.addTensor(result);
-                    return result.Id.ToString();
-                }
+				case "mul_elem":
+				{
+					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+					var result = this.Mul(tensor_1);
+
+					return ctrl.addTensor(result) + "";
+				}
+				case "mul_elem_":
+				{
+					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+					this.Mul_(tensor_1);
+					return this.id + "";
+				}
+				case "mul_scalar":
+				{
+					FloatTensor result = Mul(float.Parse(msgObj.tensorIndexParams[0]));
+
+					return ctrl.addTensor (result) + "";
+				}
+				case "mul_scalar_":
+				{	
+					this.Mul_(float.Parse( msgObj.tensorIndexParams[0]));
+					return this.id + "";
+				}
                 case "neg":
                 {
                     var result = Neg();

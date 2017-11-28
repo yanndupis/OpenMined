@@ -100,26 +100,46 @@ void Floor_ (uint3 id: SV_DispatchThreadID) {
 		floor_data_[id.x] = floor(floor_data_[id.x]);
 }
 
-#pragma kernel MultElem
+#pragma kernel MulScalar_
 
-RWStructuredBuffer<float> mult_elem_data_a;
-RWStructuredBuffer<float> mult_elem_data_b;
-RWStructuredBuffer<float> mult_elem_result;
+RWStructuredBuffer<float> mul_scalar_data_;
+RWStructuredBuffer<float> mul_scalar_scalar_;
 
 [numthreads(4,1,1)]
-void MultElem (uint3 id : SV_DispatchThreadID) {
-    mult_elem_result[id.x] = mult_elem_data_a[id.x] * mult_elem_data_b[id.x];
+void MulScalar_ (uint3 id: SV_DispatchThreadID) {
+	mul_scalar_data_[id.x] = mul_scalar_data_[id.x] + mul_scalar_scalar_[0];
 }
 
-// Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel MultScalar_
+#pragma kernel MulElem_
 
-RWStructuredBuffer<float> mult_scalar_data_;
-RWStructuredBuffer<float> mult_scalar_scalar_;
- 
+RWStructuredBuffer<float> mul_elem_data_a_;
+RWStructuredBuffer<float> mul_elem_data_b_;
+
 [numthreads(4,1,1)]
-void MultScalar_ (uint3 id : SV_DispatchThreadID) {
-    mult_scalar_data_[id.x] = mult_scalar_data_[id.x] * mult_scalar_scalar_[0];
+void MulElem_ (uint3 id: SV_DispatchThreadID) {
+	mul_elem_data_a_[id.x] = mul_elem_data_a_[id.x] + mul_elem_data_b_[id.x];
+}
+
+#pragma kernel MulScalar
+
+RWStructuredBuffer<float> mul_scalar_data;
+RWStructuredBuffer<float> mul_scalar_scalar;
+RWStructuredBuffer<float> mul_scalar_result;
+
+[numthreads(4,1,1)]
+void MulScalar (uint3 id: SV_DispatchThreadID) {
+	mul_scalar_result[id.x] = mul_scalar_data[id.x] + mul_scalar_scalar[0];
+}
+
+#pragma kernel MulElem
+
+RWStructuredBuffer<float> mul_elem_data_a;
+RWStructuredBuffer<float> mul_elem_data_b;
+RWStructuredBuffer<float> mul_elem_data_result;
+
+[numthreads(4,1,1)]
+void MulElem (uint3 id: SV_DispatchThreadID) {
+	mul_elem_data_result[id.x] = mul_elem_data_a[id.x] + mul_elem_data_b[id.x];
 }
 
 #pragma kernel Negate
