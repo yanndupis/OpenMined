@@ -71,8 +71,7 @@ namespace OpenMined.Network.Controllers
                 {
                     if (msgObj.objectIndex == 0 && msgObj.functionCall=="create" )
                     {
-                        FloatTensor tensor = new FloatTensor(msgObj.data, msgObj.shape);
-                        tensor.Shader = Shader;
+                        FloatTensor tensor = new FloatTensor(msgObj.data, msgObj.shape, this.Shader);
                         this.addTensor(tensor);
                         Debug.LogFormat("<color=magenta>createTensor:</color> {0}", string.Join(", ", tensor.Data));
                         return tensor.Id.ToString();

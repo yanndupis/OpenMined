@@ -73,6 +73,38 @@ namespace OpenMined.Syft.Tensor
             });
         }
 
+		public void Mul_(FloatTensor x)
+		{
+			SameSizeDimensionsAndShape(ref x);
+
+			if (dataOnGpu) {
+				MulElemGPU_ (x);
+
+			} else {
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
+					var max = size * (workerId + 1) / nCpu;
+					for (var i = size * workerId / nCpu; i < max; i++)
+						data [i] *= x.data [i];
+				});
+			}
+		}
+
+		public void Mul_(float value)
+		{
+			if (dataOnGpu) {
+				MulScalarGPU_ (value);
+				return;
+			} else {
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
+					var max = size * (workerId + 1) / nCpu;
+					for (var i = size * workerId / nCpu; i < max; i++)
+						data [i] *= value;
+				});
+			}
+		}
+
         public void Sigmoid_()
         {
             if (dataOnGpu)
