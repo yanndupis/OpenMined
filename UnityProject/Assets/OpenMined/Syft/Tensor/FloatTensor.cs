@@ -314,6 +314,12 @@ namespace OpenMined.Syft.Tensor
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }
+                case "tanh":
+                {
+                    var result = Tanh();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
                 case "zero_":
                 {
                     Zero_();

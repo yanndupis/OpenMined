@@ -38,6 +38,8 @@ namespace OpenMined.Syft.Tensor
 		[SerializeField]
 		private static int SubElemKernel;
 		[SerializeField]
+		private static int TanhKernel;
+		[SerializeField]
 		private static int ZeroKernel_;
 
 		public void initShaderKernels() {
@@ -58,6 +60,7 @@ namespace OpenMined.Syft.Tensor
 			NegateKernel = shader.FindKernel("Negate");
 			SigmoidKernel_ = shader.FindKernel("Sigmoid_");
 			SubElemKernel = shader.FindKernel("SubElem");
+			TanhKernel = shader.FindKernel("Tanh");
 			ZeroKernel_ = shader.FindKernel("Zero_");
 
 		}
@@ -282,6 +285,15 @@ namespace OpenMined.Syft.Tensor
 			}
 			Debug.Log("Tensors do not have the same number of elements!");
 			return this;
+		}
+
+		public FloatTensor TanhGPU ()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			shader.SetBuffer(TanhKernel, "tanh_data", dataBuffer);
+			shader.SetBuffer(TanhKernel, "tanh_result", result.DataBuffer);
+			shader.Dispatch(TanhKernel, this.size, 1, 1);
+			return result;
 		}
 
         public void ZeroGPU_()
