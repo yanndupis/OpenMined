@@ -34,6 +34,10 @@ namespace OpenMined.Syft.Tensor
 		[SerializeField]
 		private static int NegateKernel;
 		[SerializeField]
+		private static int PowKernel;
+		[SerializeField]
+		private static int PowKernel_;
+		[SerializeField]
 		private static int SigmoidKernel_;
 		[SerializeField]
 		private static int SubElemKernel;
@@ -56,6 +60,8 @@ namespace OpenMined.Syft.Tensor
 			MulScalarKernel = shader.FindKernel("MulScalar");
 			MulElemKernel = shader.FindKernel("MulElem");
 			NegateKernel = shader.FindKernel("Negate");
+			PowKernel = shader.FindKernel("Pow");
+			PowKernel_ = shader.FindKernel("Pow_");
 			SigmoidKernel_ = shader.FindKernel("Sigmoid_");
 			SubElemKernel = shader.FindKernel("SubElem");
 			ZeroKernel_ = shader.FindKernel("Zero_");
@@ -90,10 +96,14 @@ namespace OpenMined.Syft.Tensor
 
 			if (dataOnGpu)
 			{
-
-				shader.SetBuffer(AddScalarKernel_, "add_elem_data_a_", dataBuffer);
-				shader.SetBuffer(AddScalarKernel_, "add_elem_data_b_", tensor.dataBuffer);
-				shader.Dispatch(AddScalarKernel_, this.size, 1, 1);
+				if (this.id != tensor.id) {
+					shader.SetBuffer (AddElemKernel_, "add_elem_data_a_", dataBuffer);
+					shader.SetBuffer (AddElemKernel_, "add_elem_data_b_", tensor.dataBuffer);
+					shader.Dispatch (AddElemKernel_, this.size, 1, 1);
+				} else {
+					Debug.LogFormat("addition with itself should be multiplication instead", dataOnGpu);
+					this.MulScalarGPU_(2);
+				}
 
 			}
 		}
@@ -117,16 +127,22 @@ namespace OpenMined.Syft.Tensor
 
 		public FloatTensor AddElemGPU(FloatTensor tensor, FloatTensor result)
 		{
-			AddElemKernel = shader.FindKernel("AddElem");
+			
 			Debug.LogFormat("<color=blue>FloatTensor.AddElemGPU dataOnGpu: {0}</color>", dataOnGpu);
 
 			if (dataOnGpu)
 			{
-
-				shader.SetBuffer(AddElemKernel, "add_elem_data_a", this.DataBuffer);
-				shader.SetBuffer(AddElemKernel, "add_elem_data_b", tensor.DataBuffer);
-				shader.SetBuffer(AddElemKernel, "add_elem_data_result", result.DataBuffer);
-				shader.Dispatch(AddElemKernel, this.size, 1, 1);
+				// if tensors are not actually referring to the same tensor
+				if (this.id != tensor.id) {
+					shader.SetBuffer (AddElemKernel, "add_elem_data_a", this.DataBuffer);
+					shader.SetBuffer (AddElemKernel, "add_elem_data_b", tensor.DataBuffer);
+					shader.SetBuffer (AddElemKernel, "add_elem_data_result", result.DataBuffer);
+					shader.Dispatch (AddElemKernel, this.size, 1, 1);
+				} else {
+					Debug.LogFormat("addition with itself should be multiplication instead", dataOnGpu);
+					return this.MulScalarGPU (2, result);
+				}
+					
 
 			}
 			return result;
@@ -177,7 +193,7 @@ namespace OpenMined.Syft.Tensor
 
 		public void MulScalarGPU_(float value)
 		{
-			Debug.LogFormat("<color=blue>FloatTensor.add_ dataOnGpu: {0}</color>", dataOnGpu);
+			Debug.LogFormat("<color=blue>FloatTensor.MulScalarGPU_ dataOnGpu: {0}</color>", dataOnGpu);
 
 			if (dataOnGpu)
 			{
@@ -192,21 +208,24 @@ namespace OpenMined.Syft.Tensor
 
 		public void MulElemGPU_(FloatTensor tensor)
 		{
-			Debug.LogFormat("<color=blue>FloatTensor.add_ dataOnGpu: {0}</color>", dataOnGpu);
+			Debug.LogFormat("<color=blue>FloatTensor.MulElemGPU_ dataOnGpu: {0}</color>", dataOnGpu);
 
 			if (dataOnGpu)
 			{
-
-				shader.SetBuffer(MulElemKernel_, "mul_elem_data_a_", dataBuffer);
-				shader.SetBuffer(MulElemKernel_, "mul_elem_data_b_", tensor.dataBuffer);
-				shader.Dispatch(MulElemKernel_, this.size, 1, 1);
+				if (tensor.id != this.id) {
+					shader.SetBuffer (MulElemKernel_, "mul_elem_data_a_", dataBuffer);
+					shader.SetBuffer (MulElemKernel_, "mul_elem_data_b_", tensor.dataBuffer);
+					shader.Dispatch (MulElemKernel_, this.size, 1, 1);
+				} else {
+					PowGPU_ (2);
+				}
 
 			}
 		}
 
 		public FloatTensor MulScalarGPU(float value, FloatTensor result)
 		{
-			Debug.LogFormat("<color=blue>FloatTensor.add_ dataOnGpu: {0}</color>", dataOnGpu);
+			Debug.LogFormat("<color=blue>FloatTensor.MulScalarGPU dataOnGpu: {0}</color>", dataOnGpu);
 
 			if (dataOnGpu)
 			{
@@ -223,15 +242,18 @@ namespace OpenMined.Syft.Tensor
 
 		public FloatTensor MulElemGPU(FloatTensor tensor, FloatTensor result)
 		{
-			Debug.LogFormat("<color=blue>FloatTensor.add_ dataOnGpu: {0}</color>", dataOnGpu);
+			Debug.LogFormat("<color=blue>FloatTensor.MulElemGPU dataOnGpu: {0}</color>", dataOnGpu);
 
 			if (dataOnGpu)
 			{
-
-				shader.SetBuffer(MulElemKernel, "mul_elem_data_a", dataBuffer);
-				shader.SetBuffer(MulElemKernel, "mul_elem_data_b", tensor.dataBuffer);
-				shader.SetBuffer(MulElemKernel, "mul_elem_data_result", result.dataBuffer);
-				shader.Dispatch(MulElemKernel, this.size, 1, 1);
+				if (tensor.id != this.id) {
+					shader.SetBuffer (MulElemKernel, "mul_elem_data_a", dataBuffer);
+					shader.SetBuffer (MulElemKernel, "mul_elem_data_b", tensor.dataBuffer);
+					shader.SetBuffer (MulElemKernel, "mul_elem_data_result", result.dataBuffer);
+					shader.Dispatch (MulElemKernel, this.size, 1, 1);
+				} else {
+					return PowGPU (2, result);
+				}
 
 			}
 			return result;
@@ -250,6 +272,38 @@ namespace OpenMined.Syft.Tensor
             }
             return this;
         }
+
+		public FloatTensor PowGPU(float value, FloatTensor result)
+		{
+			Debug.LogFormat("<color=blue>FloatTensor.PowGPU dataOnGpu: {0}</color>", dataOnGpu);
+
+			if (dataOnGpu)
+			{
+				var valBuffer = SendFloatToGpu(PowKernel, value, "pow_scalar_scalar");
+
+				shader.SetBuffer(PowKernel, "pow_scalar_data", dataBuffer);
+				shader.SetBuffer(PowKernel, "pow_scalar_result", result.dataBuffer);
+				shader.Dispatch(PowKernel, this.size, 1, 1);
+
+				valBuffer.Release();
+			}
+			return result;
+		}
+
+		public void PowGPU_(float value)
+		{
+			Debug.LogFormat("<color=blue>FloatTensor.PowGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+
+			if (dataOnGpu)
+			{
+				var valBuffer = SendFloatToGpu(PowKernel_, value, "pow_scalar_scalar_");
+
+				shader.SetBuffer(PowKernel_, "pow_scalar_data_", dataBuffer);
+				shader.Dispatch(PowKernel_, this.size, 1, 1);
+
+				valBuffer.Release();
+			}
+		}
 
         public void SigmoidGPU_()
         {

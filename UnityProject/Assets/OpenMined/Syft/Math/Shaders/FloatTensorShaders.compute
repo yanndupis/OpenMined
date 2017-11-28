@@ -151,6 +151,28 @@ void Negate (uint3 id: SV_DispatchThreadID) {
 	negate_result[id.x] = -negate_data[id.x];
 }
 
+#pragma kernel Pow
+
+RWStructuredBuffer<float> pow_scalar_data;
+RWStructuredBuffer<float> pow_scalar_scalar;
+RWStructuredBuffer<float> pow_scalar_result;
+
+[numthreads(4,1,1)]
+void Pow (uint3 id: SV_DispatchThreadID) {
+	pow_scalar_result[id.x] = pow(pow_scalar_data[id.x],pow_scalar_scalar[0]);
+}
+
+#pragma kernel Pow_
+
+RWStructuredBuffer<float> pow_scalar_data_;
+RWStructuredBuffer<float> pow_scalar_scalar_;
+
+[numthreads(4,1,1)]
+void Pow_ (uint3 id: SV_DispatchThreadID) {
+	pow_scalar_data_[id.x] = pow(pow_scalar_data_[id.x],pow_scalar_scalar_[0]);
+}
+
+
 #pragma kernel Sigmoid_
 
 RWStructuredBuffer<float> sigmoid_data_;
