@@ -33,7 +33,7 @@ namespace OpenMined.Syft.Tensor
 				});
 
 			}
-			result.Cpu ();
+
 			return result;
         }
 

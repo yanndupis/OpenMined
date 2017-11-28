@@ -5,6 +5,20 @@ struct Dimensions {
 	int columns;
 };
 
+#pragma kernel Abs
+
+RWStructuredBuffer<float> abs_data;
+RWStructuredBuffer<float> abs_result;
+ 
+[numthreads(1,1,1)]
+void Abs (uint3 id : SV_DispatchThreadID) {
+	if(abs_data[id.x] < 0) {
+		abs_result[id.x] = -abs_data[id.x];
+	} else {
+		abs_result[id.x] = abs_data[id.x];
+	}
+}
+
 #pragma kernel Abs_
 
 RWStructuredBuffer<float> abs_data_;
@@ -150,6 +164,28 @@ RWStructuredBuffer<float> negate_result;
 void Negate (uint3 id: SV_DispatchThreadID) {
 	negate_result[id.x] = -negate_data[id.x];
 }
+
+#pragma kernel Pow
+
+RWStructuredBuffer<float> pow_scalar_data;
+RWStructuredBuffer<float> pow_scalar_scalar;
+RWStructuredBuffer<float> pow_scalar_result;
+
+[numthreads(4,1,1)]
+void Pow (uint3 id: SV_DispatchThreadID) {
+	pow_scalar_result[id.x] = pow(pow_scalar_data[id.x],pow_scalar_scalar[0]);
+}
+
+#pragma kernel Pow_
+
+RWStructuredBuffer<float> pow_scalar_data_;
+RWStructuredBuffer<float> pow_scalar_scalar_;
+
+[numthreads(4,1,1)]
+void Pow_ (uint3 id: SV_DispatchThreadID) {
+	pow_scalar_data_[id.x] = pow(pow_scalar_data_[id.x],pow_scalar_scalar_[0]);
+}
+
 
 #pragma kernel Sigmoid_
 
