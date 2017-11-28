@@ -55,7 +55,7 @@ namespace OpenMined.Network.Controllers
 
         public int addTensor(FloatTensor tensor) {
 			tensors.Add (tensor.Id, tensor);
-			return (tensors.Count - 1);
+			return (tensors.Count);
 		}
 
         public string processMessage(string json_message)
@@ -65,13 +65,13 @@ namespace OpenMined.Network.Controllers
             Command msgObj = JsonUtility.FromJson<Command>(json_message);
 
             switch (msgObj.objectType)
+
             {
                 case "tensor":
                 {
                     if (msgObj.objectIndex == 0 && msgObj.functionCall=="create" )
                     {
-                        FloatTensor tensor = new FloatTensor(msgObj.data, msgObj.shape);
-                        tensor.Shader = Shader;
+                        FloatTensor tensor = new FloatTensor(msgObj.data, msgObj.shape, this.Shader);
                         this.addTensor(tensor);
                         Debug.LogFormat("<color=magenta>createTensor:</color> {0}", string.Join(", ", tensor.Data));
                         return tensor.Id.ToString();

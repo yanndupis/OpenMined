@@ -18,6 +18,6 @@ namespace OpenMined.Network.Utils
 		public float[] data;
 		public int[] shape;
 
-		public int[] tensorIndexParams;
+		public string[] tensorIndexParams;
     }
 }
