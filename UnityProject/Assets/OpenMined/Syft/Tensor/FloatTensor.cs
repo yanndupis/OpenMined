@@ -176,13 +176,20 @@ namespace OpenMined.Syft.Tensor
         {
             switch (msgObj.functionCall)
             {
-                case "abs_":
-                {
-                    // calls the function on our tensor object
-                    Abs_();
-                    // returns the function call name with the OK status    
-                    return id.ToString();
-                }
+				case "abs":
+				{
+					// calls the function on our tensor object
+					var result = this.Abs();
+					// returns the function call name with the OK status    
+					return ctrl.addTensor(result) + "";
+				}
+				case "abs_":
+				{
+					// calls the function on our tensor object
+					Abs_();
+					// returns the function call name with the OK status    
+					return id.ToString();
+				}
 
 
                 case "add_elem":

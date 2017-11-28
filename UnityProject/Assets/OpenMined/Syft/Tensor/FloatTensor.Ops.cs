@@ -7,6 +7,30 @@ namespace OpenMined.Syft.Tensor
     public partial class FloatTensor
     {
 
+		public FloatTensor Abs()
+		// Returns a new Tensor with the smallest integer greater than or equal to each element
+		{
+
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+
+			if (dataOnGpu) {	
+
+				result.Gpu ();
+				return AbsGPU (result);
+
+			} else {
+
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
+					var max = size * (workerId + 1) / nCpu;
+					for (var i = size * workerId / nCpu; i < max; i++)
+						result.Data [i] = (float)(Math.Abs (Data [i]));
+				});
+			}
+			return result;
+		}
+
+
 		public FloatTensor Add(FloatTensor x)
         {
             // Check if both tensors are compatible for sum
