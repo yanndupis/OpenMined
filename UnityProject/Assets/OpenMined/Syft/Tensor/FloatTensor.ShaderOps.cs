@@ -233,7 +233,6 @@ namespace OpenMined.Syft.Tensor
 					shader.SetBuffer (MulElemKernel_, "mul_elem_data_b_", tensor.dataBuffer);
 					shader.Dispatch (MulElemKernel_, this.size, 1, 1);
 				} else {
-					AbsGPU_ ();
 					PowGPU_ (2);
 				}
 
@@ -269,8 +268,7 @@ namespace OpenMined.Syft.Tensor
 					shader.SetBuffer (MulElemKernel, "mul_elem_data_result", result.dataBuffer);
 					shader.Dispatch (MulElemKernel, this.size, 1, 1);
 				} else {
-					result = tensor.AbsGPU (result);
-					result.PowGPU_(2);
+					return this.PowGPU(2, result);
 				}
 
 			}

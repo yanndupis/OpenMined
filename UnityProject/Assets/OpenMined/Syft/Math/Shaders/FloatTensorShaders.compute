@@ -173,7 +173,7 @@ RWStructuredBuffer<float> pow_scalar_result;
 
 [numthreads(4,1,1)]
 void Pow (uint3 id: SV_DispatchThreadID) {
-	pow_scalar_result[id.x] = pow(pow_scalar_data[id.x],pow_scalar_scalar[0]);
+	pow_scalar_result[id.x] = pow(abs(pow_scalar_data[id.x]),pow_scalar_scalar[0]);
 }
 
 #pragma kernel Pow_
@@ -183,7 +183,7 @@ RWStructuredBuffer<float> pow_scalar_scalar_;
 
 [numthreads(4,1,1)]
 void Pow_ (uint3 id: SV_DispatchThreadID) {
-	pow_scalar_data_[id.x] = pow(pow_scalar_data_[id.x],pow_scalar_scalar_[0]);
+	pow_scalar_data_[id.x] = pow(abs(pow_scalar_data_[id.x]),pow_scalar_scalar_[0]);
 }
 
 
