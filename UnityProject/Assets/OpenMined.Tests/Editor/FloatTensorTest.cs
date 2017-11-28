@@ -324,6 +324,31 @@ namespace OpenMined.Tests
         }
 
         [Test]
+        public void Sigmoid_()
+        {
+            float[] data1 = { 0.0f };
+            int[] shape1 = { 1 };
+            var tensor1 = new FloatTensor(data1, shape1);
+            tensor1.Sigmoid_();
+            Assert.AreEqual(tensor1.Data[0], 0.5f);
+
+            float[] data2 = { 0.1f, 0.5f, 1.0f, 2.0f };
+            float[] data3 = { -0.1f, -0.5f, -1.0f, -2.0f };
+            int[] shape2 = { 4 };
+            var tensor2 = new FloatTensor(data2, shape2);
+            var tensor3 = new FloatTensor(data3, shape2);
+            tensor2.Sigmoid_();
+            tensor3.Sigmoid_();
+            var sum = tensor2.Add(tensor3);
+
+            for (int i = 0; i < sum.Size; i++)
+            {
+                Assert.AreEqual(sum.Data[i], 1.0f);
+            }
+        }
+
+
+        [Test]
         public void Zero_()
         {
             float[] data1 = { -1, 0, 1, float.MaxValue, float.MinValue };
@@ -641,7 +666,53 @@ namespace OpenMined.Tests
                 Throws.TypeOf<InvalidOperationException>());
         }
 
-        // TODO: AddMatrixMultiplyTests when implemented on CPU
+        [Test]
+        public void AddMatrixMultiplyTest()
+        {
+            float[] base1_data = new float[] { 1, 2, 3, 4 };
+            int[] base1_shape = new int[] { 2, 2 };
+            var base1 = new FloatTensor(base1_data, base1_shape);
+
+            float[] base2_data = new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            int[] base2_shape = new int[] { 3, 3 };
+            var base2 = new FloatTensor( base2_data,base2_shape );
+
+            float[] data = new float[] { 1, 2, 3, 4, 5, 6 };
+            int[] tensor1_shape = new int[]{ 2, 3 };
+            int[] tensor2_shape = new int[]{ 3, 2 };
+            var tensor1 = new FloatTensor(data, tensor1_shape);
+            var tensor2 = new FloatTensor(data, tensor2_shape);
+
+            base1.AddMatrixMultiply(tensor1, tensor2);
+            base2.AddMatrixMultiply(tensor2, tensor1);
+
+            for (int i = 0; i < base1_shape[0]; i++)
+            {
+                for (int j = 0; j < base1_shape[1]; j++)
+                {
+                    float mm_res = base1_data[i * base1_shape[1] + j];
+                    for (int k = 0; k < tensor1_shape[1]; k++)
+                    {
+                        mm_res += tensor1[i, k] * tensor2[k, j];
+                    }
+                    Assert.AreEqual(base1[i, j], mm_res);
+                }
+            }
+
+            for (int i = 0; i < base2_shape[0]; i++)
+            {
+                for (int j = 0; j < base2_shape[1]; j++)
+                {
+                    float mm_res = base2_data[i * base2_shape[1] + j];
+                    for (int k = 0; k < tensor2_shape[1]; k++)
+                    {
+                        mm_res += tensor2[i, k] * tensor1[k, j];
+                    }
+                    Assert.AreEqual(base2[i, j], mm_res);
+                }
+            }
+        }
+
         // TODO: MultiplyDerivative when implemented on CPU
     }
 }

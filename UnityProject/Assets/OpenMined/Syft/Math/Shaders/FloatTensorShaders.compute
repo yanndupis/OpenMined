@@ -5,15 +5,6 @@ struct Dimensions {
 	int columns;
 };
 
-float sigmoid(float x)
-{
-    return 1 / (1 + exp(-x));
-}
-
-float derivative(float x) {
-	return x * (1 - x);
-}
-
 #pragma kernel Abs_
 
 RWStructuredBuffer<float> abs_data_;
@@ -136,6 +127,15 @@ RWStructuredBuffer<float> negate_result;
 [numthreads(4,1,1)]
 void Negate (uint3 id: SV_DispatchThreadID) {
 	negate_result[id.x] = -negate_data[id.x];
+}
+
+#pragma kernel Sigmoid_
+
+RWStructuredBuffer<float> sigmoid_data_;
+
+[numthreads(1,1,1)]
+void Sigmoid_ (uint3 id : SV_DispatchThreadID) {
+	sigmoid_data_[id.x] = 1 / (1 + exp(-sigmoid_data_[id.x]));
 }
 
 #pragma kernel SubElem
