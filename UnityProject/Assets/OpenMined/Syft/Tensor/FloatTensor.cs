@@ -147,22 +147,37 @@ namespace OpenMined.Syft.Tensor
                     // returns the function call name with the OK status    
                     return id.ToString();
                 }
-                case "add_":
+
+
+                case "add_elem":
                 {
-                    Add_((float) msgObj.tensorIndexParams[0]);
-                    return msgObj.functionCall + ": OK";
+                  var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+                  var result = this.Add(tensor_1);
+
+                  return ctrl.addTensor(result) + "";
                 }
-                case "add":
+                case "add_elem_":
                 {
-                    var tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams[0]);
-                    var result = tensor_1.Add(tensor_1);
-                    ctrl.addTensor(result);
-                    return result.Id.ToString();
+                  var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+                  this.Add_(tensor_1);
+                  return this.id + "";
                 }
+                case "add_scalar":
+                {
+                  FloatTensor result = Add(float.Parse(msgObj.tensorIndexParams[0]));
+
+                  return ctrl.addTensor (result) + "";
+                }
+                case "add_scalar_":
+                {	
+                  this.Add_(float.Parse( msgObj.tensorIndexParams[0]));
+                  return this.id + "";
+                }
+
                 case "addmm_":
                 {
-                    var tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams[0]);
-                    var tensor_2 = ctrl.getTensor(msgObj.tensorIndexParams[1]);
+					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+					var tensor_2 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
                     AddMatrixMultiply(tensor_1, tensor_2);
                     return msgObj.functionCall + ": OK";
                 }
@@ -201,14 +216,14 @@ namespace OpenMined.Syft.Tensor
                 }
                 case "mul":
                 {
-                    FloatTensor tensor_1 = ctrl.getTensor(msgObj.tensorIndexParams[0]);
+					FloatTensor tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
                     var result = MulElementwise(tensor_1);
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }
                 case "mul_scalar":
                 {
-                    var result = MulScalar((float) msgObj.tensorIndexParams[0]);
+					var result = MulScalar(float.Parse(msgObj.tensorIndexParams[0]));
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }
@@ -243,7 +258,7 @@ namespace OpenMined.Syft.Tensor
                 }
                 case "sub":
                 {
-                    var tensor1 = ctrl.getTensor(msgObj.tensorIndexParams[0]);
+					var tensor1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
 					var result = SubtractElementwise(tensor1);
                     ctrl.addTensor(result);
                     return result.Id.ToString();

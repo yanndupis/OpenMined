@@ -7,26 +7,50 @@ namespace OpenMined.Syft.Tensor
     public partial class FloatTensor
     {
 
-        public FloatTensor Add(FloatTensor x)
+		public FloatTensor Add(FloatTensor x)
         {
             // Check if both tensors are compatible for sum
             SameSizeDimensionsAndShape(ref x);
 
-            if (dataOnGpu)
-            {
-                // GPU Add Code Here
-            }
+			var result = new FloatTensor (shape, false);
 
-            var result = new FloatTensor(shape, dataOnGpu);
-            var nCpu = SystemInfo.processorCount;
-            Parallel.For(0, nCpu, workerId =>
-            {
-                var max = size * (workerId + 1) / nCpu;
-                for (var i = size * workerId / nCpu; i < max; i++)
-                    result.Data[i] = x.Data[i] + Data[i];
-            });
-            return result;
+			if (dataOnGpu) {
+				
+				result.Gpu ();
+				return AddElemGPU (x, result);
+
+			} else {
+
+
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
+					var max = size * (workerId + 1) / nCpu;
+					for (var i = size * workerId / nCpu; i < max; i++)
+						result.Data [i] = x.Data [i] + Data [i];
+				});
+
+			}
+			return result;
         }
+
+		public FloatTensor Add(float value)
+		{
+			var result = new FloatTensor(shape, false);
+
+			if (dataOnGpu) {
+				result.Gpu ();
+				return AddScalarGPU (value, result);
+			} else {
+				
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
+					var max = size * (workerId + 1) / nCpu;
+					for (var i = size * workerId / nCpu; i < max; i++)
+						result.Data [i] = value + Data [i];
+				});
+			}
+			return result;
+		}
 
         public FloatTensor AddMatrixMultiply(FloatTensor tensor1, FloatTensor tensor2)
         {

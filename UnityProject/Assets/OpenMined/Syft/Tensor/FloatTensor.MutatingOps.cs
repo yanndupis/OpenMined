@@ -25,21 +25,37 @@ namespace OpenMined.Syft.Tensor
 				});
 		}
 
-        public void Add_(float value)
-        {
-            if (dataOnGpu)
-            {
-				AddScalarGPU_(value);
-                return;
-            }
-            var nCpu = SystemInfo.processorCount;
-            Parallel.For(0, nCpu, workerId =>
-            {
-                var max = size * (workerId + 1) / nCpu;
-                for (var i = size * workerId / nCpu; i < max; i++)
-                    data[i] += value;
-            });
-        }
+		public void Add_(FloatTensor x)
+		{
+			SameSizeDimensionsAndShape(ref x);
+
+			if (dataOnGpu) {
+				AddElemGPU_ (x);
+
+			} else {
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
+					var max = size * (workerId + 1) / nCpu;
+					for (var i = size * workerId / nCpu; i < max; i++)
+						data [i] += x.data [i];
+				});
+			}
+		}
+
+		public void Add_(float value)
+		{
+			if (dataOnGpu) {
+				AddScalarGPU_ (value);
+				return;
+			} else {
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
+					var max = size * (workerId + 1) / nCpu;
+					for (var i = size * workerId / nCpu; i < max; i++)
+						data [i] += value;
+				});
+			}
+		}
 
         public void Floor_()
         {
