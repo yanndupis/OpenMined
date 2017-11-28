@@ -197,9 +197,9 @@ namespace OpenMined.Syft.Tensor
 			if (dataOnGpu)
 			{
 
-				shader.SetBuffer(MulScalarKernel_, "mul_elem_data_a_", dataBuffer);
-				shader.SetBuffer(MulScalarKernel_, "mul_elem_data_b_", tensor.dataBuffer);
-				shader.Dispatch(MulScalarKernel_, this.size, 1, 1);
+				shader.SetBuffer(MulElemKernel_, "mul_elem_data_a_", dataBuffer);
+				shader.SetBuffer(MulElemKernel_, "mul_elem_data_b_", tensor.dataBuffer);
+				shader.Dispatch(MulElemKernel_, this.size, 1, 1);
 
 			}
 		}
