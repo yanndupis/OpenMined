@@ -5,6 +5,20 @@ struct Dimensions {
 	int columns;
 };
 
+#pragma kernel Abs
+
+RWStructuredBuffer<float> abs_data;
+RWStructuredBuffer<float> abs_result;
+ 
+[numthreads(1,1,1)]
+void Abs (uint3 id : SV_DispatchThreadID) {
+	if(abs_data[id.x] < 0) {
+		abs_result[id.x] = -abs_data[id.x];
+	} else {
+		abs_result[id.x] = abs_data[id.x];
+	}
+}
+
 #pragma kernel Abs_
 
 RWStructuredBuffer<float> abs_data_;

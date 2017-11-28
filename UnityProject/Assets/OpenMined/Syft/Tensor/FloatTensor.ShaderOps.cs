@@ -6,7 +6,8 @@ namespace OpenMined.Syft.Tensor
     {
         private ComputeShader shader;
 
-
+		[SerializeField]
+		private static int AbsKernel;
         [SerializeField]
 		private static int AbsKernel_;
 		[SerializeField]
@@ -49,6 +50,7 @@ namespace OpenMined.Syft.Tensor
 		public void initShaderKernels() {
 
 			// save shaders and kernels
+			AbsKernel = shader.FindKernel("Abs");
 			AbsKernel_ = shader.FindKernel("Abs_");
 			AddScalarKernel_ = shader.FindKernel("AddScalar_");
 			AddElemKernel_ = shader.FindKernel("AddElem_");
@@ -71,9 +73,20 @@ namespace OpenMined.Syft.Tensor
 
 		}
 
-		public void AbsGPU_() {
+		public FloatTensor AbsGPU(FloatTensor result) {
+			Debug.LogFormat("<color=blue>FloatTensor.AbsGPU dataOnGpu: {0}</color>", dataOnGpu);
 			if (dataOnGpu) {
-				shader.SetBuffer (AbsKernel_, "AbsGPU_", dataBuffer);
+				shader.SetBuffer (AbsKernel, "abs_data", dataBuffer);
+				shader.SetBuffer (AbsKernel, "abs_result", result.dataBuffer);
+				shader.Dispatch (AbsKernel, this.size, 1, 1);
+			}
+			return result;
+		}
+
+		public void AbsGPU_() {
+			Debug.LogFormat("<color=blue>FloatTensor.AbsGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+			if (dataOnGpu) {
+				shader.SetBuffer (AbsKernel_, "abs_data_", dataBuffer);
 				shader.Dispatch (AbsKernel_, this.size, 1, 1);
 			}
 		}
@@ -220,6 +233,7 @@ namespace OpenMined.Syft.Tensor
 					shader.SetBuffer (MulElemKernel_, "mul_elem_data_b_", tensor.dataBuffer);
 					shader.Dispatch (MulElemKernel_, this.size, 1, 1);
 				} else {
+					AbsGPU_ ();
 					PowGPU_ (2);
 				}
 
@@ -255,7 +269,8 @@ namespace OpenMined.Syft.Tensor
 					shader.SetBuffer (MulElemKernel, "mul_elem_data_result", result.dataBuffer);
 					shader.Dispatch (MulElemKernel, this.size, 1, 1);
 				} else {
-					return PowGPU (2, result);
+					result = tensor.AbsGPU (result);
+					result.PowGPU_(2);
 				}
 
 			}
