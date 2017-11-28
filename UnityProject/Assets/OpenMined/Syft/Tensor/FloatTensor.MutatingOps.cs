@@ -29,34 +29,32 @@ namespace OpenMined.Syft.Tensor
 		{
 			SameSizeDimensionsAndShape(ref x);
 
-			if (dataOnGpu)
-			{
-				AddElemGPU_(x);
-				return;
-			}
-			var nCpu = SystemInfo.processorCount;
-			Parallel.For(0, nCpu, workerId =>
-				{
+			if (dataOnGpu) {
+				AddElemGPU_ (x);
+
+			} else {
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
 					for (var i = size * workerId / nCpu; i < max; i++)
-						data[i] += x.data[i];
+						data [i] += x.data [i];
 				});
+			}
 		}
 
 		public void Add_(float value)
 		{
-			if (dataOnGpu)
-			{
-				AddScalarGPU_(value);
+			if (dataOnGpu) {
+				AddScalarGPU_ (value);
 				return;
-			}
-			var nCpu = SystemInfo.processorCount;
-			Parallel.For(0, nCpu, workerId =>
-				{
+			} else {
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
 					for (var i = size * workerId / nCpu; i < max; i++)
-						data[i] += value;
+						data [i] += value;
 				});
+			}
 		}
 
         public void Zero_()

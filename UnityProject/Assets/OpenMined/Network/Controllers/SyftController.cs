@@ -47,7 +47,7 @@ namespace OpenMined.Network.Controllers
 
             Command msgObj = JsonUtility.FromJson<Command>(json_message);
 
-            if (msgObj.functionCall == "createTensor")
+            if (msgObj.functionCall == "create")
             {
                 FloatTensor tensor = new FloatTensor(msgObj.data, msgObj.shape);
                 tensor.Shader = shader;

@@ -42,27 +42,29 @@ RWStructuredBuffer<float> add_elem_data_b_;
 
 [numthreads(4,1,1)]
 void AddElem_ (uint3 id: SV_DispatchThreadID) {
-	add_elem_data_a_[id.x] = add_elem_data_a_[id.x] + add_elem_data_b_[0];
+	add_elem_data_a_[id.x] = add_elem_data_a_[id.x] + add_elem_data_b_[id.x];
 }
 
 #pragma kernel AddScalar
 
 RWStructuredBuffer<float> add_scalar_data;
 RWStructuredBuffer<float> add_scalar_scalar;
+RWStructuredBuffer<float> add_scalar_result;
 
 [numthreads(4,1,1)]
 void AddScalar (uint3 id: SV_DispatchThreadID) {
-	add_scalar_data[id.x] = add_scalar_data[id.x] + add_scalar_scalar[0];
+	add_scalar_result[id.x] = add_scalar_data[id.x] + add_scalar_scalar[0];
 }
 
 #pragma kernel AddElem
 
 RWStructuredBuffer<float> add_elem_data_a;
 RWStructuredBuffer<float> add_elem_data_b;
+RWStructuredBuffer<float> add_elem_data_result;
 
 [numthreads(4,1,1)]
 void AddElem (uint3 id: SV_DispatchThreadID) {
-	add_elem_data_a[id.x] = add_elem_data_a[id.x] + add_elem_data_b[0];
+	add_elem_data_result[id.x] = add_elem_data_a[id.x] + add_elem_data_b[id.x];
 }
 
 #pragma kernel AddMM_

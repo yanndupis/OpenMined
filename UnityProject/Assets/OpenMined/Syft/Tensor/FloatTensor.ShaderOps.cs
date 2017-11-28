@@ -61,7 +61,7 @@ namespace OpenMined.Syft.Tensor
 				var valBuffer = SendFloatToGpu(AddScalarKernel_, value, "add_scalar_scalar_");
 
 				shader.SetBuffer(AddScalarKernel_, "add_scalar_data_", dataBuffer);
-				shader.Dispatch(AddScalarKernel_, 1, 1, 1);
+				shader.Dispatch(AddScalarKernel_, this.size, 1, 1);
 
 				valBuffer.Release();
 			}
@@ -74,14 +74,14 @@ namespace OpenMined.Syft.Tensor
 			if (dataOnGpu)
 			{
 
-				shader.SetBuffer(AddScalarKernel_, "add_data_data_a_", dataBuffer);
-				shader.SetBuffer(AddScalarKernel_, "add_data_data_b_", tensor.dataBuffer);
-				shader.Dispatch(AddScalarKernel_, 1, 1, 1);
+				shader.SetBuffer(AddScalarKernel_, "add_elem_data_a_", dataBuffer);
+				shader.SetBuffer(AddScalarKernel_, "add_elem_data_b_", tensor.dataBuffer);
+				shader.Dispatch(AddScalarKernel_, this.size, 1, 1);
 
 			}
 		}
 
-		public void AddScalarGPU(float value)
+		public FloatTensor AddScalarGPU(float value, FloatTensor result)
 		{
 			Debug.LogFormat("<color=blue>FloatTensor.add_ dataOnGpu: {0}</color>", dataOnGpu);
 
@@ -90,24 +90,28 @@ namespace OpenMined.Syft.Tensor
 				var valBuffer = SendFloatToGpu(AddScalarKernel, value, "add_scalar_scalar");
 
 				shader.SetBuffer(AddScalarKernel, "add_scalar_data", dataBuffer);
-				shader.Dispatch(AddScalarKernel, 1, 1, 1);
+				shader.SetBuffer(AddScalarKernel, "add_scalar_result", result.dataBuffer);
+				shader.Dispatch(AddScalarKernel, this.size, 1, 1);
 
 				valBuffer.Release();
 			}
+			return result;
 		}
 
-		public void AddElemGPU(FloatTensor tensor)
+		public FloatTensor AddElemGPU(FloatTensor tensor, FloatTensor result)
 		{
 			Debug.LogFormat("<color=blue>FloatTensor.add_ dataOnGpu: {0}</color>", dataOnGpu);
 
 			if (dataOnGpu)
 			{
 
-				shader.SetBuffer(AddScalarKernel, "add_data_data_a", dataBuffer);
-				shader.SetBuffer(AddScalarKernel, "add_data_data_b", tensor.dataBuffer);
-				shader.Dispatch(AddScalarKernel, 1, 1, 1);
+				shader.SetBuffer(AddElemKernel, "add_elem_data_a", dataBuffer);
+				shader.SetBuffer(AddElemKernel, "add_elem_data_b", tensor.dataBuffer);
+				shader.SetBuffer(AddElemKernel, "add_elem_data_result", result.dataBuffer);
+				shader.Dispatch(AddElemKernel, this.size, 1, 1);
 
 			}
+			return result;
 		}
 
 		public void AddMatrixMultiplyGPU(FloatTensor tensor_1, FloatTensor tensor_2)
