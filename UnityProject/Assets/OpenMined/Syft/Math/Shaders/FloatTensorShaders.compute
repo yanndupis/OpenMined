@@ -193,6 +193,16 @@ void SubElem (uint3 id : SV_DispatchThreadID) {
     sub_elem_result[id.x] = sub_elem_data_a[id.x] - sub_elem_data_b[id.x];
 }
 
+#pragma kernel Tanh
+
+RWStructuredBuffer<float> tanh_data;
+RWStructuredBuffer<float> tanh_result;
+
+[numthreads(4,1,1)]
+void Tanh (uint3 id: SV_DispatchThreadID) {
+	tanh_result[id.x] = tanh(tanh_data[id.x]);
+}
+
 #pragma kernel Zero_
 
 RWStructuredBuffer<float> zero_data_;

@@ -62,7 +62,7 @@ namespace OpenMined.Tests
 
             for (int i = 0; i < array.Length; i++)
             {
-                Assert.AreEqual(array[i], tensor[i]);	
+                Assert.AreEqual(array[i], tensor[i]);
             }
         }
 
@@ -83,7 +83,7 @@ namespace OpenMined.Tests
             {
                 for (int j = 0; j < array.GetLength(1); j++)
                 {
-                    Assert.AreEqual(array[i, j], tensor[i, j]);	
+                    Assert.AreEqual(array[i, j], tensor[i, j]);
                 }
             }
         }
@@ -107,8 +107,8 @@ namespace OpenMined.Tests
                 for (int j = 0; j < array.GetLength(1); j++)
                 {
                     for (int k = 0; k < array.GetLength(2); k++)
-                    {	
-                        Assert.AreEqual(array[i, j, k], tensor[i, j, k]);	
+                    {
+                        Assert.AreEqual(array[i, j, k], tensor[i, j, k]);
                     }
                 }
             }
@@ -119,7 +119,7 @@ namespace OpenMined.Tests
         {
             float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
             int[] shape1 = { 2, 5};
-            
+
             float[] data2 = { 1, 6, 2, 7, 3, 8, 4, 9, 5, 10 };
             int[] shape2 = { 5, 2 };
 
@@ -130,7 +130,7 @@ namespace OpenMined.Tests
             {
                 for (int j = 0; j < tensor.Shape[1]; j++)
                 {
-                    Assert.AreEqual(tensor[i, j], transpose[j, i]);	
+                    Assert.AreEqual(tensor[i, j], transpose[j, i]);
                 }
             }
 
@@ -140,7 +140,7 @@ namespace OpenMined.Tests
             {
                 for (int j = 0; j < tensor.Shape[1]; j++)
                 {
-                    Assert.AreEqual(tensor[i, j], transpose[i, j]);	
+                    Assert.AreEqual(tensor[i, j], transpose[i, j]);
                 }
             }
         }
@@ -161,9 +161,9 @@ namespace OpenMined.Tests
             {
                 for (int j = 0; j < tensor.Shape[1]; j++)
                 {
-                    for (int k = 0; k < tensor.Shape [2]; k++) 
+                    for (int k = 0; k < tensor.Shape [2]; k++)
                     {
-                        Assert.AreEqual (tensor [i, j, k], transpose [k, j, i]);	
+                        Assert.AreEqual (tensor [i, j, k], transpose [k, j, i]);
                     }
                 }
             }
@@ -173,9 +173,9 @@ namespace OpenMined.Tests
             {
                 for (int j = 0; j < tensor.Shape[1]; j++)
                 {
-                    for (int k = 0; k < tensor.Shape [2]; k++) 
+                    for (int k = 0; k < tensor.Shape [2]; k++)
                     {
-                        Assert.AreEqual(tensor[i, j, k], transpose[i, j, k]);	
+                        Assert.AreEqual(tensor[i, j, k], transpose[i, j, k]);
                     }
                 }
             }
@@ -220,7 +220,7 @@ namespace OpenMined.Tests
             Assert.That(() => tensor2.Transpose(0, 3),
                 Throws.TypeOf<ArgumentOutOfRangeException>());
         }
-        
+
         [Test]
         public void Add()
         {
@@ -452,7 +452,7 @@ namespace OpenMined.Tests
 
             var tensor1 = new FloatTensor(data, shape);
             var tensor2 = new FloatTensor(data, shape);
-            
+
             Assert.AreNotEqual(tensor1.Id, tensor2.Id);
             Assert.AreEqual(tensor1.Id + 1, tensor2.Id);
         }
@@ -713,6 +713,26 @@ namespace OpenMined.Tests
             }
         }
 
+        [Test]
+        public void Tanh()
+        {
+            float[] data1 = { -0.6366f, 0.2718f, 0.4469f, 1.3122f };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+
+            float[] data2 = { -0.562580109f, 0.265298963f, 0.419347495f, 0.86483103f };
+            int[] shape2 = { 4 };
+            var expectedTanhTensor = new FloatTensor(data2, shape2);
+
+            var actualTanhTensor = tensor.Tanh();
+
+            for (int i = 2; i < actualTanhTensor.Size; i++)
+            {
+                 Assert.AreEqual (expectedTanhTensor.Data[i], actualTanhTensor.Data[i]);
+            }
+        }
+
+        // TODO: AddMatrixMultiplyTests when implemented on CPU
         // TODO: MultiplyDerivative when implemented on CPU
     }
 }
