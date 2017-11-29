@@ -183,8 +183,6 @@ namespace OpenMined.Syft.Tensor
                     // returns the function call name with the OK status    
                     return id.ToString();
                 }
-
-
                 case "add_elem":
                 {
 				    Debug.LogFormat("add_elem");
@@ -307,7 +305,7 @@ namespace OpenMined.Syft.Tensor
                     Sigmoid_();
                     return msgObj.functionCall + ": OK";
                 }
-                case "sub":
+                case "sub_elem":
                 {
                     var tensor1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
                     var result = SubtractElementwise(tensor1);
