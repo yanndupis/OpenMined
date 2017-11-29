@@ -77,8 +77,8 @@ namespace OpenMined.Syft.Tensor
 		public FloatTensor AbsGPU(FloatTensor result) {
 			Debug.LogFormat("<color=blue>FloatTensor.AbsGPU dataOnGpu: {0}</color>", dataOnGpu);
 			if (dataOnGpu) {
-				shader.SetBuffer (AbsKernel, "abs_data", dataBuffer);
-				shader.SetBuffer (AbsKernel, "abs_result", result.dataBuffer);
+				shader.SetBuffer (AbsKernel, "AbsData", dataBuffer);
+				shader.SetBuffer (AbsKernel, "AbsResult", result.dataBuffer);
 				shader.Dispatch (AbsKernel, this.size, 1, 1);
 			}
 			return result;
@@ -87,7 +87,7 @@ namespace OpenMined.Syft.Tensor
 		public void AbsGPU_() {
 			Debug.LogFormat("<color=blue>FloatTensor.AbsGPU_ dataOnGpu: {0}</color>", dataOnGpu);
 			if (dataOnGpu) {
-				shader.SetBuffer (AbsKernel_, "abs_data_", dataBuffer);
+				shader.SetBuffer (AbsKernel_, "AbsData_", dataBuffer);
 				shader.Dispatch (AbsKernel_, this.size, 1, 1);
 			}
 		}
@@ -98,9 +98,9 @@ namespace OpenMined.Syft.Tensor
 
 			if (dataOnGpu)
 			{
-				var valBuffer = SendFloatToGpu(AddScalarKernel_, value, "add_scalar_scalar_");
+				var valBuffer = SendFloatToGpu(AddScalarKernel_, value, "AddScalarScalar_");
 
-				shader.SetBuffer(AddScalarKernel_, "add_scalar_data_", dataBuffer);
+				shader.SetBuffer(AddScalarKernel_, "AddScalarData_", dataBuffer);
 				shader.Dispatch(AddScalarKernel_, this.size, 1, 1);
 
 				valBuffer.Release();
@@ -114,8 +114,8 @@ namespace OpenMined.Syft.Tensor
 			if (dataOnGpu)
 			{
 				if (this.id != tensor.id) {
-					shader.SetBuffer (AddElemKernel_, "add_elem_data_a_", dataBuffer);
-					shader.SetBuffer (AddElemKernel_, "add_elem_data_b_", tensor.dataBuffer);
+					shader.SetBuffer (AddElemKernel_, "AddElemDataA_", dataBuffer);
+					shader.SetBuffer (AddElemKernel_, "AddElemDataB_", tensor.dataBuffer);
 					shader.Dispatch (AddElemKernel_, this.size, 1, 1);
 				} else {
 					Debug.LogFormat("addition with itself should be multiplication instead", dataOnGpu);
@@ -131,10 +131,10 @@ namespace OpenMined.Syft.Tensor
 
 			if (dataOnGpu)
 			{
-				var valBuffer = SendFloatToGpu(AddScalarKernel, value, "add_scalar_scalar");
+				var valBuffer = SendFloatToGpu(AddScalarKernel, value, "AddScalarScalar");
 
-				shader.SetBuffer(AddScalarKernel, "add_scalar_data", dataBuffer);
-				shader.SetBuffer(AddScalarKernel, "add_scalar_result", result.dataBuffer);
+				shader.SetBuffer(AddScalarKernel, "AddScalarData", dataBuffer);
+				shader.SetBuffer(AddScalarKernel, "AddScalarResult", result.dataBuffer);
 				shader.Dispatch(AddScalarKernel, this.size, 1, 1);
 
 				valBuffer.Release();
@@ -151,9 +151,9 @@ namespace OpenMined.Syft.Tensor
 			{
 				// if tensors are not actually referring to the same tensor
 				if (this.id != tensor.id) {
-					shader.SetBuffer (AddElemKernel, "add_elem_data_a", this.DataBuffer);
-					shader.SetBuffer (AddElemKernel, "add_elem_data_b", tensor.DataBuffer);
-					shader.SetBuffer (AddElemKernel, "add_elem_data_result", result.DataBuffer);
+					shader.SetBuffer (AddElemKernel, "AddElemDataA", this.DataBuffer);
+					shader.SetBuffer (AddElemKernel, "AddElemDataB", tensor.DataBuffer);
+					shader.SetBuffer (AddElemKernel, "AddElemDataResult", result.DataBuffer);
 					shader.Dispatch (AddElemKernel, this.size, 1, 1);
 				} else {
 					Debug.LogFormat("addition with itself should be multiplication instead", dataOnGpu);
@@ -168,9 +168,9 @@ namespace OpenMined.Syft.Tensor
 		public void AddMatrixMultiplyGPU(FloatTensor tensor_1, FloatTensor tensor_2)
 		{
 			//Debug.LogFormat("<color=blue>FloatTensor.add_matrix_multiply dataOnGpu: {0}</color>", dataOnGpu);
-			shader.SetBuffer(AddMMKernel_, "addmm_data_a", dataBuffer);
-			shader.SetBuffer(AddMMKernel_, "addmm_data_b", tensor_1.DataBuffer); //d
-			shader.SetBuffer(AddMMKernel_, "addmm_data_c", tensor_2.DataBuffer);
+			shader.SetBuffer(AddMMKernel_, "AddmmDataA", dataBuffer);
+			shader.SetBuffer(AddMMKernel_, "AddmmDataB", tensor_1.DataBuffer); //d
+			shader.SetBuffer(AddMMKernel_, "AddmmDataC", tensor_2.DataBuffer);
 			shader.Dispatch(AddMMKernel_, size, 1, 1);
 		}
 
@@ -183,7 +183,7 @@ namespace OpenMined.Syft.Tensor
 
 			var dimBuffer = new ComputeBuffer(dim.Length, dim[0].Stride());
 			dimBuffer.SetData(dim);
-			shader.SetBuffer(AddMMKernel_, "addmm_dimensions", dimBuffer);
+			shader.SetBuffer(AddMMKernel_, "AddmmDimensions", dimBuffer);
 		}
 
 		public FloatTensor CeilGPU()
@@ -192,8 +192,8 @@ namespace OpenMined.Syft.Tensor
 
 			if (!dataOnGpu) return this;
 			var result = new FloatTensor(shape, this.shader, dataOnGpu);
-			shader.SetBuffer(CeilKernel, "ceil_data", dataBuffer);
-			shader.SetBuffer(CeilKernel, "ceil_result", result.DataBuffer);
+			shader.SetBuffer(CeilKernel, "CeilData", dataBuffer);
+			shader.SetBuffer(CeilKernel, "CeilResult", result.DataBuffer);
 			shader.Dispatch(CeilKernel, 1, 1, 1);
 			return result;
 		}
@@ -202,7 +202,7 @@ namespace OpenMined.Syft.Tensor
         	{
             		if (DataOnGpu)
             		{
-                		shader.SetBuffer(FloorKernel_, "floor_data_", dataBuffer);
+                		shader.SetBuffer(FloorKernel_, "FloorData_", dataBuffer);
                 		shader.Dispatch(FloorKernel_, 1, 1, 1);
             		}
         	}
@@ -214,9 +214,9 @@ namespace OpenMined.Syft.Tensor
 
 			if (dataOnGpu)
 			{
-				var valBuffer = SendFloatToGpu(MulScalarKernel_, value, "mul_scalar_scalar_");
+				var valBuffer = SendFloatToGpu(MulScalarKernel_, value, "MulScalarScalar_");
 
-				shader.SetBuffer(MulScalarKernel_, "mul_scalar_data_", dataBuffer);
+				shader.SetBuffer(MulScalarKernel_, "MulScalarData_", dataBuffer);
 				shader.Dispatch(MulScalarKernel_, this.size, 1, 1);
 
 				valBuffer.Release();
@@ -230,8 +230,8 @@ namespace OpenMined.Syft.Tensor
 			if (dataOnGpu)
 			{
 				if (tensor.id != this.id) {
-					shader.SetBuffer (MulElemKernel_, "mul_elem_data_a_", dataBuffer);
-					shader.SetBuffer (MulElemKernel_, "mul_elem_data_b_", tensor.dataBuffer);
+					shader.SetBuffer (MulElemKernel_, "MulElemDataA_", dataBuffer);
+					shader.SetBuffer (MulElemKernel_, "MulElemDataB_", tensor.dataBuffer);
 					shader.Dispatch (MulElemKernel_, this.size, 1, 1);
 				} else {
 					PowGPU_ (2);
@@ -246,10 +246,10 @@ namespace OpenMined.Syft.Tensor
 
 			if (dataOnGpu)
 			{
-				var valBuffer = SendFloatToGpu(MulScalarKernel, value, "mul_scalar_scalar");
+				var valBuffer = SendFloatToGpu(MulScalarKernel, value, "MulScalarScalar");
 
-				shader.SetBuffer(MulScalarKernel, "mul_scalar_data", dataBuffer);
-				shader.SetBuffer(MulScalarKernel, "mul_scalar_result", result.dataBuffer);
+				shader.SetBuffer(MulScalarKernel, "MulScalarData", dataBuffer);
+				shader.SetBuffer(MulScalarKernel, "MulScalarResult", result.dataBuffer);
 				shader.Dispatch(MulScalarKernel, this.size, 1, 1);
 
 				valBuffer.Release();
@@ -264,9 +264,9 @@ namespace OpenMined.Syft.Tensor
 			if (dataOnGpu)
 			{
 				if (tensor.id != this.id) {
-					shader.SetBuffer (MulElemKernel, "mul_elem_data_a", dataBuffer);
-					shader.SetBuffer (MulElemKernel, "mul_elem_data_b", tensor.dataBuffer);
-					shader.SetBuffer (MulElemKernel, "mul_elem_data_result", result.dataBuffer);
+					shader.SetBuffer (MulElemKernel, "MulElemDataA", dataBuffer);
+					shader.SetBuffer (MulElemKernel, "MulElemDataB", tensor.dataBuffer);
+					shader.SetBuffer (MulElemKernel, "MulElemDataResult", result.dataBuffer);
 					shader.Dispatch (MulElemKernel, this.size, 1, 1);
 				} else {
 					return this.PowGPU(2, result);
@@ -282,8 +282,8 @@ namespace OpenMined.Syft.Tensor
             if (dataOnGpu)
             {
 				var result = new FloatTensor(shape, this.shader, dataOnGpu);
-				shader.SetBuffer(NegateKernel, "negate_data", dataBuffer);
-				shader.SetBuffer(NegateKernel, "negate_result", result.dataBuffer);
+				shader.SetBuffer(NegateKernel, "NegateData", dataBuffer);
+				shader.SetBuffer(NegateKernel, "NegateResult", result.dataBuffer);
 				shader.Dispatch(NegateKernel, 1, 1, 1);
                 return result;
             }
@@ -296,10 +296,10 @@ namespace OpenMined.Syft.Tensor
 
 			if (dataOnGpu)
 			{
-				var valBuffer = SendFloatToGpu(PowKernel, value, "pow_scalar_scalar");
+				var valBuffer = SendFloatToGpu(PowKernel, value, "PowScalarScalar");
 
-				shader.SetBuffer(PowKernel, "pow_scalar_data", dataBuffer);
-				shader.SetBuffer(PowKernel, "pow_scalar_result", result.dataBuffer);
+				shader.SetBuffer(PowKernel, "PowScalarData", dataBuffer);
+				shader.SetBuffer(PowKernel, "PowScalarResult", result.dataBuffer);
 				shader.Dispatch(PowKernel, this.size, 1, 1);
 
 				valBuffer.Release();
@@ -313,9 +313,9 @@ namespace OpenMined.Syft.Tensor
 
 			if (dataOnGpu)
 			{
-				var valBuffer = SendFloatToGpu(PowKernel_, value, "pow_scalar_scalar_");
+				var valBuffer = SendFloatToGpu(PowKernel_, value, "PowScalarScalar_");
 
-				shader.SetBuffer(PowKernel_, "pow_scalar_data_", dataBuffer);
+				shader.SetBuffer(PowKernel_, "PowScalarData_", dataBuffer);
 				shader.Dispatch(PowKernel_, this.size, 1, 1);
 
 				valBuffer.Release();
@@ -326,7 +326,7 @@ namespace OpenMined.Syft.Tensor
         {
             if (dataOnGpu)
             {
-                shader.SetBuffer(SigmoidKernel_, "sigmoid_data_", dataBuffer);
+                shader.SetBuffer(SigmoidKernel_, "SigmoidData_", dataBuffer);
                 shader.Dispatch(SigmoidKernel_, this.size, 1, 1);
             }
         }
@@ -342,9 +342,9 @@ namespace OpenMined.Syft.Tensor
 				{
 					var result = new FloatTensor(shape, this.shader, dataOnGpu);
 					// correspond tensor buffers with shader kernel buffers
-					shader.SetBuffer(SubElemKernel, "sub_elem_data_a", dataBuffer);
-					shader.SetBuffer(SubElemKernel, "sub_elem_data_b", other.DataBuffer);
-					shader.SetBuffer(SubElemKernel, "sub_elem_result", result.DataBuffer);
+					shader.SetBuffer(SubElemKernel, "SubElemDataA", dataBuffer);
+					shader.SetBuffer(SubElemKernel, "SubElemDataB", other.DataBuffer);
+					shader.SetBuffer(SubElemKernel, "SubElemResult", result.DataBuffer);
 					shader.Dispatch(SubElemKernel, size, 1, 1);
 
 					return result;
@@ -358,15 +358,15 @@ namespace OpenMined.Syft.Tensor
 		public FloatTensor TanhGPU ()
 		{
 			var result = new FloatTensor(shape, this.shader, dataOnGpu);
-			shader.SetBuffer(TanhKernel, "tanh_data", dataBuffer);
-			shader.SetBuffer(TanhKernel, "tanh_result", result.DataBuffer);
+			shader.SetBuffer(TanhKernel, "TanhData", dataBuffer);
+			shader.SetBuffer(TanhKernel, "TanhResult", result.DataBuffer);
 			shader.Dispatch(TanhKernel, this.size, 1, 1);
 			return result;
 		}
 
         public void ZeroGPU_()
         {
-			shader.SetBuffer(ZeroKernel_, "zero_data_", dataBuffer);
+			shader.SetBuffer(ZeroKernel_, "ZeroData_", dataBuffer);
 			shader.Dispatch(ZeroKernel_, 1, 1, 1);
         }
 
