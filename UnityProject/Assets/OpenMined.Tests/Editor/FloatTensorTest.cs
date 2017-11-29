@@ -605,7 +605,7 @@ namespace OpenMined.Tests
             for (int i = 0; i < tensor.Size; i++)
             {
                 float current = tensor1.Data [i] - tensor2.Data [i];
-                Assert.AreEqual (current, tensor.Data [i]);
+                Assert (current, tensor.Data [i]);
             }
         }
 

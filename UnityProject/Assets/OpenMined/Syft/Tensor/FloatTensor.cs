@@ -372,6 +372,12 @@ namespace OpenMined.Syft.Tensor
 					this.Sub_(float.Parse( msgObj.tensorIndexParams[0]));
 					return this.id + "";
 				}
+				case "sum_dim":
+				{
+					Debug.LogFormat("sum_dim");
+					FloatTensor result = this.Sum(int.Parse( msgObj.tensorIndexParams[0]));
+					return ctrl.addTensor (result) + "";
+				}
                 case "tanh":
                 {
                     var result = Tanh();

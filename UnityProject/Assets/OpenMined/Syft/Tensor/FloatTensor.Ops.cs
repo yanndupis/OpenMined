@@ -300,6 +300,39 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
+		public FloatTensor Sum(int dim)
+		{
+			int[] result_shape = new int[shape.Length - 1];
+			int j = 0;
+			for (var i = 0; i < shape.Length; i++) {
+				if (i != dim) {
+					result_shape [j] = shape [i];
+					j += 1;
+				}
+			}	
+
+			var result = new FloatTensor(result_shape, this.shader, false);
+
+
+			if (dataOnGpu) {
+				// TODO: write GPU kernel for summing over a dimension
+//				result.Gpu ();
+
+			} else {
+
+
+
+				// TODO: write parallel.for for summing over a dimension
+//				var nCpu = SystemInfo.processorCount;
+//				Parallel.For (0, nCpu, workerId => {
+//					var max = size * (workerId + 1) / nCpu;
+//					for (var i = size * workerId / nCpu; i < max; i++)
+//						result.Data [i] = value - Data [i];
+//				});
+			}
+			return result;
+		}
+
         public FloatTensor Tanh()
         {
             if (dataOnGpu)
