@@ -23,7 +23,7 @@
 ## Step 3: Get Current Float Tensor Working
 
 - Open Unity Application (located within the cloned repo above)
-- In the *Project Pane*, double click *Assets/_Scenes/DefaultScene*
+- In the *Project Pane*, double click *Assets/OpenMined/main*
 - Click *“Play”* button at the top
 - Open the *[Syft Tensor Example Notebook.ipynb](https://github.com/OpenMined/OpenMined/blob/master/notebooks/Syft%20Tensor%20Example%20Notebook.ipynb)* Notebook
 - Run the Notebook Cells
@@ -31,23 +31,23 @@
 ## Step 4: Add new function to Float Tensor (here “abs()” function i.e)
 
 - Open *[PySyft/syft/syft.py](https://github.com/OpenMined/PySyft/blob/master/syft/syft.py)*
-<img src="../images/syft_abs.png", alt="syft_abs.png">
+<img src="OpenMined/OpenMined/tree/master/images/HowToAddFunctionToFloatTensor/syft_abs.png", alt="syft_abs.png">
 - Open *[Assets/OpenMined/Network/Controllers/SyftController.cs](https://github.com/OpenMined/OpenMined/blob/master/UnityProject/Assets/OpenMined/Syft/Tensor/FloatTensor.cs)*
 - Add an `CASE` statement to check for the *“functionCall”* string you initialized in your JSON command object like so. 
-<img src="../images/case_floattensor.png", alt="case_floattensor.png">
+<img src="OpenMined/OpenMined/tree/master/images/HowToAddFunctionToFloatTensor/case_floattensor.png", alt="case_floattensor.png">
 - Open *[Assets/OpenMined/Syft/Tensor/FloatTensor.Ops.cs](https://github.com/OpenMined/OpenMined/blob/master/UnityProject/Assets/OpenMined/Syft/Tensor/FloatTensor.MutatingOps.cs)* to add the `Abs_()` function to our *FloatTensor* class.
-<img src="../images/floattensor_abs.png", alt="floattensor_abs.png">
+<img src="OpenMined/OpenMined/tree/master/images/HowToAddFunctionToFloatTensor/floattensor_abs.png", alt="floattensor_abs.png">
 - At this point - it should work in your Pytho  n Notebook for Tensors that are on the CPU. You should test it out [in the Notebook](https://github.com/OpenMined/OpenMined/blob/master/notebooks/Syft%20Tensor%20Example%20Notebook.ipynb) (don’t forget to `python setup.py install pysyft`)
-<img src="../images/nb_ex_cpu.png", alt="nb_ex_cpu.png">
+<img src="OpenMined/OpenMined/tree/master/images/HowToAddFunctionToFloatTensor/nb_ex_cpu.png", alt="nb_ex_cpu.png">
 
 ## Step 5: Add GPU Support for your Function!!!
 
 - Open [Assets/OpenMined/Syft/Math/Shaders/FloatTensorShaders.compute](https://github.com/OpenMined/OpenMined/blob/master/UnityProject/Assets/OpenMined/Syft/Math/Shaders/FloatTensorShaders.compute) to add the function
-<img src="../images/abs_hlsl.png", alt="abs_hlsl.png">
+<img src="OpenMined/OpenMined/tree/master/images/HowToAddFunctionToFloatTensor/abs_hlsl.png", alt="abs_hlsl.png">
 - Open [Assets/OpenMined/Syft/Tensor/FloatTensor.ShaderOps.cs](https://github.com/OpenMined/OpenMined/blob/master/UnityProject/Assets/OpenMined/Syft/Tensor/FloatTensor.ShaderOps.cs) to add the field for the new function and save shaders and kernels
-<img src="../images/abs_gpu.png", alt="abs_gpu.png">
+<img src="OpenMined/OpenMined/tree/master/images/HowToAddFunctionToFloatTensor/abs_gpu.png", alt="abs_gpu.png">
 - Open [Assets/OpenMined/Syft/Tensor/FloatTensor.Ops.cs](https://github.com/OpenMined/OpenMined/blob/master/UnityProject/Assets/OpenMined/Syft/Tensor/FloatTensor.Ops.cs) to call the GPU function if data is on GPU 
-<img src="../images/floattensor_abs_gpu.png", alt="floattensor_abs_gpu.png">
+<img src="OpenMined/OpenMined/tree/master/images/HowToAddFunctionToFloatTensor/floattensor_abs_gpu.png", alt="floattensor_abs_gpu.png">
 
 ## Step 6: Write & Run unit tests
 - Open [Assets/OpenMined.Tests/Editor/FloatTensorTest.cs](https://github.com/OpenMined/OpenMined/blob/master/UnityProject/Assets/OpenMined.Tests/Editor/FloatTensorTest.cs)
