@@ -74,7 +74,7 @@ namespace OpenMined.Syft.Tensor
                 size *= _shape[i];
             }
 
-            if (_initOnGpu)
+            if (_initOnGpu && SystemInfo.supportsComputeShaders)
             {
                 dataOnGpu = true;
                 dataBuffer = new ComputeBuffer(size, sizeof(float));
@@ -119,12 +119,14 @@ namespace OpenMined.Syft.Tensor
 
         public FloatTensor(float[] _data, int[] _shape, ComputeShader _shader, bool _initOnGpu) : this(_data, _shape, _initOnGpu)
         {
+            if (!SystemInfo.supportsComputeShaders) return;
             shader = _shader;
             InitShaderKernels();
         }
         
         public FloatTensor(int[] _shape, ComputeShader _shader, bool _initOnGpu) : this(_shape, _initOnGpu)
         {
+            if (!SystemInfo.supportsComputeShaders) return;
             shader = _shader;
             InitShaderKernels();
         }
@@ -152,7 +154,7 @@ namespace OpenMined.Syft.Tensor
             if (acc != size)
                 throw new FormatException("Tensor shape and data do not match.");
 
-            if (_initOnGpu)
+            if (_initOnGpu && SystemInfo.supportsComputeShaders)
             {
                 dataOnGpu = true;
 
