@@ -20,13 +20,10 @@ namespace OpenMined.Syft.Tensor
         
         public bool Gpu()
         {
-            if (!dataOnGpu)
-            {
-                CopyCputoGpu();
-                EraseCpu();
-                return true;
-            }
-            return false;
+            if (dataOnGpu || !SystemInfo.supportsComputeShaders) return false;
+            CopyCputoGpu();
+            EraseCpu();
+            return true;
         }
 
         public void Cpu()

@@ -134,13 +134,12 @@ namespace OpenMined.Tests
                 }
             }
 
-            tensor.Transpose();
-
-            for (int i = 0; i < tensor.Shape[0]; i++)
+            var tTensor = tensor.Transpose();
+            for (var i = 0; i < tTensor.Shape[0]; i++)
             {
-                for (int j = 0; j < tensor.Shape[1]; j++)
+                for (var j = 0; j < tTensor.Shape[1]; j++)
                 {
-                    Assert.AreEqual(tensor[i, j], transpose[i, j]);
+                    Assert.AreEqual(tTensor[i, j], transpose[i, j]);
                 }
             }
         }
@@ -157,25 +156,25 @@ namespace OpenMined.Tests
             var tensor = new FloatTensor(data1, shape1);
             var transpose = new FloatTensor(data2, shape2);
 
-            for (int i = 0; i < tensor.Shape[0]; i++)
+            for (var i = 0; i < tensor.Shape[0]; i++)
             {
-                for (int j = 0; j < tensor.Shape[1]; j++)
+                for (var j = 0; j < tensor.Shape[1]; j++)
                 {
-                    for (int k = 0; k < tensor.Shape [2]; k++)
+                    for (var k = 0; k < tensor.Shape [2]; k++)
                     {
                         Assert.AreEqual (tensor [i, j, k], transpose [k, j, i]);
                     }
                 }
             }
-            tensor.Transpose(0, 2);
-
-            for (int i = 0; i < tensor.Shape[0]; i++)
+    
+            var tTensor = tensor.Transpose(0, 2);
+            for (var i = 0; i < tTensor.Shape[0]; i++)
             {
-                for (int j = 0; j < tensor.Shape[1]; j++)
+                for (var j = 0; j < tTensor.Shape[1]; j++)
                 {
-                    for (int k = 0; k < tensor.Shape [2]; k++)
+                    for (var k = 0; k < tTensor.Shape [2]; k++)
                     {
-                        Assert.AreEqual(tensor[i, j, k], transpose[i, j, k]);
+                        Assert.AreEqual(tTensor[i, j, k], transpose[i, j, k]);
                     }
                 }
             }

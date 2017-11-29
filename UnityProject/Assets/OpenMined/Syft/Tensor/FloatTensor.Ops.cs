@@ -16,7 +16,7 @@ namespace OpenMined.Syft.Tensor
 				throw new InvalidOperationException(String.Format("Tensors must be on same device : {0} != {1}.", dataOnGpu, x.dataOnGpu));
 			}
 
-			FloatTensor result = new FloatTensor (shape, this.shader);
+			FloatTensor result = new FloatTensor (shape, dataOnGpu);
 
 			if (dataOnGpu & x.dataOnGpu) {
 				result.Gpu ();
@@ -39,7 +39,7 @@ namespace OpenMined.Syft.Tensor
 
 		public FloatTensor Add(float value)
 		{
-			var result = new FloatTensor(shape, this.shader, false);
+			var result = new FloatTensor(shape, false);
 
 			if (dataOnGpu) {
 				result.Gpu ();
@@ -110,7 +110,7 @@ namespace OpenMined.Syft.Tensor
 				return CeilGPU();
             }
 
-			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			var result = new FloatTensor(shape, dataOnGpu);
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
             {
@@ -128,7 +128,7 @@ namespace OpenMined.Syft.Tensor
 			// Check if both tensors are compatible for sum
 			SameSizeDimensionsAndShape(ref x);
 
-			var result = new FloatTensor (shape, this.shader, false);
+			var result = new FloatTensor (shape, false);
 
 			if (dataOnGpu) {
 
@@ -151,7 +151,7 @@ namespace OpenMined.Syft.Tensor
 
 		public FloatTensor Mul(float value)
 		{
-			var result = new FloatTensor(shape, this.shader, false);
+			var result = new FloatTensor(shape, false);
 
 			if (dataOnGpu) {
 				result.Gpu ();
@@ -175,7 +175,7 @@ namespace OpenMined.Syft.Tensor
 				return NegateGPU();
             }
             
-			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			var result = new FloatTensor(shape, dataOnGpu);
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
             {
@@ -197,7 +197,7 @@ namespace OpenMined.Syft.Tensor
 			}
 			else if (!dataOnGpu && !other.dataOnGpu)
 			{
-				var result = new FloatTensor(shape, this.shader, dataOnGpu);
+				var result = new FloatTensor(shape, dataOnGpu);
 				var nCpu = SystemInfo.processorCount;
 				Parallel.For(0, nCpu, workerId =>
 					{
@@ -220,7 +220,7 @@ namespace OpenMined.Syft.Tensor
             }
             else
             {
-                var result = new FloatTensor(shape, this.shader, dataOnGpu);
+                var result = new FloatTensor(shape, dataOnGpu);
                 var nCpu = SystemInfo.processorCount;
                 Parallel.For(0, nCpu, workerId =>
                 {
