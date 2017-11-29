@@ -34,11 +34,7 @@ namespace OpenMined.Syft.Tensor
 		public FloatTensor Add(FloatTensor x)
         {
             // Check if both tensors are compatible for sum
-            SameSizeDimensionsAndShape(ref x);
-
-			if (dataOnGpu != x.dataOnGpu) {
-				throw new InvalidOperationException(String.Format("Tensors must be on same device : {0} != {1}.", dataOnGpu, x.dataOnGpu));
-			}
+            SameSizeDimensionsShapeAndLocation(ref x);
 
 			FloatTensor result = new FloatTensor (shape, this.shader);
 
@@ -66,8 +62,10 @@ namespace OpenMined.Syft.Tensor
 			var result = new FloatTensor(shape, this.shader, false);
 
 			if (dataOnGpu) {
+
 				result.Gpu ();
 				return AddScalarGPU (value, result);
+
 			} else {
 				
 				var nCpu = SystemInfo.processorCount;
@@ -150,7 +148,7 @@ namespace OpenMined.Syft.Tensor
 		public FloatTensor Mul(FloatTensor x)
 		{
 			// Check if both tensors are compatible for sum
-			SameSizeDimensionsAndShape(ref x);
+			SameSizeDimensionsShapeAndLocation(ref x);
 
 			var result = new FloatTensor (shape, this.shader, false);
 
@@ -213,7 +211,7 @@ namespace OpenMined.Syft.Tensor
 		public FloatTensor SubtractElementwise(FloatTensor other)
 		{
 			//Debug.LogFormat("<color=blue>FloatTensor.inline_elementwise_subtract dataOnGpu: {0}</color>", dataOnGpu);
-			SameSizeDimensionsAndShape(ref other);
+			SameSizeDimensionsShapeAndLocation(ref other);
 
 			if (dataOnGpu && other.DataOnGpu)
 			{

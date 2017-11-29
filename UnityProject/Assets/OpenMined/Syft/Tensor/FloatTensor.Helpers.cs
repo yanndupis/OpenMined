@@ -4,7 +4,7 @@ namespace OpenMined.Syft.Tensor
 {
     public partial class FloatTensor
     {
-        private void SameSizeDimensionsAndShape(ref FloatTensor tensor)
+        private void SameSizeDimensionsShapeAndLocation(ref FloatTensor tensor)
         {
             // Check if both tensors have same size
             if (tensor.Size != size)
@@ -17,6 +17,10 @@ namespace OpenMined.Syft.Tensor
                 throw new InvalidOperationException(
                     "Tensors cannot be added since they have different number of dimensions.");
             }
+
+			if (dataOnGpu != tensor.dataOnGpu) {
+				throw new InvalidOperationException(String.Format("Tensors must be on same device : {0} != {1}.", dataOnGpu, tensor.dataOnGpu));
+			}
             // Check if both tensors have same shapes
             for (var i = 0; i < shape.Length; i++)
             {

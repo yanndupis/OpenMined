@@ -27,7 +27,7 @@ namespace OpenMined.Syft.Tensor
 
 		public void Add_(FloatTensor x)
 		{
-			SameSizeDimensionsAndShape(ref x);
+			SameSizeDimensionsShapeAndLocation(ref x);
 
 			if (dataOnGpu) {
 				AddElemGPU_ (x);
@@ -75,7 +75,7 @@ namespace OpenMined.Syft.Tensor
 
 		public void Mul_(FloatTensor x)
 		{
-			SameSizeDimensionsAndShape(ref x);
+			SameSizeDimensionsShapeAndLocation(ref x);
 
 			if (dataOnGpu) {
 				MulElemGPU_ (x);

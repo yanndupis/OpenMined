@@ -80,6 +80,7 @@ namespace OpenMined.Syft.Tensor
             }
             else
             {
+				dataOnGpu = false;
                 data = new float[size];
             }
 
@@ -98,6 +99,8 @@ namespace OpenMined.Syft.Tensor
 			size = _data.Length;
 			shape = (int[]) _shape.Clone();
 			strides = new long[_shape.Length];
+			dataOnGpu = false;
+
 
 			long acc = 1;
 			for (var i = _shape.Length - 1; i >= 0; --i)
