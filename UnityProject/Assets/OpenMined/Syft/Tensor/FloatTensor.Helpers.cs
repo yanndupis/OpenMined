@@ -37,12 +37,5 @@ namespace OpenMined.Syft.Tensor
             target[index1] = target[index2];
             target[index2] = tmp;
         }
-
-        private void SwapElements(ref long[] target, int index1, int index2)
-        {
-            long tmp = target[index1];
-            target[index1] = target[index2];
-            target[index2] = tmp;
-        }
     }
 }

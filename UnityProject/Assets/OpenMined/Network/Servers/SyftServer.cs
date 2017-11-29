@@ -2,6 +2,7 @@
 
 using OpenMined.Network.Controllers;
 using OpenMined.Syft;
+using OpenMined.Syft.Shaders;
 
 namespace OpenMined.Network.Servers
 {
@@ -21,7 +22,11 @@ public class SyftServer : MonoBehaviour
         _netMqPublisher = new NetMqPublisher(HandleMessage);
         _netMqPublisher.Start();
 
-		controller = new SyftController (shader);
+		controller = new SyftController ();
+	    if (SystemInfo.supportsComputeShaders)
+	    {
+		    FloatTensorShader.InitWithShader(shader);
+	    }
     }
 
     private void Update()

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using OpenMined.Syft.Shaders;
+using UnityEngine;
 
 namespace OpenMined.Syft.Tensor
 {
@@ -6,427 +7,299 @@ namespace OpenMined.Syft.Tensor
     {
         private ComputeShader shader;
 
-		[SerializeField]
-		private static int AbsKernel;
-        [SerializeField]
-		private static int AbsKernel_;
-		[SerializeField]
-		private static int AddScalarKernel_;
-		[SerializeField]
-		private static int AddElemKernel_;
-		[SerializeField]
-		private static int AddScalarKernel;
-		[SerializeField]
-		private static int AddElemKernel;
-		[SerializeField]
-		private static int AddMMKernel_;
-		[SerializeField]
-		private static int CeilKernel;
-		[SerializeField]
-	    private static int FloorKernel_;
-		[SerializeField]
-		private static int MulScalarKernel_;
-		[SerializeField]
-		private static int MulElemKernel_;
-		[SerializeField]
-		private static int MulScalarKernel;
-		[SerializeField]
-		private static int MulElemKernel;
-		[SerializeField]
-		private static int NegateKernel;
-		[SerializeField]
-		private static int PowKernel;
-		[SerializeField]
-		private static int PowKernel_;
-		[SerializeField]
-		private static int SigmoidKernel_;
-		[SerializeField]
-		private static int SubScalarKernel_;
-		[SerializeField]
-		private static int SubElemKernel_;
-		[SerializeField]
-		private static int SubScalarKernel;
-		[SerializeField]
-		private static int SubElemKernel;
-		[SerializeField]
-		private static int TanhKernel;
-		[SerializeField]
-		private static int ZeroKernel_;
 
-		public void initShaderKernels() {
-			if (shader != null) {
-				// save shaders and kernels
-				AbsKernel = shader.FindKernel ("Abs");
-				AbsKernel_ = shader.FindKernel ("Abs_");
-				AddScalarKernel_ = shader.FindKernel ("AddScalar_");
-				AddElemKernel_ = shader.FindKernel ("AddElem_");
-				AddScalarKernel = shader.FindKernel ("AddScalar");
-				AddElemKernel = shader.FindKernel ("AddElem");
-				AddMMKernel_ = shader.FindKernel ("AddMM_");
-				CeilKernel = shader.FindKernel ("Ceil");
-				FloorKernel_ = shader.FindKernel ("Floor_");
-				MulScalarKernel_ = shader.FindKernel ("MulScalar_");
-				MulElemKernel_ = shader.FindKernel ("MulElem_");
-				MulScalarKernel = shader.FindKernel ("MulScalar");
-				MulElemKernel = shader.FindKernel ("MulElem");
-				NegateKernel = shader.FindKernel ("Negate");
-				PowKernel = shader.FindKernel ("Pow");
-				PowKernel_ = shader.FindKernel ("Pow_");
-				SigmoidKernel_ = shader.FindKernel ("Sigmoid_");
-				SubScalarKernel_ = shader.FindKernel ("SubScalar_");
-				SubElemKernel_ = shader.FindKernel ("SubElem_");
-				SubScalarKernel = shader.FindKernel ("SubScalar");
-				SubElemKernel = shader.FindKernel ("SubElem");
-				TanhKernel = shader.FindKernel ("Tanh");
-				ZeroKernel_ = shader.FindKernel ("Zero_");
-			}
-
-		}
-
-		public FloatTensor AbsGPU(FloatTensor result) {
-			Debug.LogFormat("<color=blue>FloatTensor.AbsGPU dataOnGpu: {0}</color>", dataOnGpu);
-			if (dataOnGpu) {
-				shader.SetBuffer (AbsKernel, "AbsData", dataBuffer);
-				shader.SetBuffer (AbsKernel, "AbsResult", result.dataBuffer);
-				shader.Dispatch (AbsKernel, this.size, 1, 1);
-			}
-			return result;
-		}
-
-		public void AbsGPU_() {
-			Debug.LogFormat("<color=blue>FloatTensor.AbsGPU_ dataOnGpu: {0}</color>", dataOnGpu);
-			if (dataOnGpu) {
-				shader.SetBuffer (AbsKernel_, "AbsData_", dataBuffer);
-				shader.Dispatch (AbsKernel_, this.size, 1, 1);
-			}
-		}
-
-		public void AddScalarGPU_(float value)
-		{
-			Debug.LogFormat("<color=blue>FloatTensor.AddScalarGPU_ dataOnGpu: {0}</color>", dataOnGpu);
-
-			if (dataOnGpu)
-			{
-				var valBuffer = SendFloatToGpu(AddScalarKernel_, value, "AddScalarScalar_");
-
-				shader.SetBuffer(AddScalarKernel_, "AddScalarData_", dataBuffer);
-				shader.Dispatch(AddScalarKernel_, this.size, 1, 1);
-
-				valBuffer.Release();
-			}
-		}
-
-		public void AddElemGPU_(FloatTensor tensor)
-		{
-			Debug.LogFormat("<color=blue>FloatTensor.AddElemGPU_ dataOnGpu: {0}</color>", dataOnGpu);
-
-			if (dataOnGpu)
-			{
-				if (this.id != tensor.id) {
-					shader.SetBuffer (AddElemKernel_, "AddElemDataA_", dataBuffer);
-					shader.SetBuffer (AddElemKernel_, "AddElemDataB_", tensor.dataBuffer);
-					shader.Dispatch (AddElemKernel_, this.size, 1, 1);
-				} else {
-					Debug.LogFormat("addition with itself should be multiplication instead", dataOnGpu);
-					this.MulScalarGPU_(2);
-				}
-
-			}
-		}
-
-		public FloatTensor AddScalarGPU(float value, FloatTensor result)
-		{
-			Debug.LogFormat("<color=blue>FloatTensor.AddScalarGPU dataOnGpu: {0}</color>", dataOnGpu);
-
-			if (dataOnGpu)
-			{
-				var valBuffer = SendFloatToGpu(AddScalarKernel, value, "AddScalarScalar");
-
-				shader.SetBuffer(AddScalarKernel, "AddScalarData", dataBuffer);
-				shader.SetBuffer(AddScalarKernel, "AddScalarResult", result.dataBuffer);
-				shader.Dispatch(AddScalarKernel, this.size, 1, 1);
-
-				valBuffer.Release();
-			}
-			return result;
-		}
-
-		public FloatTensor AddElemGPU(FloatTensor tensor, FloatTensor result)
-		{
-			
-			Debug.LogFormat("<color=blue>FloatTensor.AddElemGPU dataOnGpu: {0}</color>", dataOnGpu);
-
-			if (dataOnGpu)
-			{
-				// if tensors are not actually referring to the same tensor
-				if (this.id != tensor.id) {
-					shader.SetBuffer (AddElemKernel, "AddElemDataA", this.DataBuffer);
-					shader.SetBuffer (AddElemKernel, "AddElemDataB", tensor.DataBuffer);
-					shader.SetBuffer (AddElemKernel, "AddElemDataResult", result.DataBuffer);
-					shader.Dispatch (AddElemKernel, this.size, 1, 1);
-				} else {
-					Debug.LogFormat("addition with itself should be multiplication instead", dataOnGpu);
-					return this.MulScalarGPU (2, result);
-				}
-					
-
-			}
-			return result;
-		}
-
-		public void AddMatrixMultiplyGPU(FloatTensor tensor_1, FloatTensor tensor_2)
-		{
-			//Debug.LogFormat("<color=blue>FloatTensor.add_matrix_multiply dataOnGpu: {0}</color>", dataOnGpu);
-			shader.SetBuffer(AddMMKernel_, "AddmmDataA", dataBuffer);
-			shader.SetBuffer(AddMMKernel_, "AddmmDataB", tensor_1.DataBuffer); //d
-			shader.SetBuffer(AddMMKernel_, "AddmmDataC", tensor_2.DataBuffer);
-			shader.Dispatch(AddMMKernel_, size, 1, 1);
-		}
-
-		public void InitAddMatrixMultiplyGpu(FloatTensor tensor_1)
-		{
-			var dim = new Dimensions[]
-			{
-				new Dimensions(tensor_1.shape.Length, tensor_1.shape[0])
-			};
-
-			var dimBuffer = new ComputeBuffer(dim.Length, dim[0].Stride());
-			dimBuffer.SetData(dim);
-			shader.SetBuffer(AddMMKernel_, "AddmmDimensions", dimBuffer);
-		}
-
-		public FloatTensor CeilGPU()
-		{
-			Debug.LogFormat("<color=blue>FloatTensor.ceil dataOnGpu: {0}</color>", dataOnGpu);
-
-			if (!dataOnGpu) return this;
-			var result = new FloatTensor(shape, this.shader, dataOnGpu);
-			shader.SetBuffer(CeilKernel, "CeilData", dataBuffer);
-			shader.SetBuffer(CeilKernel, "CeilResult", result.DataBuffer);
-			shader.Dispatch(CeilKernel, 1, 1, 1);
-			return result;
-		}
-
-        	public void FloorGPU_()
-        	{
-            		if (DataOnGpu)
-            		{
-                		shader.SetBuffer(FloorKernel_, "FloorData_", dataBuffer);
-                		shader.Dispatch(FloorKernel_, 1, 1, 1);
-            		}
-        	}
+        public FloatTensor AbsGPU(FloatTensor result)
+        {
+            Debug.LogFormat("<color=blue>FloatTensor.AbsGPU dataOnGpu: {0}</color>", dataOnGpu);
+            if (!dataOnGpu) return result;
+            var kernel = FloatTensorShader.AbsKernel;
+            shader.SetBuffer(kernel, "abs_data", dataBuffer);
+            shader.SetBuffer(kernel, "abs_result", result.dataBuffer);
+            shader.Dispatch(kernel, this.size, 1, 1);
+            return result;
+        }
 
 
-		public void MulScalarGPU_(float value)
-		{
-			Debug.LogFormat("<color=blue>FloatTensor.MulScalarGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+        public void AbsGPU_()
+        {
+            Debug.LogFormat("<color=blue>FloatTensor.AbsGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+            if (!dataOnGpu) return;
+            var kernel = FloatTensorShader.AbsKernel_;
+            shader.SetBuffer(kernel, "abs_data_", dataBuffer);
+            shader.Dispatch(kernel, this.size, 1, 1);
+        }
 
-			if (dataOnGpu)
-			{
-				var valBuffer = SendFloatToGpu(MulScalarKernel_, value, "MulScalarScalar_");
+        public void AddScalarGPU_(float value)
+        {
+            Debug.LogFormat("<color=blue>FloatTensor.AddScalarGPU_ dataOnGpu: {0}</color>", dataOnGpu);
 
-				shader.SetBuffer(MulScalarKernel_, "MulScalarData_", dataBuffer);
-				shader.Dispatch(MulScalarKernel_, this.size, 1, 1);
+            if (!dataOnGpu) return;
+            var kernel = FloatTensorShader.AddScalarKernel_;
+            var valBuffer = SendFloatToGpu(kernel, value, "add_scalar_scalar_");
+            shader.SetBuffer(kernel, "add_scalar_data_", dataBuffer);
+            shader.Dispatch(kernel, this.size, 1, 1);
+            valBuffer.Release();
+        }
 
-				valBuffer.Release();
-			}
-		}
+        public void AddElemGPU_(FloatTensor tensor)
+        {
+            Debug.LogFormat("<color=blue>FloatTensor.AddElemGPU_ dataOnGpu: {0}</color>", dataOnGpu);
 
-		public void MulElemGPU_(FloatTensor tensor)
-		{
-			Debug.LogFormat("<color=blue>FloatTensor.MulElemGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+            if (!dataOnGpu) return;
+            if (this.id != tensor.id)
+            {
 
-			if (dataOnGpu)
-			{
-				if (tensor.id != this.id) {
-					shader.SetBuffer (MulElemKernel_, "MulElemDataA_", dataBuffer);
-					shader.SetBuffer (MulElemKernel_, "MulElemDataB_", tensor.dataBuffer);
-					shader.Dispatch (MulElemKernel_, this.size, 1, 1);
-				} else {
-					PowGPU_ (2);
-				}
+                var kernel = FloatTensorShader.AddElemKernel_;
+                shader.SetBuffer(kernel, "add_elem_data_a_", dataBuffer);
+                shader.SetBuffer(kernel, "add_elem_data_b_", tensor.dataBuffer);
+                shader.Dispatch(kernel, this.size, 1, 1);
+            }
+            else
+            {
+                Debug.LogFormat("addition with itself should be multiplication instead", dataOnGpu);
+                this.MulScalarGPU_(2);
 
-			}
-		}
+            }
+        }
 
-		public FloatTensor MulScalarGPU(float value, FloatTensor result)
-		{
-			Debug.LogFormat("<color=blue>FloatTensor.MulScalarGPU dataOnGpu: {0}</color>", dataOnGpu);
+        public FloatTensor AddScalarGPU(float value, FloatTensor result)
+        {
+            Debug.LogFormat("<color=blue>FloatTensor.AddScalarGPU dataOnGpu: {0}</color>", dataOnGpu);
 
-			if (dataOnGpu)
-			{
-				var valBuffer = SendFloatToGpu(MulScalarKernel, value, "MulScalarScalar");
+            if (!dataOnGpu) return result;
+            var kernel = FloatTensorShader.AddScalarKernel;
+            var valBuffer = SendFloatToGpu(kernel, value, "add_scalar_scalar");
+            shader.SetBuffer(kernel, "add_scalar_data", dataBuffer);
+            shader.SetBuffer(kernel, "add_scalar_result", result.dataBuffer);
+            shader.Dispatch(kernel, this.size, 1, 1);
+            valBuffer.Release();
+            return result;
+        }
 
-				shader.SetBuffer(MulScalarKernel, "MulScalarData", dataBuffer);
-				shader.SetBuffer(MulScalarKernel, "MulScalarResult", result.dataBuffer);
-				shader.Dispatch(MulScalarKernel, this.size, 1, 1);
+        public FloatTensor AddElemGPU(FloatTensor tensor, FloatTensor result)
+        {
+            Debug.LogFormat("<color=blue>FloatTensor.AddElemGPU dataOnGpu: {0}</color>", dataOnGpu);
 
-				valBuffer.Release();
-			}
-			return result;
-		}
+            if (!dataOnGpu) return result;
+            // if tensors are not actually referring to the same tensor
+            if (this.id != tensor.id)
+            {
+                var kernel = FloatTensorShader.AddElemKernel;
+                shader.SetBuffer(kernel, "add_elem_data_a", this.DataBuffer);
+                shader.SetBuffer(kernel, "add_elem_data_b", tensor.DataBuffer);
+                shader.SetBuffer(kernel, "add_elem_data_result", result.DataBuffer);
+                shader.Dispatch(kernel, this.size, 1, 1);
+            }
+            else
+            {
+                Debug.LogFormat("addition with itself should be multiplication instead", dataOnGpu);
+                return this.MulScalarGPU(2, result);
+            }
+            return result;
+        }
 
-		public FloatTensor MulElemGPU(FloatTensor tensor, FloatTensor result)
-		{
-			Debug.LogFormat("<color=blue>FloatTensor.MulElemGPU dataOnGpu: {0}</color>", dataOnGpu);
 
-			if (dataOnGpu)
-			{
-				if (tensor.id != this.id) {
-					shader.SetBuffer (MulElemKernel, "MulElemDataA", dataBuffer);
-					shader.SetBuffer (MulElemKernel, "MulElemDataB", tensor.dataBuffer);
-					shader.SetBuffer (MulElemKernel, "MulElemDataResult", result.dataBuffer);
-					shader.Dispatch (MulElemKernel, this.size, 1, 1);
-				} else {
-					return this.PowGPU(2, result);
-				}
+        public void AddMatrixMultiplyGPU(FloatTensor tensor_1, FloatTensor tensor_2)
+        {
+            //Debug.LogFormat("<color=blue>FloatTensor.add_matrix_multiply dataOnGpu: {0}</color>", dataOnGpu);
+            var kernel = FloatTensorShader.AddMMKernel_;
+            shader.SetBuffer(kernel, "addmm_data_a", dataBuffer);
+            shader.SetBuffer(kernel, "addmm_data_b", tensor_1.DataBuffer); //d
+            shader.SetBuffer(kernel, "addmm_data_c", tensor_2.DataBuffer);
+            shader.Dispatch(kernel, size, 1, 1);
+        }
 
-			}
-			return result;
-		}
+        public void InitAddMatrixMultiplyGpu(FloatTensor tensor_1)
+        {
+            var dim = new Dimensions[]
+            {
+                new Dimensions(tensor_1.shape.Length, tensor_1.shape[0])
+            };
+            var kernel = FloatTensorShader.AddMMKernel_;
+            var dimBuffer = new ComputeBuffer(dim.Length, dim[0].Stride());
+            dimBuffer.SetData(dim);
+            shader.SetBuffer(kernel, "addmm_dimensions", dimBuffer);
+        }
+
+
+        public FloatTensor CeilGPU()
+        {
+            Debug.LogFormat("<color=blue>FloatTensor.ceil dataOnGpu: {0}</color>", dataOnGpu);
+
+            if (!dataOnGpu) return this;
+            var result = new FloatTensor(shape, dataOnGpu);
+            var kernel = FloatTensorShader.CeilKernel;
+            shader.SetBuffer(kernel, "ceil_data", dataBuffer);
+            shader.SetBuffer(kernel, "ceil_result", result.DataBuffer);
+            shader.Dispatch(kernel, 1, 1, 1);
+            return result;
+        }
+
+        public void FloorGPU_()
+        {
+            if (!DataOnGpu) return;
+            var kernel = FloatTensorShader.FloorKernel_;
+            shader.SetBuffer(kernel, "floor_data_", dataBuffer);
+            shader.Dispatch(kernel, 1, 1, 1);
+        }
+
+
+
+        public void MulScalarGPU_(float value)
+        {
+            Debug.LogFormat("<color=blue>FloatTensor.MulScalarGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+
+            if (!dataOnGpu) return;
+            var kernel = FloatTensorShader.MulScalarKernel_;
+            var valBuffer = SendFloatToGpu(kernel, value, "mul_scalar_scalar_");
+            shader.SetBuffer(kernel, "mul_scalar_data_", dataBuffer);
+            shader.Dispatch(kernel, this.size, 1, 1);
+            valBuffer.Release();
+        }
+
+
+        public void MulElemGPU_(FloatTensor tensor)
+        {
+            Debug.LogFormat("<color=blue>FloatTensor.MulElemGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+
+            if (!dataOnGpu) return;
+            if (tensor.id != this.id)
+            {
+                var kernel = FloatTensorShader.MulElemKernel_;
+                shader.SetBuffer(kernel, "mul_elem_data_a_", dataBuffer);
+                shader.SetBuffer(kernel, "mul_elem_data_b_", tensor.dataBuffer);
+                shader.Dispatch(kernel, this.size, 1, 1);
+            }
+            else
+            {
+                PowGPU_(2);
+            }
+        }
+
+        public FloatTensor MulScalarGPU(float value, FloatTensor result)
+        {
+            Debug.LogFormat("<color=blue>FloatTensor.MulScalarGPU dataOnGpu: {0}</color>", dataOnGpu);
+
+            if (!dataOnGpu) return result;
+            var kernel = FloatTensorShader.MulScalarKernel;
+            var valBuffer = SendFloatToGpu(kernel, value, "mul_scalar_scalar");
+            shader.SetBuffer(kernel, "mul_scalar_data", dataBuffer);
+            shader.SetBuffer(kernel, "mul_scalar_result", result.dataBuffer);
+            shader.Dispatch(kernel, this.size, 1, 1);
+            valBuffer.Release();
+            return result;
+        }
+
+        public FloatTensor MulElemGPU(FloatTensor tensor, FloatTensor result)
+        {
+            Debug.LogFormat("<color=blue>FloatTensor.MulElemGPU dataOnGpu: {0}</color>", dataOnGpu);
+
+            if (!dataOnGpu) return result;
+            if (tensor.id != this.id)
+            {
+
+                var kernel = FloatTensorShader.MulElemKernel;
+                shader.SetBuffer(kernel, "mul_elem_data_a", dataBuffer);
+                shader.SetBuffer(kernel, "mul_elem_data_b", tensor.dataBuffer);
+                shader.SetBuffer(kernel, "mul_elem_data_result", result.dataBuffer);
+                shader.Dispatch(kernel, this.size, 1, 1);
+
+            }
+            else
+            {
+                return this.PowGPU(2, result);
+            }
+            return result;
+        }
 
 
         public FloatTensor NegateGPU()
         {
-            if (dataOnGpu)
-            {
-				var result = new FloatTensor(shape, this.shader, dataOnGpu);
-				shader.SetBuffer(NegateKernel, "NegateData", dataBuffer);
-				shader.SetBuffer(NegateKernel, "NegateResult", result.dataBuffer);
-				shader.Dispatch(NegateKernel, 1, 1, 1);
-                return result;
-            }
-            return this;
+            if (!dataOnGpu) return this;
+            var result = new FloatTensor(shape, dataOnGpu);
+            var kernel = FloatTensorShader.NegateKernel;
+            shader.SetBuffer(kernel, "negate_data", dataBuffer);
+            shader.SetBuffer(kernel, "negate_result", result.dataBuffer);
+            shader.Dispatch(kernel, 1, 1, 1);
+            return result;
         }
 
-		public FloatTensor PowGPU(float value, FloatTensor result)
-		{
-			Debug.LogFormat("<color=blue>FloatTensor.PowGPU dataOnGpu: {0}</color>", dataOnGpu);
+        public FloatTensor PowGPU(float value, FloatTensor result)
+        {
+            Debug.LogFormat("<color=blue>FloatTensor.PowGPU dataOnGpu: {0}</color>", dataOnGpu);
 
-			if (dataOnGpu)
-			{
-				var valBuffer = SendFloatToGpu(PowKernel, value, "PowScalarScalar");
+            if (!dataOnGpu) return result;
+            var kernel = FloatTensorShader.PowKernel;
+            var valBuffer = SendFloatToGpu(kernel, value, "pow_scalar_scalar");
+            shader.SetBuffer(kernel, "pow_scalar_data", dataBuffer);
+            shader.SetBuffer(kernel, "pow_scalar_result", result.dataBuffer);
+            shader.Dispatch(kernel, this.size, 1, 1);
+            valBuffer.Release();
+            return result;
+        }
 
-				shader.SetBuffer(PowKernel, "PowScalarData", dataBuffer);
-				shader.SetBuffer(PowKernel, "PowScalarResult", result.dataBuffer);
-				shader.Dispatch(PowKernel, this.size, 1, 1);
+        public void PowGPU_(float value)
+        {
+            Debug.LogFormat("<color=blue>FloatTensor.PowGPU_ dataOnGpu: {0}</color>", dataOnGpu);
 
-				valBuffer.Release();
-			}
-			return result;
-		}
-
-		public void PowGPU_(float value)
-		{
-			Debug.LogFormat("<color=blue>FloatTensor.PowGPU_ dataOnGpu: {0}</color>", dataOnGpu);
-
-			if (dataOnGpu)
-			{
-				var valBuffer = SendFloatToGpu(PowKernel_, value, "PowScalarScalar_");
-
-				shader.SetBuffer(PowKernel_, "PowScalarData_", dataBuffer);
-				shader.Dispatch(PowKernel_, this.size, 1, 1);
-
-				valBuffer.Release();
-			}
-		}
+            if (!dataOnGpu) return;
+            var kernel = FloatTensorShader.PowKernel_;
+            var valBuffer = SendFloatToGpu(kernel, value, "pow_scalar_scalar_");
+            shader.SetBuffer(kernel, "pow_scalar_data_", dataBuffer);
+            shader.Dispatch(kernel, this.size, 1, 1);
+            valBuffer.Release();
+        }
 
         public void SigmoidGPU_()
         {
-            if (dataOnGpu)
-            {
-                shader.SetBuffer(SigmoidKernel_, "SigmoidData_", dataBuffer);
-                shader.Dispatch(SigmoidKernel_, this.size, 1, 1);
-            }
+            if (!dataOnGpu) return;
+            var kernel = FloatTensorShader.SigmoidKernel_;
+            shader.SetBuffer(kernel, "sigmoid_data_", dataBuffer);
+            shader.Dispatch(kernel, this.size, 1, 1);
         }
 
 
-		public void SubScalarGPU_(float value)
-		{
-			Debug.LogFormat("<color=blue>FloatTensor.SubScalarGPU_ dataOnGpu: {0}</color>", dataOnGpu);
-
-			if (dataOnGpu)
-			{
-				var valBuffer = SendFloatToGpu(SubScalarKernel_, value, "SubScalarScalar_");
-
-				shader.SetBuffer(SubScalarKernel_, "SubScalarData_", dataBuffer);
-				shader.Dispatch(SubScalarKernel_, this.size, 1, 1);
-
-				valBuffer.Release();
-			}
-		}
-
-		public void SubElemGPU_(FloatTensor tensor)
-		{
-			Debug.LogFormat("<color=blue>FloatTensor.SubElemGPU_ dataOnGpu: {0}</color>", dataOnGpu);
-
-			if (dataOnGpu)
-			{
-				if (this.id != tensor.id) {
-					shader.SetBuffer (SubElemKernel_, "SubElemDataA_", dataBuffer);
-					shader.SetBuffer (SubElemKernel_, "SubElemDataB_", tensor.dataBuffer);
-					shader.Dispatch (SubElemKernel_, this.size, 1, 1);
-				} else {
-					Debug.LogFormat("addition with itself should be multiplication instead", dataOnGpu);
-					this.Zero_ ();
-				}
-
-			}
-		}
-
-		public FloatTensor SubScalarGPU(float value, FloatTensor result)
-		{
-			Debug.LogFormat("<color=blue>FloatTensor.SubScalarGPU dataOnGpu: {0}</color>", dataOnGpu);
-
-			if (dataOnGpu)
-			{
-				var valBuffer = SendFloatToGpu(SubScalarKernel, value, "SubScalarScalar");
-
-				shader.SetBuffer(SubScalarKernel, "SubScalarData", dataBuffer);
-				shader.SetBuffer(SubScalarKernel, "SubScalarResult", result.dataBuffer);
-				shader.Dispatch(SubScalarKernel, this.size, 1, 1);
-
-				valBuffer.Release();
-			}
-			return result;
-		}
-
-		public FloatTensor SubElemGPU(FloatTensor tensor, FloatTensor result)
-		{
-
-			Debug.LogFormat("<color=blue>FloatTensor.SubElemGPU dataOnGpu: {0}</color>", dataOnGpu);
-
-			if (dataOnGpu)
-			{
-				// if tensors are not actually referring to the same tensor
-				if (this.id != tensor.id) {
-					shader.SetBuffer (SubElemKernel, "SubElemDataA", this.DataBuffer);
-					shader.SetBuffer (SubElemKernel, "SubElemDataB", tensor.DataBuffer);
-					shader.SetBuffer (SubElemKernel, "SubElemDataResult", result.DataBuffer);
-					shader.Dispatch (SubElemKernel, this.size, 1, 1);
-				} else {
-					// should return a tensor of zeros.
-					return result;
-				}
+        public FloatTensor SubElemGPU(FloatTensor other)
+        {
+            //Debug.LogFormat("<color=blue>FloatTensor.inline_elementwise_subtract dataOnGpu: {0}</color>", dataOnGpu);
 
 
-			}
-			return result;
-		}
+            if (size == other.Size)
+            {
+                if (dataOnGpu && other.DataOnGpu)
+                {
+                    var result = new FloatTensor(shape, dataOnGpu);
+                    var kernel = FloatTensorShader.SubElemKernel;
+                    // correspond tensor buffers with shader kernel buffers
+                    shader.SetBuffer(kernel, "sub_elem_data_a", dataBuffer);
+                    shader.SetBuffer(kernel, "sub_elem_data_b", other.DataBuffer);
+                    shader.SetBuffer(kernel, "sub_elem_result", result.DataBuffer);
+                    shader.Dispatch(kernel, size, 1, 1);
 
-		public FloatTensor TanhGPU ()
-		{
-			var result = new FloatTensor(shape, this.shader, dataOnGpu);
-			shader.SetBuffer(TanhKernel, "TanhData", dataBuffer);
-			shader.SetBuffer(TanhKernel, "TanhResult", result.DataBuffer);
-			shader.Dispatch(TanhKernel, this.size, 1, 1);
-			return result;
-		}
+                    return result;
+                }
+                Debug.Log("Data for both Tensors needs to be colocated on the same device. - CPU != GPU");
+            }
+            Debug.Log("Tensors do not have the same number of elements!");
+            return this;
+        }
+
+        public FloatTensor TanhGPU()
+        {
+            var result = new FloatTensor(shape, dataOnGpu);
+            var kernel = FloatTensorShader.TanhKernel;
+            shader.SetBuffer(kernel, "tanh_data", dataBuffer);
+            shader.SetBuffer(kernel, "tanh_result", result.DataBuffer);
+            shader.Dispatch(kernel, this.size, 1, 1);
+            return result;
+        }
 
         public void ZeroGPU_()
         {
-			shader.SetBuffer(ZeroKernel_, "ZeroData_", dataBuffer);
-			shader.Dispatch(ZeroKernel_, 1, 1, 1);
+            var kernel = FloatTensorShader.ZeroKernel_;
+            shader.SetBuffer(kernel, "zero_data_", dataBuffer);
+            shader.Dispatch(kernel, 1, 1, 1);
+
         }
 
         public struct Dimensions
@@ -447,15 +320,14 @@ namespace OpenMined.Syft.Tensor
 
         private ComputeBuffer SendFloatToGpu(int kernel, float value, string name)
         {
-            float[] scalarArray = new float[1];
+            var scalarArray = new float[1];
             scalarArray[0] = value;
 
             var scalarBuffer = new ComputeBuffer(1, sizeof(float));
             scalarBuffer.SetData(scalarArray);
-			shader.SetBuffer(kernel, name, scalarBuffer);
+            shader.SetBuffer(kernel, name, scalarBuffer);
 
             return scalarBuffer;
         }
-
     }
 }

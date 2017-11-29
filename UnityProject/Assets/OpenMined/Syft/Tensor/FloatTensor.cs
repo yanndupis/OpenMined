@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using OpenMined.Network.Utils;
 using OpenMined.Network.Controllers;
+using OpenMined.Syft.Shaders;
 
 namespace OpenMined.Syft.Tensor
 {
@@ -11,15 +12,15 @@ namespace OpenMined.Syft.Tensor
         private static volatile int nCreated = 0;
 
         private float[] data;
-        private long[] strides;
+        private int[] strides;
         private int[] shape;
         private int size;
 
         private int id;
 
-        private long GetIndex(params int[] indices)
+        private int GetIndex(params int[] indices)
         {
-            long offset = 0;
+            int offset = 0;
             for (int i = 0; i < indices.Length; ++i)
             {
                 if (indices[i] >= shape[i] || indices[i] < 0)
@@ -32,6 +33,11 @@ namespace OpenMined.Syft.Tensor
         public float[] Data
         {
             get { return data; }
+        }
+        
+        public int[] Strides
+        {
+            get { return strides; }
         }
 
         public int[] Shape
@@ -57,14 +63,11 @@ namespace OpenMined.Syft.Tensor
         }
 
 
-		public FloatTensor(int[] _shape, ComputeShader _shader, bool _initOnGpu = false)
+		public FloatTensor(int[] _shape, bool _initOnGpu = false)
         {
             size = 1;
             shape = (int[]) _shape.Clone();
-            strides = new long[_shape.Length];
-			shader = _shader;
-
-			initShaderKernels ();
+            strides = new int[_shape.Length];
 
             for (var i = _shape.Length - 1; i >= 0; --i)
             {
@@ -72,11 +75,12 @@ namespace OpenMined.Syft.Tensor
                 size *= _shape[i];
             }
 
-            if (_initOnGpu)
+            if (_initOnGpu && SystemInfo.supportsComputeShaders)
             {
                 dataOnGpu = true;
                 dataBuffer = new ComputeBuffer(size, sizeof(float));
                 shapeBuffer = new ComputeBuffer(shape.Length, sizeof(int));
+                shader = FloatTensorShader.Shader;
             }
             else
             {
@@ -98,11 +102,10 @@ namespace OpenMined.Syft.Tensor
 
 			size = _data.Length;
 			shape = (int[]) _shape.Clone();
-			strides = new long[_shape.Length];
-			dataOnGpu = false;
+			strides = new int[_shape.Length];
 
 
-			long acc = 1;
+			int acc = 1;
 			for (var i = _shape.Length - 1; i >= 0; --i)
 			{
 				strides[i] = acc;
@@ -118,7 +121,7 @@ namespace OpenMined.Syft.Tensor
 			id = System.Threading.Interlocked.Increment(ref nCreated);
 		}
 
-		public FloatTensor(float[] _data, int[] _shape, ComputeShader _shader, bool _initOnGpu = false)
+		public FloatTensor(float[] _data, int[] _shape, bool _initOnGpu = false)
         {
             //TODO: Can contigous allocation might be a problem?
 
@@ -129,12 +132,9 @@ namespace OpenMined.Syft.Tensor
 
             size = _data.Length;
             shape = (int[]) _shape.Clone();
-            strides = new long[_shape.Length];
-			shader = _shader;
+            strides = new int[_shape.Length];
 
-			initShaderKernels ();
-
-            long acc = 1;
+            int acc = 1;
             for (var i = _shape.Length - 1; i >= 0; --i)
             {
                 strides[i] = acc;
@@ -144,7 +144,7 @@ namespace OpenMined.Syft.Tensor
             if (acc != size)
                 throw new FormatException("Tensor shape and data do not match.");
 
-            if (_initOnGpu)
+            if (_initOnGpu && SystemInfo.supportsComputeShaders)
             {
                 dataOnGpu = true;
 
@@ -153,6 +153,8 @@ namespace OpenMined.Syft.Tensor
 
                 shapeBuffer = new ComputeBuffer(shape.Length, sizeof(int));
                 shapeBuffer.SetData(shape);
+                
+                shader = FloatTensorShader.Shader;
             }
             else
             {
@@ -165,8 +167,7 @@ namespace OpenMined.Syft.Tensor
 
         public FloatTensor Copy()
         {
-			FloatTensor copy = new FloatTensor(this.data, this.shape, this.shader, this.dataOnGpu);
-            return copy;
+            return new FloatTensor(data, shape, dataOnGpu);
         }
 
         public float this[params int[] indices]
@@ -320,30 +321,32 @@ namespace OpenMined.Syft.Tensor
                 }
 				case "sub_elem":
 				{
-					Debug.LogFormat("sub_elem");
-					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
-					var result = this.Sub(tensor_1);
-
-					return ctrl.addTensor(result) + "";
+//					Debug.LogFormat("sub_elem");
+//					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+//					var result = this.Sub(tensor_1);
+//
+//					return ctrl.addTensor(result) + "";
+					return this.id + "";
 				}
 				case "sub_elem_":
 				{
-					Debug.LogFormat("sub_elem_");
-					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
-					this.Sub_(tensor_1);
+//					Debug.LogFormat("sub_elem_");
+//					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+//					this.Sub_(tensor_1);
 					return this.id + "";
 				}
 				case "sub_scalar":
 				{
-					Debug.LogFormat("sub_scalar");
-					FloatTensor result = Sub(float.Parse(msgObj.tensorIndexParams[0]));
+//					Debug.LogFormat("sub_scalar");
+//					FloatTensor result = Sub(float.Parse(msgObj.tensorIndexParams[0]));
 
-					return ctrl.addTensor (result) + "";
+//					return ctrl.addTensor (result) + "";
+					return this.id + "";
 				}
 				case "sub_scalar_":
 				{	
-					Debug.LogFormat("sub_scalar_");
-					this.Sub_(float.Parse( msgObj.tensorIndexParams[0]));
+//					Debug.LogFormat("sub_scalar_");
+//					this.Sub_(float.Parse( msgObj.tensorIndexParams[0]));
 					return this.id + "";
 				}
                 case "tanh":

@@ -11,7 +11,7 @@ namespace OpenMined.Syft.Tensor
 		// Returns a new Tensor with the smallest integer greater than or equal to each element
 		{
 
-			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			FloatTensor result = new FloatTensor (shape, dataOnGpu);
 
 			if (dataOnGpu) {	
 
@@ -36,7 +36,7 @@ namespace OpenMined.Syft.Tensor
             // Check if both tensors are compatible for sum
             SameSizeDimensionsShapeAndLocation(ref x);
 
-			FloatTensor result = new FloatTensor (shape, this.shader);
+			FloatTensor result = new FloatTensor (shape, dataOnGpu);
 
 			if (dataOnGpu & x.dataOnGpu) {
 				result.Gpu ();
@@ -59,7 +59,7 @@ namespace OpenMined.Syft.Tensor
 
 		public FloatTensor Add(float value)
 		{
-			var result = new FloatTensor(shape, this.shader, false);
+			var result = new FloatTensor(shape, false);
 
 			if (dataOnGpu) {
 
@@ -132,7 +132,7 @@ namespace OpenMined.Syft.Tensor
 				return CeilGPU();
             }
 
-			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			var result = new FloatTensor(shape, dataOnGpu);
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
             {
@@ -150,7 +150,7 @@ namespace OpenMined.Syft.Tensor
 			// Check if both tensors are compatible for sum
 			SameSizeDimensionsShapeAndLocation(ref x);
 
-			var result = new FloatTensor (shape, this.shader, false);
+			var result = new FloatTensor (shape, false);
 
 			if (dataOnGpu) {
 
@@ -173,7 +173,7 @@ namespace OpenMined.Syft.Tensor
 
 		public FloatTensor Mul(float value)
 		{
-			var result = new FloatTensor(shape, this.shader, false);
+			var result = new FloatTensor(shape, false);
 
 			if (dataOnGpu) {
 				result.Gpu ();
@@ -197,7 +197,7 @@ namespace OpenMined.Syft.Tensor
 				return NegateGPU();
             }
             
-			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			var result = new FloatTensor(shape, dataOnGpu);
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
             {
@@ -208,52 +208,53 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-		public FloatTensor Sub(FloatTensor x)
-		{
-			// Check if both tensors are compatible for sum
-			SameSizeDimensionsShapeAndLocation(ref x);
+//		public FloatTensor Sub(FloatTensor other)
+//		{
+//			// Check if both tensors are compatible for sum
+//			SameSizeDimensionsShapeAndLocation(ref other);
+//
+//			if (dataOnGpu && other.DataOnGpu)
+//			{
+//				return SubElemGPU(other);
+//			}
+//			else if (!dataOnGpu && !other.dataOnGpu)
+//			{
+//				var result = new FloatTensor(shape, dataOnGpu);
+//
+//				var nCpu = SystemInfo.processorCount;
+//				Parallel.For(0, nCpu, workerId =>
+//					{
+//						var max = data.Length * (workerId + 1) / nCpu;
+//					for (var i = size * workerId / nCpu; i < max; i++)
+//						result.Data [i] = x.Data [i] - Data [i];
+//				});
+//				return result;
+//
+//			}
+//
+//
+//		}
 
-			FloatTensor result = new FloatTensor (shape, this.shader);
-
-			if (dataOnGpu & x.dataOnGpu) {
-				result.Gpu ();
-				SubElemGPU (x, result);
-
-			} else {
-
-
-				var nCpu = SystemInfo.processorCount;
-				Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++)
-						result.Data [i] = x.Data [i] - Data [i];
-				});
-
-			}
-
-			return result;
-		}
-
-		public FloatTensor Sub(float value)
-		{
-			var result = new FloatTensor(shape, this.shader, false);
-
-			if (dataOnGpu) {
-
-				result.Gpu ();
-				return SubScalarGPU (value, result);
-
-			} else {
-
-				var nCpu = SystemInfo.processorCount;
-				Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++)
-						result.Data [i] = value - Data [i];
-				});
-			}
-			return result;
-		}
+//		public FloatTensor Sub(float value)
+//		{
+//			var result = new FloatTensor(shape, this.shader, false);
+//
+//			if (dataOnGpu) {
+//
+//				result.Gpu ();
+//				return SubScalarGPU (value, result);
+//
+//			} else {
+//
+//				var nCpu = SystemInfo.processorCount;
+//				Parallel.For (0, nCpu, workerId => {
+//					var max = size * (workerId + 1) / nCpu;
+//					for (var i = size * workerId / nCpu; i < max; i++)
+//						result.Data [i] = value - Data [i];
+//				});
+//			}
+//			return result;
+//		}
 
         public FloatTensor Tanh()
         {
@@ -263,7 +264,7 @@ namespace OpenMined.Syft.Tensor
             }
             else
             {
-                var result = new FloatTensor(shape, this.shader, dataOnGpu);
+                var result = new FloatTensor(shape, dataOnGpu);
                 var nCpu = SystemInfo.processorCount;
                 Parallel.For(0, nCpu, workerId =>
                 {
