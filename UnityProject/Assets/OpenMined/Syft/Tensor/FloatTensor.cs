@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using OpenMined.Network.Utils;
 using OpenMined.Network.Controllers;
+using OpenMined.Syft.Shaders;
 
 namespace OpenMined.Syft.Tensor
 {
@@ -79,6 +80,7 @@ namespace OpenMined.Syft.Tensor
                 dataOnGpu = true;
                 dataBuffer = new ComputeBuffer(size, sizeof(float));
                 shapeBuffer = new ComputeBuffer(shape.Length, sizeof(int));
+                shader = FloatTensorShader.Shader;
             }
             else
             {
@@ -117,20 +119,6 @@ namespace OpenMined.Syft.Tensor
 			id = System.Threading.Interlocked.Increment(ref nCreated);
 		}
 
-        public FloatTensor(float[] _data, int[] _shape, ComputeShader _shader, bool _initOnGpu) : this(_data, _shape, _initOnGpu)
-        {
-            if (!SystemInfo.supportsComputeShaders) return;
-            shader = _shader;
-            InitShaderKernels();
-        }
-        
-        public FloatTensor(int[] _shape, ComputeShader _shader, bool _initOnGpu) : this(_shape, _initOnGpu)
-        {
-            if (!SystemInfo.supportsComputeShaders) return;
-            shader = _shader;
-            InitShaderKernels();
-        }
-
 		public FloatTensor(float[] _data, int[] _shape, bool _initOnGpu = false)
         {
             //TODO: Can contigous allocation might be a problem?
@@ -163,6 +151,8 @@ namespace OpenMined.Syft.Tensor
 
                 shapeBuffer = new ComputeBuffer(shape.Length, sizeof(int));
                 shapeBuffer.SetData(shape);
+                
+                shader = FloatTensorShader.Shader;
             }
             else
             {
@@ -175,8 +165,6 @@ namespace OpenMined.Syft.Tensor
 
         public FloatTensor Copy()
         {
-            if (dataOnGpu && SystemInfo.supportsComputeShaders)
-                return new FloatTensor(data, shape, shader, dataOnGpu);
             return new FloatTensor(data, shape, dataOnGpu);
         }
 

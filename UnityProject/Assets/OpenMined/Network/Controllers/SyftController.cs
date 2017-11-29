@@ -10,20 +10,11 @@ namespace OpenMined.Network.Controllers
 {
     public class SyftController
     {
-        [SerializeField] private ComputeShader shader;
-
         private Dictionary<int, FloatTensor> tensors;
 
-        public SyftController(ComputeShader _shader)
+        public SyftController()
         {
-            shader = _shader;
-
             tensors = new Dictionary<int, FloatTensor>();
-        }
-
-        public ComputeShader Shader
-        {
-            get { return shader; }
         }
 
         private float[] randomWeights(int length)
@@ -40,11 +31,6 @@ namespace OpenMined.Network.Controllers
 		public FloatTensor getTensor (int index) {
 			return tensors [index];
 		}
-
-        public ComputeShader GetShader()
-        {
-            return shader;
-        }
 
         public void RemoveTensor(int index)
         {
@@ -71,7 +57,7 @@ namespace OpenMined.Network.Controllers
                 {
                     if (msgObj.objectIndex == 0 && msgObj.functionCall=="create" )
                     {
-                        FloatTensor tensor = new FloatTensor(msgObj.data, msgObj.shape, this.Shader);
+                        FloatTensor tensor = new FloatTensor(msgObj.data, msgObj.shape);
                         this.addTensor(tensor);
                         Debug.LogFormat("<color=magenta>createTensor:</color> {0}", string.Join(", ", tensor.Data));
                         return tensor.Id.ToString();

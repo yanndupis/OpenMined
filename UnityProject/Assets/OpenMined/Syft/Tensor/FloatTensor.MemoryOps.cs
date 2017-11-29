@@ -1,4 +1,5 @@
 using UnityEngine;
+using OpenMined.Syft.Shaders;
 
 namespace OpenMined.Syft.Tensor
 {
@@ -21,6 +22,7 @@ namespace OpenMined.Syft.Tensor
         public bool Gpu()
         {
             if (dataOnGpu || !SystemInfo.supportsComputeShaders) return false;
+            shader = FloatTensorShader.Shader; 
             CopyCputoGpu();
             EraseCpu();
             return true;
