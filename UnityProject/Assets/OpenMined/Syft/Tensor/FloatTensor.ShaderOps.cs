@@ -23,6 +23,14 @@ namespace OpenMined.Syft.Tensor
 		[SerializeField]
 		private static int CeilKernel;
 		[SerializeField]
+		private static int DivScalarKernel_;
+		[SerializeField]
+		private static int DivElemKernel_;
+		[SerializeField]
+		private static int DivScalarKernel;
+		[SerializeField]
+		private static int DivElemKernel;
+		[SerializeField]
 	    private static int FloorKernel_;
 		[SerializeField]
 		private static int MulScalarKernel_;
@@ -64,6 +72,10 @@ namespace OpenMined.Syft.Tensor
 				AddElemKernel = shader.FindKernel ("AddElem");
 				AddMMKernel_ = shader.FindKernel ("AddMM_");
 				CeilKernel = shader.FindKernel ("Ceil");
+				DivScalarKernel_ = shader.FindKernel ("DivScalar_");
+				DivElemKernel_ = shader.FindKernel ("DivElem_");
+				DivScalarKernel = shader.FindKernel ("DivScalar");
+				DivElemKernel = shader.FindKernel ("DivElem");
 				FloorKernel_ = shader.FindKernel ("Floor_");
 				MulScalarKernel_ = shader.FindKernel ("MulScalar_");
 				MulElemKernel_ = shader.FindKernel ("MulElem_");
@@ -173,6 +185,77 @@ namespace OpenMined.Syft.Tensor
 			}
 			return result;
 		}
+
+		public void DivScalarGPU_(float value)
+		{
+			Debug.LogFormat("<color=blue>FloatTensor.DivScalarGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+
+			if (dataOnGpu)
+			{
+				var valBuffer = SendFloatToGpu(DivScalarKernel_, value, "DivScalarScalar_");
+
+				shader.SetBuffer(DivScalarKernel_, "DivScalarData_", dataBuffer);
+				shader.Dispatch(DivScalarKernel_, this.size, 1, 1);
+
+				valBuffer.Release();
+			}
+		}
+
+		public void DivElemGPU_(FloatTensor tensor)
+		{
+			Debug.LogFormat("<color=blue>FloatTensor.DivElemGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+
+			if (dataOnGpu)
+			{
+				if (tensor.id != this.id) {
+					shader.SetBuffer (DivElemKernel_, "DivElemDataA_", dataBuffer);
+					shader.SetBuffer (DivElemKernel_, "DivElemDataB_", tensor.dataBuffer);
+					shader.Dispatch (DivElemKernel_, this.size, 1, 1);
+				} else {
+					tensor.Zero_();
+					tensor.Add_(1);
+				}
+
+			}
+		}
+
+		public FloatTensor DivScalarGPU(float value, FloatTensor result)
+		{
+			Debug.LogFormat("<color=blue>FloatTensor.DivScalarGPU dataOnGpu: {0}</color>", dataOnGpu);
+
+			if (dataOnGpu)
+			{
+				var valBuffer = SendFloatToGpu(DivScalarKernel, value, "DivScalarScalar");
+
+				shader.SetBuffer(DivScalarKernel, "DivScalarData", dataBuffer);
+				shader.SetBuffer(DivScalarKernel, "DivScalarResult", result.dataBuffer);
+				shader.Dispatch(DivScalarKernel, this.size, 1, 1);
+
+				valBuffer.Release();
+			}
+			return result;
+		}
+
+		public FloatTensor DivElemGPU(FloatTensor tensor, FloatTensor result)
+		{
+			Debug.LogFormat("<color=blue>FloatTensor.DivElemGPU dataOnGpu: {0}</color>", dataOnGpu);
+
+			if (dataOnGpu)
+			{
+				if (tensor.id != this.id) {
+					shader.SetBuffer (DivElemKernel, "DivElemDataA", dataBuffer);
+					shader.SetBuffer (DivElemKernel, "DivElemDataB", tensor.dataBuffer);
+					shader.SetBuffer (DivElemKernel, "DivElemDataResult", result.dataBuffer);
+					shader.Dispatch (DivElemKernel, this.size, 1, 1);
+				} else {
+					result.Add_ (1);
+					return result;
+				}
+
+			}
+			return result;
+		}
+
 
 		public void AddMatrixMultiplyGPU(FloatTensor tensor_1, FloatTensor tensor_2)
 		{
@@ -426,7 +509,7 @@ namespace OpenMined.Syft.Tensor
         public void ZeroGPU_()
         {
 			shader.SetBuffer(ZeroKernel_, "ZeroData_", dataBuffer);
-			shader.Dispatch(ZeroKernel_, 1, 1, 1);
+			shader.Dispatch(ZeroKernel_, this.size, 1, 1);
         }
 
         public struct Dimensions

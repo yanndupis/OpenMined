@@ -143,6 +143,51 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+		public FloatTensor Div(FloatTensor x)
+		{
+			// Check if both tensors are compatible for sum
+			SameSizeDimensionsShapeAndLocation(ref x);
+
+			var result = new FloatTensor (shape, this.shader, false);
+
+			if (dataOnGpu) {
+
+				result.Gpu ();
+				return DivElemGPU (x, result);
+
+			} else {
+
+
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
+					var max = size * (workerId + 1) / nCpu;
+					for (var i = size * workerId / nCpu; i < max; i++)
+						result.Data [i] = Data [i] / x.Data [i];
+				});
+
+			}
+			return result;
+		}
+
+		public FloatTensor Div(float value)
+		{
+			var result = new FloatTensor(shape, this.shader, false);
+
+			if (dataOnGpu) {
+				result.Gpu ();
+				return DivScalarGPU (value, result);
+			} else {
+
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
+					var max = size * (workerId + 1) / nCpu;
+					for (var i = size * workerId / nCpu; i < max; i++)
+						result.Data [i] = Data [i] / value;
+				});
+			}
+			return result;
+		}
+
        
 
 		public FloatTensor Mul(FloatTensor x)
