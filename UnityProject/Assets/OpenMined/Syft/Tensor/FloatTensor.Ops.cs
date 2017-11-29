@@ -7,14 +7,34 @@ namespace OpenMined.Syft.Tensor
     public partial class FloatTensor
     {
 
+		public FloatTensor Abs()
+		// Returns a new Tensor with the smallest integer greater than or equal to each element
+		{
+
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+
+			if (dataOnGpu) {	
+
+				result.Gpu ();
+				return AbsGPU (result);
+
+			} else {
+
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
+					var max = size * (workerId + 1) / nCpu;
+					for (var i = size * workerId / nCpu; i < max; i++)
+						result.Data [i] = (float)(Math.Abs (Data [i]));
+				});
+			}
+			return result;
+		}
+
+
 		public FloatTensor Add(FloatTensor x)
         {
             // Check if both tensors are compatible for sum
-            SameSizeDimensionsAndShape(ref x);
-
-			if (dataOnGpu != x.dataOnGpu) {
-				throw new InvalidOperationException(String.Format("Tensors must be on same device : {0} != {1}.", dataOnGpu, x.dataOnGpu));
-			}
+            SameSizeDimensionsShapeAndLocation(ref x);
 
 			FloatTensor result = new FloatTensor (shape, this.shader);
 
@@ -42,8 +62,10 @@ namespace OpenMined.Syft.Tensor
 			var result = new FloatTensor(shape, this.shader, false);
 
 			if (dataOnGpu) {
+
 				result.Gpu ();
 				return AddScalarGPU (value, result);
+
 			} else {
 				
 				var nCpu = SystemInfo.processorCount;
@@ -126,7 +148,7 @@ namespace OpenMined.Syft.Tensor
 		public FloatTensor Mul(FloatTensor x)
 		{
 			// Check if both tensors are compatible for sum
-			SameSizeDimensionsAndShape(ref x);
+			SameSizeDimensionsShapeAndLocation(ref x);
 
 			var result = new FloatTensor (shape, this.shader, false);
 
@@ -189,7 +211,7 @@ namespace OpenMined.Syft.Tensor
 		public FloatTensor SubtractElementwise(FloatTensor other)
 		{
 			//Debug.LogFormat("<color=blue>FloatTensor.inline_elementwise_subtract dataOnGpu: {0}</color>", dataOnGpu);
-			SameSizeDimensionsAndShape(ref other);
+			SameSizeDimensionsShapeAndLocation(ref other);
 
 			if (dataOnGpu && other.DataOnGpu)
 			{

@@ -48,28 +48,29 @@ namespace OpenMined.Syft.Tensor
 		private static int ZeroKernel_;
 
 		public void initShaderKernels() {
-
-			// save shaders and kernels
-			AbsKernel = shader.FindKernel("Abs");
-			AbsKernel_ = shader.FindKernel("Abs_");
-			AddScalarKernel_ = shader.FindKernel("AddScalar_");
-			AddElemKernel_ = shader.FindKernel("AddElem_");
-			AddScalarKernel = shader.FindKernel("AddScalar");
-			AddElemKernel = shader.FindKernel("AddElem");
-			AddMMKernel_ = shader.FindKernel("AddMM_");
-			CeilKernel = shader.FindKernel("Ceil");
-			FloorKernel_ = shader.FindKernel("Floor_");
-			MulScalarKernel_ = shader.FindKernel("MulScalar_");
-			MulElemKernel_ = shader.FindKernel("MulElem_");
-			MulScalarKernel = shader.FindKernel("MulScalar");
-			MulElemKernel = shader.FindKernel("MulElem");
-			NegateKernel = shader.FindKernel("Negate");
-			PowKernel = shader.FindKernel("Pow");
-			PowKernel_ = shader.FindKernel("Pow_");
-			SigmoidKernel_ = shader.FindKernel("Sigmoid_");
-			SubElemKernel = shader.FindKernel("SubElem");
-			TanhKernel = shader.FindKernel("Tanh");
-			ZeroKernel_ = shader.FindKernel("Zero_");
+			if (shader != null) {
+				// save shaders and kernels
+				AbsKernel = shader.FindKernel ("Abs");
+				AbsKernel_ = shader.FindKernel ("Abs_");
+				AddScalarKernel_ = shader.FindKernel ("AddScalar_");
+				AddElemKernel_ = shader.FindKernel ("AddElem_");
+				AddScalarKernel = shader.FindKernel ("AddScalar");
+				AddElemKernel = shader.FindKernel ("AddElem");
+				AddMMKernel_ = shader.FindKernel ("AddMM_");
+				CeilKernel = shader.FindKernel ("Ceil");
+				FloorKernel_ = shader.FindKernel ("Floor_");
+				MulScalarKernel_ = shader.FindKernel ("MulScalar_");
+				MulElemKernel_ = shader.FindKernel ("MulElem_");
+				MulScalarKernel = shader.FindKernel ("MulScalar");
+				MulElemKernel = shader.FindKernel ("MulElem");
+				NegateKernel = shader.FindKernel ("Negate");
+				PowKernel = shader.FindKernel ("Pow");
+				PowKernel_ = shader.FindKernel ("Pow_");
+				SigmoidKernel_ = shader.FindKernel ("Sigmoid_");
+				SubElemKernel = shader.FindKernel ("SubElem");
+				TanhKernel = shader.FindKernel ("Tanh");
+				ZeroKernel_ = shader.FindKernel ("Zero_");
+			}
 
 		}
 

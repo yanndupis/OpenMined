@@ -80,6 +80,7 @@ namespace OpenMined.Syft.Tensor
             }
             else
             {
+				dataOnGpu = false;
                 data = new float[size];
             }
 
@@ -98,6 +99,8 @@ namespace OpenMined.Syft.Tensor
 			size = _data.Length;
 			shape = (int[]) _shape.Clone();
 			strides = new long[_shape.Length];
+			dataOnGpu = false;
+
 
 			long acc = 1;
 			for (var i = _shape.Length - 1; i >= 0; --i)
@@ -176,13 +179,23 @@ namespace OpenMined.Syft.Tensor
         {
             switch (msgObj.functionCall)
             {
-                case "abs_":
-                {
-                    // calls the function on our tensor object
-                    Abs_();
-                    // returns the function call name with the OK status    
-                    return id.ToString();
-                }
+
+				case "abs":
+				{
+					// calls the function on our tensor object
+					var result = this.Abs();
+					// returns the function call name with the OK status    
+					return ctrl.addTensor(result) + "";
+				}
+				case "abs_":
+				{
+					// calls the function on our tensor object
+					Abs_();
+					// returns the function call name with the OK status    
+					return id.ToString();
+				}
+
+
                 case "add_elem":
                 {
 				    Debug.LogFormat("add_elem");
