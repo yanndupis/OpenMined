@@ -28,6 +28,8 @@ Unity has a few advantages that we are leveraging for this project
 3. It has versitile GPU access.  
 4. It can be used for high end graphics gaming consoles (Playstation, XBox, etc)
 
+More about this in the [corresponding file](https://github.com/OpenMined/OpenMined/blob/master/tutorials/WhyUnity.md) at tutorials folder
+
 **Marketplace Mechanics**  
 `TODO`
 
