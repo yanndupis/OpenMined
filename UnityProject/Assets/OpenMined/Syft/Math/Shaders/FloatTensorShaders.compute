@@ -196,15 +196,46 @@ void Sigmoid_ (uint3 id : SV_DispatchThreadID) {
 	SigmoidData_[id.x] = 1 / (1 + exp(-SigmoidData_[id.x]));
 }
 
+#pragma kernel SubScalar_
+
+RWStructuredBuffer<float> SubScalarData_;
+RWStructuredBuffer<float> SubScalarScalar_;
+
+[numthreads(4,1,1)]
+void SubScalar_ (uint3 id: SV_DispatchThreadID) {
+	SubScalarData_[id.x] = SubScalarData_[id.x] - SubScalarScalar_[0];
+}
+
+#pragma kernel SubElem_
+
+RWStructuredBuffer<float> SubElemDataA_;
+RWStructuredBuffer<float> SubElemDataB_;
+
+[numthreads(4,1,1)]
+void SubElem_ (uint3 id: SV_DispatchThreadID) {
+	SubElemDataA_[id.x] = SubElemDataA_[id.x] - SubElemDataB_[id.x];
+}
+
+#pragma kernel SubScalar
+
+RWStructuredBuffer<float> SubScalarData;
+RWStructuredBuffer<float> SubScalarScalar;
+RWStructuredBuffer<float> SubScalarResult;
+
+[numthreads(4,1,1)]
+void SubScalar (uint3 id: SV_DispatchThreadID) {
+	SubScalarResult[id.x] = SubScalarData[id.x] - SubScalarScalar[0];
+}
+
 #pragma kernel SubElem
 
 RWStructuredBuffer<float> SubElemDataA;
 RWStructuredBuffer<float> SubElemDataB;
-RWStructuredBuffer<float> SubElemResult;
+RWStructuredBuffer<float> SubElemDataResult;
 
 [numthreads(4,1,1)]
-void SubElem (uint3 id : SV_DispatchThreadID) {
-    SubElemResult[id.x] = SubElemDataA[id.x] - SubElemDataB[id.x];
+void SubElem (uint3 id: SV_DispatchThreadID) {
+	SubElemDataResult[id.x] = SubElemDataA[id.x] - SubElemDataB[id.x];
 }
 
 #pragma kernel Tanh

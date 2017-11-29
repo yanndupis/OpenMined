@@ -318,13 +318,34 @@ namespace OpenMined.Syft.Tensor
                     Sigmoid_();
                     return msgObj.functionCall + ": OK";
                 }
-                case "sub_elem":
-                {
-                    var tensor1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
-                    var result = SubtractElementwise(tensor1);
-                    ctrl.addTensor(result);
-                    return result.Id.ToString();
-                }
+				case "sub_elem":
+				{
+					Debug.LogFormat("sub_elem");
+					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+					var result = this.Sub(tensor_1);
+
+					return ctrl.addTensor(result) + "";
+				}
+				case "sub_elem_":
+				{
+					Debug.LogFormat("sub_elem_");
+					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+					this.Sub_(tensor_1);
+					return this.id + "";
+				}
+				case "sub_scalar":
+				{
+					Debug.LogFormat("sub_scalar");
+					FloatTensor result = Sub(float.Parse(msgObj.tensorIndexParams[0]));
+
+					return ctrl.addTensor (result) + "";
+				}
+				case "sub_scalar_":
+				{	
+					Debug.LogFormat("sub_scalar_");
+					this.Sub_(float.Parse( msgObj.tensorIndexParams[0]));
+					return this.id + "";
+				}
                 case "tanh":
                 {
                     var result = Tanh();

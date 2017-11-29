@@ -208,30 +208,51 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-		public FloatTensor SubtractElementwise(FloatTensor other)
+		public FloatTensor Sub(FloatTensor x)
 		{
-			//Debug.LogFormat("<color=blue>FloatTensor.inline_elementwise_subtract dataOnGpu: {0}</color>", dataOnGpu);
-			SameSizeDimensionsShapeAndLocation(ref other);
+			// Check if both tensors are compatible for sum
+			SameSizeDimensionsShapeAndLocation(ref x);
 
-			if (dataOnGpu && other.DataOnGpu)
-			{
-				return SubElemGPU(other);
-			}
-			else if (!dataOnGpu && !other.dataOnGpu)
-			{
-				var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			FloatTensor result = new FloatTensor (shape, this.shader);
+
+			if (dataOnGpu & x.dataOnGpu) {
+				result.Gpu ();
+				SubElemGPU (x, result);
+
+			} else {
+
+
 				var nCpu = SystemInfo.processorCount;
-				Parallel.For(0, nCpu, workerId =>
-					{
-						var max = size * (workerId + 1) / nCpu;
-						for (var i = size * workerId / nCpu; i < max; i++)
-							result.Data[i] = Data[i] - other.Data[i];
-					});
-				return result;
+				Parallel.For (0, nCpu, workerId => {
+					var max = size * (workerId + 1) / nCpu;
+					for (var i = size * workerId / nCpu; i < max; i++)
+						result.Data [i] = x.Data [i] - Data [i];
+				});
+
 			}
 
-			throw new InvalidOperationException(
-				"Data for both Tensors needs to be colocated on the same device. - CPU != GPU");
+			return result;
+		}
+
+		public FloatTensor Sub(float value)
+		{
+			var result = new FloatTensor(shape, this.shader, false);
+
+			if (dataOnGpu) {
+
+				result.Gpu ();
+				return SubScalarGPU (value, result);
+
+			} else {
+
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
+					var max = size * (workerId + 1) / nCpu;
+					for (var i = size * workerId / nCpu; i < max; i++)
+						result.Data [i] = value - Data [i];
+				});
+			}
+			return result;
 		}
 
         public FloatTensor Tanh()

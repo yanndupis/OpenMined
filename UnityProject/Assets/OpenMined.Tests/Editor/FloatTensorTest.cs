@@ -600,7 +600,7 @@ namespace OpenMined.Tests
             int[] shape2 = {2, 4};
             var tensor2 = new FloatTensor(data2, shape2);
 
-			var tensor = tensor1.SubtractElementwise (tensor2);
+			var tensor = tensor1.Sub (tensor2);
 
             for (int i = 0; i < tensor.Size; i++)
             {
@@ -620,7 +620,7 @@ namespace OpenMined.Tests
             int[] shape2 = { 2, 6 };
             var tensor2 = new FloatTensor(data2, shape2);
 
-			Assert.That(() => tensor1.SubtractElementwise(tensor2),
+			Assert.That(() => tensor1.Sub(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
 
@@ -635,7 +635,7 @@ namespace OpenMined.Tests
             int[] shape2 = { 2, 2 };
             var tensor2 = new FloatTensor(data2, shape2);
 
-			Assert.That(() => tensor1.SubtractElementwise(tensor2),
+			Assert.That(() => tensor1.Sub(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
 
@@ -650,7 +650,7 @@ namespace OpenMined.Tests
             int[] shape2 = { 3, 2 };
             var tensor2 = new FloatTensor(data2, shape2);
 
-			Assert.That(() => tensor1.SubtractElementwise(tensor2),
+			Assert.That(() => tensor1.Sub(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
 //

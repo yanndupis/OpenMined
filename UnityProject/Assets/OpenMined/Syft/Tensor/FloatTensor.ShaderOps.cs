@@ -41,6 +41,12 @@ namespace OpenMined.Syft.Tensor
 		[SerializeField]
 		private static int SigmoidKernel_;
 		[SerializeField]
+		private static int SubScalarKernel_;
+		[SerializeField]
+		private static int SubElemKernel_;
+		[SerializeField]
+		private static int SubScalarKernel;
+		[SerializeField]
 		private static int SubElemKernel;
 		[SerializeField]
 		private static int TanhKernel;
@@ -67,6 +73,9 @@ namespace OpenMined.Syft.Tensor
 				PowKernel = shader.FindKernel ("Pow");
 				PowKernel_ = shader.FindKernel ("Pow_");
 				SigmoidKernel_ = shader.FindKernel ("Sigmoid_");
+				SubScalarKernel_ = shader.FindKernel ("SubScalar_");
+				SubElemKernel_ = shader.FindKernel ("SubElem_");
+				SubScalarKernel = shader.FindKernel ("SubScalar");
 				SubElemKernel = shader.FindKernel ("SubElem");
 				TanhKernel = shader.FindKernel ("Tanh");
 				ZeroKernel_ = shader.FindKernel ("Zero_");
@@ -332,27 +341,77 @@ namespace OpenMined.Syft.Tensor
         }
 
 
-		public FloatTensor SubElemGPU(FloatTensor other)
+		public void SubScalarGPU_(float value)
 		{
-			//Debug.LogFormat("<color=blue>FloatTensor.inline_elementwise_subtract dataOnGpu: {0}</color>", dataOnGpu);
+			Debug.LogFormat("<color=blue>FloatTensor.SubScalarGPU_ dataOnGpu: {0}</color>", dataOnGpu);
 
-			if (size == other.Size)
+			if (dataOnGpu)
 			{
-				if (dataOnGpu && other.DataOnGpu)
-				{
-					var result = new FloatTensor(shape, this.shader, dataOnGpu);
-					// correspond tensor buffers with shader kernel buffers
-					shader.SetBuffer(SubElemKernel, "SubElemDataA", dataBuffer);
-					shader.SetBuffer(SubElemKernel, "SubElemDataB", other.DataBuffer);
-					shader.SetBuffer(SubElemKernel, "SubElemResult", result.DataBuffer);
-					shader.Dispatch(SubElemKernel, size, 1, 1);
+				var valBuffer = SendFloatToGpu(SubScalarKernel_, value, "SubScalarScalar_");
 
+				shader.SetBuffer(SubScalarKernel_, "SubScalarData_", dataBuffer);
+				shader.Dispatch(SubScalarKernel_, this.size, 1, 1);
+
+				valBuffer.Release();
+			}
+		}
+
+		public void SubElemGPU_(FloatTensor tensor)
+		{
+			Debug.LogFormat("<color=blue>FloatTensor.SubElemGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+
+			if (dataOnGpu)
+			{
+				if (this.id != tensor.id) {
+					shader.SetBuffer (SubElemKernel_, "SubElemDataA_", dataBuffer);
+					shader.SetBuffer (SubElemKernel_, "SubElemDataB_", tensor.dataBuffer);
+					shader.Dispatch (SubElemKernel_, this.size, 1, 1);
+				} else {
+					Debug.LogFormat("addition with itself should be multiplication instead", dataOnGpu);
+					this.Zero_ ();
+				}
+
+			}
+		}
+
+		public FloatTensor SubScalarGPU(float value, FloatTensor result)
+		{
+			Debug.LogFormat("<color=blue>FloatTensor.SubScalarGPU dataOnGpu: {0}</color>", dataOnGpu);
+
+			if (dataOnGpu)
+			{
+				var valBuffer = SendFloatToGpu(SubScalarKernel, value, "SubScalarScalar");
+
+				shader.SetBuffer(SubScalarKernel, "SubScalarData", dataBuffer);
+				shader.SetBuffer(SubScalarKernel, "SubScalarResult", result.dataBuffer);
+				shader.Dispatch(SubScalarKernel, this.size, 1, 1);
+
+				valBuffer.Release();
+			}
+			return result;
+		}
+
+		public FloatTensor SubElemGPU(FloatTensor tensor, FloatTensor result)
+		{
+
+			Debug.LogFormat("<color=blue>FloatTensor.SubElemGPU dataOnGpu: {0}</color>", dataOnGpu);
+
+			if (dataOnGpu)
+			{
+				// if tensors are not actually referring to the same tensor
+				if (this.id != tensor.id) {
+					shader.SetBuffer (SubElemKernel, "SubElemDataA", this.DataBuffer);
+					shader.SetBuffer (SubElemKernel, "SubElemDataB", tensor.DataBuffer);
+					shader.SetBuffer (SubElemKernel, "SubElemDataResult", result.DataBuffer);
+					shader.Dispatch (SubElemKernel, this.size, 1, 1);
+				} else {
+					// should return a tensor of zeros.
 					return result;
 				}
-				Debug.Log("Data for both Tensors needs to be colocated on the same device. - CPU != GPU");
+
+
 			}
-			Debug.Log("Tensors do not have the same number of elements!");
-			return this;
+			return result;
 		}
 
 		public FloatTensor TanhGPU ()
