@@ -271,7 +271,7 @@ namespace OpenMined.Syft.Tensor
 				Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
 					for (var i = size * workerId / nCpu; i < max; i++)
-						result.Data [i] = x.Data [i] - Data [i];
+						result.Data [i] = Data [i] - x.Data [i];
 				});
 
 			}
@@ -365,6 +365,30 @@ namespace OpenMined.Syft.Tensor
             return Transpose(0, 1);
         }
 
+        public FloatTensor Trunc()
+        {
+            if (dataOnGpu)
+            {
+                return TruncGPU();
+            }
+            else
+            {
+                var result = new FloatTensor(shape, this.shader, dataOnGpu);
+                var nCpu = SystemInfo.processorCount;
+                Parallel.For(0, nCpu, workerId =>
+                {
+                    var max = size * (workerId + 1) / nCpu;
+                    for (var i = size * workerId / nCpu; i < max; i++)
+                    {
+                        var d = (double) Data[i];
+                        result.Data[i] = (float) System.Math.Truncate(d);
+                    }
+                });
+
+                return result;
+            }
+        }
+
         public FloatTensor Transpose(int dimension1, int dimension2)
         {
             //TODO: Should we create a new Tensor object here?
@@ -410,6 +434,15 @@ namespace OpenMined.Syft.Tensor
                     }
                 }
             });
+
+        public bool IsContiguous()
+        {
+          if (strides[strides.Length-1] == 1L)
+          {
+            return true;
+          }
+          return false;
+
         }
     }
 }

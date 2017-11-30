@@ -56,6 +56,11 @@ namespace OpenMined.Syft.Tensor
             get { return nCreated; }
         }
 
+        public long[] Strides
+        {
+          get { return strides; }
+        }
+
 
 		public FloatTensor(int[] _shape, ComputeShader _shader, bool _initOnGpu = false)
         {
@@ -270,7 +275,7 @@ namespace OpenMined.Syft.Tensor
 					return ctrl.addTensor (result) + "";
 				}
 				case "div_scalar_":
-				{	
+				{
 					this.Div_(float.Parse( msgObj.tensorIndexParams[0]));
 					return this.id + "";
 				}
@@ -391,6 +396,7 @@ namespace OpenMined.Syft.Tensor
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }
+
                 case "triu":
                 {
                     var K = int.Parse(msgObj.tensorIndexParams[0]);
@@ -405,10 +411,22 @@ namespace OpenMined.Syft.Tensor
                   Triu_(K);
                   return Id.ToString();
                 }
+
+                case "trunc":
+                {
+                    var result = Trunc();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+
                 case "zero_":
                 {
                     Zero_();
                     return msgObj.functionCall + ": OK";
+                }
+                case "is_contiguous":
+                {
+                  return Convert.ToString(IsContiguous());
                 }
                 default: break;
             }

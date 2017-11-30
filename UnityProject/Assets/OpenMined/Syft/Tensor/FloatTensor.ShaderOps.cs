@@ -60,6 +60,8 @@ namespace OpenMined.Syft.Tensor
 		private static int TanhKernel;
     [SerializeField]
 		private static int TriuKernel_;
+    [SerializeField]
+    private static int TruncKernel;
 		[SerializeField]
 		private static int ZeroKernel_;
 
@@ -93,6 +95,7 @@ namespace OpenMined.Syft.Tensor
 				SubElemKernel = shader.FindKernel ("SubElem");
 				TanhKernel = shader.FindKernel ("Tanh");
         TriuKernel_ = shader.FindKernel ("Triu_");
+        TruncKernel = shader.FindKernel ("Trunc");
 				ZeroKernel_ = shader.FindKernel ("Zero_");
 			}
 
@@ -527,6 +530,16 @@ namespace OpenMined.Syft.Tensor
       kBuffer.Release();
 
     }
+
+        public FloatTensor TruncGPU ()
+        {
+            var result = new FloatTensor(shape, this.shader, dataOnGpu);
+            shader.SetBuffer(TruncKernel, "TruncData", dataBuffer);
+            shader.SetBuffer(TruncKernel, "TruncResult", result.DataBuffer);
+            shader.Dispatch(TruncKernel, this.size, 1, 1);
+            return result;
+        }
+
 
         public void ZeroGPU_()
         {

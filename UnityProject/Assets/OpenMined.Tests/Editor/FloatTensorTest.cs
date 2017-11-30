@@ -817,6 +817,17 @@ namespace OpenMined.Tests
               Assert.AreEqual (tensor7.Data[i], tensor7Triu.Data[i]);
             }
         }
+      
+        public void IsContiguous()
+        {
+          float[] data = new float[] { 1, 2, 3, 4, 5, 6 };
+          int[] shape = new int[]{ 2, 3 };
+          var tensor = new FloatTensor(data, shape);
+          Assert.AreEqual(tensor.IsContiguous(), true);
+          var transposedTensor = tensor.Transpose();
+          Assert.AreEqual(transposedTensor.IsContiguous(), false);
+        }
+
         // TODO: AddMatrixMultiplyTests when implemented on CPU
         // TODO: MultiplyDerivative when implemented on CPU
     }

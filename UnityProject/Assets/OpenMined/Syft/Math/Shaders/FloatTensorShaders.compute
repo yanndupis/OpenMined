@@ -309,6 +309,15 @@ void Triu_ (uint3 id: SV_DispatchThreadID) {
 	{
 		TriuData_[id.x] = 0;
 	}
+
+#pragma kernel Trunc
+
+RWStructuredBuffer<float> TruncData;
+RWStructuredBuffer<float> TruncResult;
+
+[numthreads(4,1,1)]
+void Trunc (uint3 id: SV_DispatchThreadID) {
+	TruncResult[id.x] = trunc(TruncData[id.x]);
 }
 
 #pragma kernel Zero_
