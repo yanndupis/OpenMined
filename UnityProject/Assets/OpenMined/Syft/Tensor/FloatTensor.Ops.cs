@@ -13,7 +13,7 @@ namespace OpenMined.Syft.Tensor
 
 			var result = new FloatTensor(shape, this.shader, dataOnGpu);
 
-			if (dataOnGpu) {	
+			if (dataOnGpu) {
 
 				result.Gpu ();
 				return AbsGPU (result);
@@ -67,7 +67,7 @@ namespace OpenMined.Syft.Tensor
 				return AddScalarGPU (value, result);
 
 			} else {
-				
+
 				var nCpu = SystemInfo.processorCount;
 				Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
@@ -188,7 +188,7 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
-       
+
 
 		public FloatTensor Mul(FloatTensor x)
 		{
@@ -241,7 +241,7 @@ namespace OpenMined.Syft.Tensor
             {
 				return NegateGPU();
             }
-            
+
 			var result = new FloatTensor(shape, this.shader, dataOnGpu);
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
@@ -309,7 +309,7 @@ namespace OpenMined.Syft.Tensor
 					result_shape [j] = shape [i];
 					j += 1;
 				}
-			}	
+			}
 
 			var result = new FloatTensor(result_shape, this.shader, false);
 
@@ -383,6 +383,15 @@ namespace OpenMined.Syft.Tensor
             SwapElements(ref shape, dimension1, dimension2);
 
             return this;
+        }
+
+        public bool IsContiguous()
+        {
+          if (strides[strides.Length-1] == 1L)
+          {
+            return true;
+          }
+          return false;
         }
     }
 }
