@@ -238,6 +238,16 @@ void Sigmoid_ (uint3 id : SV_DispatchThreadID) {
 	SigmoidData_[id.x] = 1 / (1 + exp(-SigmoidData_[id.x]));
 }
 
+#pragma kernel Sqrt
+
+RWStructuredBuffer<float> SqrtData;
+RWStructuredBuffer<float> SqrtResult;
+
+[numthreads(1,1,1)]
+void Sqrt (uint3 id : SV_DispatchThreadID) {
+	SqrtResult[id.x] = sqrt(SqrtData[id.x]);
+}
+
 #pragma kernel SubScalar_
 
 RWStructuredBuffer<float> SubScalarData_;

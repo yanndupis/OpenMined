@@ -731,6 +731,25 @@ namespace OpenMined.Tests
                  Assert.AreEqual (expectedTanhTensor.Data[i], actualTanhTensor.Data[i]);
             }
         }
+        
+        [Test]
+        public void Sqrt()
+        {
+            float[] data1 = { float.MaxValue, float.MinValue, 1f, 4f, 5f, 2.3232f, -30f };
+            int[] shape1 = { 7 };
+            var tensor = new FloatTensor(data1, shape1);
+
+            float[] data2 = { float.NaN, float.NaN, 1f, 2f, 2.236068f, 1.524205f, float.NaN };
+            int[] shape2 = { 7 };
+            var expectedTensor = new FloatTensor(data2, shape2);
+
+            var actualTensor = tensor.Sqrt();
+
+            for (int i = 2; i < expectedTensor.Size; i++)
+            {
+                Assert.AreEqual (Math.Round(expectedTensor.Data[i], 3), Math.Round(actualTensor.Data[i], 3));
+            }
+        }
 
         [Test]
         public void Trunc()
