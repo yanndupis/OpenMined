@@ -58,10 +58,10 @@ namespace OpenMined.Syft.Tensor
 		private static int SubElemKernel;
 		[SerializeField]
 		private static int TanhKernel;
-    [SerializeField]
+   	 	[SerializeField]
 		private static int TriuKernel_;
-    [SerializeField]
-    private static int TruncKernel;
+    	[SerializeField]
+    	private static int TruncKernel;
 		[SerializeField]
 		private static int ZeroKernel_;
 
