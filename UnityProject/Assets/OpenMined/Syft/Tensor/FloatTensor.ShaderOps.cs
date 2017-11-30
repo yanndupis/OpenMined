@@ -58,8 +58,10 @@ namespace OpenMined.Syft.Tensor
 		private static int SubElemKernel;
 		[SerializeField]
 		private static int TanhKernel;
-        [SerializeField]
-        private static int TruncKernel;
+    [SerializeField]
+		private static int TriuKernel_;
+    [SerializeField]
+    private static int TruncKernel;
 		[SerializeField]
 		private static int ZeroKernel_;
 
@@ -92,7 +94,8 @@ namespace OpenMined.Syft.Tensor
 				SubScalarKernel = shader.FindKernel ("SubScalar");
 				SubElemKernel = shader.FindKernel ("SubElem");
 				TanhKernel = shader.FindKernel ("Tanh");
-                TruncKernel = shader.FindKernel ("Trunc");
+        TriuKernel_ = shader.FindKernel ("Triu_");
+        TruncKernel = shader.FindKernel ("Trunc");
 				ZeroKernel_ = shader.FindKernel ("Zero_");
 			}
 
@@ -168,7 +171,7 @@ namespace OpenMined.Syft.Tensor
 
 		public FloatTensor AddElemGPU(FloatTensor tensor, FloatTensor result)
 		{
-			
+
 			Debug.LogFormat("<color=blue>FloatTensor.AddElemGPU dataOnGpu: {0}</color>", dataOnGpu);
 
 			if (dataOnGpu)
@@ -183,7 +186,7 @@ namespace OpenMined.Syft.Tensor
 					Debug.LogFormat("addition with itself should be multiplication instead", dataOnGpu);
 					return this.MulScalarGPU (2, result);
 				}
-					
+
 
 			}
 			return result;
@@ -509,6 +512,25 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
+    public void TriuGPU_(int k)
+    {
+      var dim = new Dimensions[]
+      {
+        new Dimensions(this.shape[0], this.shape[1])
+      };
+
+      var dimBuffer = new ComputeBuffer(2, dim[0].Stride());
+      var kBuffer = SendIntToGpu(TriuKernel_, k, "TriuK_");
+      dimBuffer.SetData(dim);
+      shader.SetBuffer(TriuKernel_, "TriuDimensions_", dimBuffer);
+      shader.SetBuffer(TriuKernel_, "TriuData_", dataBuffer);
+      shader.Dispatch(TriuKernel_, this.size, 1, 1);
+
+      dimBuffer.Release();
+      kBuffer.Release();
+
+    }
+
         public FloatTensor TruncGPU ()
         {
             var result = new FloatTensor(shape, this.shader, dataOnGpu);
@@ -517,6 +539,7 @@ namespace OpenMined.Syft.Tensor
             shader.Dispatch(TruncKernel, this.size, 1, 1);
             return result;
         }
+
 
         public void ZeroGPU_()
         {
@@ -552,5 +575,16 @@ namespace OpenMined.Syft.Tensor
             return scalarBuffer;
         }
 
+        private ComputeBuffer SendIntToGpu(int kernel, int value, string name)
+        {
+            int[] array = new int[1];
+            array[0] = value;
+
+            var arrayBuffer = new ComputeBuffer(1, sizeof(float));
+            arrayBuffer.SetData(array);
+            shader.SetBuffer(kernel, name, arrayBuffer);
+
+            return arrayBuffer;
+        }
     }
 }

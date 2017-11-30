@@ -396,12 +396,29 @@ namespace OpenMined.Syft.Tensor
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }
+
+                case "triu":
+                {
+                    var K = int.Parse(msgObj.tensorIndexParams[0]);
+                    var result = Copy();
+                    result.Triu_(K);
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+                case "triu_":
+                {
+                  var K = int.Parse(msgObj.tensorIndexParams[0]);
+                  Triu_(K);
+                  return Id.ToString();
+                }
+
                 case "trunc":
                 {
                     var result = Trunc();
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }
+
                 case "zero_":
                 {
                     Zero_();

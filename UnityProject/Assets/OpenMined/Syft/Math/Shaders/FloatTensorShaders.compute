@@ -1,4 +1,4 @@
-﻿// 
+﻿//
 
 struct Dimensions {
 	int rows;
@@ -9,7 +9,7 @@ struct Dimensions {
 
 RWStructuredBuffer<float> AbsData;
 RWStructuredBuffer<float> AbsResult;
- 
+
 [numthreads(1,1,1)]
 void Abs (uint3 id : SV_DispatchThreadID) {
 	if(AbsData[id.x] < 0) {
@@ -22,7 +22,7 @@ void Abs (uint3 id : SV_DispatchThreadID) {
 #pragma kernel Abs_
 
 RWStructuredBuffer<float> AbsData_;
- 
+
 [numthreads(1,1,1)]
 void Abs_ (uint3 id : SV_DispatchThreadID) {
 	if(AbsData_[id.x] < 0) {
@@ -289,6 +289,26 @@ RWStructuredBuffer<float> TanhResult;
 void Tanh (uint3 id: SV_DispatchThreadID) {
 	TanhResult[id.x] = tanh(TanhData[id.x]);
 }
+
+#pragma kernel Triu_
+
+RWStructuredBuffer<int> TriuK_;
+RWStructuredBuffer<Dimensions> TriuDimensions_;
+RWStructuredBuffer<float> TriuData_;
+
+[numthreads(4,1,1)]
+void Triu_ (uint3 id: SV_DispatchThreadID) {
+
+	int rows = TriuDimensions_[0].rows;
+	int columns = TriuDimensions_[0].columns;
+	int k = TriuK_[0];
+
+	int col = id % columns;
+	int row = (id - col) / columns;
+	if (col < row + k)
+	{
+		TriuData_[id.x] = 0;
+	}
 
 #pragma kernel Trunc
 
