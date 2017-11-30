@@ -290,6 +290,16 @@ void Tanh (uint3 id: SV_DispatchThreadID) {
 	TanhResult[id.x] = tanh(TanhData[id.x]);
 }
 
+#pragma kernel Trunc
+
+RWStructuredBuffer<float> TruncData;
+RWStructuredBuffer<float> TruncResult;
+
+[numthreads(4,1,1)]
+void Trunc (uint3 id: SV_DispatchThreadID) {
+	TruncResult[id.x] = trunc(TruncData[id.x]);
+}
+
 #pragma kernel Zero_
 
 RWStructuredBuffer<float> ZeroData_;

@@ -396,6 +396,12 @@ namespace OpenMined.Syft.Tensor
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }
+                case "trunc":
+                {
+                    var result = Trunc();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
                 case "zero_":
                 {
                     Zero_();
