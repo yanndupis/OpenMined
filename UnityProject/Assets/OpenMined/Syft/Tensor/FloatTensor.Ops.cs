@@ -271,7 +271,7 @@ namespace OpenMined.Syft.Tensor
 				Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
 					for (var i = size * workerId / nCpu; i < max; i++)
-						result.Data [i] = x.Data [i] - Data [i];
+						result.Data [i] = Data [i] - x.Data [i];
 				});
 
 			}
