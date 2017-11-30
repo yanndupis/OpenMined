@@ -309,6 +309,7 @@ void Triu_ (uint3 id: SV_DispatchThreadID) {
 	{
 		TriuData_[id.x] = 0;
 	}
+}
 
 #pragma kernel Trunc
 
