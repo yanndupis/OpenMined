@@ -363,7 +363,7 @@ namespace OpenMined.Syft.Tensor
                 {
                     var K = int.Parse(msgObj.tensorIndexParams[0]);
                     var result = Copy();
-                    result = result.Triu(K);
+                    result.Triu(K);
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }

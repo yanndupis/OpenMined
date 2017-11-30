@@ -290,7 +290,6 @@ namespace OpenMined.Syft.Tensor
         public FloatTensor Transpose(int dimension1, int dimension2)
         {
             //TODO: Should we create a new Tensor object here?
-
             if (dimension1 < 0 || dimension1 >= shape.Length)
                 throw new ArgumentOutOfRangeException("dimension1");
             if (dimension2 < 0 || dimension2 >= shape.Length)
@@ -307,11 +306,17 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
 
-        public FloatTensor Triu(int k)
+        public void Triu(int k)
         {
             if (shape.Length != 2)
             {
               throw new InvalidOperationException(String.Format("Matrix multiply not possible: Num. Dimensions {0} != 2.", shape.Length));
+            }
+            if (dataOnGpu)
+            {
+              UnityEngine.Debug.Log("Entra");
+                TriuGPU_(k);
+                return;
             }
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
@@ -327,7 +332,6 @@ namespace OpenMined.Syft.Tensor
                     }
                 }
             });
-            return this;
         }
     }
 }
