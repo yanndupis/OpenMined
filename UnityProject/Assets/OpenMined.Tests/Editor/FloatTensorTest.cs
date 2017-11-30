@@ -732,6 +732,23 @@ namespace OpenMined.Tests
             }
         }
 
+        [Test]
+        public void Trunc()
+        {
+            float[] data = { -0.323232f, 0.323893f, 0.99999f, 1.2323389f };
+            int[] shape = { 4 };
+            var tensor = new FloatTensor(data, shape);
+
+            float[] truncatedData = { -0f, 0f, 0f, 1f };
+            var expectedTensor = new FloatTensor(truncatedData, shape);
+
+            var truncatedTensor = tensor.Trunc();
+            for (int i = 2; i < truncatedTensor.Size; i++)
+            {
+                 Assert.AreEqual (expectedTensor.Data[i], truncatedTensor.Data[i]);
+            }
+        }
+
         // TODO: AddMatrixMultiplyTests when implemented on CPU
         // TODO: MultiplyDerivative when implemented on CPU
     }
