@@ -456,16 +456,17 @@ namespace OpenMined.Syft.Tensor
                     }
                 }
             });
-        }
-
-        public bool IsContiguous()
-        {
-          if (strides[strides.Length-1] == 1L)
-          {
-            return true;
-          }
-          return false;
 
         }
-    }
+
+
+		public bool IsContiguous()
+		{
+			if (strides[strides.Length-1] == 1L)
+			{
+				return true;
+			}
+			return false;
+		}
+	}
 }
