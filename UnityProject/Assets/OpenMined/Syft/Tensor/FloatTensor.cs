@@ -111,7 +111,7 @@ namespace OpenMined.Syft.Tensor
 
 			if (acc != size)
 				throw new FormatException("Tensor shape and data do not match.");
-			
+
 			data = (float[]) _data.Clone();
 
 			// IDEs might show a warning, but ref and volatile seems to be working with Interlocked API.
@@ -184,14 +184,14 @@ namespace OpenMined.Syft.Tensor
 				{
 					// calls the function on our tensor object
 					var result = this.Abs();
-					// returns the function call name with the OK status    
+					// returns the function call name with the OK status
 					return ctrl.addTensor(result) + "";
 				}
 				case "abs_":
 				{
 					// calls the function on our tensor object
 					Abs_();
-					// returns the function call name with the OK status    
+					// returns the function call name with the OK status
 					return id.ToString();
 				}
 
@@ -219,7 +219,7 @@ namespace OpenMined.Syft.Tensor
                     return ctrl.addTensor (result) + "";
                 }
                 case "add_scalar_":
-                {	
+                {
 					Debug.LogFormat("add_scalar_");
                     this.Add_(float.Parse( msgObj.tensorIndexParams[0]));
                     return this.id + "";
@@ -285,7 +285,7 @@ namespace OpenMined.Syft.Tensor
 					return ctrl.addTensor (result) + "";
 				}
 				case "mul_scalar_":
-				{	
+				{
 					this.Mul_(float.Parse( msgObj.tensorIndexParams[0]));
 					return this.id + "";
 				}
@@ -341,7 +341,7 @@ namespace OpenMined.Syft.Tensor
 					return ctrl.addTensor (result) + "";
 				}
 				case "sub_scalar_":
-				{	
+				{
 					Debug.LogFormat("sub_scalar_");
 					this.Sub_(float.Parse( msgObj.tensorIndexParams[0]));
 					return this.id + "";
@@ -358,6 +358,20 @@ namespace OpenMined.Syft.Tensor
                     result = result.Transpose();
                     ctrl.addTensor(result);
                     return result.Id.ToString();
+                }
+                case "triu":
+                {
+                    var K = int.Parse(msgObj.tensorIndexParams[0]);
+                    var result = Copy();
+                    result = result.Triu(K);
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+                case "triu_":
+                {
+                  var K = int.Parse(msgObj.tensorIndexParams[0]);
+                  Triu(K);
+                  return Id.ToString();
                 }
                 case "zero_":
                 {

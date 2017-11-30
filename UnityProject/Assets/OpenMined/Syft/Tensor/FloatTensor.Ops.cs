@@ -13,7 +13,7 @@ namespace OpenMined.Syft.Tensor
 
 			var result = new FloatTensor(shape, this.shader, dataOnGpu);
 
-			if (dataOnGpu) {	
+			if (dataOnGpu) {
 
 				result.Gpu ();
 				return AbsGPU (result);
@@ -67,7 +67,7 @@ namespace OpenMined.Syft.Tensor
 				return AddScalarGPU (value, result);
 
 			} else {
-				
+
 				var nCpu = SystemInfo.processorCount;
 				Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
@@ -143,7 +143,7 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-       
+
 
 		public FloatTensor Mul(FloatTensor x)
 		{
@@ -196,7 +196,7 @@ namespace OpenMined.Syft.Tensor
             {
 				return NegateGPU();
             }
-            
+
 			var result = new FloatTensor(shape, this.shader, dataOnGpu);
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
@@ -304,6 +304,29 @@ namespace OpenMined.Syft.Tensor
             SwapElements(ref strides, dimension1, dimension2);
             SwapElements(ref shape, dimension1, dimension2);
 
+            return this;
+        }
+
+        public FloatTensor Triu(int k)
+        {
+            if (shape.Length != 2)
+            {
+              throw new InvalidOperationException(String.Format("Matrix multiply not possible: Num. Dimensions {0} != 2.", shape.Length));
+            }
+            var nCpu = SystemInfo.processorCount;
+            Parallel.For(0, nCpu, workerId =>
+            {
+                var max = size * (workerId + 1) / nCpu;
+                for (var i = size * workerId / nCpu; i < max; i++)
+                {
+                    int col = i % this.shape[1];
+                    int row = (i - col) / this.shape[1];
+                    if (col < row + k)
+                    {
+                      Data[i] = 0.0f;
+                    }
+                }
+            });
             return this;
         }
     }
