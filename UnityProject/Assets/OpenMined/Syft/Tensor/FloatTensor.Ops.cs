@@ -434,6 +434,7 @@ namespace OpenMined.Syft.Tensor
                     }
                 }
             });
+        }
 
         public bool IsContiguous()
         {
