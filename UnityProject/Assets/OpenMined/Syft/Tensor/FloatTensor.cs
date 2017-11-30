@@ -249,6 +249,32 @@ namespace OpenMined.Syft.Tensor
                     Cpu();
                     return msgObj.functionCall + ": OK";
                 }
+
+				case "div_elem":
+				{
+					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+					var result = this.Div(tensor_1);
+
+					return ctrl.addTensor(result) + "";
+				}
+				case "div_elem_":
+				{
+					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+					this.Div_(tensor_1);
+					return this.id + "";
+				}
+				case "div_scalar":
+				{
+					FloatTensor result = Div(float.Parse(msgObj.tensorIndexParams[0]));
+
+					return ctrl.addTensor (result) + "";
+				}
+				case "div_scalar_":
+				{	
+					this.Div_(float.Parse( msgObj.tensorIndexParams[0]));
+					return this.id + "";
+				}
+
                 case "floor_":
                 {
                     Floor_();
@@ -345,6 +371,12 @@ namespace OpenMined.Syft.Tensor
 					Debug.LogFormat("sub_scalar_");
 					this.Sub_(float.Parse( msgObj.tensorIndexParams[0]));
 					return this.id + "";
+				}
+				case "sum_dim":
+				{
+					Debug.LogFormat("sum_dim");
+					FloatTensor result = this.Sum(int.Parse( msgObj.tensorIndexParams[0]));
+					return ctrl.addTensor (result) + "";
 				}
                 case "tanh":
                 {

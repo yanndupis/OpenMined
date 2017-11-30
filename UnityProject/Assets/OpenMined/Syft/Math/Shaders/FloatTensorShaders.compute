@@ -105,6 +105,48 @@ void Ceil (uint3 id: SV_DispatchThreadID) {
 		CeilResult[id.x] = ceil(CeilData[id.x]);
 }
 
+#pragma kernel DivScalar_
+
+RWStructuredBuffer<float> DivScalarData_;
+RWStructuredBuffer<float> DivScalarScalar_;
+
+[numthreads(4,1,1)]
+void DivScalar_ (uint3 id: SV_DispatchThreadID) {
+	DivScalarData_[id.x] = DivScalarData_[id.x] / DivScalarScalar_[0];
+}
+
+#pragma kernel DivElem_
+
+RWStructuredBuffer<float> DivElemDataA_;
+RWStructuredBuffer<float> DivElemDataB_;
+
+[numthreads(4,1,1)]
+void DivElem_ (uint3 id: SV_DispatchThreadID) {
+	DivElemDataA_[id.x] = DivElemDataA_[id.x] / DivElemDataB_[id.x];
+}
+
+#pragma kernel DivScalar
+
+RWStructuredBuffer<float> DivScalarData;
+RWStructuredBuffer<float> DivScalarScalar;
+RWStructuredBuffer<float> DivScalarResult;
+
+[numthreads(4,1,1)]
+void DivScalar (uint3 id: SV_DispatchThreadID) {
+	DivScalarResult[id.x] = DivScalarData[id.x] / DivScalarScalar[0];
+}
+
+#pragma kernel DivElem
+
+RWStructuredBuffer<float> DivElemDataA;
+RWStructuredBuffer<float> DivElemDataB;
+RWStructuredBuffer<float> DivElemDataResult;
+
+[numthreads(4,1,1)]
+void DivElem (uint3 id: SV_DispatchThreadID) {
+	DivElemDataResult[id.x] = DivElemDataA[id.x] / DivElemDataB[id.x];
+}
+
 #pragma kernel Floor_
 
 RWStructuredBuffer<float> FloorData_;
