@@ -748,6 +748,100 @@ namespace OpenMined.Tests
                  Assert.AreEqual (expectedTensor.Data[i], truncatedTensor.Data[i]);
             }
         }
+        public void Triu_()
+        {
+            int k = 0;
+
+            // Test tensor with dimension < 2
+            float[] data1 = { 1, 2, 3, 4, 5, 6 };
+            int[] shape1 = { 6 };
+            var tensor1 = new FloatTensor(data1, shape1);
+			      Assert.That(() => tensor1.Triu_(k),
+                Throws.TypeOf<InvalidOperationException>());
+
+            // Test tensor with dimension > 2
+            float[] data2 = { 1, 2, 3, 4, 5, 6, 7, 8 };
+            int[] shape2 = { 2, 2, 2 };
+            var tensor2 = new FloatTensor(data2, shape2);
+
+			      Assert.That(() => tensor2.Triu_(k),
+                Throws.TypeOf<InvalidOperationException>());
+
+            // Test dim = 2, k = 0
+            k = 0;
+            float[] data3 = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            int[] shape3 = { 3, 3 };
+            var tensor3 = new FloatTensor(data3, shape3);
+            tensor3.Triu_(k);
+            float[] data3Triu = { 1, 2, 3, 0, 5, 6, 0, 0, 9 };
+            var tensor3Triu = new FloatTensor(data3Triu, shape3);
+            for (int i = 0; i < tensor3.Size; i++)
+            {
+              Assert.AreEqual (tensor3.Data[i], tensor3Triu.Data[i]);
+            }
+
+            // Test dim = 2, k = 2
+            k = 2;
+            float[] data4 = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            int[] shape4 = { 3, 3 };
+            var tensor4 = new FloatTensor(data4, shape4);
+            tensor4.Triu_(k);
+            float[] data4Triu = { 0, 0, 3, 0, 0, 0, 0, 0, 0 };
+            var tensor4Triu = new FloatTensor(data4Triu, shape4);
+            for (int i = 0; i < tensor4.Size; i++)
+            {
+              Assert.AreEqual (tensor4.Data[i], tensor4Triu.Data[i]);
+            }
+
+            // Test dim = 2, k = -1
+            k = -1;
+            float[] data5 = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            int[] shape5 = { 3, 3 };
+            var tensor5 = new FloatTensor(data5, shape5);
+            tensor5.Triu_(k);
+            float[] data5Triu = { 1, 2, 3, 4, 5, 6, 0, 8, 9 };
+            var tensor5Triu = new FloatTensor(data5Triu, shape5);
+            for (int i = 0; i < tensor5.Size; i++)
+            {
+              Assert.AreEqual (tensor5.Data[i], tensor5Triu.Data[i]);
+            }
+
+            // Test dim = 2, k >> ndims
+            k = 100;
+            float[] data6 = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            int[] shape6 = { 3, 3 };
+            var tensor6 = new FloatTensor(data6, shape6);
+            tensor6.Triu_(k);
+            float[] data6Triu = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            var tensor6Triu = new FloatTensor(data6Triu, shape6);
+            for (int i = 0; i < tensor6.Size; i++)
+            {
+              Assert.AreEqual (tensor6.Data[i], tensor6Triu.Data[i]);
+            }
+
+            // Test dim = 2, k << ndims
+            k = -100;
+            float[] data7 = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            int[] shape7 = { 3, 3 };
+            var tensor7 = new FloatTensor(data7, shape7);
+            tensor7.Triu_(k);
+            float[] data7Triu = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            var tensor7Triu = new FloatTensor(data7Triu, shape7);
+            for (int i = 0; i < tensor7.Size; i++)
+            {
+              Assert.AreEqual (tensor7.Data[i], tensor7Triu.Data[i]);
+            }
+        }
+      
+        public void IsContiguous()
+        {
+          float[] data = new float[] { 1, 2, 3, 4, 5, 6 };
+          int[] shape = new int[]{ 2, 3 };
+          var tensor = new FloatTensor(data, shape);
+          Assert.AreEqual(tensor.IsContiguous(), true);
+          var transposedTensor = tensor.Transpose();
+          Assert.AreEqual(transposedTensor.IsContiguous(), false);
+        }
 
         // TODO: AddMatrixMultiplyTests when implemented on CPU
         // TODO: MultiplyDerivative when implemented on CPU

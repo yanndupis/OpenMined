@@ -13,7 +13,7 @@ namespace OpenMined.Syft.Tensor
 
 			var result = new FloatTensor(shape, this.shader, dataOnGpu);
 
-			if (dataOnGpu) {	
+			if (dataOnGpu) {
 
 				result.Gpu ();
 				return AbsGPU (result);
@@ -67,7 +67,7 @@ namespace OpenMined.Syft.Tensor
 				return AddScalarGPU (value, result);
 
 			} else {
-				
+
 				var nCpu = SystemInfo.processorCount;
 				Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
@@ -188,7 +188,7 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
-       
+
 
 		public FloatTensor Mul(FloatTensor x)
 		{
@@ -241,7 +241,7 @@ namespace OpenMined.Syft.Tensor
             {
 				return NegateGPU();
             }
-            
+
 			var result = new FloatTensor(shape, this.shader, dataOnGpu);
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
@@ -271,7 +271,7 @@ namespace OpenMined.Syft.Tensor
 				Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
 					for (var i = size * workerId / nCpu; i < max; i++)
-						result.Data [i] = x.Data [i] - Data [i];
+						result.Data [i] = Data [i] - x.Data [i];
 				});
 
 			}
@@ -309,7 +309,7 @@ namespace OpenMined.Syft.Tensor
 					result_shape [j] = shape [i];
 					j += 1;
 				}
-			}	
+			}
 
 			var result = new FloatTensor(result_shape, this.shader, false);
 
@@ -392,7 +392,6 @@ namespace OpenMined.Syft.Tensor
         public FloatTensor Transpose(int dimension1, int dimension2)
         {
             //TODO: Should we create a new Tensor object here?
-
             if (dimension1 < 0 || dimension1 >= shape.Length)
                 throw new ArgumentOutOfRangeException("dimension1");
             if (dimension2 < 0 || dimension2 >= shape.Length)
@@ -407,6 +406,43 @@ namespace OpenMined.Syft.Tensor
             SwapElements(ref shape, dimension1, dimension2);
 
             return this;
+        }
+
+        public void Triu_(int k)
+        {
+            if (shape.Length != 2)
+            {
+              throw new InvalidOperationException(String.Format("Matrix multiply not possible: Num. Dimensions {0} != 2.", shape.Length));
+            }
+            if (dataOnGpu)
+            {
+              UnityEngine.Debug.Log("Entra");
+                TriuGPU_(k);
+                return;
+            }
+            var nCpu = SystemInfo.processorCount;
+            Parallel.For(0, nCpu, workerId =>
+            {
+                var max = size * (workerId + 1) / nCpu;
+                for (var i = size * workerId / nCpu; i < max; i++)
+                {
+                    int col = i % this.shape[1];
+                    int row = (i - col) / this.shape[1];
+                    if (col < row + k)
+                    {
+                      Data[i] = 0.0f;
+                    }
+                }
+            });
+
+        public bool IsContiguous()
+        {
+          if (strides[strides.Length-1] == 1L)
+          {
+            return true;
+          }
+          return false;
+
         }
     }
 }
