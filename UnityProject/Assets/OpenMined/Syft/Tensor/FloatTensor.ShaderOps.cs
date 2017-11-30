@@ -48,6 +48,8 @@ namespace OpenMined.Syft.Tensor
 		private static int PowKernel_;
 		[SerializeField]
 		private static int SigmoidKernel_;
+	    [SerializeField] 
+	    private static int SqrtKernel;
 		[SerializeField]
 		private static int SubScalarKernel_;
 		[SerializeField]
@@ -58,10 +60,10 @@ namespace OpenMined.Syft.Tensor
 		private static int SubElemKernel;
 		[SerializeField]
 		private static int TanhKernel;
-    [SerializeField]
+   	 	[SerializeField]
 		private static int TriuKernel_;
-    [SerializeField]
-    private static int TruncKernel;
+    	[SerializeField]
+    	private static int TruncKernel;
 		[SerializeField]
 		private static int ZeroKernel_;
 
@@ -89,13 +91,14 @@ namespace OpenMined.Syft.Tensor
 				PowKernel = shader.FindKernel ("Pow");
 				PowKernel_ = shader.FindKernel ("Pow_");
 				SigmoidKernel_ = shader.FindKernel ("Sigmoid_");
+				SqrtKernel = shader.FindKernel("Sqrt");
 				SubScalarKernel_ = shader.FindKernel ("SubScalar_");
 				SubElemKernel_ = shader.FindKernel ("SubElem_");
 				SubScalarKernel = shader.FindKernel ("SubScalar");
 				SubElemKernel = shader.FindKernel ("SubElem");
 				TanhKernel = shader.FindKernel ("Tanh");
-        TriuKernel_ = shader.FindKernel ("Triu_");
-        TruncKernel = shader.FindKernel ("Trunc");
+        		TriuKernel_ = shader.FindKernel ("Triu_");
+       			TruncKernel = shader.FindKernel ("Trunc");
 				ZeroKernel_ = shader.FindKernel ("Zero_");
 			}
 
@@ -385,6 +388,7 @@ namespace OpenMined.Syft.Tensor
 				shader.Dispatch(NegateKernel, 1, 1, 1);
                 return result;
             }
+	        
             return this;
         }
 
@@ -419,6 +423,18 @@ namespace OpenMined.Syft.Tensor
 				valBuffer.Release();
 			}
 		}
+
+	    private FloatTensor SqrtGPU()
+	    {
+		    if (!dataOnGpu) return this;
+		    
+		    var result = new FloatTensor(shape, shader, dataOnGpu);
+		    shader.SetBuffer(SqrtKernel, "SqrtData", dataBuffer);
+		    shader.SetBuffer(SqrtKernel, "SqrtResult", result.dataBuffer);
+		    shader.Dispatch(SqrtKernel, size, 1, 1);
+		    
+		    return result;
+	    }
 
         public void SigmoidGPU_()
         {

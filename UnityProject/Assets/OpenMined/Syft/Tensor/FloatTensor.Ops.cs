@@ -253,6 +253,28 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+	    public FloatTensor Sqrt()
+	    {
+		    if (dataOnGpu)
+		    {
+			    return SqrtGPU();
+		    }
+		    
+		    var result = new FloatTensor(shape, shader, dataOnGpu);
+		    var nCpu = SystemInfo.processorCount;
+		    Parallel.For(0, nCpu, workerId =>
+		    {
+			    var max = data.Length * (workerId + 1) / nCpu;
+			    for (var i = data.Length * workerId / nCpu; i < max; i++)
+			    {
+				    var d = (double) data[i];
+				    result.data[i] = (float) Math.Sqrt(d);
+			    }
+		    });
+
+		    return result;
+	    }
+
 		public FloatTensor Sub(FloatTensor x)
 		{
 			// Check if both tensors are compatible for sum
@@ -434,7 +456,9 @@ namespace OpenMined.Syft.Tensor
                     }
                 }
             });
-		}
+
+        }
+
 
 		public bool IsContiguous()
 		{
