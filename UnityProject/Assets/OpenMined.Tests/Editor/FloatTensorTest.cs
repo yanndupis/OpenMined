@@ -733,7 +733,7 @@ namespace OpenMined.Tests
         }
 
         [Test]
-        public void Triu()
+        public void Triu_()
         {
             int k = 0;
 
@@ -741,7 +741,7 @@ namespace OpenMined.Tests
             float[] data1 = { 1, 2, 3, 4, 5, 6 };
             int[] shape1 = { 6 };
             var tensor1 = new FloatTensor(data1, shape1);
-			      Assert.That(() => tensor1.Triu(k),
+			      Assert.That(() => tensor1.Triu_(k),
                 Throws.TypeOf<InvalidOperationException>());
 
             // Test tensor with dimension > 2
@@ -749,7 +749,7 @@ namespace OpenMined.Tests
             int[] shape2 = { 2, 2, 2 };
             var tensor2 = new FloatTensor(data2, shape2);
 
-			      Assert.That(() => tensor2.Triu(k),
+			      Assert.That(() => tensor2.Triu_(k),
                 Throws.TypeOf<InvalidOperationException>());
 
             // Test dim = 2, k = 0
@@ -757,7 +757,7 @@ namespace OpenMined.Tests
             float[] data3 = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             int[] shape3 = { 3, 3 };
             var tensor3 = new FloatTensor(data3, shape3);
-            tensor3.Triu(k);
+            tensor3.Triu_(k);
             float[] data3Triu = { 1, 2, 3, 0, 5, 6, 0, 0, 9 };
             var tensor3Triu = new FloatTensor(data3Triu, shape3);
             for (int i = 0; i < tensor3.Size; i++)
@@ -770,7 +770,7 @@ namespace OpenMined.Tests
             float[] data4 = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             int[] shape4 = { 3, 3 };
             var tensor4 = new FloatTensor(data4, shape4);
-            tensor4.Triu(k);
+            tensor4.Triu_(k);
             float[] data4Triu = { 0, 0, 3, 0, 0, 0, 0, 0, 0 };
             var tensor4Triu = new FloatTensor(data4Triu, shape4);
             for (int i = 0; i < tensor4.Size; i++)
@@ -783,7 +783,7 @@ namespace OpenMined.Tests
             float[] data5 = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             int[] shape5 = { 3, 3 };
             var tensor5 = new FloatTensor(data5, shape5);
-            tensor5.Triu(k);
+            tensor5.Triu_(k);
             float[] data5Triu = { 1, 2, 3, 4, 5, 6, 0, 8, 9 };
             var tensor5Triu = new FloatTensor(data5Triu, shape5);
             for (int i = 0; i < tensor5.Size; i++)
@@ -796,7 +796,7 @@ namespace OpenMined.Tests
             float[] data6 = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             int[] shape6 = { 3, 3 };
             var tensor6 = new FloatTensor(data6, shape6);
-            tensor6.Triu(k);
+            tensor6.Triu_(k);
             float[] data6Triu = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             var tensor6Triu = new FloatTensor(data6Triu, shape6);
             for (int i = 0; i < tensor6.Size; i++)
@@ -809,7 +809,7 @@ namespace OpenMined.Tests
             float[] data7 = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             int[] shape7 = { 3, 3 };
             var tensor7 = new FloatTensor(data7, shape7);
-            tensor7.Triu(k);
+            tensor7.Triu_(k);
             float[] data7Triu = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             var tensor7Triu = new FloatTensor(data7Triu, shape7);
             for (int i = 0; i < tensor7.Size; i++)

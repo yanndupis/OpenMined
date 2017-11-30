@@ -306,7 +306,7 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
 
-        public void Triu(int k)
+        public void Triu_(int k)
         {
             if (shape.Length != 2)
             {

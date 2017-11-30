@@ -434,11 +434,8 @@ namespace OpenMined.Syft.Tensor
       };
 
       var dimBuffer = new ComputeBuffer(2, dim[0].Stride());
-      // var kBuffer = new ComputeBuffer(1, k.Stride());
       var kBuffer = SendIntToGpu(TriuKernel_, k, "TriuK_");
-      // kBuffer.SetData(k);
       dimBuffer.SetData(dim);
-      // shader.SetBuffer(TriuKernel_, "TriuK_", dimBuffer);
       shader.SetBuffer(TriuKernel_, "TriuDimensions_", dimBuffer);
       shader.SetBuffer(TriuKernel_, "TriuData_", dataBuffer);
       shader.Dispatch(TriuKernel_, this.size, 1, 1);
