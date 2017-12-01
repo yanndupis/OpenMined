@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.Remoting.Messaging;
 using UnityEngine;
 using OpenMined.Network.Utils;
 using OpenMined.Network.Controllers;
@@ -395,7 +396,18 @@ namespace OpenMined.Syft.Tensor
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }
-                case "transpose":
+	            case "sinh":
+	            {
+		            var result = Sinh();
+		            ctrl.addTensor(result);
+		            return result.Id.ToString();
+	            }
+	            case "sinh_":
+	            {
+		            Sinh_();
+		            return Id.ToString();
+	            }
+	            case "transpose":
                 {
                     var result = Copy();
                     result = result.Transpose();
