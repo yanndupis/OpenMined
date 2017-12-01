@@ -143,6 +143,30 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+        public FloatTensor 	Cos()
+        {
+            if (dataOnGpu)
+            {
+                return CosGPU();
+            }
+            else
+            {
+                var result = new FloatTensor(shape, this.shader, dataOnGpu);
+                var nCpu = SystemInfo.processorCount;
+                Parallel.For(0, nCpu, workerId =>
+                {
+                    var max = size * (workerId + 1) / nCpu;
+                    for (var i = size * workerId / nCpu; i < max; i++)
+                    {
+                        var d = (double) Data[i];
+                        result.Data[i] = (float) System.Math.Cos(d);
+                    }
+                });
+ 
+                return result;
+            }
+        }
+
         public FloatTensor 	Cosh()
         {
             if (dataOnGpu)
