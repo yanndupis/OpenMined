@@ -300,6 +300,24 @@ void Tanh (uint3 id: SV_DispatchThreadID) {
 	TanhResult[id.x] = tanh(TanhData[id.x]);
 }
 
+#pragma kernel Sinh
+
+RWStructuredBuffer<float> SinhData;
+RWStructuredBuffer<float> SinhResult;
+
+[numthreads(4,1,1)]
+void Sinh (uint3 id: SV_DispatchThreadID) {
+	SinhResult[id.x] = sinh(SinhData[id.x]);
+}
+
+#pragma kernel Sinh_
+RWStructuredBuffer<float> SinhData_;
+
+[numthreads(4,1,1)]
+void Sinh_ (uint3 id: SV_DispatchThreadID) {
+    SinhData_[id.x] = sinh(SinhData_[id.x]);
+}
+
 #pragma kernel Triu_
 
 RWStructuredBuffer<int> TriuK_;

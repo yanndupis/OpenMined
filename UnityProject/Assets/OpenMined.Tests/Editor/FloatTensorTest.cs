@@ -752,6 +752,44 @@ namespace OpenMined.Tests
         }
 
         [Test]
+        public void Sinh()
+        {
+            float[] data1 = { -0.6366f, 0.2718f, 0.4469f, 1.3122f };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+
+            float[] data2 = { -0.68047776203f, 0.27515893149f, 0.4619250399f, 1.72255458258f };
+            int[] shape2 = { 4 };
+            var expectedSinhTensor = new FloatTensor(data2, shape2);
+
+            var actualSinhTensor = tensor.Sinh();
+
+            for (int i = 2; i < actualSinhTensor.Size; i++)
+            {
+                Assert.AreEqual (expectedSinhTensor.Data[i], actualSinhTensor.Data[i]);
+            }
+        }
+
+        [Test]
+        public void Sinh_()
+        {
+            float[] data1 = { -0.6366f, 0.2718f, 0.4469f, 1.3122f };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+
+            float[] data2 = { -0.68047776203f, 0.27515893149f, 0.4619250399f, 1.72255458258f };
+            int[] shape2 = { 4 };
+            var expectedSinhTensor = new FloatTensor(data2, shape2);
+
+            tensor.Sinh_();
+
+            for (int i = 2; i < tensor.Size; i++)
+            {
+                Assert.AreEqual (expectedSinhTensor.Data[i], tensor.Data[i]);
+            }
+        }
+
+        [Test]
         public void Trunc()
         {
             float[] data = { -0.323232f, 0.323893f, 0.99999f, 1.2323389f };
