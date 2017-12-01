@@ -105,7 +105,7 @@ void Ceil (uint3 id: SV_DispatchThreadID) {
 		CeilResult[id.x] = ceil(CeilData[id.x]);
 }
 
- #pragma kernel Cosh
+ #pragma kernel Cos
  
 RWStructuredBuffer<float> CosData;
 RWStructuredBuffer<float> CosResult;
