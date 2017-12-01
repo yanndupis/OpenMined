@@ -101,15 +101,10 @@ namespace OpenMined.Syft.Tensor
 				SubScalarKernel = shader.FindKernel ("SubScalar");
 				SubElemKernel = shader.FindKernel ("SubElem");
 				TanhKernel = shader.FindKernel ("Tanh");
-<<<<<<< HEAD
-        		TriuKernel_ = shader.FindKernel ("Triu_");
-       			TruncKernel = shader.FindKernel ("Trunc");
-=======
 				SinhKernel = shader.FindKernel ("Sinh");
 				SinhKernel_ = shader.FindKernel("Sinh_");
-        TriuKernel_ = shader.FindKernel ("Triu_");
-        TruncKernel = shader.FindKernel ("Trunc");
->>>>>>> adds sinh and sinh_
+                TriuKernel_ = shader.FindKernel ("Triu_");
+                TruncKernel = shader.FindKernel ("Trunc");
 				ZeroKernel_ = shader.FindKernel ("Zero_");
 			}
 

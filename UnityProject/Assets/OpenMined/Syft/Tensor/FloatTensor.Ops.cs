@@ -503,7 +503,6 @@ namespace OpenMined.Syft.Tensor
 			    });
 		    }
 	    }
-    }
 
 
 		public bool IsContiguous()
@@ -514,6 +513,6 @@ namespace OpenMined.Syft.Tensor
 			}
 			return false;
 		}
-	}
+    }
 }
 
