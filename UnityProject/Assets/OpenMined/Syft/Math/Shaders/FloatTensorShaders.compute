@@ -112,7 +112,7 @@ RWStructuredBuffer<float> CosResult;
  
 [numthreads(4,1,1)]
 void Cos (uint3 id: SV_DispatchThreadID) {
-	CosResult[id.x] = tanh(CosData[id.x]);
+	CosResult[id.x] = Cos(CosData[id.x]);
 }
 
  #pragma kernel Cosh
@@ -121,8 +121,8 @@ RWStructuredBuffer<float> CoshData;
 RWStructuredBuffer<float> CoshResult;
  
 [numthreads(4,1,1)]
-void Tanh (uint3 id: SV_DispatchThreadID) {
-	CoshResult[id.x] = tanh(CoshData[id.x]);
+void Cosh (uint3 id: SV_DispatchThreadID) {
+	CoshResult[id.x] = Cosh(CoshData[id.x]);
 }
 
 #pragma kernel DivScalar_
