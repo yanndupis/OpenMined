@@ -249,6 +249,12 @@ namespace OpenMined.Syft.Tensor
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }
+                case "cosh":
+                {
+                    var result = Cosh();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
                 case "cpu":
                 {
                     Cpu();
