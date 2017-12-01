@@ -51,6 +51,25 @@ namespace OpenMined.Tests
         }
 
         [Test]
+        public void Cosh()
+        {
+            float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+ 
+            float[] data2 = {  1.08107237f,  1.12762597f,  1.04533851f,  1.00500417f };
+            int[] shape2 = { 4 };
+            var expectedCoshTensor = new FloatTensor(data2, shape2);
+ 
+            var actualCoshTensor = tensor.Cosh();
+ 
+            for (int i = 2; i < actualCoshTensor.Size; i++)
+            {
+                 Assert.AreEqual (expectedCoshTensor.Data[i], actualCoshTensor.Data[i]);
+            }
+        }
+
+        [Test]
         public void Create1DTensor()
         {
             float[] array = { 1, 2, 3, 4, 5 };
