@@ -758,7 +758,7 @@ namespace OpenMined.Tests
             int[] shape1 = { 4 };
             var tensor = new FloatTensor(data1, shape1);
 
-            float[] data2 = { -0.68047776203f, 0.27515893149f, 0.4619250399f, 1.72255458258f };
+            float[] data2 = { -0.68048f, 0.27516f, 0.46193f, 1.72255f };
             int[] shape2 = { 4 };
             var expectedSinhTensor = new FloatTensor(data2, shape2);
 
@@ -766,7 +766,8 @@ namespace OpenMined.Tests
 
             for (int i = 2; i < actualSinhTensor.Size; i++)
             {
-                Assert.AreEqual (expectedSinhTensor.Data[i], actualSinhTensor.Data[i]);
+                var rounded = Decimal.Round((Decimal)actualSinhTensor.Data[i], 5);
+                Assert.AreEqual (expectedSinhTensor.Data[i], rounded);
             }
         }
 
@@ -777,7 +778,7 @@ namespace OpenMined.Tests
             int[] shape1 = { 4 };
             var tensor = new FloatTensor(data1, shape1);
 
-            float[] data2 = { -0.68047776203f, 0.27515893149f, 0.4619250399f, 1.72255458258f };
+            float[] data2 = { -0.68048f, 0.27516f, 0.46193f, 1.72255f };
             int[] shape2 = { 4 };
             var expectedSinhTensor = new FloatTensor(data2, shape2);
 
@@ -785,7 +786,8 @@ namespace OpenMined.Tests
 
             for (int i = 2; i < tensor.Size; i++)
             {
-                Assert.AreEqual (expectedSinhTensor.Data[i], tensor.Data[i]);
+                var rounded = Decimal.Round((Decimal)tensor.Data[i], 5);
+                Assert.AreEqual (expectedSinhTensor.Data[i], rounded);
             }
         }
 
