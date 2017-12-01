@@ -107,6 +107,16 @@ void Ceil (uint3 id: SV_DispatchThreadID) {
 
  #pragma kernel Cosh
  
+RWStructuredBuffer<float> CosData;
+RWStructuredBuffer<float> CosResult;
+ 
+[numthreads(4,1,1)]
+void Cos (uint3 id: SV_DispatchThreadID) {
+	CosResult[id.x] = tanh(CosData[id.x]);
+}
+
+ #pragma kernel Cosh
+ 
 RWStructuredBuffer<float> CoshData;
 RWStructuredBuffer<float> CoshResult;
  
