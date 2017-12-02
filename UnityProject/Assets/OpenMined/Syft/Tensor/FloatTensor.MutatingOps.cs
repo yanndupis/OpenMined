@@ -137,6 +137,38 @@ namespace OpenMined.Syft.Tensor
 			}
 		}
 
+    public void Pow_(FloatTensor x)
+    {
+      SameSizeDimensionsShapeAndLocation(ref x);
+
+      if (dataOnGpu) {
+        PowElemGPU_ (x);
+
+      } else {
+        var nCpu = SystemInfo.processorCount;
+        Parallel.For (0, nCpu, workerId => {
+          var max = size * (workerId + 1) / nCpu;
+          for (var i = size * workerId / nCpu; i < max; i++)
+            data [i] = Math.Pow(data[i], x.data[i]);
+        });
+      }
+    }
+
+    public void Pow_(float value)
+    {
+      if (dataOnGpu) {
+        PowElemGPU_ (value);
+        return;
+      } else {
+        var nCpu = SystemInfo.processorCount;
+        Parallel.For (0, nCpu, workerId => {
+          var max = size * (workerId + 1) / nCpu;
+          for (var i = size * workerId / nCpu; i < max; i++)
+            data [i] = Math.Pow(data[i], value);
+        });
+      }
+    }
+
         public void Sigmoid_()
         {
             if (dataOnGpu)

@@ -321,6 +321,30 @@ namespace OpenMined.Syft.Tensor
 					this.Mul_(float.Parse( msgObj.tensorIndexParams[0]));
 					return this.id + "";
 				}
+        case "pow_elem":
+        {
+          var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+          var result = this.Pow(tensor_1);
+
+          return ctrl.addTensor(result) + "";
+        }
+        case "pow_elem_":
+        {
+          var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+          this.Pow_(tensor_1);
+          return this.id + "";
+        }
+        case "pow_scalar":
+        {
+          FloatTensor result = Pow(float.Parse(msgObj.tensorIndexParams[0]));
+
+          return ctrl.addTensor (result) + "";
+        }
+        case "pow_scalar_":
+        {
+          this.Pow_(float.Parse( msgObj.tensorIndexParams[0]));
+          return this.id + "";
+        }
                 case "neg":
                 {
                     var result = Neg();

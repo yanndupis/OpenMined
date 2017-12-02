@@ -48,7 +48,7 @@ namespace OpenMined.Syft.Tensor
 		private static int PowKernel_;
 		[SerializeField]
 		private static int SigmoidKernel_;
-	    [SerializeField] 
+	    [SerializeField]
 	    private static int SqrtKernel;
 		[SerializeField]
 		private static int SubScalarKernel_;
@@ -394,7 +394,7 @@ namespace OpenMined.Syft.Tensor
 				shader.Dispatch(NegateKernel, 1, 1, 1);
                 return result;
             }
-	        
+
             return this;
         }
 
@@ -433,12 +433,12 @@ namespace OpenMined.Syft.Tensor
 	    private FloatTensor SqrtGPU()
 	    {
 		    if (!dataOnGpu) return this;
-		    
+
 		    var result = new FloatTensor(shape, shader, dataOnGpu);
 		    shader.SetBuffer(SqrtKernel, "SqrtData", dataBuffer);
 		    shader.SetBuffer(SqrtKernel, "SqrtResult", result.dataBuffer);
 		    shader.Dispatch(SqrtKernel, size, 1, 1);
-		    
+
 		    return result;
 	    }
 
