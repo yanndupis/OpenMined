@@ -331,8 +331,8 @@ void Triu_ (uint3 id: SV_DispatchThreadID) {
 	int columns = TriuDimensions_[0].columns;
 	int k = TriuK_[0];
 
-	int col = id % columns;
-	int row = (id - col) / columns;
+	int col = (int)(id % columns);
+	int row = (int)((id - col) / columns);
 	if (col < row + k)
 	{
 		TriuData_[id.x] = 0;
