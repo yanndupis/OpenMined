@@ -522,12 +522,11 @@ namespace OpenMined.Syft.Tensor
 					View_(new_dims);
 					return Id.ToString();
 				}
-
-                case "zero_":
-                {
-                    Zero_();
-                    return msgObj.functionCall + ": OK";
-                }
+        case "zero_":
+        {
+          Zero_();
+          return this.id + "";
+        }
                 case "is_contiguous":
                 {
                   return Convert.ToString(IsContiguous());

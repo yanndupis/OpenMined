@@ -91,21 +91,5 @@ namespace OpenMined.Syft.Tensor
 			}
 		}
 
-
-        public void Zero_()
-        {
-            if (dataOnGpu)
-            {
-                ZeroGPU_();
-                return;
-            }
-            var nCpu = SystemInfo.processorCount;
-            Parallel.For(0, nCpu, workerId =>
-            {
-                var max = data.Length * (workerId + 1) / nCpu;
-                for (int i = data.Length * workerId / nCpu; i < max; i++)
-                    data[i] = 0;
-            });
-        }
     }
 }
