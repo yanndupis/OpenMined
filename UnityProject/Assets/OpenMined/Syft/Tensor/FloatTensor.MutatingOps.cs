@@ -7,20 +7,6 @@ namespace OpenMined.Syft.Tensor
     public partial class FloatTensor
 
     {
-		public void Add_(float value)
-		{
-			if (dataOnGpu) {
-				AddScalarGPU_ (value);
-				return;
-			} else {
-				var nCpu = SystemInfo.processorCount;
-				Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++)
-						data [i] += value;
-				});
-			}
-		}
 
 		public void Div_(FloatTensor x)
 		{

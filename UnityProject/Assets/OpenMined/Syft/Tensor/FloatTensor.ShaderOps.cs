@@ -28,7 +28,7 @@ namespace OpenMined.Syft.Tensor
 	  	private static int CosKernel_;
     	[SerializeField]
 		private static int CoshKernel;
-		[SerializeField] 
+		[SerializeField]
 	  	private static int CoshKernel_;
     	[SerializeField]
 		private static int DivScalarKernel_;
@@ -56,7 +56,7 @@ namespace OpenMined.Syft.Tensor
 		private static int PowKernel_;
 		[SerializeField]
 		private static int SigmoidKernel_;
-	    [SerializeField] 
+	    [SerializeField]
 	    private static int SqrtKernel;
 		[SerializeField]
 		private static int SubScalarKernel_;
@@ -270,7 +270,7 @@ namespace OpenMined.Syft.Tensor
 					shader.Dispatch (DivElemKernel_, this.size, 1, 1);
 				} else {
 					tensor.Zero_();
-					tensor.Add_(1);
+					tensor.Add(1, inline:true);
 				}
 
 			}
@@ -305,7 +305,7 @@ namespace OpenMined.Syft.Tensor
 					shader.SetBuffer (DivElemKernel, "DivElemDataResult", result.dataBuffer);
 					shader.Dispatch (DivElemKernel, this.size, 1, 1);
 				} else {
-					result.Add_ (1);
+					result.Add (1, inline:true);
 					return result;
 				}
 
@@ -436,7 +436,7 @@ namespace OpenMined.Syft.Tensor
 				shader.Dispatch(NegateKernel, 1, 1, 1);
                 return result;
             }
-	        
+
             return this;
         }
 
@@ -475,12 +475,12 @@ namespace OpenMined.Syft.Tensor
 	    private FloatTensor SqrtGPU()
 	    {
 		    if (!dataOnGpu) return this;
-		    
+
 		    var result = new FloatTensor(shape, shader, dataOnGpu);
 		    shader.SetBuffer(SqrtKernel, "SqrtData", dataBuffer);
 		    shader.SetBuffer(SqrtKernel, "SqrtResult", result.dataBuffer);
 		    shader.Dispatch(SqrtKernel, size, 1, 1);
-		    
+
 		    return result;
 	    }
 

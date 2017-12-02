@@ -252,20 +252,18 @@ namespace OpenMined.Syft.Tensor
           this.Add(tensor_1, inline:true);
           return this.id + "";
         }
-                case "add_scalar":
-                {
-					Debug.LogFormat("add_scalar");
-                    FloatTensor result = Add(float.Parse(msgObj.tensorIndexParams[0]));
-
-                    return ctrl.addTensor (result) + "";
-                }
-                case "add_scalar_":
-                {
-					Debug.LogFormat("add_scalar_");
-                    this.Add_(float.Parse( msgObj.tensorIndexParams[0]));
-                    return this.id + "";
-                }
-
+        case "add_scalar":
+        {
+          Debug.LogFormat("add_scalar");
+          FloatTensor result = Add(float.Parse(msgObj.tensorIndexParams[0]));
+          return ctrl.addTensor (result) + "";
+        }
+        case "add_scalar_":
+        {
+          Debug.LogFormat("add_scalar_");
+          this.Add(float.Parse( msgObj.tensorIndexParams[0]), inline:true);
+          return this.id + "";
+        }
                 case "addmm_":
                 {
 					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));

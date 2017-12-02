@@ -297,6 +297,44 @@ namespace OpenMined.Tests
         }
 
         [Test]
+        public void AddScalar()
+        {
+            float[] data1 = { -1, 0, 0.1f, 1, float.MaxValue, float.MinValue };
+            int[] shape1 = {3, 2};
+            var tensor1 = new FloatTensor(data1, shape1);
+
+            float scalar = -100;
+
+            var tensorSum = tensor1.Add (scalar);
+
+            for (int i = 0; i < tensorSum.Size; i++)
+            {
+                Assert.AreEqual (tensor1.Data [i] + scalar, tensorSum.Data [i]);
+            }
+        }
+
+        [Test]
+        public void AddScalar_()
+        {
+            float[] data1 = { -1, 0, 1, float.MaxValue, float.MinValue };
+            int[] shape1 = {5, 1};
+            var tensor1 = new FloatTensor(data1, shape1);
+
+            float[] data2 = { -101, -100, -99, float.MaxValue-100, float.MinValue-100 };
+            int[] shape2 = {5, 1};
+            var tensor2 = new FloatTensor(data2, shape2);
+
+            float scalar = -100;
+
+            tensor1.Add (scalar, inline:true);
+
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+                Assert.AreEqual (tensor1.Data[i], tensor2.Data [i]);
+            }
+        }
+
+        [Test]
         public void Add()
         {
             float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};

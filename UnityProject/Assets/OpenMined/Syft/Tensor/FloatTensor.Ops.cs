@@ -56,22 +56,22 @@ namespace OpenMined.Syft.Tensor
 			return result;
     }
 
-		public FloatTensor Add(float value)
+		public FloatTensor Add(float value, bool inline = false)
 		{
-			var result = new FloatTensor(shape, this.shader, false);
+			FloatTensor result = inline? this : this.emptyTensorCopy();
 
-			if (dataOnGpu) {
-
-				result.Gpu ();
-				return AddScalarGPU (value, result);
-
-			} else {
-
+      if (dataOnGpu) {
+        result.Gpu ();
+        if (inline) { AddScalarGPU_ (value); return this; }
+        else { return AddScalarGPU (value, result); }
+			}
+      else {
 				var nCpu = SystemInfo.processorCount;
 				Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++)
+					for (var i = size * workerId / nCpu; i < max; i++) {
 						result.Data [i] = value + Data [i];
+          }
 				});
 			}
 			return result;
