@@ -29,6 +29,8 @@ namespace OpenMined.Syft.Tensor
     	[SerializeField]
 		private static int CoshKernel;
 		[SerializeField] 
+	  	private static int CoshKernel_;
+    	[SerializeField]
 		private static int DivScalarKernel_;
 		[SerializeField]
 		private static int DivElemKernel_;
@@ -91,6 +93,7 @@ namespace OpenMined.Syft.Tensor
 				CosKernel = shader.FindKernel("Cos");
 				CosKernel_ = shader.FindKernel("Cos_");
 				CoshKernel = shader.FindKernel("Cosh");
+				CoshKernel_ = shader.FindKernel("Cosh_");
 				DivScalarKernel_ = shader.FindKernel ("DivScalar_");
 				DivElemKernel_ = shader.FindKernel ("DivElem_");
 				DivScalarKernel = shader.FindKernel ("DivScalar");
@@ -233,6 +236,12 @@ namespace OpenMined.Syft.Tensor
 			shader.Dispatch(CoshKernel, this.size, 1, 1);
 			return result;
 		}
+
+	    public void CoshGPU_()
+	    {
+		    shader.SetBuffer(CoshKernel_, "CoshData_", dataBuffer);
+		    shader.Dispatch(CoshKernel, this.size, 1, 1);
+	    }
 
 		public void DivScalarGPU_(float value)
 		{

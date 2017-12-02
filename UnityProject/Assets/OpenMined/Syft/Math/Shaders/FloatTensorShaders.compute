@@ -133,6 +133,14 @@ void Cosh (uint3 id: SV_DispatchThreadID) {
 	CoshResult[id.x] = Cosh(CoshData[id.x]);
 }
 
+#pragma kernel Cosh_
+RWStructuredBuffer<float> CoshData_;
+ 
+[numthreads(4,1,1)]
+void Cosh_ (uint3 id: SV_DispatchThreadID) {
+    CoshData_[id.x] = Cosh(CoshData_[id.x]);
+}
+
 #pragma kernel DivScalar_
 
 RWStructuredBuffer<float> DivScalarData_;
