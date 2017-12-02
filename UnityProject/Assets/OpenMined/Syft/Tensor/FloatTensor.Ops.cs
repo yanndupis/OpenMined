@@ -50,11 +50,11 @@ namespace OpenMined.Syft.Tensor
                         result.Data[i] = (float) System.Math.Acos(d);
                     }
                 });
- 
+
                 return result;
             }
         }
- 
+
 	    public void Acos_()
 	    {
 		    if (dataOnGpu)
@@ -95,11 +95,11 @@ namespace OpenMined.Syft.Tensor
                         result.Data[i] = (float) System.Math.Asin(d);
                     }
                 });
- 
+
                 return result;
             }
         }
- 
+
 	    public void Asin_()
 	    {
 		    if (dataOnGpu)
@@ -140,11 +140,11 @@ namespace OpenMined.Syft.Tensor
                         result.Data[i] = (float) System.Math.Atan (d);
                     }
                 });
- 
+
                 return result;
             }
         }
- 
+
 	    public void Atan_()
 	    {
 		    if (dataOnGpu)
@@ -364,7 +364,8 @@ namespace OpenMined.Syft.Tensor
 			    });
 		    }
 	    }
-      
+
+
         public FloatTensor 	Cosh()
         {
             if (dataOnGpu)
@@ -612,11 +613,11 @@ namespace OpenMined.Syft.Tensor
                         result.Data[i] = (float) System.Math.Sin(d);
                     }
                 });
- 
+
                 return result;
             }
         }
- 
+
 	    public void Sin_()
 	    {
 		    if (dataOnGpu)
@@ -637,6 +638,18 @@ namespace OpenMined.Syft.Tensor
 			    });
 		    }
 	    }
+
+      public FloatTensor SizeTensor()
+      {
+        int[] ndims = { shape.Length };
+        FloatTensor result = new FloatTensor(ndims, this.shader, dataOnGpu);
+        for (int dim = 0; dim < shape.Length; dim++)
+        {
+          result.Data[dim] = shape[dim];
+        }
+        return result;
+      }
+
 
 	    public FloatTensor Sqrt()
 	    {
@@ -759,11 +772,11 @@ namespace OpenMined.Syft.Tensor
                         result.Data[i] = (float) System.Math.Tan(d);
                     }
                 });
- 
+
                 return result;
             }
         }
- 
+
 	    public void Tan_()
 	    {
 		    if (dataOnGpu)
