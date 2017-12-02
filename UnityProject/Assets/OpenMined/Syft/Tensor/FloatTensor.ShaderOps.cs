@@ -22,6 +22,8 @@ namespace OpenMined.Syft.Tensor
 		private static int AddMMKernel_;
 		[SerializeField]
 		private static int CeilKernel;
+    [SerializeField]
+		private static int CeilKernel_;
 		[SerializeField]
 		private static int CosKernel;
 		[SerializeField]
@@ -90,6 +92,7 @@ namespace OpenMined.Syft.Tensor
 				AddElemKernel = shader.FindKernel ("AddElem");
 				AddMMKernel_ = shader.FindKernel ("AddMM_");
 				CeilKernel = shader.FindKernel ("Ceil");
+        CeilKernel_ = shader.FindKernel ("Ceil_");
 				CosKernel = shader.FindKernel("Cos");
 				CosKernel_ = shader.FindKernel("Cos_");
 				CoshKernel = shader.FindKernel("Cosh");
@@ -335,16 +338,23 @@ namespace OpenMined.Syft.Tensor
 			shader.SetBuffer(AddMMKernel_, "AddmmDimensions", dimBuffer);
 		}
 
-		public FloatTensor CeilGPU()
+		public FloatTensor CeilGPU(FloatTensor result)
 		{
 			Debug.LogFormat("<color=blue>FloatTensor.ceil dataOnGpu: {0}</color>", dataOnGpu);
 
 			if (!dataOnGpu) return this;
-			var result = new FloatTensor(shape, this.shader, dataOnGpu);
 			shader.SetBuffer(CeilKernel, "CeilData", dataBuffer);
 			shader.SetBuffer(CeilKernel, "CeilResult", result.DataBuffer);
 			shader.Dispatch(CeilKernel, 1, 1, 1);
 			return result;
+		}
+
+    public void CeilGPU_()
+		{
+			Debug.LogFormat("<color=blue>FloatTensor.ceil_ dataOnGpu: {0}</color>", dataOnGpu);
+
+			shader.SetBuffer(CeilKernel_, "CeilData_", dataBuffer);
+			shader.Dispatch(CeilKernel_, 1, 1, 1);
 		}
 
         	public void FloorGPU_()

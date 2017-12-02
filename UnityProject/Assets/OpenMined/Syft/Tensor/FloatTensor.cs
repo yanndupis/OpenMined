@@ -266,17 +266,21 @@ namespace OpenMined.Syft.Tensor
         }
                 case "addmm_":
                 {
-					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
-					var tensor_2 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[1]));
-                    AddMatrixMultiply(tensor_1, tensor_2);
-                    return msgObj.functionCall + ": OK";
+                  var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+        	        var tensor_2 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[1]));
+                  AddMatrixMultiply(tensor_1, tensor_2);
+                  return msgObj.functionCall + ": OK";
                 }
-                case "ceil":
-                {
-                    var result = Ceil();
-                    ctrl.addTensor(result);
-                    return result.Id.ToString();
-                }
+        case "ceil":
+        {
+            var result = this.Ceil();
+            return ctrl.addTensor(result) + "";
+        }
+        case "ceil_":
+        {
+            this.Ceil(inline:true);
+            return this.id + "";
+        }
                 case "copy":
                 {
                     var result = Copy();

@@ -123,26 +123,31 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
 
-        public FloatTensor Ceil()
+        public FloatTensor Ceil(bool inline = false)
             // Returns a new Tensor with the smallest integer greater than or equal to each element
         {
-            if (dataOnGpu)
+          FloatTensor result = inline? this : this.emptyTensorCopy();
+
+          if (dataOnGpu) {
+            //TODO: Fix GPU operations. https://github.com/OpenMined/OpenMined/issues/126
+            result.Gpu ();
+            if (inline) { CeilGPU_ (); return this; }
+            else { return CeilGPU (result); }
+          }
+
+          var nCpu = SystemInfo.processorCount;
+          Parallel.For(0, nCpu, workerId =>
+          {
+            var max = size * (workerId + 1) / nCpu;
+            for (var i = size * workerId / nCpu; i < max; i++)
             {
-				return CeilGPU();
+              result.Data[i] = (float) (Math.Ceiling(Data[i]));
             }
+          });
+          return result;
+      }
 
-			var result = new FloatTensor(shape, this.shader, dataOnGpu);
-            var nCpu = SystemInfo.processorCount;
-            Parallel.For(0, nCpu, workerId =>
-            {
-                var max = size * (workerId + 1) / nCpu;
-                for (var i = size * workerId / nCpu; i < max; i++)
-                    result.Data[i] = (float) (Math.Ceiling(Data[i]));
-            });
-            return result;
-        }
-
-        public FloatTensor 	Cos()
+        public FloatTensor Cos()
         {
             if (dataOnGpu)
             {
