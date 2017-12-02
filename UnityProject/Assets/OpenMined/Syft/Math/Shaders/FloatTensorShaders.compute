@@ -105,6 +105,24 @@ void Ceil (uint3 id: SV_DispatchThreadID) {
 		CeilResult[id.x] = ceil(CeilData[id.x]);
 }
 
+ #pragma kernel Cos
+ 
+RWStructuredBuffer<float> CosData;
+RWStructuredBuffer<float> CosResult;
+ 
+[numthreads(4,1,1)]
+void Cos (uint3 id: SV_DispatchThreadID) {
+	CosResult[id.x] = Cos(CosData[id.x]);
+}
+
+#pragma kernel Cos_
+RWStructuredBuffer<float> CosData_;
+ 
+[numthreads(4,1,1)]
+void Cos_ (uint3 id: SV_DispatchThreadID) {
+    CosData_[id.x] = Cos(CosData_[id.x]);
+}
+
  #pragma kernel Cosh
  
 RWStructuredBuffer<float> CoshData;
@@ -318,6 +336,24 @@ void Tanh (uint3 id: SV_DispatchThreadID) {
 	TanhResult[id.x] = tanh(TanhData[id.x]);
 }
 
+#pragma kernel Sinh
+
+RWStructuredBuffer<float> SinhData;
+RWStructuredBuffer<float> SinhResult;
+
+[numthreads(4,1,1)]
+void Sinh (uint3 id: SV_DispatchThreadID) {
+	SinhResult[id.x] = sinh(SinhData[id.x]);
+}
+
+#pragma kernel Sinh_
+RWStructuredBuffer<float> SinhData_;
+
+[numthreads(4,1,1)]
+void Sinh_ (uint3 id: SV_DispatchThreadID) {
+    SinhData_[id.x] = sinh(SinhData_[id.x]);
+}
+
 #pragma kernel Triu_
 
 RWStructuredBuffer<int> TriuK_;
@@ -331,8 +367,8 @@ void Triu_ (uint3 id: SV_DispatchThreadID) {
 	int columns = TriuDimensions_[0].columns;
 	int k = TriuK_[0];
 
-	int col = id % columns;
-	int row = (id - col) / columns;
+	int col = (int)(id % columns);
+	int row = (int)((id - col) / columns);
 	if (col < row + k)
 	{
 		TriuData_[id.x] = 0;

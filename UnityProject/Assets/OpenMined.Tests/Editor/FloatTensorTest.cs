@@ -51,6 +51,44 @@ namespace OpenMined.Tests
         }
 
         [Test]
+        public void Cos()
+        {
+            float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+ 
+            float[] data2 = { 0.92106099f,  0.87758256f,  0.95533649f,  0.99500417f };
+            int[] shape2 = { 4 };
+            var expectedCosTensor = new FloatTensor(data2, shape2);
+ 
+            var actualCosTensor = tensor.Cos();
+ 
+            for (int i = 2; i < actualCosTensor.Size; i++)
+            {
+                 Assert.AreEqual (expectedCosTensor.Data[i], actualCosTensor.Data[i]);
+            }
+        }
+
+        [Test]
+        public void Cos_()
+        {
+            float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+ 
+            float[] data2 = {  0.92106099f,  0.87758256f,  0.95533649f,  0.99500417f };
+            int[] shape2 = { 4 };
+            var expectedCosTensor = new FloatTensor(data2, shape2);
+ 
+            tensor.Cos_();
+ 
+            for (int i = 2; i < tensor.Size; i++)
+            {
+                Assert.AreEqual (expectedCosTensor.Data[i], tensor.Data[i]);
+            }
+        }
+
+        [Test]
         public void Cosh()
         {
             float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
@@ -785,6 +823,46 @@ namespace OpenMined.Tests
             for (int i = 2; i < expectedTensor.Size; i++)
             {
                 Assert.AreEqual (Math.Round(expectedTensor.Data[i], 3), Math.Round(actualTensor.Data[i], 3));
+            }
+        }
+
+        [Test]
+        public void Sinh()
+        {
+            float[] data1 = { -0.6366f, 0.2718f, 0.4469f, 1.3122f };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+
+            float[] data2 = { -0.68048f, 0.27516f, 0.46193f, 1.72255f };
+            int[] shape2 = { 4 };
+            var expectedSinhTensor = new FloatTensor(data2, shape2);
+
+            var actualSinhTensor = tensor.Sinh();
+
+            for (int i = 2; i < actualSinhTensor.Size; i++)
+            {
+                var rounded = Decimal.Round((Decimal)actualSinhTensor.Data[i], 5);
+                Assert.AreEqual (expectedSinhTensor.Data[i], rounded);
+            }
+        }
+
+        [Test]
+        public void Sinh_()
+        {
+            float[] data1 = { -0.6366f, 0.2718f, 0.4469f, 1.3122f };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+
+            float[] data2 = { -0.68048f, 0.27516f, 0.46193f, 1.72255f };
+            int[] shape2 = { 4 };
+            var expectedSinhTensor = new FloatTensor(data2, shape2);
+
+            tensor.Sinh_();
+
+            for (int i = 2; i < tensor.Size; i++)
+            {
+                var rounded = Decimal.Round((Decimal)tensor.Data[i], 5);
+                Assert.AreEqual (expectedSinhTensor.Data[i], rounded);
             }
         }
 

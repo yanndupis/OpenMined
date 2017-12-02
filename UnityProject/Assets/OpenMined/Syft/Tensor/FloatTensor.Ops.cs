@@ -143,6 +143,51 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+        public FloatTensor 	Cos()
+        {
+            if (dataOnGpu)
+            {
+                return CosGPU();
+            }
+            else
+            {
+                var result = new FloatTensor(shape, this.shader, dataOnGpu);
+                var nCpu = SystemInfo.processorCount;
+                Parallel.For(0, nCpu, workerId =>
+                {
+                    var max = size * (workerId + 1) / nCpu;
+                    for (var i = size * workerId / nCpu; i < max; i++)
+                    {
+                        var d = (double) Data[i];
+                        result.Data[i] = (float) System.Math.Cos(d);
+                    }
+                });
+ 
+                return result;
+            }
+        }
+
+	    public void Cos_()
+	    {
+		    if (dataOnGpu)
+		    {
+			    CosGPU_();
+		    }
+		    else
+		    {
+			    var nCpu = SystemInfo.processorCount;
+			    Parallel.For(0, nCpu, workerId =>
+			    {
+				    var max = size * (workerId + 1) / nCpu;
+				    for (var i = size * workerId / nCpu; i < max; i++)
+				    {
+					    var d = (double) Data[i];
+					    Data[i] = (float) System.Math.Cos(d);
+				    }
+			    });
+		    }
+	    }
+        
         public FloatTensor 	Cosh()
         {
             if (dataOnGpu)
@@ -233,7 +278,14 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
-
+		public bool IsContiguous()
+		{
+			if (strides[strides.Length-1] == 1L)
+			{
+				return true;
+			}
+			return false;
+		}
 
 		public FloatTensor Mul(FloatTensor x)
 		{
@@ -504,14 +556,94 @@ namespace OpenMined.Syft.Tensor
 
         }
 
+	    public FloatTensor Sinh()
+	    {
+		    if (dataOnGpu)
+		    {
+			    return SinhGPU();
+		    }
+		    else
+		    {
+			    var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			    var nCpu = SystemInfo.processorCount;
+			    Parallel.For(0, nCpu, workerId =>
+			    {
+				    var max = size * (workerId + 1) / nCpu;
+				    for (var i = size * workerId / nCpu; i < max; i++)
+				    {
+					    var d = (double) Data[i];
+					    result.Data[i] = (float) System.Math.Sinh(d);
+				    }
+			    });
 
-		public bool IsContiguous()
+			    return result;
+		    }
+	    }
+
+	    public void Sinh_()
+	    {
+		    if (dataOnGpu)
+		    {
+			    SinhGPU_();
+		    }
+		    else
+		    {
+			    var nCpu = SystemInfo.processorCount;
+			    Parallel.For(0, nCpu, workerId =>
+			    {
+				    var max = size * (workerId + 1) / nCpu;
+				    for (var i = size * workerId / nCpu; i < max; i++)
+				    {
+					    var d = (double) Data[i];
+					    Data[i] = (float) System.Math.Sinh(d);
+				    }
+			    });
+		    }
+	    }
+
+		public FloatTensor View(int[] new_shape)
 		{
-			if (strides[strides.Length-1] == 1L)
-			{
-				return true;
+
+			int new_size = 1;
+			for (int i = 0; i < new_shape.Length; i++) {
+				new_size *= new_shape [i];
 			}
-			return false;
+
+			if (new_size == size) {
+				shape = new_shape;
+
+
+				if (dataOnGpu) {
+					return new FloatTensor (dataBuffer, new_shape, size, this.shader);
+				} else {
+					// public FloatTensor(float[] _data, int[] _shape, ComputeShader _shader, bool _initOnGpu = false)
+					var result = new FloatTensor(data,new_shape,shader);
+					return result;
+				}
+			}
+			return this;
+		
 		}
-	}
+
+		public void View_(int[] new_shape)
+		{
+
+			int new_size = 1;
+			for (int i = 0; i < new_shape.Length; i++) {
+				new_size *= new_shape [i];
+			}
+
+			if (new_size == size) {
+				
+				shape = new_shape;
+
+				if (dataOnGpu) {
+					shapeBuffer.Release ();
+					shapeBuffer.SetData (shape);
+				} 
+			}
+		}
+
+    }
 }
+

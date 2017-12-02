@@ -23,6 +23,10 @@ namespace OpenMined.Syft.Tensor
 		[SerializeField]
 		private static int CeilKernel;
 		[SerializeField]
+		private static int CosKernel;
+		[SerializeField]
+	  	private static int CosKernel_;
+    	[SerializeField]
 		private static int CoshKernel;
 		[SerializeField] 
 	  	private static int CoshKernel_;
@@ -62,12 +66,16 @@ namespace OpenMined.Syft.Tensor
 		private static int SubScalarKernel;
 		[SerializeField]
 		private static int SubElemKernel;
-		[SerializeField]
-		private static int TanhKernel;
-   	 	[SerializeField]
+	  [SerializeField]
+	  private static int TanhKernel;
+	  [SerializeField]
+	  private static int SinhKernel;
+	  [SerializeField]
+	  private static int SinhKernel_;
+    [SerializeField]
 		private static int TriuKernel_;
-    	[SerializeField]
-    	private static int TruncKernel;
+   	[SerializeField]
+   	private static int TruncKernel;
 		[SerializeField]
 		private static int ZeroKernel_;
 
@@ -82,6 +90,8 @@ namespace OpenMined.Syft.Tensor
 				AddElemKernel = shader.FindKernel ("AddElem");
 				AddMMKernel_ = shader.FindKernel ("AddMM_");
 				CeilKernel = shader.FindKernel ("Ceil");
+				CosKernel = shader.FindKernel("Cos");
+				CosKernel_ = shader.FindKernel("Cos_");
 				CoshKernel = shader.FindKernel("Cosh");
 				CoshKernel_ = shader.FindKernel("Cosh_");
 				DivScalarKernel_ = shader.FindKernel ("DivScalar_");
@@ -103,8 +113,10 @@ namespace OpenMined.Syft.Tensor
 				SubScalarKernel = shader.FindKernel ("SubScalar");
 				SubElemKernel = shader.FindKernel ("SubElem");
 				TanhKernel = shader.FindKernel ("Tanh");
-        		TriuKernel_ = shader.FindKernel ("Triu_");
-       			TruncKernel = shader.FindKernel ("Trunc");
+				SinhKernel = shader.FindKernel ("Sinh");
+				SinhKernel_ = shader.FindKernel("Sinh_");
+                TriuKernel_ = shader.FindKernel ("Triu_");
+                TruncKernel = shader.FindKernel ("Trunc");
 				ZeroKernel_ = shader.FindKernel ("Zero_");
 			}
 
@@ -200,6 +212,21 @@ namespace OpenMined.Syft.Tensor
 			}
 			return result;
 		}
+
+		public FloatTensor CosGPU ()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			shader.SetBuffer(CosKernel, "CosData", dataBuffer);
+			shader.SetBuffer(CosKernel, "CosResult", result.DataBuffer);
+			shader.Dispatch(CosKernel, this.size, 1, 1);
+			return result;
+		}
+
+	    public void CosGPU_()
+	    {
+		    shader.SetBuffer(CosKernel_, "CosData_", dataBuffer);
+		    shader.Dispatch(CosKernel, this.size, 1, 1);
+	    }
 
 		public FloatTensor CoshGPU ()
 		{
@@ -548,6 +575,21 @@ namespace OpenMined.Syft.Tensor
 			shader.Dispatch(TanhKernel, this.size, 1, 1);
 			return result;
 		}
+
+	    public FloatTensor SinhGPU()
+	    {
+		    var result = new FloatTensor(shape, this.shader, dataOnGpu);
+		    shader.SetBuffer(SinhKernel, "SinhData", dataBuffer);
+		    shader.SetBuffer(SinhKernel, "SinhResult", result.DataBuffer);
+		    shader.Dispatch(SinhKernel, this.size, 1, 1);
+		    return result;
+	    }
+
+	    public void SinhGPU_()
+	    {
+		    shader.SetBuffer(SinhKernel_, "SinhData_", dataBuffer);
+		    shader.Dispatch(SinhKernel, this.size, 1, 1);
+	    }
 
     public void TriuGPU_(int k)
     {
