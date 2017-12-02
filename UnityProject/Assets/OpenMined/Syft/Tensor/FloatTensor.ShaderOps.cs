@@ -82,7 +82,7 @@ namespace OpenMined.Syft.Tensor
 				AddElemKernel = shader.FindKernel ("AddElem");
 				AddMMKernel_ = shader.FindKernel ("AddMM_");
 				CeilKernel = shader.FindKernel ("Ceil");
-				CoshKernel = shader.FindKernel("Cos");
+				CosKernel = shader.FindKernel("Cos");
 				CoshKernel = shader.FindKernel("Cosh");
 				DivScalarKernel_ = shader.FindKernel ("DivScalar_");
 				DivElemKernel_ = shader.FindKernel ("DivElem_");
