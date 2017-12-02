@@ -339,11 +339,16 @@ namespace OpenMined.Syft.Tensor
 					return this.id + "";
 				}
 
-                case "floor_":
-                {
-                    Floor_();
-                    return id.ToString();
-                }
+        case "floor":
+        {
+          var result = this.Floor();
+          return ctrl.addTensor(result) + "";
+        }
+        case "floor_":
+        {
+          this.Floor(inline:true);
+          return this.id + "";
+        }
                 case "gpu":
                 {
                     if (Gpu())

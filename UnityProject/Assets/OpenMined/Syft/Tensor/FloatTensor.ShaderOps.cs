@@ -40,8 +40,10 @@ namespace OpenMined.Syft.Tensor
 		private static int DivScalarKernel;
 		[SerializeField]
 		private static int DivElemKernel;
-		[SerializeField]
-	    private static int FloorKernel_;
+    [SerializeField]
+    private static int FloorKernel_;
+    [SerializeField]
+    private static int FloorKernel;
 		[SerializeField]
 		private static int MulScalarKernel_;
 		[SerializeField]
@@ -102,6 +104,7 @@ namespace OpenMined.Syft.Tensor
 				DivScalarKernel = shader.FindKernel ("DivScalar");
 				DivElemKernel = shader.FindKernel ("DivElem");
 				FloorKernel_ = shader.FindKernel ("Floor_");
+        FloorKernel = shader.FindKernel ("Floor");
 				MulScalarKernel_ = shader.FindKernel ("MulScalar_");
 				MulElemKernel_ = shader.FindKernel ("MulElem_");
 				MulScalarKernel = shader.FindKernel ("MulScalar");
@@ -357,15 +360,27 @@ namespace OpenMined.Syft.Tensor
 			shader.Dispatch(CeilKernel_, 1, 1, 1);
 		}
 
-        	public void FloorGPU_()
-        	{
-            		if (DataOnGpu)
-            		{
-                		shader.SetBuffer(FloorKernel_, "FloorData_", dataBuffer);
-                		shader.Dispatch(FloorKernel_, 1, 1, 1);
-            		}
-        	}
+  	public void FloorGPU_()
+  	{
+      Debug.LogFormat("<color=blue>FloatTensor.floor_ dataOnGpu: {0}</color>", dataOnGpu);
 
+      shader.SetBuffer(FloorKernel_, "FloorData_", dataBuffer);
+      shader.Dispatch(FloorKernel_, 1, 1, 1);
+    }
+
+    public FloatTensor FloorGPU(FloatTensor result)
+  	{
+
+      Debug.LogFormat("<color=blue>FloatTensor.floor dataOnGpu: {0}</color>", dataOnGpu);
+
+      if (result.DataOnGpu)
+      {
+        shader.SetBuffer(FloorKernel, "FloorData", dataBuffer);
+        shader.SetBuffer(FloorKernel, "FloorResult", result.dataBuffer);
+        shader.Dispatch(FloorKernel, 1, 1, 1);
+      }
+      return result;
+    }
 
 		public void MulScalarGPU_(float value)
 		{

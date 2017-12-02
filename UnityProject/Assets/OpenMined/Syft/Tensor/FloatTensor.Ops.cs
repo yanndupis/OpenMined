@@ -282,6 +282,27 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
+    public FloatTensor Floor(bool inline = false)
+    {
+      FloatTensor result = inline? this : this.emptyTensorCopy();
+      if (dataOnGpu)
+      {
+        result.Gpu();
+        if (inline) { FloorGPU_ (); return this; }
+        else { return FloorGPU (result); }
+      }
+      var nCpu = SystemInfo.processorCount;
+      Parallel.For(0, nCpu, workerId =>
+      {
+          var max = size * (workerId + 1) / nCpu;
+          for (var i = size * workerId / nCpu; i < max; i++)
+          {
+            result.Data[i] = (float)(Math.Floor(this.Data[i]));
+          }
+      });
+      return result;
+    }
+
 		public bool IsContiguous()
 		{
 			if (strides[strides.Length-1] == 1L)

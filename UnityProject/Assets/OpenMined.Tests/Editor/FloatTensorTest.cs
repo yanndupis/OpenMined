@@ -879,11 +879,30 @@ namespace OpenMined.Tests
             int[] shape2 = { 5 };
             var tensorFloor = new FloatTensor(data2, shape2);
 
-            tensor1.Floor_();
+            tensor1.Floor(inline:true);
 
             for (int i = 0; i < tensor1.Size; i++)
             {
                 Assert.AreEqual(tensor1.Data[i], tensorFloor.Data[i]);
+            }
+        }
+
+        [Test]
+        public void Floor()
+        {
+            float[] data1 = { 5.89221f, -20.11f, 9.0f, 100.4999f, 100.5001f };
+            int[] shape1 = { 5 };
+            var tensor1 = new FloatTensor(data1, shape1);
+
+            float[] data2 = { 5, -21, 9, 100, 100 };
+            int[] shape2 = { 5 };
+            var tensorFloor = new FloatTensor(data2, shape2);
+
+            var result = tensor1.Floor(inline:true);
+
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+                Assert.AreEqual(tensorFloor.Data[i], result.Data[i]);
             }
         }
 
