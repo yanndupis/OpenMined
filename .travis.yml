@@ -18,7 +18,7 @@ notifications:
 install:
   - sudo python scripts/install-unity.py 2017.2
   - brew update
-  - brew install openssl
+  - brew upgrade openssl
   - brew link --force openssl
 
 # run the script for unit tests and builds

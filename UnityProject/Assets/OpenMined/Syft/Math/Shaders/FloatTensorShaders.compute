@@ -105,6 +105,42 @@ void Ceil (uint3 id: SV_DispatchThreadID) {
 		CeilResult[id.x] = ceil(CeilData[id.x]);
 }
 
+ #pragma kernel Cos
+ 
+RWStructuredBuffer<float> CosData;
+RWStructuredBuffer<float> CosResult;
+ 
+[numthreads(4,1,1)]
+void Cos (uint3 id: SV_DispatchThreadID) {
+	CosResult[id.x] = Cos(CosData[id.x]);
+}
+
+#pragma kernel Cos_
+RWStructuredBuffer<float> CosData_;
+ 
+[numthreads(4,1,1)]
+void Cos_ (uint3 id: SV_DispatchThreadID) {
+    CosData_[id.x] = Cos(CosData_[id.x]);
+}
+
+ #pragma kernel Cosh
+ 
+RWStructuredBuffer<float> CoshData;
+RWStructuredBuffer<float> CoshResult;
+ 
+[numthreads(4,1,1)]
+void Cosh (uint3 id: SV_DispatchThreadID) {
+	CoshResult[id.x] = Cosh(CoshData[id.x]);
+}
+
+#pragma kernel Cosh_
+RWStructuredBuffer<float> CoshData_;
+ 
+[numthreads(4,1,1)]
+void Cosh_ (uint3 id: SV_DispatchThreadID) {
+    CoshData_[id.x] = Cosh(CoshData_[id.x]);
+}
+
 #pragma kernel DivScalar_
 
 RWStructuredBuffer<float> DivScalarData_;
@@ -351,8 +387,8 @@ void Triu_ (uint3 id: SV_DispatchThreadID) {
 	int columns = TriuDimensions_[0].columns;
 	int k = TriuK_[0];
 
-	int col = id % columns;
-	int row = (id - col) / columns;
+	int col = (int)(id % columns);
+	int row = (int)((id - col) / columns);
 	if (col < row + k)
 	{
 		TriuData_[id.x] = 0;

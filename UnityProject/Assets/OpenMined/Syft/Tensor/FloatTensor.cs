@@ -124,50 +124,88 @@ namespace OpenMined.Syft.Tensor
 			id = System.Threading.Interlocked.Increment(ref nCreated);
 		}
 
-		public FloatTensor(float[] _data, int[] _shape, ComputeShader _shader, bool _initOnGpu = false)
-        {
-            //TODO: Can contigous allocation might be a problem?
+		public FloatTensor(float[] _data, int[] _shape, ComputeShader _shader, bool _initOnGpu = false, bool _copyData=true)
+		{
+			//TODO: Can contigous allocation might be a problem?
 
-            if (_shape == null || _shape.Length == 0)
-            {
-                throw new InvalidOperationException("Tensor shape can't be an empty array.");
-            }
+			if (_shape == null || _shape.Length == 0)
+			{
+				throw new InvalidOperationException("Tensor shape can't be an empty array.");
+			}
 
-            size = _data.Length;
-            shape = (int[]) _shape.Clone();
-            strides = new long[_shape.Length];
+			size = _data.Length;
+			shape = (int[]) _shape.Clone();
+			strides = new long[_shape.Length];
 			shader = _shader;
 
 			initShaderKernels ();
 
-            long acc = 1;
-            for (var i = _shape.Length - 1; i >= 0; --i)
-            {
-                strides[i] = acc;
-                acc *= _shape[i];
-            }
+			long acc = 1;
+			for (var i = _shape.Length - 1; i >= 0; --i)
+			{
+				strides[i] = acc;
+				acc *= _shape[i];
+			}
 
-            if (acc != size)
-                throw new FormatException("Tensor shape and data do not match.");
+			if (acc != size)
+				throw new FormatException("Tensor shape and data do not match.");
 
-            if (_initOnGpu)
-            {
-                dataOnGpu = true;
+			if (_initOnGpu)
+			{
+				dataOnGpu = true;
 
-                dataBuffer = new ComputeBuffer(size, sizeof(float));
-                dataBuffer.SetData(_data);
+				dataBuffer = new ComputeBuffer(size, sizeof(float));
+				dataBuffer.SetData(_data);
 
-                shapeBuffer = new ComputeBuffer(shape.Length, sizeof(int));
-                shapeBuffer.SetData(shape);
-            }
-            else
-            {
-                data = (float[]) _data.Clone();
-            }
+				shapeBuffer = new ComputeBuffer(shape.Length, sizeof(int));
+				shapeBuffer.SetData(shape);
+			}
+			else
+			{
+				if (_copyData) {
+					data = (float[])_data.Clone ();
+				} else {
+					data = _data;
+				}
 
-            // IDEs might show a warning, but ref and volatile seems to be working with Interlocked API.
-            id = System.Threading.Interlocked.Increment(ref nCreated);
-        }
+			}
+
+			// IDEs might show a warning, but ref and volatile seems to be working with Interlocked API.
+			id = System.Threading.Interlocked.Increment(ref nCreated);
+		}
+
+		public FloatTensor(ComputeBuffer _data, int[] _shape, int _size, ComputeShader _shader)
+		{
+			//TODO: Can contigous allocation might be a problem?
+
+			if (_shape == null || _shape.Length == 0)
+			{
+				throw new InvalidOperationException("Tensor shape can't be an empty array.");
+			}
+
+			dataBuffer = _data;
+
+			size = _size;
+			shape = (int[]) _shape.Clone();
+			strides = new long[_shape.Length];
+			shader = _shader;
+
+			initShaderKernels ();
+
+			long acc = 1;
+			for (var i = _shape.Length - 1; i >= 0; --i)
+			{
+				strides[i] = acc;
+				acc *= _shape[i];
+			}
+
+			if (acc != size)
+				throw new FormatException("Tensor shape and data do not match.");
+
+
+			// IDEs might show a warning, but ref and volatile seems to be working with Interlocked API.
+			id = System.Threading.Interlocked.Increment(ref nCreated);
+		}
 
         public FloatTensor Copy()
         {
@@ -250,6 +288,28 @@ namespace OpenMined.Syft.Tensor
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }
+                case "cos":
+                {
+                    var result = Cos();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+	            case "cos_":
+	            {
+		            Cos_();
+		            return Id.ToString();
+	            }
+                case "cosh":
+                {
+                    var result = Cosh();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+	            case "Cosh_":
+	            {
+		            Cosh_();
+		            return Id.ToString();
+	            }
                 case "cpu":
                 {
                     Cpu();
@@ -454,12 +514,35 @@ namespace OpenMined.Syft.Tensor
                   return Id.ToString();
                 }
 
-                case "trunc":
-                {
-                    var result = Trunc();
-                    ctrl.addTensor(result);
-                    return result.Id.ToString();
-                }
+				case "trunc":
+				{
+					var result = Trunc();
+					ctrl.addTensor(result);
+					return result.Id.ToString();
+				}
+
+			case "view":
+				{
+
+					int [] new_dims = new int[msgObj.tensorIndexParams.Length];
+					for (int i = 0; i < msgObj.tensorIndexParams.Length; i++) {
+						new_dims [i] = int.Parse (msgObj.tensorIndexParams [i]);
+					}
+					var result = View(new_dims);
+					ctrl.addTensor(result);
+					return result.Id.ToString();
+				}
+
+			case "view_":
+				{
+
+					int [] new_dims = new int[msgObj.tensorIndexParams.Length];
+					for (int i = 0; i < msgObj.tensorIndexParams.Length; i++) {
+						new_dims [i] = int.Parse (msgObj.tensorIndexParams [i]);
+					}
+					View_(new_dims);
+					return Id.ToString();
+				}
 
                 case "zero_":
                 {
