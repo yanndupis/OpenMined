@@ -335,7 +335,7 @@ namespace OpenMined.Syft.Tensor
 				}
 				case "div_scalar_":
 				{
-					this.Div_(float.Parse( msgObj.tensorIndexParams[0]));
+					this.Div(float.Parse( msgObj.tensorIndexParams[0]), inline:true);
 					return this.id + "";
 				}
 

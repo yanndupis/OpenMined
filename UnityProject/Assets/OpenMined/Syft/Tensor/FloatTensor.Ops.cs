@@ -262,15 +262,16 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
-		public FloatTensor Div(float value)
+		public FloatTensor Div(float value, bool inline = false)
 		{
-			var result = new FloatTensor(shape, this.shader, false);
+			FloatTensor result = inline? this : this.emptyTensorCopy();
 
 			if (dataOnGpu) {
 				result.Gpu ();
-				return DivScalarGPU (value, result);
-			} else {
-
+        if (inline) { DivScalarGPU_ (value); return this; }
+        else { return DivScalarGPU (value, result); }
+			}
+      else {
 				var nCpu = SystemInfo.processorCount;
 				Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;

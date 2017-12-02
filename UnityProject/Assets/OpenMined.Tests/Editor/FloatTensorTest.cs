@@ -682,7 +682,7 @@ namespace OpenMined.Tests
             int[] shape2 = { 2, 6 };
             var tensor2 = new FloatTensor(data2, shape2);
 
-			Assert.That(() => tensor1.Div(tensor2),
+            Assert.That(() => tensor1.Div(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
 
@@ -697,7 +697,7 @@ namespace OpenMined.Tests
             int[] shape2 = { 2, 2 };
             var tensor2 = new FloatTensor(data2, shape2);
 
-			Assert.That(() => tensor1.Div(tensor2),
+            Assert.That(() => tensor1.Div(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
 
@@ -712,9 +712,52 @@ namespace OpenMined.Tests
             int[] shape2 = { 3, 2 };
             var tensor2 = new FloatTensor(data2, shape2);
 
-			Assert.That(() => tensor1.Div(tensor2),
+            Assert.That(() => tensor1.Div(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
+        [Test]
+        public void DivScalar()
+        {
+            float[] data1 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
+            int[] shape1 = {2, 4};
+            var tensor1 = new FloatTensor(data1, shape1);
+
+            // Test division by 0
+            float scalar = 0;
+            var result = tensor1.Div (scalar);
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+                Assert.AreEqual (tensor1.Data [i] / scalar, result.Data [i] );
+            }
+            // Test division
+            float[] data2 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
+            int[] shape2 = {2, 4};
+            var tensor2 = new FloatTensor(data1, shape1);
+
+            scalar = 99;
+            tensor1.Div (scalar, inline:true);
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+                Assert.AreEqual (tensor2.Data [i] / scalar, tensor1.Data [i] );
+            }
+          }
+
+          [Test]
+          public void DivScalar_()
+          {
+              float[] data1 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
+              int[] shape1 = {2, 4};
+              var tensor1 = new FloatTensor(data1, shape1);
+              var tensor2 = new FloatTensor(data1, shape1);
+
+              // Test multiplication by 0
+              float scalar = 0;
+              var result = tensor1.Mul (scalar);
+              for (int i = 0; i < tensor1.Size; i++)
+              {
+                  Assert.AreEqual (tensor2.Data [i] * scalar, result.Data [i] );
+              }
+          }
 
 //        [Test]
 //        public void ElementwiseMultiplicationDataOnDifferent()
