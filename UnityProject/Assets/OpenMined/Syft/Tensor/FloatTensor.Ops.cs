@@ -237,28 +237,27 @@ namespace OpenMined.Syft.Tensor
 		    }
 	    }
 
-		public FloatTensor Div(FloatTensor x)
+		public FloatTensor Div(FloatTensor x, bool inline = false)
 		{
 			// Check if both tensors are compatible for sum
 			SameSizeDimensionsShapeAndLocation(ref x);
 
-			var result = new FloatTensor (shape, this.shader, false);
+			FloatTensor result = inline? this : this.emptyTensorCopy();
 
-			if (dataOnGpu) {
-
+			if (dataOnGpu & x.dataOnGpu) {
 				result.Gpu ();
-				return DivElemGPU (x, result);
-
-			} else {
-
-
+        if (inline) { DivElemGPU_ (x); return this; }
+        else { return DivElemGPU (x, result); }
+			}
+      else {
 				var nCpu = SystemInfo.processorCount;
 				Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
 					for (var i = size * workerId / nCpu; i < max; i++)
+          {
 						result.Data [i] = Data [i] / x.Data [i];
+          }
 				});
-
 			}
 			return result;
 		}

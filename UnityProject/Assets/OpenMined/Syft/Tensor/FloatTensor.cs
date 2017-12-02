@@ -319,13 +319,12 @@ namespace OpenMined.Syft.Tensor
 				{
 					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
 					var result = this.Div(tensor_1);
-
 					return ctrl.addTensor(result) + "";
 				}
 				case "div_elem_":
 				{
 					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
-					this.Div_(tensor_1);
+					this.Div(tensor_1, inline:true);
 					return this.id + "";
 				}
 				case "div_scalar":
