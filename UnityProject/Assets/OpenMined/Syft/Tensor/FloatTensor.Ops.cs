@@ -14,11 +14,11 @@ namespace OpenMined.Syft.Tensor
 		public FloatTensor Abs(bool inline = false)
 		// Returns a new Tensor with the smallest integer greater than or equal to each element
 		{
-			var result = inline? this : this.emptyTensorCopy();
+			FloatTensor result = inline? this : this.emptyTensorCopy();
 
 			if (dataOnGpu) {
           result.Gpu ();
-          if (inline) { AbsGPU_ (); return null; }
+          if (inline) { AbsGPU_ (); return this; }
 				  else { return AbsGPU (result); }
 			}
       else {
@@ -33,31 +33,28 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
-		public FloatTensor Add(FloatTensor x)
-        {
-            // Check if both tensors are compatible for sum
-            SameSizeDimensionsShapeAndLocation(ref x);
+		public FloatTensor Add(FloatTensor x, bool inline = false)
+    {
+      // Check if both tensors are compatible for sum
+      SameSizeDimensionsShapeAndLocation(ref x);
 
-			FloatTensor result = new FloatTensor (shape, this.shader);
-
+      FloatTensor result = inline? this : this.emptyTensorCopy();
 			if (dataOnGpu & x.dataOnGpu) {
-				result.Gpu ();
-				AddElemGPU (x, result);
-
-			} else {
-
-
-				var nCpu = SystemInfo.processorCount;
-				Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++)
-						result.Data [i] = x.Data [i] + Data [i];
-				});
-
+        result.Gpu ();
+        if (inline) { AddElemGPU_ (x); return this; }
+        else { return AddElemGPU (x, result); }
 			}
-
+      else {
+        var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
+          var max = size * (workerId + 1) / nCpu;
+					for (var i = size * workerId / nCpu; i < max; i++) {
+            result.Data [i] = x.Data [i] + Data [i];
+          }
+				});
+			}
 			return result;
-        }
+    }
 
 		public FloatTensor Add(float value)
 		{

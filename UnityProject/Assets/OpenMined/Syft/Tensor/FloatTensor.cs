@@ -234,27 +234,24 @@ namespace OpenMined.Syft.Tensor
 				case "abs_":
 				{
 					// calls the function on our tensor object
-					Abs(inline: true);
+					this.Abs(inline: true);
 					// returns the function call name with the OK status
 					return id.ToString();
 				}
-
-
-                case "add_elem":
-                {
-				    Debug.LogFormat("add_elem");
-                    var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
-                    var result = this.Add(tensor_1);
-
-                    return ctrl.addTensor(result) + "";
-                }
-                case "add_elem_":
-                {
-					Debug.LogFormat("add_elem_");
-                    var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
-                    this.Add_(tensor_1);
-                    return this.id + "";
-                }
+        case "add_elem":
+        {
+          Debug.LogFormat("add_elem");
+          var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+          var result = this.Add(tensor_1);
+          return ctrl.addTensor(result) + "";
+        }
+        case "add_elem_":
+        {
+          Debug.LogFormat("add_elem_");
+          var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+          this.Add(tensor_1, inline:true);
+          return this.id + "";
+        }
                 case "add_scalar":
                 {
 					Debug.LogFormat("add_scalar");

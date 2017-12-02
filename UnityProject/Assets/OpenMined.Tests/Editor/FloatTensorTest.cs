@@ -361,6 +361,74 @@ namespace OpenMined.Tests
         }
 
         [Test]
+        public void Add_()
+        {
+            float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+            int[] shape1 = {2, 5};
+            var tensor1 = new FloatTensor(data1, shape1);
+
+            float[] data2 = { 3, 2, 6, 9, 10, 1, 4, 8, 5, 7};
+            int[] shape2 = {2, 5};
+            var tensor2 = new FloatTensor(data2, shape2);
+
+            float[] data3 = { 4, 4, 9, 13, 15, 7, 11, 16, 14, 17};
+            int[] shape3 = {2, 5};
+            var tensor3 = new FloatTensor(data3, shape3);
+
+            tensor1.Add (tensor2, inline:true);
+
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+                Assert.AreEqual (tensor3.Data[i], tensor1.Data [i]);
+            }
+        }
+
+        [Test]
+        public void AddUnequalSizes_()
+        {
+            float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            int[] shape1 = { 2, 5 };
+            var tensor1 = new FloatTensor(data1, shape1);
+
+            float[] data2 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+            int[] shape2 = { 2, 6 };
+            var tensor2 = new FloatTensor(data2, shape2);
+
+            Assert.That(() => tensor1.Add(tensor2, inline:true),
+                Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void AddUnequalDimensions_()
+        {
+            float[] data1 = { 1, 2, 3, 4 };
+            int[] shape1 = { 4 };
+            var tensor1 = new FloatTensor(data1, shape1);
+
+            float[] data2 = { 1, 2, 3, 4 };
+            int[] shape2 = { 2, 2 };
+            var tensor2 = new FloatTensor(data2, shape2);
+
+            Assert.That(() => tensor1.Add(tensor2, inline:true),
+                Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void AddUnequalShapes_()
+        {
+            float[] data1 = { 1, 2, 3, 4, 5, 6 };
+            int[] shape1 = { 2, 3 };
+            var tensor1 = new FloatTensor(data1, shape1);
+
+            float[] data2 = { 1, 2, 3, 4, 5, 6 };
+            int[] shape2 = { 3, 2 };
+            var tensor2 = new FloatTensor(data2, shape2);
+
+            Assert.That(() => tensor1.Add(tensor2, inline:true),
+                Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
         public void Abs()
         {
             float[] data1 = { -1, 0, 1, float.MaxValue, float.MinValue };
@@ -378,7 +446,7 @@ namespace OpenMined.Tests
                 Assert.AreEqual (tensor1.Data[i], tensorAbs.Data[i]);
             }
         }
-        
+
         [Test]
         public void Abs_()
         {
@@ -632,54 +700,6 @@ namespace OpenMined.Tests
             for (int i = 0; i < tensor1.Size; i++)
             {
                 Assert.AreEqual(tensor1.Data[i], tensorFloor.Data[i]);
-            }
-        }
-
-        [Test]
-        public void Add_()
-        {
-            float[] data1 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
-            int[] shape1 = {2, 4};
-            var tensor1 = new FloatTensor(data1, shape1);
-            var tensor2 = new FloatTensor(data1, shape1);
-
-            // Test addition by 0
-            float val = 0;
-            tensor1.Add_ (val);
-
-            for (int i = 0; i < tensor1.Size; i++)
-            {
-                Assert.AreEqual (tensor2.Data [i] + val, tensor1.Data [i] );
-            }
-
-            // Test addition by positive
-            tensor1 = new FloatTensor(data1, shape1);
-            val = 99;
-            tensor1.Add_ (val);
-
-            for (int i = 0; i < tensor1.Size; i++)
-            {
-                Assert.AreEqual (tensor2.Data [i] + val, tensor1.Data [i] );
-            }
-
-            // Test addition by negative
-            tensor1 = new FloatTensor(data1, shape1);
-            val = -99;
-            tensor1.Add_ (val);
-
-            for (int i = 0; i < tensor1.Size; i++)
-            {
-                Assert.AreEqual (tensor2.Data [i] + val, tensor1.Data [i] );
-            }
-
-            // Test addition by decimal
-            tensor1 = new FloatTensor(data1, shape1);
-            val = 0.000001f;
-            tensor1.Add_ (val);
-
-            for (int i = 0; i < tensor1.Size; i++)
-            {
-                Assert.AreEqual (tensor2.Data [i] + val, tensor1.Data [i] );
             }
         }
 
