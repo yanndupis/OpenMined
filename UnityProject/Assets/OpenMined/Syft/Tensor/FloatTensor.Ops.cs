@@ -7,29 +7,31 @@ namespace OpenMined.Syft.Tensor
     public partial class FloatTensor
     {
 
-		public FloatTensor Abs()
+    private FloatTensor emptyTensorCopy() {
+      return new FloatTensor(this.shape, this.shader, this.dataOnGpu);
+    }
+
+		public FloatTensor Abs(bool inline = false)
 		// Returns a new Tensor with the smallest integer greater than or equal to each element
 		{
-
-			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			var result = inline? this : this.emptyTensorCopy();
 
 			if (dataOnGpu) {
-
-				result.Gpu ();
-				return AbsGPU (result);
-
-			} else {
-
+          result.Gpu ();
+          if (inline) { AbsGPU_ (); return null; }
+				  else { return AbsGPU (result); }
+			}
+      else {
 				var nCpu = SystemInfo.processorCount;
 				Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++)
-						result.Data [i] = (float)(Math.Abs (Data [i]));
+            var max = size * (workerId + 1) / nCpu;
+					  for (var i = size * workerId / nCpu; i < max; i++) {
+						    result.Data [i] = (float)(Math.Abs (Data [i]));
+            }
 				});
 			}
 			return result;
 		}
-
 
 		public FloatTensor Add(FloatTensor x)
         {
@@ -162,7 +164,7 @@ namespace OpenMined.Syft.Tensor
                         result.Data[i] = (float) System.Math.Cos(d);
                     }
                 });
- 
+
                 return result;
             }
         }
@@ -187,7 +189,7 @@ namespace OpenMined.Syft.Tensor
 			    });
 		    }
 	    }
-        
+
         public FloatTensor 	Cosh()
         {
             if (dataOnGpu)
@@ -207,7 +209,7 @@ namespace OpenMined.Syft.Tensor
                         result.Data[i] = (float) System.Math.Cosh(d);
                     }
                 });
- 
+
                 return result;
             }
         }
@@ -232,7 +234,7 @@ namespace OpenMined.Syft.Tensor
 			    });
 		    }
 	    }
- 
+
 		public FloatTensor Div(FloatTensor x)
 		{
 			// Check if both tensors are compatible for sum
@@ -356,7 +358,7 @@ namespace OpenMined.Syft.Tensor
 		    {
 			    return SqrtGPU();
 		    }
-		    
+
 		    var result = new FloatTensor(shape, shader, dataOnGpu);
 		    var nCpu = SystemInfo.processorCount;
 		    Parallel.For(0, nCpu, workerId =>
@@ -622,7 +624,7 @@ namespace OpenMined.Syft.Tensor
 				}
 			}
 			return this;
-		
+
 		}
 
 		public void View_(int[] new_shape)
@@ -634,16 +636,15 @@ namespace OpenMined.Syft.Tensor
 			}
 
 			if (new_size == size) {
-				
+
 				shape = new_shape;
 
 				if (dataOnGpu) {
 					shapeBuffer.Release ();
 					shapeBuffer.SetData (shape);
-				} 
+				}
 			}
 		}
 
     }
 }
-

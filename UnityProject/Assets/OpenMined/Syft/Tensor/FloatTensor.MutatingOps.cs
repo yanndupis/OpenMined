@@ -8,23 +8,6 @@ namespace OpenMined.Syft.Tensor
 
     {
 
-		public void Abs_()
-		{
-			if (dataOnGpu)
-			{
-				AbsGPU_ ();
-				return;
-			}
-			var nCpu = SystemInfo.processorCount;
-			Parallel.For(0, nCpu, workerId =>
-				{
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++)
-						if (data[i] < 0)
-							data[i] = -data[i];
-				});
-		}
-
 		public void Add_(FloatTensor x)
 		{
 			SameSizeDimensionsShapeAndLocation(ref x);

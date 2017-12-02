@@ -234,7 +234,7 @@ namespace OpenMined.Syft.Tensor
 				case "abs_":
 				{
 					// calls the function on our tensor object
-					Abs_();
+					Abs(inline: true);
 					// returns the function call name with the OK status
 					return id.ToString();
 				}
