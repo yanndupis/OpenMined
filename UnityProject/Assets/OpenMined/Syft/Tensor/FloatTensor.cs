@@ -408,11 +408,16 @@ namespace OpenMined.Syft.Tensor
 
                     return data;
                 }
-                case "sigmoid_":
-                {
-                    Sigmoid_();
-                    return msgObj.functionCall + ": OK";
-                }
+        case "sigmoid_":
+        {
+          this.Sigmoid(inline:true);
+          return this.id + "";
+        }
+        case "sigmoid":
+        {
+          var result = this.Sigmoid();
+          return ctrl.addTensor(result) + "";
+        }
 	            case "sqrt":
 	            {
 		            var result = Sqrt();

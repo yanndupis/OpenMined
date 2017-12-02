@@ -8,7 +8,7 @@ namespace OpenMined.Syft.Tensor
     {
 
     private FloatTensor emptyTensorCopy() {
-      return new FloatTensor(this.shape, this.shader, this.dataOnGpu);
+      return new FloatTensor(shape, this.shader, dataOnGpu);
     }
 
 		public FloatTensor Abs(bool inline = false)
@@ -578,8 +578,30 @@ namespace OpenMined.Syft.Tensor
                     }
                 }
             });
-
         }
+
+
+      public FloatTensor Sigmoid(bool inline = false)
+      {
+        if (dataOnGpu)
+        {
+          if (inline) {this.SigmoidGPU_(); return this;}
+          else { return SigmoidGPU(this.emptyTensorCopy()); }
+        }
+
+        FloatTensor result = inline? this : this.emptyTensorCopy();
+        var nCpu = SystemInfo.processorCount;
+        Parallel.For(0, nCpu, workerId =>
+        {
+          var max = size * (workerId + 1) / nCpu;
+          for (var i = size * workerId / nCpu; i < max; i++)
+          {
+            double s = Math.Exp((double)this.Data[i]);
+            result.Data[i] = (float)(s / (1.0f + s));
+          }
+        });
+        return result;
+      }
 
 	    public FloatTensor Sinh()
 	    {

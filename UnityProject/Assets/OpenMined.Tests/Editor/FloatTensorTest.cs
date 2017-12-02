@@ -529,7 +529,7 @@ namespace OpenMined.Tests
             float[] data1 = { 0.0f };
             int[] shape1 = { 1 };
             var tensor1 = new FloatTensor(data1, shape1);
-            tensor1.Sigmoid_();
+            tensor1.Sigmoid(inline:true);
             Assert.AreEqual(tensor1.Data[0], 0.5f);
 
             float[] data2 = { 0.1f, 0.5f, 1.0f, 2.0f };
@@ -537,8 +537,8 @@ namespace OpenMined.Tests
             int[] shape2 = { 4 };
             var tensor2 = new FloatTensor(data2, shape2);
             var tensor3 = new FloatTensor(data3, shape2);
-            tensor2.Sigmoid_();
-            tensor3.Sigmoid_();
+            tensor2.Sigmoid(inline:true);
+            tensor3.Sigmoid(inline:true);
             var sum = tensor2.Add(tensor3);
 
             for (int i = 0; i < sum.Size; i++)
@@ -547,6 +547,26 @@ namespace OpenMined.Tests
             }
         }
 
+        [Test]
+        public void Sigmoid()
+        {
+            float[] data1 = { 0.0f };
+            int[] shape1 = { 1 };
+            var tensor1 = new FloatTensor(data1, shape1).Sigmoid();
+            Assert.AreEqual(tensor1.Data[0], 0.5f);
+
+            float[] data2 = { 0.1f, 0.5f, 1.0f, 2.0f };
+            float[] data3 = { -0.1f, -0.5f, -1.0f, -2.0f };
+            int[] shape2 = { 4 };
+            var tensor2 = new FloatTensor(data2, shape2);
+            var tensor3 = new FloatTensor(data3, shape2);
+            var sum = tensor2.Sigmoid().Add(tensor3.Sigmoid());
+
+            for (int i = 0; i < sum.Size; i++)
+            {
+                Assert.AreEqual(sum.Data[i], 1.0f);
+            }
+        }
 
         [Test]
         public void Zero_()

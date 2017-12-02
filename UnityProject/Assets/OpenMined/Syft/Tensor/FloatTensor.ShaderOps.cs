@@ -60,6 +60,8 @@ namespace OpenMined.Syft.Tensor
 		private static int PowKernel_;
 		[SerializeField]
 		private static int SigmoidKernel_;
+    [SerializeField]
+		private static int SigmoidKernel;
 	    [SerializeField]
 	    private static int SqrtKernel;
 		[SerializeField]
@@ -113,6 +115,7 @@ namespace OpenMined.Syft.Tensor
 				PowKernel = shader.FindKernel ("Pow");
 				PowKernel_ = shader.FindKernel ("Pow_");
 				SigmoidKernel_ = shader.FindKernel ("Sigmoid_");
+        SigmoidKernel = shader.FindKernel ("Sigmoid");
 				SqrtKernel = shader.FindKernel("Sqrt");
 				SubScalarKernel_ = shader.FindKernel ("SubScalar_");
 				SubElemKernel_ = shader.FindKernel ("SubElem_");
@@ -509,14 +512,21 @@ namespace OpenMined.Syft.Tensor
 		    return result;
 	    }
 
-        public void SigmoidGPU_()
-        {
-            if (dataOnGpu)
-            {
-                shader.SetBuffer(SigmoidKernel_, "SigmoidData_", dataBuffer);
-                shader.Dispatch(SigmoidKernel_, this.size, 1, 1);
-            }
-        }
+      public void SigmoidGPU_()
+      {
+        Debug.LogFormat("<color=blue>FloatTensor.SigmoidGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+        shader.SetBuffer(SigmoidKernel_, "SigmoidData_", dataBuffer);
+        shader.Dispatch(SigmoidKernel_, this.size, 1, 1);
+      }
+
+      public FloatTensor SigmoidGPU(FloatTensor result)
+      {
+        Debug.LogFormat("<color=blue>FloatTensor.SigmoidGPU dataOnGpu: {0}</color>", dataOnGpu);
+        shader.SetBuffer(SigmoidKernel, "SigmoidData", this.dataBuffer);
+        shader.SetBuffer(SigmoidKernel, "SigmoidResult", result.dataBuffer);
+        shader.Dispatch(SigmoidKernel, this.size, 1, 1);
+        return result;
+      }
 
 
 		public void SubScalarGPU_(float value)
