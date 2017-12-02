@@ -188,7 +188,14 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
-
+		public bool IsContiguous()
+		{
+			if (strides[strides.Length-1] == 1L)
+			{
+				return true;
+			}
+			return false;
+		}
 
 		public FloatTensor Mul(FloatTensor x)
 		{
@@ -504,15 +511,49 @@ namespace OpenMined.Syft.Tensor
 		    }
 	    }
 
-
-		public bool IsContiguous()
+		public FloatTensor View(int[] new_shape)
 		{
-			if (strides[strides.Length-1] == 1L)
-			{
-				return true;
+
+			int new_size = 1;
+			for (int i = 0; i < new_shape.Length; i++) {
+				new_size *= new_shape [i];
 			}
-			return false;
+
+			if (new_size == size) {
+				shape = new_shape;
+
+
+				if (dataOnGpu) {
+					return new FloatTensor (dataBuffer, new_shape, size, this.shader);
+				} else {
+					// public FloatTensor(float[] _data, int[] _shape, ComputeShader _shader, bool _initOnGpu = false)
+					var result = new FloatTensor(data,new_shape,shader);
+					return result;
+				}
+			}
+			return this;
+		
 		}
+
+		public void View_(int[] new_shape)
+		{
+
+			int new_size = 1;
+			for (int i = 0; i < new_shape.Length; i++) {
+				new_size *= new_shape [i];
+			}
+
+			if (new_size == size) {
+				
+				shape = new_shape;
+
+				if (dataOnGpu) {
+					shapeBuffer.Release ();
+					shapeBuffer.SetData (shape);
+				} 
+			}
+		}
+
     }
 }
 
