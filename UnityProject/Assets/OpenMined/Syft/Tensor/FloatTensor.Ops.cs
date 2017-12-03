@@ -61,13 +61,13 @@ namespace OpenMined.Syft.Tensor
 		{
 			var result = new FloatTensor(shape, this.shader, false);
 
-			if (dataOnGpu) {
-
+			if (dataOnGpu)
+            {
 				result.Gpu ();
 				return AddScalarGPU (value, result);
-
-			} else {
-
+			}
+            else
+            {
 				var nCpu = SystemInfo.processorCount;
 				Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
@@ -423,11 +423,31 @@ namespace OpenMined.Syft.Tensor
             {
                 return this;
             }
+            int[] new_shape = (int[])Shape.Clone();
+            int tmp_dim = new_shape[dimension1];
+            new_shape[dimension1] = new_shape[dimension2];
+            new_shape[dimension2] = tmp_dim;
 
-            SwapElements(ref strides, dimension1, dimension2);
-            SwapElements(ref shape, dimension1, dimension2);
+            var result = new FloatTensor(new_shape, this.shader, dataOnGpu);
+            var nCpu = SystemInfo.processorCount;
+            Parallel.For(0, nCpu, workerId =>
+            {
+                var max = size * (workerId + 1) / nCpu;
+                for (var i = size * workerId / nCpu; i < max; i++)
+                {
+                    var idxs = GetIndices(i);
+                    long tmp = idxs[dimension1];
+                    idxs[dimension1] = idxs[dimension2];
+                    idxs[dimension2] = tmp;
+                    result[ idxs ] = this[i];
 
-            return this;
+//                    int col = i % Shape[0];
+//                    int row = (i - col) / Shape[0];
+//                    result[row, col] = this[col, row];
+                }
+            });
+
+            return result;
         }
 
         public void Triu_(int k)
