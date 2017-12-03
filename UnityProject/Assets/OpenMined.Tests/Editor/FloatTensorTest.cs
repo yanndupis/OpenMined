@@ -618,8 +618,8 @@ namespace OpenMined.Tests
             int[] shape2 = { 2, 6 };
             var tensor2 = new FloatTensor(data2, shape2);
 
-			Assert.That(() => tensor1.Mul(tensor2),
-                Throws.TypeOf<InvalidOperationException>());
+            Assert.That(() => tensor1.Mul(tensor2),
+              Throws.TypeOf<InvalidOperationException>());
         }
 
         [Test]
@@ -633,8 +633,8 @@ namespace OpenMined.Tests
             int[] shape2 = { 2, 2 };
             var tensor2 = new FloatTensor(data2, shape2);
 
-			Assert.That(() => tensor1.Mul(tensor2),
-                Throws.TypeOf<InvalidOperationException>());
+            Assert.That(() => tensor1.Mul(tensor2),
+              Throws.TypeOf<InvalidOperationException>());
         }
 
         [Test]
@@ -647,9 +647,75 @@ namespace OpenMined.Tests
             float[] data2 = { 1, 2, 3, 4, 5, 6 };
             int[] shape2 = { 3, 2 };
             var tensor2 = new FloatTensor(data2, shape2);
+            Assert.That(() => tensor1.Mul(tensor2),
+              Throws.TypeOf<InvalidOperationException>());
+        }
 
-			Assert.That(() => tensor1.Mul(tensor2),
-                Throws.TypeOf<InvalidOperationException>());
+        [Test]
+        public void MulElem_()
+        {
+            float[] data1 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
+            int[] shape1 = {2, 4};
+            var tensor1 = new FloatTensor(data1, shape1);
+
+            float[] data2 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
+            int[] shape2 = {2, 4};
+            var tensor2 = new FloatTensor(data2, shape2);
+
+            float[] data3 = { float.PositiveInfinity, 100, 2.25f, 0, 2.25f, 100, 400, float.PositiveInfinity };
+            int[] shape3 = {2, 4};
+            var tensorMult = new FloatTensor(data3, shape3);
+
+            tensor1.Mul (tensor2, inline:true);
+
+            for (int i = 0; i < tensorMult.Size; i++)
+            {
+                Assert.AreEqual (tensorMult.Data [i], tensor1.Data [i]);
+            }
+        }
+
+        [Test]
+        public void ElementwiseMultiplicationUnequalSizes_()
+        {
+            float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            int[] shape1 = { 2, 5 };
+            var tensor1 = new FloatTensor(data1, shape1);
+
+            float[] data2 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+            int[] shape2 = { 2, 6 };
+            var tensor2 = new FloatTensor(data2, shape2);
+
+            Assert.That(() => tensor1.Mul(tensor2, inline:true),
+              Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void ElementwiseMultiplicationUnequalDimensions_()
+        {
+            float[] data1 = { 1, 2, 3, 4 };
+            int[] shape1 = { 4 };
+            var tensor1 = new FloatTensor(data1, shape1);
+
+            float[] data2 = { 1, 2, 3, 4 };
+            int[] shape2 = { 2, 2 };
+            var tensor2 = new FloatTensor(data2, shape2);
+
+            Assert.That(() => tensor1.Mul(tensor2, inline:true),
+              Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void ElementwiseMultiplicationUnequalShapes_()
+        {
+            float[] data1 = { 1, 2, 3, 4, 5, 6 };
+            int[] shape1 = { 2, 3 };
+            var tensor1 = new FloatTensor(data1, shape1);
+
+            float[] data2 = { 1, 2, 3, 4, 5, 6 };
+            int[] shape2 = { 3, 2 };
+            var tensor2 = new FloatTensor(data2, shape2);
+            Assert.That(() => tensor1.Mul(tensor2, inline:true),
+              Throws.TypeOf<InvalidOperationException>());
         }
 
         [Test]

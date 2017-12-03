@@ -370,7 +370,7 @@ namespace OpenMined.Syft.Tensor
 				case "mul_elem_":
 				{
 					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
-					this.Mul_(tensor_1);
+					this.Mul(tensor_1, inline:true);
 					return this.id + "";
 				}
 				case "mul_scalar":
