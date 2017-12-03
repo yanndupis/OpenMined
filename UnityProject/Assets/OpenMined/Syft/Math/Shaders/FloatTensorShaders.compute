@@ -288,6 +288,48 @@ void MulElem (uint3 id: SV_DispatchThreadID) {
 	MulElemDataResult[id.x] = MulElemDataA[id.x] * MulElemDataB[id.x];
 }
 
+#pragma kernel PowScalar_
+
+RWStructuredBuffer<float> PowScalarData_;
+RWStructuredBuffer<float> PowScalarScalar_;
+
+[numthreads(4,1,1)]
+void PowScalar_ (uint3 id: SV_DispatchThreadID) {
+	PowScalarData_[id.x] = pow(PowScalarData_[id.x], PowScalarScalar_[0]);
+}
+
+#pragma kernel PowElem_
+
+RWStructuredBuffer<float> PowElemDataA_;
+RWStructuredBuffer<float> PowElemDataB_;
+
+[numthreads(4,1,1)]
+void PowElem_ (uint3 id: SV_DispatchThreadID) {
+	PowElemDataA_[id.x] = pow(PowElemDataA_[id.x], PowElemDataB_[id.x]);
+}
+
+#pragma kernel PowScalar
+
+RWStructuredBuffer<float> PowScalarData;
+RWStructuredBuffer<float> PowScalarScalar;
+RWStructuredBuffer<float> PowScalarResult;
+
+[numthreads(4,1,1)]
+void PowScalar (uint3 id: SV_DispatchThreadID) {
+	PowScalarResult[id.x] = pow(PowScalarData[id.x], PowScalarScalar[0]);
+}
+
+#pragma kernel PowElem
+
+RWStructuredBuffer<float> PowElemDataA;
+RWStructuredBuffer<float> PowElemDataB;
+RWStructuredBuffer<float> PowElemDataResult;
+
+[numthreads(4,1,1)]
+void PowElem (uint3 id: SV_DispatchThreadID) {
+	PowElemDataResult[id.x] = pow(PowElemDataA[id.x], PowElemDataB[id.x]);
+}
+
 #pragma kernel Negate
 
 RWStructuredBuffer<float> NegateData;
@@ -295,27 +337,6 @@ RWStructuredBuffer<float> NegateResult;
 [numthreads(4,1,1)]
 void Negate (uint3 id: SV_DispatchThreadID) {
 	NegateResult[id.x] = -NegateData[id.x];
-}
-
-#pragma kernel Pow
-
-RWStructuredBuffer<float> PowScalarData;
-RWStructuredBuffer<float> PowScalarScalar;
-RWStructuredBuffer<float> PowScalarResult;
-
-[numthreads(4,1,1)]
-void Pow (uint3 id: SV_DispatchThreadID) {
-	PowScalarResult[id.x] = pow(abs(PowScalarData[id.x]),PowScalarScalar[0]);
-}
-
-#pragma kernel Pow_
-
-RWStructuredBuffer<float> PowScalarData_;
-RWStructuredBuffer<float> PowScalarScalar_;
-
-[numthreads(4,1,1)]
-void Pow_ (uint3 id: SV_DispatchThreadID) {
-	PowScalarData_[id.x] = pow(abs(PowScalarData_[id.x]),PowScalarScalar_[0]);
 }
 
 #pragma kernel Sigmoid_
