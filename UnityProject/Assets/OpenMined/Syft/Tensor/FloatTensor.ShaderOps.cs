@@ -11,6 +11,18 @@ namespace OpenMined.Syft.Tensor
         [SerializeField]
 		private static int AbsKernel_;
 		[SerializeField]
+		private static int AcosKernel;
+		[SerializeField]
+	  	private static int AcosKernel_;
+    	[SerializeField]
+		private static int AsinKernel;
+		[SerializeField]
+	  	private static int AsinKernel_;
+    	[SerializeField]
+		private static int AtanKernel;
+		[SerializeField]
+	  	private static int AtanKernel_;
+		[SerializeField]
 		private static int AddScalarKernel_;
 		[SerializeField]
 		private static int AddElemKernel_;
@@ -23,6 +35,14 @@ namespace OpenMined.Syft.Tensor
 		[SerializeField]
 		private static int CeilKernel;
 		[SerializeField]
+		private static int CosKernel;
+		[SerializeField]
+	  	private static int CosKernel_;
+    	[SerializeField]
+		private static int CoshKernel;
+		[SerializeField]
+	  	private static int CoshKernel_;
+    	[SerializeField]
 		private static int DivScalarKernel_;
 		[SerializeField]
 		private static int DivElemKernel_;
@@ -40,15 +60,23 @@ namespace OpenMined.Syft.Tensor
 		private static int MulScalarKernel;
 		[SerializeField]
 		private static int MulElemKernel;
+    [SerializeField]
+    private static int PowScalarKernel_;
+    [SerializeField]
+    private static int PowElemKernel_;
+    [SerializeField]
+    private static int PowScalarKernel;
+    [SerializeField]
+    private static int PowElemKernel;
 		[SerializeField]
 		private static int NegateKernel;
 		[SerializeField]
-		private static int PowKernel;
-		[SerializeField]
-		private static int PowKernel_;
-		[SerializeField]
 		private static int SigmoidKernel_;
 	    [SerializeField] 
+		private static int SinKernel;
+		[SerializeField]
+	  	private static int SinKernel_;
+    	[SerializeField]
 	    private static int SqrtKernel;
 		[SerializeField]
 		private static int SubScalarKernel_;
@@ -58,16 +86,20 @@ namespace OpenMined.Syft.Tensor
 		private static int SubScalarKernel;
 		[SerializeField]
 		private static int SubElemKernel;
-	  [SerializeField]
-	  private static int TanhKernel;
-	  [SerializeField]
-	  private static int SinhKernel;
-	  [SerializeField]
-	  private static int SinhKernel_;
-    [SerializeField]
+	  	[SerializeField]
+		private static int TanKernel;
+		[SerializeField]
+	  	private static int TanKernel_;
+    	[SerializeField]
+	  	private static int TanhKernel;
+	  	[SerializeField]
+	  	private static int SinhKernel;
+	  	[SerializeField]
+	  	private static int SinhKernel_;
+    	[SerializeField]
 		private static int TriuKernel_;
-   	[SerializeField]
-   	private static int TruncKernel;
+   		[SerializeField]
+   		private static int TruncKernel;
 		[SerializeField]
 		private static int ZeroKernel_;
 
@@ -76,12 +108,22 @@ namespace OpenMined.Syft.Tensor
 				// save shaders and kernels
 				AbsKernel = shader.FindKernel ("Abs");
 				AbsKernel_ = shader.FindKernel ("Abs_");
+                AcosKernel = shader.FindKernel("Acos");
+				AcosKernel_ = shader.FindKernel("Acos_");
+				AsinKernel = shader.FindKernel("Asin");
+				AsinKernel_ = shader.FindKernel("Asin_");
+        		AtanKernel = shader.FindKernel("Atan");
+				AtanKernel_ = shader.FindKernel("Atan_");
 				AddScalarKernel_ = shader.FindKernel ("AddScalar_");
 				AddElemKernel_ = shader.FindKernel ("AddElem_");
 				AddScalarKernel = shader.FindKernel ("AddScalar");
 				AddElemKernel = shader.FindKernel ("AddElem");
 				AddMMKernel_ = shader.FindKernel ("AddMM_");
 				CeilKernel = shader.FindKernel ("Ceil");
+				CosKernel = shader.FindKernel("Cos");
+				CosKernel_ = shader.FindKernel("Cos_");
+				CoshKernel = shader.FindKernel("Cosh");
+				CoshKernel_ = shader.FindKernel("Cosh_");
 				DivScalarKernel_ = shader.FindKernel ("DivScalar_");
 				DivElemKernel_ = shader.FindKernel ("DivElem_");
 				DivScalarKernel = shader.FindKernel ("DivScalar");
@@ -91,15 +133,23 @@ namespace OpenMined.Syft.Tensor
 				MulElemKernel_ = shader.FindKernel ("MulElem_");
 				MulScalarKernel = shader.FindKernel ("MulScalar");
 				MulElemKernel = shader.FindKernel ("MulElem");
+        PowScalarKernel_ = shader.FindKernel ("PowScalar_");
+        PowElemKernel_ = shader.FindKernel ("PowElem_");
+        PowScalarKernel = shader.FindKernel ("PowScalar");
+        PowElemKernel = shader.FindKernel ("PowElem");
 				NegateKernel = shader.FindKernel ("Negate");
-				PowKernel = shader.FindKernel ("Pow");
-				PowKernel_ = shader.FindKernel ("Pow_");
+				// PowKernel = shader.FindKernel ("Pow");
+				// PowKernel_ = shader.FindKernel ("Pow_");
 				SigmoidKernel_ = shader.FindKernel ("Sigmoid_");
+				SinKernel = shader.FindKernel("Sin");
+				SinKernel_ = shader.FindKernel("Sin_");
 				SqrtKernel = shader.FindKernel("Sqrt");
 				SubScalarKernel_ = shader.FindKernel ("SubScalar_");
 				SubElemKernel_ = shader.FindKernel ("SubElem_");
 				SubScalarKernel = shader.FindKernel ("SubScalar");
 				SubElemKernel = shader.FindKernel ("SubElem");
+                TanKernel = shader.FindKernel("Tan");
+				TanKernel_ = shader.FindKernel("Tan_");
 				TanhKernel = shader.FindKernel ("Tanh");
 				SinhKernel = shader.FindKernel ("Sinh");
 				SinhKernel_ = shader.FindKernel("Sinh_");
@@ -127,6 +177,51 @@ namespace OpenMined.Syft.Tensor
 				shader.Dispatch (AbsKernel_, this.size, 1, 1);
 			}
 		}
+
+		public FloatTensor AcosGPU ()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			shader.SetBuffer(AcosKernel, "AcosData", dataBuffer);
+			shader.SetBuffer(AcosKernel, "AcosResult", result.DataBuffer);
+			shader.Dispatch(AcosKernel, this.size, 1, 1);
+			return result;
+		}
+ 
+	    public void AcosGPU_()
+	    {
+		    shader.SetBuffer(AcosKernel_, "AcosData_", dataBuffer);
+		    shader.Dispatch(AcosKernel, this.size, 1, 1);
+	    }
+
+		public FloatTensor AsinGPU ()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			shader.SetBuffer(AsinKernel, "AsinData", dataBuffer);
+			shader.SetBuffer(AsinKernel, "AsinResult", result.DataBuffer);
+			shader.Dispatch(AsinKernel, this.size, 1, 1);
+			return result;
+		}
+ 
+	    public void AsinGPU_()
+	    {
+		    shader.SetBuffer(AsinKernel_, "AsinData_", dataBuffer);
+		    shader.Dispatch(AsinKernel, this.size, 1, 1);
+	    }
+
+		public FloatTensor AtanGPU ()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			shader.SetBuffer(AtanKernel, "AtanData", dataBuffer);
+			shader.SetBuffer(AtanKernel, "AtanResult", result.DataBuffer);
+			shader.Dispatch(AtanKernel, this.size, 1, 1);
+			return result;
+		}
+ 
+	    public void AtanGPU_()
+	    {
+		    shader.SetBuffer(AtanKernel_, "AtanData_", dataBuffer);
+		    shader.Dispatch(AtanKernel, this.size, 1, 1);
+	    }
 
 		public void AddScalarGPU_(float value)
 		{
@@ -200,6 +295,36 @@ namespace OpenMined.Syft.Tensor
 			}
 			return result;
 		}
+
+		public FloatTensor CosGPU ()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			shader.SetBuffer(CosKernel, "CosData", dataBuffer);
+			shader.SetBuffer(CosKernel, "CosResult", result.DataBuffer);
+			shader.Dispatch(CosKernel, this.size, 1, 1);
+			return result;
+		}
+
+	    public void CosGPU_()
+	    {
+		    shader.SetBuffer(CosKernel_, "CosData_", dataBuffer);
+		    shader.Dispatch(CosKernel, this.size, 1, 1);
+	    }
+
+		public FloatTensor CoshGPU ()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			shader.SetBuffer(CoshKernel, "CoshData", dataBuffer);
+			shader.SetBuffer(CoshKernel, "CoshResult", result.DataBuffer);
+			shader.Dispatch(CoshKernel, this.size, 1, 1);
+			return result;
+		}
+
+	    public void CoshGPU_()
+	    {
+		    shader.SetBuffer(CoshKernel_, "CoshData_", dataBuffer);
+		    shader.Dispatch(CoshKernel, this.size, 1, 1);
+	    }
 
 		public void DivScalarGPU_(float value)
 		{
@@ -341,7 +466,7 @@ namespace OpenMined.Syft.Tensor
 					shader.SetBuffer (MulElemKernel_, "MulElemDataB_", tensor.dataBuffer);
 					shader.Dispatch (MulElemKernel_, this.size, 1, 1);
 				} else {
-					PowGPU_ (2);
+					PowScalarGPU_ (2);
 				}
 
 			}
@@ -376,12 +501,71 @@ namespace OpenMined.Syft.Tensor
 					shader.SetBuffer (MulElemKernel, "MulElemDataResult", result.dataBuffer);
 					shader.Dispatch (MulElemKernel, this.size, 1, 1);
 				} else {
-					return this.PowGPU(2, result);
+					return this.PowScalarGPU(2, result);
 				}
 
 			}
 			return result;
 		}
+
+    public void PowScalarGPU_(float value)
+    {
+      Debug.LogFormat("<color=blue>FloatTensor.PowScalarGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+
+      if (dataOnGpu)
+      {
+        var valBuffer = SendFloatToGpu(PowScalarKernel_, value, "PowScalarScalar_");
+
+        shader.SetBuffer(PowScalarKernel_, "PowScalarData_", dataBuffer);
+        shader.Dispatch(PowScalarKernel_, this.size, 1, 1);
+
+        valBuffer.Release();
+      }
+    }
+
+    public void PowElemGPU_(FloatTensor tensor)
+    {
+      Debug.LogFormat("<color=blue>FloatTensor.PowElemGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+
+      if (dataOnGpu)
+      {
+        shader.SetBuffer (PowElemKernel_, "PowElemDataA_", dataBuffer);
+        shader.SetBuffer (PowElemKernel_, "PowElemDataB_", tensor.dataBuffer);
+        shader.Dispatch (PowElemKernel_, this.size, 1, 1);
+      }
+    }
+
+    public FloatTensor PowScalarGPU(float value, FloatTensor result)
+    {
+      Debug.LogFormat("<color=blue>FloatTensor.PowScalarGPU dataOnGpu: {0}</color>", dataOnGpu);
+
+      if (dataOnGpu)
+      {
+        var valBuffer = SendFloatToGpu(PowScalarKernel, value, "PowScalarScalar");
+
+        shader.SetBuffer(PowScalarKernel, "PowScalarData", dataBuffer);
+        shader.SetBuffer(PowScalarKernel, "PowScalarResult", result.dataBuffer);
+        shader.Dispatch(PowScalarKernel, this.size, 1, 1);
+
+        valBuffer.Release();
+      }
+      return result;
+    }
+
+    public FloatTensor PowElemGPU(FloatTensor tensor, FloatTensor result)
+    {
+      Debug.LogFormat("<color=blue>FloatTensor.PowElemGPU dataOnGpu: {0}</color>", dataOnGpu);
+
+      if (dataOnGpu)
+      {
+        shader.SetBuffer (PowElemKernel, "PowElemDataA", dataBuffer);
+        shader.SetBuffer (PowElemKernel, "PowElemDataB", tensor.dataBuffer);
+        shader.SetBuffer (PowElemKernel, "PowElemDataResult", result.dataBuffer);
+        shader.Dispatch (PowElemKernel, this.size, 1, 1);
+
+      }
+      return result;
+    }
 
 
         public FloatTensor NegateGPU()
@@ -394,51 +578,51 @@ namespace OpenMined.Syft.Tensor
 				shader.Dispatch(NegateKernel, 1, 1, 1);
                 return result;
             }
-	        
+
             return this;
         }
 
-		public FloatTensor PowGPU(float value, FloatTensor result)
-		{
-			Debug.LogFormat("<color=blue>FloatTensor.PowGPU dataOnGpu: {0}</color>", dataOnGpu);
-
-			if (dataOnGpu)
-			{
-				var valBuffer = SendFloatToGpu(PowKernel, value, "PowScalarScalar");
-
-				shader.SetBuffer(PowKernel, "PowScalarData", dataBuffer);
-				shader.SetBuffer(PowKernel, "PowScalarResult", result.dataBuffer);
-				shader.Dispatch(PowKernel, this.size, 1, 1);
-
-				valBuffer.Release();
-			}
-			return result;
-		}
-
-		public void PowGPU_(float value)
-		{
-			Debug.LogFormat("<color=blue>FloatTensor.PowGPU_ dataOnGpu: {0}</color>", dataOnGpu);
-
-			if (dataOnGpu)
-			{
-				var valBuffer = SendFloatToGpu(PowKernel_, value, "PowScalarScalar_");
-
-				shader.SetBuffer(PowKernel_, "PowScalarData_", dataBuffer);
-				shader.Dispatch(PowKernel_, this.size, 1, 1);
-
-				valBuffer.Release();
-			}
-		}
+		// public FloatTensor PowGPU(float value, FloatTensor result)
+		// {
+		// 	Debug.LogFormat("<color=blue>FloatTensor.PowGPU dataOnGpu: {0}</color>", dataOnGpu);
+    //
+		// 	if (dataOnGpu)
+		// 	{
+		// 		var valBuffer = SendFloatToGpu(PowKernel, value, "PowScalarScalar");
+    //
+		// 		shader.SetBuffer(PowKernel, "PowScalarData", dataBuffer);
+		// 		shader.SetBuffer(PowKernel, "PowScalarResult", result.dataBuffer);
+		// 		shader.Dispatch(PowKernel, this.size, 1, 1);
+    //
+		// 		valBuffer.Release();
+		// 	}
+		// 	return result;
+		// }
+    //
+		// public void PowGPU_(float value)
+		// {
+		// 	Debug.LogFormat("<color=blue>FloatTensor.PowGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+    //
+		// 	if (dataOnGpu)
+		// 	{
+		// 		var valBuffer = SendFloatToGpu(PowKernel_, value, "PowScalarScalar_");
+    //
+		// 		shader.SetBuffer(PowKernel_, "PowScalarData_", dataBuffer);
+		// 		shader.Dispatch(PowKernel_, this.size, 1, 1);
+    //
+		// 		valBuffer.Release();
+		// 	}
+		// }
 
 	    private FloatTensor SqrtGPU()
 	    {
 		    if (!dataOnGpu) return this;
-		    
+
 		    var result = new FloatTensor(shape, shader, dataOnGpu);
 		    shader.SetBuffer(SqrtKernel, "SqrtData", dataBuffer);
 		    shader.SetBuffer(SqrtKernel, "SqrtResult", result.dataBuffer);
 		    shader.Dispatch(SqrtKernel, size, 1, 1);
-		    
+
 		    return result;
 	    }
 
@@ -450,6 +634,22 @@ namespace OpenMined.Syft.Tensor
                 shader.Dispatch(SigmoidKernel_, this.size, 1, 1);
             }
         }
+
+
+		public FloatTensor SinGPU ()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			shader.SetBuffer(SinKernel, "SinData", dataBuffer);
+			shader.SetBuffer(SinKernel, "SinResult", result.DataBuffer);
+			shader.Dispatch(SinKernel, this.size, 1, 1);
+			return result;
+		}
+ 
+	    public void SinGPU_()
+		{
+			shader.SetBuffer(SinKernel_, "SinData_", dataBuffer);
+			shader.Dispatch(SinKernel, this.size, 1, 1);
+	    }
 
 
 		public void SubScalarGPU_(float value)
@@ -525,7 +725,23 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
-		public FloatTensor TanhGPU ()
+		public FloatTensor TanGPU()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			shader.SetBuffer(TanKernel, "TanData", dataBuffer);
+			shader.SetBuffer(TanKernel, "TanResult", result.DataBuffer);
+			shader.Dispatch(TanKernel, this.size, 1, 1);
+			return result;
+		}
+ 
+	    public void TanGPU_()
+	    {
+		    shader.SetBuffer(TanKernel_, "TanData_", dataBuffer);
+		    shader.Dispatch(TanKernel, this.size, 1, 1);
+	    }
+
+
+		public FloatTensor TanhGPU()
 		{
 			var result = new FloatTensor(shape, this.shader, dataOnGpu);
 			shader.SetBuffer(TanhKernel, "TanhData", dataBuffer);

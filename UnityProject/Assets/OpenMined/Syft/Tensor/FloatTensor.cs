@@ -145,50 +145,88 @@ namespace OpenMined.Syft.Tensor
 			id = System.Threading.Interlocked.Increment(ref nCreated);
 		}
 
-		public FloatTensor(float[] _data, int[] _shape, ComputeShader _shader, bool _initOnGpu = false)
-        {
-            //TODO: Can contigous allocation might be a problem?
+		public FloatTensor(float[] _data, int[] _shape, ComputeShader _shader, bool _initOnGpu = false, bool _copyData=true)
+		{
+			//TODO: Can contigous allocation might be a problem?
 
-            if (_shape == null || _shape.Length == 0)
-            {
-                throw new InvalidOperationException("Tensor shape can't be an empty array.");
-            }
+			if (_shape == null || _shape.Length == 0)
+			{
+				throw new InvalidOperationException("Tensor shape can't be an empty array.");
+			}
 
-            size = _data.Length;
-            shape = (int[]) _shape.Clone();
-            strides = new long[_shape.Length];
+			size = _data.Length;
+			shape = (int[]) _shape.Clone();
+			strides = new long[_shape.Length];
 			shader = _shader;
 
 			initShaderKernels ();
 
-            long acc = 1;
-            for (var i = _shape.Length - 1; i >= 0; --i)
-            {
-                strides[i] = acc;
-                acc *= _shape[i];
-            }
+			long acc = 1;
+			for (var i = _shape.Length - 1; i >= 0; --i)
+			{
+				strides[i] = acc;
+				acc *= _shape[i];
+			}
 
-            if (acc != size)
-                throw new FormatException("Tensor shape and data do not match.");
+			if (acc != size)
+				throw new FormatException("Tensor shape and data do not match.");
 
-            if (_initOnGpu)
-            {
-                dataOnGpu = true;
+			if (_initOnGpu)
+			{
+				dataOnGpu = true;
 
-                dataBuffer = new ComputeBuffer(size, sizeof(float));
-                dataBuffer.SetData(_data);
+				dataBuffer = new ComputeBuffer(size, sizeof(float));
+				dataBuffer.SetData(_data);
 
-                shapeBuffer = new ComputeBuffer(shape.Length, sizeof(int));
-                shapeBuffer.SetData(shape);
-            }
-            else
-            {
-                data = (float[]) _data.Clone();
-            }
+				shapeBuffer = new ComputeBuffer(shape.Length, sizeof(int));
+				shapeBuffer.SetData(shape);
+			}
+			else
+			{
+				if (_copyData) {
+					data = (float[])_data.Clone ();
+				} else {
+					data = _data;
+				}
 
-            // IDEs might show a warning, but ref and volatile seems to be working with Interlocked API.
-            id = System.Threading.Interlocked.Increment(ref nCreated);
-        }
+			}
+
+			// IDEs might show a warning, but ref and volatile seems to be working with Interlocked API.
+			id = System.Threading.Interlocked.Increment(ref nCreated);
+		}
+
+		public FloatTensor(ComputeBuffer _data, int[] _shape, int _size, ComputeShader _shader)
+		{
+			//TODO: Can contigous allocation might be a problem?
+
+			if (_shape == null || _shape.Length == 0)
+			{
+				throw new InvalidOperationException("Tensor shape can't be an empty array.");
+			}
+
+			dataBuffer = _data;
+
+			size = _size;
+			shape = (int[]) _shape.Clone();
+			strides = new long[_shape.Length];
+			shader = _shader;
+
+			initShaderKernels ();
+
+			long acc = 1;
+			for (var i = _shape.Length - 1; i >= 0; --i)
+			{
+				strides[i] = acc;
+				acc *= _shape[i];
+			}
+
+			if (acc != size)
+				throw new FormatException("Tensor shape and data do not match.");
+
+
+			// IDEs might show a warning, but ref and volatile seems to be working with Interlocked API.
+			id = System.Threading.Interlocked.Increment(ref nCreated);
+		}
 
         public FloatTensor Copy()
         {
@@ -227,9 +265,41 @@ namespace OpenMined.Syft.Tensor
 					// returns the function call name with the OK status
 					return id.ToString();
 				}
+                case "acos":
+                {
+                    var result = Acos();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+	            case "acos_":
+	            {
+		            Acos_();
+		            return Id.ToString();
+	            }
+                case "atan":
+                {
+                    var result = Atan();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+	            case "atan_":
+	            {
+		            Atan_();
+		            return Id.ToString();
+	            }
+                case "asin":
+                {
+                    var result = Asin();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+	            case "asin_":
+	            {
+		            Asin_();
+		            return Id.ToString();
+	            }
                 case "add_elem":
                 {
-				    Debug.LogFormat("add_elem");
                     var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
                     var result = this.Add(tensor_1);
 
@@ -237,25 +307,21 @@ namespace OpenMined.Syft.Tensor
                 }
                 case "add_elem_":
                 {
-					Debug.LogFormat("add_elem_");
                     var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
                     this.Add_(tensor_1);
                     return this.id + "";
                 }
                 case "add_scalar":
                 {
-					Debug.LogFormat("add_scalar");
                     FloatTensor result = Add(float.Parse(msgObj.tensorIndexParams[0]));
 
                     return ctrl.addTensor (result) + "";
                 }
                 case "add_scalar_":
                 {
-					Debug.LogFormat("add_scalar_");
                     this.Add_(float.Parse( msgObj.tensorIndexParams[0]));
                     return this.id + "";
                 }
-
                 case "addmm_":
                 {
 					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
@@ -275,12 +341,33 @@ namespace OpenMined.Syft.Tensor
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }
+                case "cos":
+                {
+                    var result = Cos();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+	            case "cos_":
+	            {
+		            Cos_();
+		            return Id.ToString();
+	            }
+                case "cosh":
+                {
+                    var result = Cosh();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+	            case "Cosh_":
+	            {
+		            Cosh_();
+		            return Id.ToString();
+	            }
                 case "cpu":
                 {
                     Cpu();
                     return msgObj.functionCall + ": OK";
                 }
-
 				case "div_elem":
 				{
 					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
@@ -305,7 +392,6 @@ namespace OpenMined.Syft.Tensor
 					this.Div_(float.Parse( msgObj.tensorIndexParams[0]));
 					return this.id + "";
 				}
-
                 case "floor_":
                 {
                     Floor_();
@@ -347,6 +433,30 @@ namespace OpenMined.Syft.Tensor
 					this.Mul_(float.Parse( msgObj.tensorIndexParams[0]));
 					return this.id + "";
 				}
+        case "pow_elem":
+        {
+          var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+          var result = this.Pow(tensor_1);
+
+          return ctrl.addTensor(result) + "";
+        }
+        case "pow_elem_":
+        {
+          var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+          this.Pow_(tensor_1);
+          return this.id + "";
+        }
+        case "pow_scalar":
+        {
+          FloatTensor result = Pow(float.Parse(msgObj.tensorIndexParams[0]));
+
+          return ctrl.addTensor (result) + "";
+        }
+        case "pow_scalar_":
+        {
+          this.Pow_(float.Parse( msgObj.tensorIndexParams[0]));
+          return this.id + "";
+        }
                 case "neg":
                 {
                     var result = Neg();
@@ -375,6 +485,17 @@ namespace OpenMined.Syft.Tensor
                 {
                     Sigmoid_();
                     return msgObj.functionCall + ": OK";
+                }
+                case "sin":
+                {
+                    var result = Sin();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+	            case "sin_":
+	            {
+	                Sin_();
+	                return Id.ToString();
                 }
 	            case "sqrt":
 	            {
@@ -416,6 +537,17 @@ namespace OpenMined.Syft.Tensor
 					FloatTensor result = this.Sum(int.Parse( msgObj.tensorIndexParams[0]));
 					return ctrl.addTensor (result) + "";
 				}
+                case "tan":
+                {
+                    var result = Tan();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+	            case "tan_":
+	            {
+		            Tan_();
+		            return Id.ToString();
+	            }
                 case "tanh":
                 {
                     var result = Tanh();
@@ -455,12 +587,35 @@ namespace OpenMined.Syft.Tensor
                   return Id.ToString();
                 }
 
-                case "trunc":
-                {
-                    var result = Trunc();
-                    ctrl.addTensor(result);
-                    return result.Id.ToString();
-                }
+				case "trunc":
+				{
+					var result = Trunc();
+					ctrl.addTensor(result);
+					return result.Id.ToString();
+				}
+
+			case "view":
+				{
+
+					int [] new_dims = new int[msgObj.tensorIndexParams.Length];
+					for (int i = 0; i < msgObj.tensorIndexParams.Length; i++) {
+						new_dims [i] = int.Parse (msgObj.tensorIndexParams [i]);
+					}
+					var result = View(new_dims);
+					ctrl.addTensor(result);
+					return result.Id.ToString();
+				}
+
+			case "view_":
+				{
+
+					int [] new_dims = new int[msgObj.tensorIndexParams.Length];
+					for (int i = 0; i < msgObj.tensorIndexParams.Length; i++) {
+						new_dims [i] = int.Parse (msgObj.tensorIndexParams [i]);
+					}
+					View_(new_dims);
+					return Id.ToString();
+				}
 
                 case "zero_":
                 {
