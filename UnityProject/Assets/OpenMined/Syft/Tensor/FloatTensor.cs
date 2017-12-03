@@ -410,6 +410,12 @@ namespace OpenMined.Syft.Tensor
                     Sigmoid_();
                     return msgObj.functionCall + ": OK";
                 }
+				case "sign":
+				{
+					Debug.LogFormat("sign");
+					var result = this.Sign();
+					return ctrl.addTensor(result) + "";
+				}
 	            case "sqrt":
 	            {
 		            var result = Sqrt();

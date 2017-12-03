@@ -274,6 +274,22 @@ void Sigmoid_ (uint3 id : SV_DispatchThreadID) {
 	SigmoidData_[id.x] = 1 / (1 + exp(-SigmoidData_[id.x]));
 }
 
+#pragma kernel Sign
+
+RWStructuredBuffer<float> SignData;
+RWStructuredBuffer<float> SignResult;
+
+[numthreads(1,1,1)]
+void Sign (uint3 id : SV_DispatchThreadID) {
+	if(SignData[id.x] < 0) {
+		SignResult[id.x] = -1;
+	} else if(SignData[id.x] > 0) {
+		SignResult[id.x] = 1;
+	} else {
+		SignResult[id.x] = 0;
+	}
+}
+
 #pragma kernel Sqrt
 
 RWStructuredBuffer<float> SqrtData;

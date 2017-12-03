@@ -350,7 +350,27 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-	    public FloatTensor Sqrt()
+		public FloatTensor Sign()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+
+			if (dataOnGpu)
+			{	
+				result.Gpu ();
+				return SignGPU(result);
+			}
+
+			var nCpu = SystemInfo.processorCount;
+			Parallel.For(0, nCpu, workerId =>
+				{
+					var max = data.Length * (workerId + 1) / nCpu;
+					for (var i = data.Length * workerId / nCpu; i < max; i++)
+						result.data[i] = (float)Math.Sign(data[i]);
+				});
+			return result;
+		}
+
+		public FloatTensor Sqrt()
 	    {
 		    if (dataOnGpu)
 		    {
