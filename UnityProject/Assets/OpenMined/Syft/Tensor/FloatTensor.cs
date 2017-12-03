@@ -323,11 +323,11 @@ namespace OpenMined.Syft.Tensor
                     }
                 }
 				case "mul_elem":
-				{
+                {
                     var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
-					var result = this.Mul(tensor_1);
+                    var result = this.Mul(tensor_1);
 
-					return ctrl.addTensor(result) + "";
+                    return ctrl.addTensor(result) + "";
 				}
 				case "mul_elem_":
 				{
@@ -362,7 +362,7 @@ namespace OpenMined.Syft.Tensor
                     }
 
                     string data = this.Print();
-//                    Debug.LogFormat("<color=cyan>Print:</color> {0}", string.Join(",",this.Data));
+                    Debug.LogFormat("<color=cyan>Print:</color> {0}", string.Join(",",this.Data));
 
                     if (dataOriginallyOnGpu)
                     {
@@ -384,11 +384,10 @@ namespace OpenMined.Syft.Tensor
 	            }
 				case "sub_elem":
 				{
-//					Debug.LogFormat("sub_elem");
 					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
 					var result = this.Sub(tensor_1);
 
-                    ctrl.addTensor(result);// + "";
+                    ctrl.addTensor(result);
                     return result.Id + "";
 				}
 				case "sub_elem_":

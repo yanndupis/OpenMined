@@ -133,10 +133,7 @@ namespace OpenMined.Tests
                 }
             }
 
-            Debug.Log(tensor.Print());
             var transposed = tensor.Transpose();
-            Debug.Log(transposed.Print());
-
             for (int i = 0; i < tensor.Shape[1]; i++)
             {
                 for (int j = 0; j < tensor.Shape[0]; j++)
@@ -654,19 +651,18 @@ namespace OpenMined.Tests
 			Assert.That(() => tensor1.Sub(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
-        //
-        //        [Test]
-        //        public void ElementwiseSubtractDataOnDifferent()
-        //        {
-        //            int[] shape1 = { 2, 3 };
-        //            var tensor1 = new FloatTensor(shape1, true);
-        //            int[] shape2 = { 2, 3 };
-        //            var tensor2 = new FloatTensor(shape2, false);
-        //
-        //			Assert.That(() => tensor1.SubtractElementwise(tensor2),
-        //                Throws.TypeOf<InvalidOperationException>());
-        //        }
-        //
+
+//        [Test]
+//        public void ElementwiseSubtractDataOnDifferent()
+//        {
+//            int[] shape1 = { 2, 3 };
+//            var tensor1 = new FloatTensor(shape1, true);
+//            int[] shape2 = { 2, 3 };
+//            var tensor2 = new FloatTensor(shape2, false);
+//
+//			Assert.That(() => tensor1.SubtractElementwise(tensor2),
+//                Throws.TypeOf<InvalidOperationException>());
+//        }
 
         [Test]
         public void GetIndexGetIndeces()

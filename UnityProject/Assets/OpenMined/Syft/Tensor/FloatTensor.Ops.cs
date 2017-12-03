@@ -57,25 +57,25 @@ namespace OpenMined.Syft.Tensor
 			return result;
         }
 
-		public FloatTensor Add(float value)
-		{
-			var result = new FloatTensor(shape, this.shader, false);
+        public FloatTensor Add(float value)
+        {
+            var result = new FloatTensor(shape, this.shader, false);
 
-			if (dataOnGpu)
+            if (dataOnGpu)
             {
-				result.Gpu ();
-				return AddScalarGPU (value, result);
-			}
+	            result.Gpu ();
+	            return AddScalarGPU (value, result);
+            }
             else
             {
-				var nCpu = SystemInfo.processorCount;
-				Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++)
-						result.Data [i] = value + Data [i];
-				});
-			}
-			return result;
+	            var nCpu = SystemInfo.processorCount;
+	            Parallel.For (0, nCpu, workerId => {
+		            var max = size * (workerId + 1) / nCpu;
+		        for (var i = size * workerId / nCpu; i < max; i++)
+			        result.Data [i] = value + Data [i];
+	            });
+            }
+            return result;
 		}
 
         public FloatTensor AddMatrixMultiply(FloatTensor tensor1, FloatTensor tensor2)
@@ -423,6 +423,7 @@ namespace OpenMined.Syft.Tensor
             {
                 return this;
             }
+
             int[] new_shape = (int[])Shape.Clone();
             int tmp_dim = new_shape[dimension1];
             new_shape[dimension1] = new_shape[dimension2];
@@ -440,10 +441,6 @@ namespace OpenMined.Syft.Tensor
                     idxs[dimension1] = idxs[dimension2];
                     idxs[dimension2] = tmp;
                     result[ idxs ] = this[i];
-
-//                    int col = i % Shape[0];
-//                    int row = (i - col) / Shape[0];
-//                    result[row, col] = this[col, row];
                 }
             });
 
