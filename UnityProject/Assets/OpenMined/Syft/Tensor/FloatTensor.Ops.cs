@@ -258,6 +258,44 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
 
+		public FloatTensor AddMatrixVectorProduct(FloatTensor tensor1, FloatTensor tensor2)
+		{
+			bool gpu = dataOnGpu & tensor1.DataOnGpu & tensor2.DataOnGpu;
+			bool cpu = !(dataOnGpu | tensor1.DataOnGpu | tensor2.DataOnGpu);
+
+			int[] res_shape = this.Shape;
+			int[] shape1 = tensor1.Shape;
+			int[] shape2 = tensor2.Shape;
+
+			if (res_shape.Length != 1)
+				throw new InvalidOperationException("Cannot perform this operation on a tensor with more than one dimension");
+			if (res_shape[0] != shape2[0])
+				throw new InvalidOperationException(String.Format("Cannot add matrix-vector product to tensor: {0} & {1}.", res_shape[0], shape2[0]));
+			if (shape1[1] != shape2[0])
+				throw new InvalidOperationException(String.Format("Last dimension of matrix doesn't match: {0} vs {1}.", shape1[1], shape2[0]));
+
+			if (gpu) 
+			{
+			} 
+			else if (cpu) 
+			{
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => 
+				{
+					var max = size * (workerId + 1) / nCpu;	
+					for (var idx = size * workerId / nCpu; idx < max; idx++)
+					{
+						for (var j = 0; j < res_shape[0]; j++)
+						{
+							Data[idx] += tensor2.Data[j] * tensor1.Data[j + (idx * res_shape[0])];
+						}		
+					}
+				});
+			}
+
+			return this;
+		}
+
         public FloatTensor Ceil()
             // Returns a new Tensor with the smallest integer greater than or equal to each element
         {

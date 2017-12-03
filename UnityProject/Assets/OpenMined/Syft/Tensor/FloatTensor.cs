@@ -329,6 +329,13 @@ namespace OpenMined.Syft.Tensor
                     AddMatrixMultiply(tensor_1, tensor_2);
                     return msgObj.functionCall + ": OK";
                 }
+				case "addmv_":
+				{
+					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+					var tensor_2 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[1]));
+					AddMatrixVectorProduct(tensor_1, tensor_2);
+					return msgObj.functionCall + ": OK";
+				}	
                 case "ceil":
                 {
                     var result = Ceil();

@@ -996,6 +996,34 @@ namespace OpenMined.Tests
             }
         }
 
+		[Test]
+		public void AddMatrixVectorProductTest()
+		{
+			float[] base_data = new float[] { 1, 2 };
+			int[] base_shape = new int[] { 2 };
+			var base_vector = new FloatTensor(base_data, base_shape);
+
+			float[] data1 = { 1, 2, 3, 4 };
+			int[] shape1 = new int[] { 2, 2 };
+			var matrix = new FloatTensor(data1, shape1);
+
+			float[] data2 = new float[] { 5, 6 };
+			int[] shape2 = new int[] { 2 };
+			var vector = new FloatTensor (data2, shape2);
+
+			base_vector.AddMatrixVectorProduct(matrix, vector);
+
+			float[] expected_data = new float[] { 18, 41 };
+			int[] expected_shape = new int[] { 2 };
+			var expected_vector = new FloatTensor(expected_data, expected_shape);
+
+			for (int i = 0; i < expected_vector.Size; i++)
+			{
+				Assert.AreEqual (expected_vector.Data[i], base_vector.Data[i]);
+			}
+				
+		}
+
         [Test]
         public void Tanh()
         {
