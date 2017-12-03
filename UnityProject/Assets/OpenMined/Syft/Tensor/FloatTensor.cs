@@ -381,6 +381,11 @@ namespace OpenMined.Syft.Tensor
 					this.Mul_(float.Parse( msgObj.tensorIndexParams[0]));
 					return this.id + "";
 				}
+                case "min":
+                {
+                  var result = this.Min();
+                  return ctrl.addTensor(result) + "";
+                }
                 case "neg":
                 {
                     var result = Neg();
