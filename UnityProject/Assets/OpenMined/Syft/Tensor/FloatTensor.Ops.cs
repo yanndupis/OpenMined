@@ -641,12 +641,14 @@ namespace OpenMined.Syft.Tensor
 
       public FloatTensor SizeTensor()
       {
+        float[] data = new float[shape.Length];
         int[] ndims = { shape.Length };
-        FloatTensor result = new FloatTensor(ndims, this.shader, dataOnGpu);
         for (int dim = 0; dim < shape.Length; dim++)
         {
-          result.Data[dim] = shape[dim];
+          data[dim] = shape[dim];
         }
+
+        FloatTensor result = new FloatTensor(data, ndims);
         return result;
       }
 
