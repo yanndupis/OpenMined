@@ -191,25 +191,25 @@ namespace OpenMined.Syft.Tensor
 			return result;
         }
 
-		public FloatTensor Add(float value)
-		{
-			var result = new FloatTensor(shape, this.shader, false);
+        public FloatTensor Add(float value)
+        {
+            var result = new FloatTensor(shape, this.shader, false);
 
-			if (dataOnGpu) {
-
-				result.Gpu ();
-				return AddScalarGPU (value, result);
-
-			} else {
-
-				var nCpu = SystemInfo.processorCount;
-				Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++)
-						result.Data [i] = value + Data [i];
-				});
-			}
-			return result;
+            if (dataOnGpu)
+            {
+	            result.Gpu ();
+	            return AddScalarGPU (value, result);
+            }
+            else
+            {
+	            var nCpu = SystemInfo.processorCount;
+	            Parallel.For (0, nCpu, workerId => {
+		            var max = size * (workerId + 1) / nCpu;
+		        for (var i = size * workerId / nCpu; i < max; i++)
+			        result.Data [i] = value + Data [i];
+	            });
+            }
+            return result;
 		}
 
         public FloatTensor AddMatrixMultiply(FloatTensor tensor1, FloatTensor tensor2)
@@ -791,10 +791,27 @@ namespace OpenMined.Syft.Tensor
                 return this;
             }
 
-            SwapElements(ref strides, dimension1, dimension2);
-            SwapElements(ref shape, dimension1, dimension2);
+            int[] new_shape = (int[])Shape.Clone();
+            int tmp_dim = new_shape[dimension1];
+            new_shape[dimension1] = new_shape[dimension2];
+            new_shape[dimension2] = tmp_dim;
 
-            return this;
+            var result = new FloatTensor(new_shape, this.shader, dataOnGpu);
+            var nCpu = SystemInfo.processorCount;
+            Parallel.For(0, nCpu, workerId =>
+            {
+                var max = size * (workerId + 1) / nCpu;
+                for (var i = size * workerId / nCpu; i < max; i++)
+                {
+                    var idxs = GetIndices(i);
+                    long tmp = idxs[dimension1];
+                    idxs[dimension1] = idxs[dimension2];
+                    idxs[dimension2] = tmp;
+                    result[ idxs ] = this[i];
+                }
+            });
+
+            return result;
         }
 
         public void Triu_(int k)

@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using UnityEngine;
 using UnityEditor;
 using NUnit.Framework;
@@ -362,13 +361,12 @@ namespace OpenMined.Tests
                 }
             }
 
-            tensor.Transpose();
-
-            for (int i = 0; i < tensor.Shape[0]; i++)
+            var transposed = tensor.Transpose();
+            for (int i = 0; i < tensor.Shape[1]; i++)
             {
-                for (int j = 0; j < tensor.Shape[1]; j++)
+                for (int j = 0; j < tensor.Shape[0]; j++)
                 {
-                    Assert.AreEqual(tensor[i, j], transpose[i, j]);
+                    Assert.AreEqual(transposed[i, j], transpose[i, j]);
                 }
             }
         }
@@ -395,15 +393,15 @@ namespace OpenMined.Tests
                     }
                 }
             }
-            tensor.Transpose(0, 2);
 
-            for (int i = 0; i < tensor.Shape[0]; i++)
+            var transposed = tensor.Transpose(0, 2);
+            for (int i = 0; i < transposed.Shape[0]; i++)
             {
-                for (int j = 0; j < tensor.Shape[1]; j++)
+                for (int j = 0; j < transposed.Shape[1]; j++)
                 {
-                    for (int k = 0; k < tensor.Shape [2]; k++)
+                    for (int k = 0; k < transposed.Shape [2]; k++)
                     {
-                        Assert.AreEqual(tensor[i, j, k], transpose[i, j, k]);
+                        Assert.AreEqual(transposed[i, j, k], transpose[i, j, k]);
                     }
                 }
             }
@@ -881,7 +879,7 @@ namespace OpenMined.Tests
 			Assert.That(() => tensor1.Sub(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
-//
+
 //        [Test]
 //        public void ElementwiseSubtractDataOnDifferent()
 //        {
@@ -893,7 +891,26 @@ namespace OpenMined.Tests
 //			Assert.That(() => tensor1.SubtractElementwise(tensor2),
 //                Throws.TypeOf<InvalidOperationException>());
 //        }
-//
+
+        [Test]
+        public void GetIndexGetIndeces()
+        {
+            float[] data = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+            int[] shape = { 3, 2, 2 };
+            var tensor = new FloatTensor(data, shape);
+
+            long[] idxs = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+            long[][] idxarrays = new long[][] {
+                new long[] { 0, 0, 0 },
+                new long[] { 0, 1, 0 },
+                new long[] { 2, 0, 1 } };
+
+            foreach (long i in idxs)
+                Assert.AreEqual(i,tensor.GetIndex(tensor.GetIndices(i)));
+            foreach (long[] i in idxarrays)
+                Assert.AreEqual(i, tensor.GetIndices(tensor.GetIndex(i)));
+        }
+
         [Test]
         public void AddMatrixMultiplyTest()
         {
