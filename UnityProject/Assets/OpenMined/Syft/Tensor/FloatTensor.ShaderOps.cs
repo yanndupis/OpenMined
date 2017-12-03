@@ -28,7 +28,7 @@ namespace OpenMined.Syft.Tensor
 	  	private static int CosKernel_;
     	[SerializeField]
 		private static int CoshKernel;
-		[SerializeField] 
+		[SerializeField]
 	  	private static int CoshKernel_;
     	[SerializeField]
 		private static int DivScalarKernel_;
@@ -48,12 +48,16 @@ namespace OpenMined.Syft.Tensor
 		private static int MulScalarKernel;
 		[SerializeField]
 		private static int MulElemKernel;
+    [SerializeField]
+    private static int PowScalarKernel_;
+    [SerializeField]
+    private static int PowElemKernel_;
+    [SerializeField]
+    private static int PowScalarKernel;
+    [SerializeField]
+    private static int PowElemKernel;
 		[SerializeField]
 		private static int NegateKernel;
-		[SerializeField]
-		private static int PowKernel;
-		[SerializeField]
-		private static int PowKernel_;
 		[SerializeField]
 		private static int SigmoidKernel_;
 	    [SerializeField]
@@ -103,9 +107,13 @@ namespace OpenMined.Syft.Tensor
 				MulElemKernel_ = shader.FindKernel ("MulElem_");
 				MulScalarKernel = shader.FindKernel ("MulScalar");
 				MulElemKernel = shader.FindKernel ("MulElem");
+        PowScalarKernel_ = shader.FindKernel ("PowScalar_");
+        PowElemKernel_ = shader.FindKernel ("PowElem_");
+        PowScalarKernel = shader.FindKernel ("PowScalar");
+        PowElemKernel = shader.FindKernel ("PowElem");
 				NegateKernel = shader.FindKernel ("Negate");
-				PowKernel = shader.FindKernel ("Pow");
-				PowKernel_ = shader.FindKernel ("Pow_");
+				// PowKernel = shader.FindKernel ("Pow");
+				// PowKernel_ = shader.FindKernel ("Pow_");
 				SigmoidKernel_ = shader.FindKernel ("Sigmoid_");
 				SqrtKernel = shader.FindKernel("Sqrt");
 				SubScalarKernel_ = shader.FindKernel ("SubScalar_");
@@ -383,7 +391,7 @@ namespace OpenMined.Syft.Tensor
 					shader.SetBuffer (MulElemKernel_, "MulElemDataB_", tensor.dataBuffer);
 					shader.Dispatch (MulElemKernel_, this.size, 1, 1);
 				} else {
-					PowGPU_ (2);
+					PowScalarGPU_ (2);
 				}
 
 			}
@@ -418,12 +426,71 @@ namespace OpenMined.Syft.Tensor
 					shader.SetBuffer (MulElemKernel, "MulElemDataResult", result.dataBuffer);
 					shader.Dispatch (MulElemKernel, this.size, 1, 1);
 				} else {
-					return this.PowGPU(2, result);
+					return this.PowScalarGPU(2, result);
 				}
 
 			}
 			return result;
 		}
+
+    public void PowScalarGPU_(float value)
+    {
+      Debug.LogFormat("<color=blue>FloatTensor.PowScalarGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+
+      if (dataOnGpu)
+      {
+        var valBuffer = SendFloatToGpu(PowScalarKernel_, value, "PowScalarScalar_");
+
+        shader.SetBuffer(PowScalarKernel_, "PowScalarData_", dataBuffer);
+        shader.Dispatch(PowScalarKernel_, this.size, 1, 1);
+
+        valBuffer.Release();
+      }
+    }
+
+    public void PowElemGPU_(FloatTensor tensor)
+    {
+      Debug.LogFormat("<color=blue>FloatTensor.PowElemGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+
+      if (dataOnGpu)
+      {
+        shader.SetBuffer (PowElemKernel_, "PowElemDataA_", dataBuffer);
+        shader.SetBuffer (PowElemKernel_, "PowElemDataB_", tensor.dataBuffer);
+        shader.Dispatch (PowElemKernel_, this.size, 1, 1);
+      }
+    }
+
+    public FloatTensor PowScalarGPU(float value, FloatTensor result)
+    {
+      Debug.LogFormat("<color=blue>FloatTensor.PowScalarGPU dataOnGpu: {0}</color>", dataOnGpu);
+
+      if (dataOnGpu)
+      {
+        var valBuffer = SendFloatToGpu(PowScalarKernel, value, "PowScalarScalar");
+
+        shader.SetBuffer(PowScalarKernel, "PowScalarData", dataBuffer);
+        shader.SetBuffer(PowScalarKernel, "PowScalarResult", result.dataBuffer);
+        shader.Dispatch(PowScalarKernel, this.size, 1, 1);
+
+        valBuffer.Release();
+      }
+      return result;
+    }
+
+    public FloatTensor PowElemGPU(FloatTensor tensor, FloatTensor result)
+    {
+      Debug.LogFormat("<color=blue>FloatTensor.PowElemGPU dataOnGpu: {0}</color>", dataOnGpu);
+
+      if (dataOnGpu)
+      {
+        shader.SetBuffer (PowElemKernel, "PowElemDataA", dataBuffer);
+        shader.SetBuffer (PowElemKernel, "PowElemDataB", tensor.dataBuffer);
+        shader.SetBuffer (PowElemKernel, "PowElemDataResult", result.dataBuffer);
+        shader.Dispatch (PowElemKernel, this.size, 1, 1);
+
+      }
+      return result;
+    }
 
 
         public FloatTensor NegateGPU()
@@ -440,37 +507,37 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
 
-		public FloatTensor PowGPU(float value, FloatTensor result)
-		{
-			Debug.LogFormat("<color=blue>FloatTensor.PowGPU dataOnGpu: {0}</color>", dataOnGpu);
-
-			if (dataOnGpu)
-			{
-				var valBuffer = SendFloatToGpu(PowKernel, value, "PowScalarScalar");
-
-				shader.SetBuffer(PowKernel, "PowScalarData", dataBuffer);
-				shader.SetBuffer(PowKernel, "PowScalarResult", result.dataBuffer);
-				shader.Dispatch(PowKernel, this.size, 1, 1);
-
-				valBuffer.Release();
-			}
-			return result;
-		}
-
-		public void PowGPU_(float value)
-		{
-			Debug.LogFormat("<color=blue>FloatTensor.PowGPU_ dataOnGpu: {0}</color>", dataOnGpu);
-
-			if (dataOnGpu)
-			{
-				var valBuffer = SendFloatToGpu(PowKernel_, value, "PowScalarScalar_");
-
-				shader.SetBuffer(PowKernel_, "PowScalarData_", dataBuffer);
-				shader.Dispatch(PowKernel_, this.size, 1, 1);
-
-				valBuffer.Release();
-			}
-		}
+		// public FloatTensor PowGPU(float value, FloatTensor result)
+		// {
+		// 	Debug.LogFormat("<color=blue>FloatTensor.PowGPU dataOnGpu: {0}</color>", dataOnGpu);
+    //
+		// 	if (dataOnGpu)
+		// 	{
+		// 		var valBuffer = SendFloatToGpu(PowKernel, value, "PowScalarScalar");
+    //
+		// 		shader.SetBuffer(PowKernel, "PowScalarData", dataBuffer);
+		// 		shader.SetBuffer(PowKernel, "PowScalarResult", result.dataBuffer);
+		// 		shader.Dispatch(PowKernel, this.size, 1, 1);
+    //
+		// 		valBuffer.Release();
+		// 	}
+		// 	return result;
+		// }
+    //
+		// public void PowGPU_(float value)
+		// {
+		// 	Debug.LogFormat("<color=blue>FloatTensor.PowGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+    //
+		// 	if (dataOnGpu)
+		// 	{
+		// 		var valBuffer = SendFloatToGpu(PowKernel_, value, "PowScalarScalar_");
+    //
+		// 		shader.SetBuffer(PowKernel_, "PowScalarData_", dataBuffer);
+		// 		shader.Dispatch(PowKernel_, this.size, 1, 1);
+    //
+		// 		valBuffer.Release();
+		// 	}
+		// }
 
 	    private FloatTensor SqrtGPU()
 	    {

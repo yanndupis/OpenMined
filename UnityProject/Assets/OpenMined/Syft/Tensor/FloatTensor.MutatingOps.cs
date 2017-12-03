@@ -146,10 +146,11 @@ namespace OpenMined.Syft.Tensor
 
       } else {
         var nCpu = SystemInfo.processorCount;
-        Parallel.For (0, nCpu, workerId => {
+        Parallel.For(0, nCpu, workerId => {
           var max = size * (workerId + 1) / nCpu;
-          for (var i = size * workerId / nCpu; i < max; i++)
-            data [i] = Math.Pow(data[i], x.data[i]);
+      		for (var i = size * workerId / nCpu; i < max; i++) {
+      			data[i] = (float)Math.Pow((double)data[i], x.data[i]);
+      		}
         });
       }
     }
@@ -157,14 +158,15 @@ namespace OpenMined.Syft.Tensor
     public void Pow_(float value)
     {
       if (dataOnGpu) {
-        PowElemGPU_ (value);
+        PowScalarGPU_ (value);
         return;
       } else {
         var nCpu = SystemInfo.processorCount;
-        Parallel.For (0, nCpu, workerId => {
+        Parallel.For(0, nCpu, workerId => {
           var max = size * (workerId + 1) / nCpu;
-          for (var i = size * workerId / nCpu; i < max; i++)
-            data [i] = Math.Pow(data[i], value);
+          for (var i = size * workerId / nCpu; i < max; i++) {
+            data[i] = (float)Math.Pow((double)data[i], value);
+          }
         });
       }
     }

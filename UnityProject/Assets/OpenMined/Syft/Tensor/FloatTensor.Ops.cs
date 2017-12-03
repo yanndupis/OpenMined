@@ -162,7 +162,7 @@ namespace OpenMined.Syft.Tensor
                         result.Data[i] = (float) System.Math.Cos(d);
                     }
                 });
- 
+
                 return result;
             }
         }
@@ -187,7 +187,7 @@ namespace OpenMined.Syft.Tensor
 			    });
 		    }
 	    }
-        
+
         public FloatTensor 	Cosh()
         {
             if (dataOnGpu)
@@ -207,7 +207,7 @@ namespace OpenMined.Syft.Tensor
                         result.Data[i] = (float) System.Math.Cosh(d);
                     }
                 });
- 
+
                 return result;
             }
         }
@@ -232,7 +232,7 @@ namespace OpenMined.Syft.Tensor
 			    });
 		    }
 	    }
- 
+
 		public FloatTensor Div(FloatTensor x)
 		{
 			// Check if both tensors are compatible for sum
@@ -332,6 +332,52 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
+    public FloatTensor Pow(FloatTensor x)
+    {
+      // Check if both tensors are compatible for sum
+      SameSizeDimensionsShapeAndLocation(ref x);
+
+      var result = new FloatTensor (shape, this.shader, false);
+
+      if (dataOnGpu) {
+
+        result.Gpu ();
+        return PowElemGPU (x, result);
+
+      } else {
+
+
+        var nCpu = SystemInfo.processorCount;
+        Parallel.For (0, nCpu, workerId => {
+          var max = size * (workerId + 1) / nCpu;
+          for (var i = size * workerId / nCpu; i < max; i++)
+            result.Data[i] = (float)Math.Pow((double)Data[i], x.Data[i]);
+        });
+
+      }
+      return result;
+    }
+
+    public FloatTensor Pow(float value)
+    {
+      var result = new FloatTensor(shape, this.shader, false);
+
+      if (dataOnGpu) {
+        result.Gpu ();
+        return PowScalarGPU (value, result);
+      } else {
+
+        var nCpu = SystemInfo.processorCount;
+        Parallel.For (0, nCpu, workerId => {
+          var max = size * (workerId + 1) / nCpu;
+          for (var i = size * workerId / nCpu; i < max; i++)
+            result.Data[i] = (float)Math.Pow((double)Data[i], value);
+        });
+      }
+      return result;
+    }
+
+
         public FloatTensor Neg()
         {
             if (dataOnGpu)
@@ -356,7 +402,7 @@ namespace OpenMined.Syft.Tensor
 		    {
 			    return SqrtGPU();
 		    }
-		    
+
 		    var result = new FloatTensor(shape, shader, dataOnGpu);
 		    var nCpu = SystemInfo.processorCount;
 		    Parallel.For(0, nCpu, workerId =>
@@ -622,7 +668,7 @@ namespace OpenMined.Syft.Tensor
 				}
 			}
 			return this;
-		
+
 		}
 
 		public void View_(int[] new_shape)
@@ -634,16 +680,15 @@ namespace OpenMined.Syft.Tensor
 			}
 
 			if (new_size == size) {
-				
+
 				shape = new_shape;
 
 				if (dataOnGpu) {
 					shapeBuffer.Release ();
 					shapeBuffer.SetData (shape);
-				} 
+				}
 			}
 		}
 
     }
 }
-
