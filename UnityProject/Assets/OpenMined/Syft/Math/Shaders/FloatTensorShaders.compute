@@ -264,7 +264,6 @@ void Pow_ (uint3 id: SV_DispatchThreadID) {
 	PowScalarData_[id.x] = pow(abs(PowScalarData_[id.x]),PowScalarScalar_[0]);
 }
 
-
 #pragma kernel Sigmoid_
 
 RWStructuredBuffer<float> SigmoidData_;
@@ -272,6 +271,24 @@ RWStructuredBuffer<float> SigmoidData_;
 [numthreads(1,1,1)]
 void Sigmoid_ (uint3 id : SV_DispatchThreadID) {
 	SigmoidData_[id.x] = 1 / (1 + exp(-SigmoidData_[id.x]));
+}
+
+#pragma kernel Sin
+ 
+RWStructuredBuffer<float> SinData;
+RWStructuredBuffer<float> SinResult;
+ 
+[numthreads(4,1,1)]
+void Sin (uint3 id: SV_DispatchThreadID) {
+	SinResult[id.x] = sin(SinData[id.x]);
+}
+ 
+#pragma kernel Sin_
+RWStructuredBuffer<float> SinData_;
+ 
+[numthreads(4,1,1)]
+void Sin_ (uint3 id: SV_DispatchThreadID) {
+    SinData_[id.x] = sin(SinData_[id.x]);
 }
 
 #pragma kernel Sqrt
