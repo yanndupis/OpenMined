@@ -18,7 +18,9 @@ namespace OpenMined.Syft.Tensor
 
         private int id;
 
-        private long GetIndex(params int[] indices)
+        //Making this public for now. Usage of below functions might not be efficient but can help development
+        //private
+        public long GetIndex(params long[] indices)
         {
             long offset = 0;
             for (int i = 0; i < indices.Length; ++i)
@@ -28,6 +30,26 @@ namespace OpenMined.Syft.Tensor
                 offset += indices[i] * strides[i];
             }
             return offset;
+        }
+
+        //private
+        public long GetIndex(params int[] indices)
+        {
+            var long_indices = Array.ConvertAll(indices, item => (long)item);
+            return GetIndex(long_indices);
+        }
+
+        //private
+        public long[] GetIndices(long index)
+        {
+            var idx = index;
+            long[] indices = new long[Shape.Length];
+            for (int i = 0; i < Shape.Length; ++i)
+            {
+                indices[i] = (idx - (idx % (strides[i]))) / strides[i];
+                idx -= indices[i]*strides[i];
+            }
+            return indices;
         }
 
         public float[] Data
@@ -70,7 +92,7 @@ namespace OpenMined.Syft.Tensor
             strides = new long[_shape.Length];
 			shader = _shader;
 
-			initShaderKernels ();
+			initShaderKernels();
 
             for (var i = _shape.Length - 1; i >= 0; --i)
             {
@@ -106,7 +128,6 @@ namespace OpenMined.Syft.Tensor
 			shape = (int[]) _shape.Clone();
 			strides = new long[_shape.Length];
 			dataOnGpu = false;
-
 
 			long acc = 1;
 			for (var i = _shape.Length - 1; i >= 0; --i)
@@ -175,10 +196,16 @@ namespace OpenMined.Syft.Tensor
             return copy;
         }
 
-        public float this[params int[] indices]
+        public float this[params long[] indices]
         {
-            get { return Data[GetIndex(indices)]; }
-            set { Data[GetIndex(indices)] = value; }
+            get { return this[GetIndex(indices)]; }
+            set { this[GetIndex(indices)] = value; }
+        }
+
+        public float this[long index]
+        {
+            get { return Data[index]; }
+            set { Data[index] = value; }
         }
 
         public string ProcessMessage(Command msgObj, SyftController ctrl)
@@ -200,8 +227,6 @@ namespace OpenMined.Syft.Tensor
 					// returns the function call name with the OK status
 					return id.ToString();
 				}
-
-
                 case "add_elem":
                 {
 				    Debug.LogFormat("add_elem");
@@ -299,14 +324,15 @@ namespace OpenMined.Syft.Tensor
                 }
 				case "mul_elem":
 				{
-					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+                    var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
 					var result = this.Mul(tensor_1);
 
 					return ctrl.addTensor(result) + "";
 				}
 				case "mul_elem_":
 				{
-					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+                    Debug.LogFormat("mul_elem_");
+                    var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
 					this.Mul_(tensor_1);
 					return this.id + "";
 				}
@@ -336,7 +362,7 @@ namespace OpenMined.Syft.Tensor
                     }
 
                     string data = this.Print();
-                    Debug.LogFormat("<color=cyan>Print:</color> {0}", this.Data);
+//                    Debug.LogFormat("<color=cyan>Print:</color> {0}", string.Join(",",this.Data));
 
                     if (dataOriginallyOnGpu)
                     {
@@ -358,11 +384,12 @@ namespace OpenMined.Syft.Tensor
 	            }
 				case "sub_elem":
 				{
-					Debug.LogFormat("sub_elem");
+//					Debug.LogFormat("sub_elem");
 					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
 					var result = this.Sub(tensor_1);
 
-					return ctrl.addTensor(result) + "";
+                    ctrl.addTensor(result);// + "";
+                    return result.Id + "";
 				}
 				case "sub_elem_":
 				{
@@ -409,8 +436,7 @@ namespace OpenMined.Syft.Tensor
 	            }
 	            case "transpose":
                 {
-                    var result = Copy();
-                    result = result.Transpose();
+                    var result = Transpose();
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }
