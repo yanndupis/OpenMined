@@ -238,8 +238,39 @@ namespace OpenMined.Syft.Tensor
 					// returns the function call name with the OK status
 					return id.ToString();
 				}
-
-
+                case "acos":
+                {
+                    var result = Acos();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+	            case "acos_":
+	            {
+		            Acos_();
+		            return Id.ToString();
+	            }
+                case "atan":
+                {
+                    var result = Atan();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+	            case "atan_":
+	            {
+		            Atan_();
+		            return Id.ToString();
+	            }
+                case "asin":
+                {
+                    var result = Asin();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+	            case "asin_":
+	            {
+		            Asin_();
+		            return Id.ToString();
+	            }
                 case "add_elem":
                 {
 				    Debug.LogFormat("add_elem");
@@ -410,6 +441,17 @@ namespace OpenMined.Syft.Tensor
                     Sigmoid_();
                     return msgObj.functionCall + ": OK";
                 }
+                case "sin":
+                {
+                    var result = Sin();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+	            case "sin_":
+	            {
+	                Sin_();
+	                return Id.ToString();
+                }
 	            case "sqrt":
 	            {
 		            var result = Sqrt();
@@ -450,6 +492,17 @@ namespace OpenMined.Syft.Tensor
 					FloatTensor result = this.Sum(int.Parse( msgObj.tensorIndexParams[0]));
 					return ctrl.addTensor (result) + "";
 				}
+                case "tan":
+                {
+                    var result = Tan();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+	            case "tan_":
+	            {
+		            Tan_();
+		            return Id.ToString();
+	            }
                 case "tanh":
                 {
                     var result = Tanh();

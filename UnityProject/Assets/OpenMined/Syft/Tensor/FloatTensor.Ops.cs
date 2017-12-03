@@ -31,6 +31,140 @@ namespace OpenMined.Syft.Tensor
 		}
 
 
+        public FloatTensor Acos()
+        {
+            if (dataOnGpu)
+            {
+                return AcosGPU();
+            }
+            else
+            {
+                var result = new FloatTensor(shape, this.shader, dataOnGpu);
+                var nCpu = SystemInfo.processorCount;
+                Parallel.For(0, nCpu, workerId =>
+                {
+                    var max = size * (workerId + 1) / nCpu;
+                    for (var i = size * workerId / nCpu; i < max; i++)
+                    {
+                        var d = (double) Data[i];
+                        result.Data[i] = (float) System.Math.Acos(d);
+                    }
+                });
+ 
+                return result;
+            }
+        }
+ 
+	    public void Acos_()
+	    {
+		    if (dataOnGpu)
+		    {
+			    AcosGPU_();
+		    }
+		    else
+		    {
+			    var nCpu = SystemInfo.processorCount;
+			    Parallel.For(0, nCpu, workerId =>
+			    {
+				    var max = size * (workerId + 1) / nCpu;
+				    for (var i = size * workerId / nCpu; i < max; i++)
+				    {
+					    var d = (double) Data[i];
+					    Data[i] = (float) System.Math.Acos(d);
+				    }
+			    });
+		    }
+	    }
+
+        public FloatTensor Asin()
+        {
+            if (dataOnGpu)
+            {
+                return AsinGPU();
+            }
+            else
+            {
+                var result = new FloatTensor(shape, this.shader, dataOnGpu);
+                var nCpu = SystemInfo.processorCount;
+                Parallel.For(0, nCpu, workerId =>
+                {
+                    var max = size * (workerId + 1) / nCpu;
+                    for (var i = size * workerId / nCpu; i < max; i++)
+                    {
+                        var d = (double) Data[i];
+                        result.Data[i] = (float) System.Math.Asin(d);
+                    }
+                });
+ 
+                return result;
+            }
+        }
+ 
+	    public void Asin_()
+	    {
+		    if (dataOnGpu)
+		    {
+			    AsinGPU_();
+		    }
+		    else
+		    {
+			    var nCpu = SystemInfo.processorCount;
+			    Parallel.For(0, nCpu, workerId =>
+			    {
+				    var max = size * (workerId + 1) / nCpu;
+				    for (var i = size * workerId / nCpu; i < max; i++)
+				    {
+					    var d = (double) Data[i];
+					    Data[i] = (float) System.Math.Asin(d);
+				    }
+			    });
+		    }
+	    }
+
+        public FloatTensor Atan()
+        {
+            if (dataOnGpu)
+            {
+                return AtanGPU();
+            }
+            else
+            {
+                var result = new FloatTensor(shape, this.shader, dataOnGpu);
+                var nCpu = SystemInfo.processorCount;
+                Parallel.For(0, nCpu, workerId =>
+                {
+                    var max = size * (workerId + 1) / nCpu;
+                    for (var i = size * workerId / nCpu; i < max; i++)
+                    {
+                        var d = (double) Data[i];
+                        result.Data[i] = (float) System.Math.Atan (d);
+                    }
+                });
+ 
+                return result;
+            }
+        }
+ 
+	    public void Atan_()
+	    {
+		    if (dataOnGpu)
+		    {
+			    AtanGPU_();
+		    }
+		    else
+		    {
+			    var nCpu = SystemInfo.processorCount;
+			    Parallel.For(0, nCpu, workerId =>
+			    {
+				    var max = size * (workerId + 1) / nCpu;
+				    for (var i = size * workerId / nCpu; i < max; i++)
+				    {
+					    var d = (double) Data[i];
+					    Data[i] = (float) System.Math.Atan (d);
+				    }
+			    });
+		    }
+	    }
 		public FloatTensor Add(FloatTensor x)
         {
             // Check if both tensors are compatible for sum
@@ -188,7 +322,7 @@ namespace OpenMined.Syft.Tensor
 		    }
 	    }
         
-        public FloatTensor 	Cosh()
+        public FloatTensor Cosh()
         {
             if (dataOnGpu)
             {
@@ -350,6 +484,51 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+        public FloatTensor  Sin()
+        {
+            if (dataOnGpu)
+            {
+                return SinGPU();
+            }
+            else
+            {
+                var result = new FloatTensor(shape, this.shader, dataOnGpu);
+                var nCpu = SystemInfo.processorCount;
+                Parallel.For(0, nCpu, workerId =>
+                {
+                    var max = size * (workerId + 1) / nCpu;
+                    for (var i = size * workerId / nCpu; i < max; i++)
+                    {
+                        var d = (double) Data[i];
+                        result.Data[i] = (float) System.Math.Sin(d);
+                    }
+                });
+ 
+                return result;
+            }
+        }
+ 
+	    public void Sin_()
+	    {
+		    if (dataOnGpu)
+		    {
+			    SinGPU_();
+		    }
+		    else
+		    {
+			    var nCpu = SystemInfo.processorCount;
+			    Parallel.For(0, nCpu, workerId =>
+			    {
+				    var max = size * (workerId + 1) / nCpu;
+				    for (var i = size * workerId / nCpu; i < max; i++)
+				    {
+					    var d = (double) Data[i];
+					    Data[i] = (float) System.Math.Sin(d);
+				    }
+			    });
+		    }
+	    }
+
 	    public FloatTensor Sqrt()
 	    {
 		    if (dataOnGpu)
@@ -451,6 +630,51 @@ namespace OpenMined.Syft.Tensor
 			}
 			return result;
 		}
+
+        public FloatTensor Tan()
+        {
+            if (dataOnGpu)
+            {
+                return TanGPU();
+            }
+            else
+            {
+                var result = new FloatTensor(shape, this.shader, dataOnGpu);
+                var nCpu = SystemInfo.processorCount;
+                Parallel.For(0, nCpu, workerId =>
+                {
+                    var max = size * (workerId + 1) / nCpu;
+                    for (var i = size * workerId / nCpu; i < max; i++)
+                    {
+                        var d = (double) Data[i];
+                        result.Data[i] = (float) System.Math.Tan(d);
+                    }
+                });
+ 
+                return result;
+            }
+        }
+ 
+	    public void Tan_()
+	    {
+		    if (dataOnGpu)
+		    {
+			    TanGPU_();
+		    }
+		    else
+		    {
+			    var nCpu = SystemInfo.processorCount;
+			    Parallel.For(0, nCpu, workerId =>
+			    {
+				    var max = size * (workerId + 1) / nCpu;
+				    for (var i = size * workerId / nCpu; i < max; i++)
+				    {
+					    var d = (double) Data[i];
+					    Data[i] = (float) System.Math.Tan(d);
+				    }
+			    });
+		    }
+	    }
 
         public FloatTensor Tanh()
         {
