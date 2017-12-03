@@ -827,6 +827,44 @@ namespace OpenMined.Tests
         }
 
         [Test]
+         public void Tan()
+        {
+            float[] data1 = { 30, 20, 40, 50 };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+ 
+            float[] data2 = {-6.4053312f , 2.23716094f, -1.11721493f, -0.27190061f};
+            int[] shape2 = { 4 };
+            var expectedTanTensor = new FloatTensor(data2, shape2);
+ 
+            var actualTanTensor = tensor.Tan();
+ 
+            for (int i = 2; i < actualTanTensor.Size; i++)
+            {
+                 Assert.AreEqual (expectedTanTensor.Data[i], actualTanTensor.Data[i]);
+            }
+        }
+ 
+        [Test]
+        public void Tan_()
+        {
+            float[] data1 = { 30, 20, 40, 50 };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+ 
+            float[] data2 = {-6.4053312f , 2.23716094f, -1.11721493f, -0.27190061f};
+            int[] shape2 = { 4 };
+            var expectedTanTensor = new FloatTensor(data2, shape2);
+ 
+            tensor.Tan_();
+ 
+            for (int i = 2; i < tensor.Size; i++)
+            {
+                Assert.AreEqual (expectedTanTensor.Data[i], tensor.Data[i]);
+            }
+        }
+
+        [Test]
         public void Tanh()
         {
             float[] data1 = { -0.6366f, 0.2718f, 0.4469f, 1.3122f };

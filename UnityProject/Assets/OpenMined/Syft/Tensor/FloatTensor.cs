@@ -461,6 +461,17 @@ namespace OpenMined.Syft.Tensor
 					FloatTensor result = this.Sum(int.Parse( msgObj.tensorIndexParams[0]));
 					return ctrl.addTensor (result) + "";
 				}
+                case "tan":
+                {
+                    var result = Tan();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+	            case "tan_":
+	            {
+		            Tan_();
+		            return Id.ToString();
+	            }
                 case "tanh":
                 {
                     var result = Tanh();

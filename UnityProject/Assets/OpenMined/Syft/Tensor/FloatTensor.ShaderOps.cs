@@ -71,6 +71,10 @@ namespace OpenMined.Syft.Tensor
 		[SerializeField]
 		private static int SubElemKernel;
 	  	[SerializeField]
+		private static int TanKernel;
+		[SerializeField]
+	  	private static int TanKernel_;
+    	[SerializeField]
 	  	private static int TanhKernel;
 	  	[SerializeField]
 	  	private static int SinhKernel;
@@ -118,6 +122,8 @@ namespace OpenMined.Syft.Tensor
 				SubElemKernel_ = shader.FindKernel ("SubElem_");
 				SubScalarKernel = shader.FindKernel ("SubScalar");
 				SubElemKernel = shader.FindKernel ("SubElem");
+                TanKernel = shader.FindKernel("Tan");
+				TanKernel_ = shader.FindKernel("Tan_");
 				TanhKernel = shader.FindKernel ("Tanh");
 				SinhKernel = shader.FindKernel ("Sinh");
 				SinhKernel_ = shader.FindKernel("Sinh_");
@@ -589,7 +595,23 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
-		public FloatTensor TanhGPU ()
+		public FloatTensor TanGPU()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			shader.SetBuffer(TanKernel, "TanData", dataBuffer);
+			shader.SetBuffer(TanKernel, "TanResult", result.DataBuffer);
+			shader.Dispatch(TanKernel, this.size, 1, 1);
+			return result;
+		}
+ 
+	    public void TanGPU_()
+	    {
+		    shader.SetBuffer(TanKernel_, "TanData_", dataBuffer);
+		    shader.Dispatch(TanKernel, this.size, 1, 1);
+	    }
+
+
+		public FloatTensor TanhGPU()
 		{
 			var result = new FloatTensor(shape, this.shader, dataOnGpu);
 			shader.SetBuffer(TanhKernel, "TanhData", dataBuffer);
