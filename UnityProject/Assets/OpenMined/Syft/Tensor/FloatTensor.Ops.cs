@@ -258,24 +258,25 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
 
-		public FloatTensor AddMatrixVectorProduct(FloatTensor tensor1, FloatTensor tensor2)
+		public FloatTensor AddMatrixVectorProduct(FloatTensor matrix, FloatTensor vector)
 		{
-			bool gpu = dataOnGpu & tensor1.DataOnGpu & tensor2.DataOnGpu;
-			bool cpu = !(dataOnGpu | tensor1.DataOnGpu | tensor2.DataOnGpu);
+			bool gpu = dataOnGpu & matrix.DataOnGpu & vector.DataOnGpu;
+			bool cpu = !(dataOnGpu | matrix.DataOnGpu | vector.DataOnGpu);
 
-			int[] res_shape = this.Shape;
-			int[] shape1 = tensor1.Shape;
-			int[] shape2 = tensor2.Shape;
+			int[] ref_shape = this.Shape;
+			int[] matrix_shape = matrix.Shape;
+			int[] vector_shape = vector.Shape;
 
-			if (res_shape.Length != 1)
+			if (ref_shape.Length != 1)
 				throw new InvalidOperationException("Cannot perform this operation on a tensor with more than one dimension");
-			if (res_shape[0] != shape2[0])
-				throw new InvalidOperationException(String.Format("Cannot add matrix-vector product to tensor: {0} & {1}.", res_shape[0], shape2[0]));
-			if (shape1[1] != shape2[0])
-				throw new InvalidOperationException(String.Format("Last dimension of matrix doesn't match: {0} vs {1}.", shape1[1], shape2[0]));
+			if (ref_shape[0] != vector_shape[0])
+				throw new InvalidOperationException(String.Format("Cannot add matrix-vector product to tensor: {0} & {1}.", ref_shape[0], vector_shape[0]));
+			if (matrix_shape[1] != vector_shape[0])
+				throw new InvalidOperationException(String.Format("Last dimension of matrix doesn't match: {0} vs {1}.", matrix_shape[1], vector_shape[0]));
 
 			if (gpu) 
 			{
+				AddMatrixVectorProductGPU(matrix, vector);	
 			} 
 			else if (cpu) 
 			{
@@ -285,9 +286,9 @@ namespace OpenMined.Syft.Tensor
 					var max = size * (workerId + 1) / nCpu;	
 					for (var idx = size * workerId / nCpu; idx < max; idx++)
 					{
-						for (var j = 0; j < res_shape[0]; j++)
+						for (var j = 0; j < ref_shape[0]; j++)
 						{
-							Data[idx] += tensor2.Data[j] * tensor1.Data[j + (idx * res_shape[0])];
+							Data[idx] += vector.Data[j] * matrix.Data[j + (idx * ref_shape[0])];
 						}		
 					}
 				});

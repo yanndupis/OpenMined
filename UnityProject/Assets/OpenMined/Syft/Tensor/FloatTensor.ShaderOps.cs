@@ -33,6 +33,8 @@ namespace OpenMined.Syft.Tensor
 		[SerializeField]
 		private static int AddMMKernel_;
 		[SerializeField]
+		private static int AddMVKernel_;
+		[SerializeField]
 		private static int CeilKernel;
 		[SerializeField]
 		private static int CosKernel;
@@ -119,6 +121,7 @@ namespace OpenMined.Syft.Tensor
 				AddScalarKernel = shader.FindKernel ("AddScalar");
 				AddElemKernel = shader.FindKernel ("AddElem");
 				AddMMKernel_ = shader.FindKernel ("AddMM_");
+				AddMVKernel_ = shader.FindKernel ("AddMV_");
 				CeilKernel = shader.FindKernel ("Ceil");
 				CosKernel = shader.FindKernel("Cos");
 				CosKernel_ = shader.FindKernel("Cos_");
@@ -405,7 +408,7 @@ namespace OpenMined.Syft.Tensor
 			shader.SetBuffer(AddMMKernel_, "AddmmDataC", tensor_2.DataBuffer);
 			shader.Dispatch(AddMMKernel_, size, 1, 1);
 		}
-
+			
 		public void InitAddMatrixMultiplyGpu(FloatTensor tensor_1)
 		{
 			var dim = new Dimensions[]
@@ -418,6 +421,15 @@ namespace OpenMined.Syft.Tensor
 			shader.SetBuffer(AddMMKernel_, "AddmmDimensions", dimBuffer);
 		}
 
+		public void AddMatrixVectorProductGPU(FloatTensor matrix, FloatTensor vector)
+		{
+			var refShapeBuffer = SendIntToGpu(AddMVKernel_, this.Shape[0], "AddMVRefShape_");
+			shader.SetBuffer(AddMVKernel_, "AddMVRefData", dataBuffer);
+			shader.SetBuffer(AddMVKernel_, "AddMVMatrixData", matrix.DataBuffer); //d
+			shader.SetBuffer(AddMVKernel_, "AddMVVectorData", vector.DataBuffer);
+			shader.Dispatch(AddMVKernel_, this.Size, 1, 1);
+		}
+			
 		public FloatTensor CeilGPU()
 		{
 			Debug.LogFormat("<color=blue>FloatTensor.ceil dataOnGpu: {0}</color>", dataOnGpu);

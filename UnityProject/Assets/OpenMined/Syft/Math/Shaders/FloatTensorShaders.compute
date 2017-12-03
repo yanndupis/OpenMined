@@ -150,6 +150,21 @@ void AddMM_ (uint3 id : SV_DispatchThreadID) {
 	AddmmDataA_[id.x] += product;
 }
 
+#pragma kernel AddMV_
+
+RWStructuredBuffer<int> AddMVRefShape_;
+RWStructuredBuffer<float> AddMVRefData;
+RWStructuredBuffer<float> AddMVMatrixData;
+RWStructuredBuffer<float> AddMVVectorData;
+
+[numthreads(4,1,1)]
+void AddMV_ (uint3 id : SV_DispatchThreadID){
+	int refShape = AddMVRefShape_[0];
+	for (int i = 0; i < refShape; i++){
+		AddMVRefData[id.x] += AddMVVectorData[j] * AddMVMatrixData[j + (id.x * refShape)];
+	}
+}
+
 #pragma kernel Ceil
 
 RWStructuredBuffer<float> CeilData;
