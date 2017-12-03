@@ -90,9 +90,12 @@ namespace OpenMined.Syft.Tensor
             size = 1;
             shape = (int[]) _shape.Clone();
             strides = new long[_shape.Length];
-			shader = _shader;
 
-			initShaderKernels();
+	        if (SystemInfo.supportsComputeShaders)
+	        {
+		        shader = _shader;
+		        initShaderKernels();
+	        }
 
             for (var i = _shape.Length - 1; i >= 0; --i)
             {
@@ -100,7 +103,7 @@ namespace OpenMined.Syft.Tensor
                 size *= _shape[i];
             }
 
-            if (_initOnGpu)
+            if (_initOnGpu && SystemInfo.supportsComputeShaders)
             {
                 dataOnGpu = true;
                 dataBuffer = new ComputeBuffer(size, sizeof(float));
@@ -157,9 +160,12 @@ namespace OpenMined.Syft.Tensor
 			size = _data.Length;
 			shape = (int[]) _shape.Clone();
 			strides = new long[_shape.Length];
-			shader = _shader;
 
-			initShaderKernels ();
+			if (SystemInfo.supportsComputeShaders)
+			{
+				shader = _shader;
+				initShaderKernels();
+			}
 
 			long acc = 1;
 			for (var i = _shape.Length - 1; i >= 0; --i)
@@ -171,7 +177,7 @@ namespace OpenMined.Syft.Tensor
 			if (acc != size)
 				throw new FormatException("Tensor shape and data do not match.");
 
-			if (_initOnGpu)
+			if (_initOnGpu && SystemInfo.supportsComputeShaders)
 			{
 				dataOnGpu = true;
 
@@ -204,13 +210,18 @@ namespace OpenMined.Syft.Tensor
 				throw new InvalidOperationException("Tensor shape can't be an empty array.");
 			}
 
+			if (!SystemInfo.supportsComputeShaders)
+			{
+				throw new NotSupportedException("Shader operations are not supported on the host machine.");
+			}
+
 			dataBuffer = _data;
 
 			size = _size;
 			shape = (int[]) _shape.Clone();
 			strides = new long[_shape.Length];
+			
 			shader = _shader;
-
 			initShaderKernels ();
 
 			long acc = 1;

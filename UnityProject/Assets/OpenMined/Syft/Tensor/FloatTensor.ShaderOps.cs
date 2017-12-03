@@ -133,10 +133,10 @@ namespace OpenMined.Syft.Tensor
 				MulElemKernel_ = shader.FindKernel ("MulElem_");
 				MulScalarKernel = shader.FindKernel ("MulScalar");
 				MulElemKernel = shader.FindKernel ("MulElem");
-        PowScalarKernel_ = shader.FindKernel ("PowScalar_");
-        PowElemKernel_ = shader.FindKernel ("PowElem_");
-        PowScalarKernel = shader.FindKernel ("PowScalar");
-        PowElemKernel = shader.FindKernel ("PowElem");
+        		PowScalarKernel_ = shader.FindKernel ("PowScalar_");
+        		PowElemKernel_ = shader.FindKernel ("PowElem_");
+        		PowScalarKernel = shader.FindKernel ("PowScalar");
+        		PowElemKernel = shader.FindKernel ("PowElem");
 				NegateKernel = shader.FindKernel ("Negate");
 				// PowKernel = shader.FindKernel ("Pow");
 				// PowKernel_ = shader.FindKernel ("Pow_");
