@@ -57,6 +57,10 @@ namespace OpenMined.Syft.Tensor
 		[SerializeField]
 		private static int SigmoidKernel_;
 	    [SerializeField] 
+		private static int SinKernel;
+		[SerializeField]
+	  	private static int SinKernel_;
+    	[SerializeField]
 	    private static int SqrtKernel;
 		[SerializeField]
 		private static int SubScalarKernel_;
@@ -66,16 +70,16 @@ namespace OpenMined.Syft.Tensor
 		private static int SubScalarKernel;
 		[SerializeField]
 		private static int SubElemKernel;
-	  [SerializeField]
-	  private static int TanhKernel;
-	  [SerializeField]
-	  private static int SinhKernel;
-	  [SerializeField]
-	  private static int SinhKernel_;
-    [SerializeField]
+	  	[SerializeField]
+	  	private static int TanhKernel;
+	  	[SerializeField]
+	  	private static int SinhKernel;
+	  	[SerializeField]
+	  	private static int SinhKernel_;
+    	[SerializeField]
 		private static int TriuKernel_;
-   	[SerializeField]
-   	private static int TruncKernel;
+   		[SerializeField]
+   		private static int TruncKernel;
 		[SerializeField]
 		private static int ZeroKernel_;
 
@@ -107,6 +111,8 @@ namespace OpenMined.Syft.Tensor
 				PowKernel = shader.FindKernel ("Pow");
 				PowKernel_ = shader.FindKernel ("Pow_");
 				SigmoidKernel_ = shader.FindKernel ("Sigmoid_");
+				SinKernel = shader.FindKernel("Sin");
+				SinKernel_ = shader.FindKernel("Sin_");
 				SqrtKernel = shader.FindKernel("Sqrt");
 				SubScalarKernel_ = shader.FindKernel ("SubScalar_");
 				SubElemKernel_ = shader.FindKernel ("SubElem_");
@@ -492,6 +498,22 @@ namespace OpenMined.Syft.Tensor
                 shader.Dispatch(SigmoidKernel_, this.size, 1, 1);
             }
         }
+
+
+		public FloatTensor SinGPU ()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			shader.SetBuffer(SinKernel, "SinData", dataBuffer);
+			shader.SetBuffer(SinKernel, "SinResult", result.DataBuffer);
+			shader.Dispatch(SinKernel, this.size, 1, 1);
+			return result;
+		}
+ 
+	    public void SinGPU_()
+		{
+			shader.SetBuffer(SinKernel_, "SinData_", dataBuffer);
+			shader.Dispatch(SinKernel, this.size, 1, 1);
+	    }
 
 
 		public void SubScalarGPU_(float value)

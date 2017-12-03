@@ -89,6 +89,44 @@ namespace OpenMined.Tests
         }
 
         [Test]
+        public void Sin()
+        {
+            float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+ 
+            float[] data2 = { 0.38941834f,  0.47942554f,  0.29552021f, -0.09983342f };
+            int[] shape2 = { 4 };
+            var expectedSinTensor = new FloatTensor(data2, shape2);
+ 
+            var actualSinTensor = tensor.Sin();
+ 
+            for (int i = 2; i < actualSinTensor.Size; i++)
+            {
+                 Assert.AreEqual (expectedSinTensor.Data[i], actualSinTensor.Data[i]);
+            }
+        }
+ 
+        [Test]
+        public void Sin_()
+        {
+            float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+ 
+            float[] data2 = {  0.38941834f,  0.47942554f,  0.29552021f, -0.09983342f };
+            int[] shape2 = { 4 };
+            var expectedSinTensor = new FloatTensor(data2, shape2);
+ 
+            tensor.Sin_();
+ 
+            for (int i = 2; i < tensor.Size; i++)
+            {
+                Assert.AreEqual (expectedSinTensor.Data[i], tensor.Data[i]);
+            }
+        }
+
+        [Test]
         public void Cosh()
         {
             float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };

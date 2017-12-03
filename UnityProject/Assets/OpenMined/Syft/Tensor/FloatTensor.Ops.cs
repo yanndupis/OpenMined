@@ -188,7 +188,7 @@ namespace OpenMined.Syft.Tensor
 		    }
 	    }
         
-        public FloatTensor 	Cosh()
+        public FloatTensor Cosh()
         {
             if (dataOnGpu)
             {
@@ -349,6 +349,51 @@ namespace OpenMined.Syft.Tensor
             });
             return result;
         }
+
+        public FloatTensor  Sin()
+        {
+            if (dataOnGpu)
+            {
+                return SinGPU();
+            }
+            else
+            {
+                var result = new FloatTensor(shape, this.shader, dataOnGpu);
+                var nCpu = SystemInfo.processorCount;
+                Parallel.For(0, nCpu, workerId =>
+                {
+                    var max = size * (workerId + 1) / nCpu;
+                    for (var i = size * workerId / nCpu; i < max; i++)
+                    {
+                        var d = (double) Data[i];
+                        result.Data[i] = (float) System.Math.Sin(d);
+                    }
+                });
+ 
+                return result;
+            }
+        }
+ 
+	    public void Sin_()
+	    {
+		    if (dataOnGpu)
+		    {
+			    SinGPU_();
+		    }
+		    else
+		    {
+			    var nCpu = SystemInfo.processorCount;
+			    Parallel.For(0, nCpu, workerId =>
+			    {
+				    var max = size * (workerId + 1) / nCpu;
+				    for (var i = size * workerId / nCpu; i < max; i++)
+				    {
+					    var d = (double) Data[i];
+					    Data[i] = (float) System.Math.Sin(d);
+				    }
+			    });
+		    }
+	    }
 
 	    public FloatTensor Sqrt()
 	    {
