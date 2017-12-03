@@ -428,6 +428,7 @@ namespace OpenMined.Syft.Tensor
 			shader.SetBuffer(AddMVKernel_, "AddMVMatrixData", matrix.DataBuffer); //d
 			shader.SetBuffer(AddMVKernel_, "AddMVVectorData", vector.DataBuffer);
 			shader.Dispatch(AddMVKernel_, this.Size, 1, 1);
+			refShapeBuffer.Release();
 		}
 			
 		public FloatTensor CeilGPU()
