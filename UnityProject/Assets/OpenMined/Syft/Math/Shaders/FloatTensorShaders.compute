@@ -30,6 +30,60 @@ void Abs_ (uint3 id : SV_DispatchThreadID) {
 	}
 }
 
+#pragma kernel Acos
+ 
+RWStructuredBuffer<float> AcosData;
+RWStructuredBuffer<float> AcosResult;
+ 
+[numthreads(4,1,1)]
+void Acos (uint3 id: SV_DispatchThreadID) {
+	AcosResult[id.x] = acos(AcosData[id.x]);
+}
+ 
+#pragma kernel Acos_
+RWStructuredBuffer<float> AcosData_;
+ 
+[numthreads(4,1,1)]
+void Acos_ (uint3 id: SV_DispatchThreadID) {
+    AcosData_[id.x] = acos(AcosData_[id.x]);
+}
+
+#pragma kernel Asin
+ 
+RWStructuredBuffer<float> AsinData;
+RWStructuredBuffer<float> AsinResult;
+ 
+[numthreads(4,1,1)]
+void Asin (uint3 id: SV_DispatchThreadID) {
+	AsinResult[id.x] = asin(AsinData[id.x]);
+}
+ 
+#pragma kernel Asin_
+RWStructuredBuffer<float> AsinData_;
+ 
+[numthreads(4,1,1)]
+void Asin_ (uint3 id: SV_DispatchThreadID) {
+    AsinData_[id.x] = asin(AsinData_[id.x]);
+}
+
+#pragma kernel Atan
+ 
+RWStructuredBuffer<float> AtanData;
+RWStructuredBuffer<float> AtanResult;
+ 
+[numthreads(4,1,1)]
+void Atan (uint3 id: SV_DispatchThreadID) {
+	AtanResult[id.x] = atan(AtanData[id.x]);
+}
+ 
+#pragma kernel Atan_
+RWStructuredBuffer<float> AtanData_;
+ 
+[numthreads(4,1,1)]
+void Atan_ (uint3 id: SV_DispatchThreadID) {
+    AtanData_[id.x] = atan(AtanData_[id.x]);
+}
+
 #pragma kernel AddScalar_
 
 RWStructuredBuffer<float> AddScalarData_;
@@ -294,6 +348,24 @@ void Sigmoid_ (uint3 id : SV_DispatchThreadID) {
 	SigmoidData_[id.x] = 1 / (1 + exp(-SigmoidData_[id.x]));
 }
 
+#pragma kernel Sin
+ 
+RWStructuredBuffer<float> SinData;
+RWStructuredBuffer<float> SinResult;
+ 
+[numthreads(4,1,1)]
+void Sin (uint3 id: SV_DispatchThreadID) {
+	SinResult[id.x] = sin(SinData[id.x]);
+}
+ 
+#pragma kernel Sin_
+RWStructuredBuffer<float> SinData_;
+ 
+[numthreads(4,1,1)]
+void Sin_ (uint3 id: SV_DispatchThreadID) {
+    SinData_[id.x] = sin(SinData_[id.x]);
+}
+
 #pragma kernel Sqrt
 
 RWStructuredBuffer<float> SqrtData;
@@ -344,6 +416,24 @@ RWStructuredBuffer<float> SubElemDataResult;
 [numthreads(4,1,1)]
 void SubElem (uint3 id: SV_DispatchThreadID) {
 	SubElemDataResult[id.x] = SubElemDataA[id.x] - SubElemDataB[id.x];
+}
+
+#pragma kernel Tan
+ 
+RWStructuredBuffer<float> TanData;
+RWStructuredBuffer<float> TanResult;
+ 
+[numthreads(4,1,1)]
+void Tan (uint3 id: SV_DispatchThreadID) {
+	TanResult[id.x] = tan(TanData[id.x]);
+}
+ 
+#pragma kernel Tan_
+RWStructuredBuffer<float> TanData_;
+ 
+[numthreads(4,1,1)]
+void Tan_ (uint3 id: SV_DispatchThreadID) {
+    TanData_[id.x] = tan(TanData_[id.x]);
 }
 
 #pragma kernel Tanh

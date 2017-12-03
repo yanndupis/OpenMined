@@ -11,6 +11,18 @@ namespace OpenMined.Syft.Tensor
         [SerializeField]
 		private static int AbsKernel_;
 		[SerializeField]
+		private static int AcosKernel;
+		[SerializeField]
+	  	private static int AcosKernel_;
+    	[SerializeField]
+		private static int AsinKernel;
+		[SerializeField]
+	  	private static int AsinKernel_;
+    	[SerializeField]
+		private static int AtanKernel;
+		[SerializeField]
+	  	private static int AtanKernel_;
+		[SerializeField]
 		private static int AddScalarKernel_;
 		[SerializeField]
 		private static int AddElemKernel_;
@@ -60,7 +72,11 @@ namespace OpenMined.Syft.Tensor
 		private static int NegateKernel;
 		[SerializeField]
 		private static int SigmoidKernel_;
-	    [SerializeField]
+	    [SerializeField] 
+		private static int SinKernel;
+		[SerializeField]
+	  	private static int SinKernel_;
+    	[SerializeField]
 	    private static int SqrtKernel;
 		[SerializeField]
 		private static int SubScalarKernel_;
@@ -70,16 +86,20 @@ namespace OpenMined.Syft.Tensor
 		private static int SubScalarKernel;
 		[SerializeField]
 		private static int SubElemKernel;
-	  [SerializeField]
-	  private static int TanhKernel;
-	  [SerializeField]
-	  private static int SinhKernel;
-	  [SerializeField]
-	  private static int SinhKernel_;
-    [SerializeField]
+	  	[SerializeField]
+		private static int TanKernel;
+		[SerializeField]
+	  	private static int TanKernel_;
+    	[SerializeField]
+	  	private static int TanhKernel;
+	  	[SerializeField]
+	  	private static int SinhKernel;
+	  	[SerializeField]
+	  	private static int SinhKernel_;
+    	[SerializeField]
 		private static int TriuKernel_;
-   	[SerializeField]
-   	private static int TruncKernel;
+   		[SerializeField]
+   		private static int TruncKernel;
 		[SerializeField]
 		private static int ZeroKernel_;
 
@@ -88,6 +108,12 @@ namespace OpenMined.Syft.Tensor
 				// save shaders and kernels
 				AbsKernel = shader.FindKernel ("Abs");
 				AbsKernel_ = shader.FindKernel ("Abs_");
+                AcosKernel = shader.FindKernel("Acos");
+				AcosKernel_ = shader.FindKernel("Acos_");
+				AsinKernel = shader.FindKernel("Asin");
+				AsinKernel_ = shader.FindKernel("Asin_");
+        		AtanKernel = shader.FindKernel("Atan");
+				AtanKernel_ = shader.FindKernel("Atan_");
 				AddScalarKernel_ = shader.FindKernel ("AddScalar_");
 				AddElemKernel_ = shader.FindKernel ("AddElem_");
 				AddScalarKernel = shader.FindKernel ("AddScalar");
@@ -115,11 +141,15 @@ namespace OpenMined.Syft.Tensor
 				// PowKernel = shader.FindKernel ("Pow");
 				// PowKernel_ = shader.FindKernel ("Pow_");
 				SigmoidKernel_ = shader.FindKernel ("Sigmoid_");
+				SinKernel = shader.FindKernel("Sin");
+				SinKernel_ = shader.FindKernel("Sin_");
 				SqrtKernel = shader.FindKernel("Sqrt");
 				SubScalarKernel_ = shader.FindKernel ("SubScalar_");
 				SubElemKernel_ = shader.FindKernel ("SubElem_");
 				SubScalarKernel = shader.FindKernel ("SubScalar");
 				SubElemKernel = shader.FindKernel ("SubElem");
+                TanKernel = shader.FindKernel("Tan");
+				TanKernel_ = shader.FindKernel("Tan_");
 				TanhKernel = shader.FindKernel ("Tanh");
 				SinhKernel = shader.FindKernel ("Sinh");
 				SinhKernel_ = shader.FindKernel("Sinh_");
@@ -147,6 +177,51 @@ namespace OpenMined.Syft.Tensor
 				shader.Dispatch (AbsKernel_, this.size, 1, 1);
 			}
 		}
+
+		public FloatTensor AcosGPU ()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			shader.SetBuffer(AcosKernel, "AcosData", dataBuffer);
+			shader.SetBuffer(AcosKernel, "AcosResult", result.DataBuffer);
+			shader.Dispatch(AcosKernel, this.size, 1, 1);
+			return result;
+		}
+ 
+	    public void AcosGPU_()
+	    {
+		    shader.SetBuffer(AcosKernel_, "AcosData_", dataBuffer);
+		    shader.Dispatch(AcosKernel, this.size, 1, 1);
+	    }
+
+		public FloatTensor AsinGPU ()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			shader.SetBuffer(AsinKernel, "AsinData", dataBuffer);
+			shader.SetBuffer(AsinKernel, "AsinResult", result.DataBuffer);
+			shader.Dispatch(AsinKernel, this.size, 1, 1);
+			return result;
+		}
+ 
+	    public void AsinGPU_()
+	    {
+		    shader.SetBuffer(AsinKernel_, "AsinData_", dataBuffer);
+		    shader.Dispatch(AsinKernel, this.size, 1, 1);
+	    }
+
+		public FloatTensor AtanGPU ()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			shader.SetBuffer(AtanKernel, "AtanData", dataBuffer);
+			shader.SetBuffer(AtanKernel, "AtanResult", result.DataBuffer);
+			shader.Dispatch(AtanKernel, this.size, 1, 1);
+			return result;
+		}
+ 
+	    public void AtanGPU_()
+	    {
+		    shader.SetBuffer(AtanKernel_, "AtanData_", dataBuffer);
+		    shader.Dispatch(AtanKernel, this.size, 1, 1);
+	    }
 
 		public void AddScalarGPU_(float value)
 		{
@@ -561,6 +636,22 @@ namespace OpenMined.Syft.Tensor
         }
 
 
+		public FloatTensor SinGPU ()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			shader.SetBuffer(SinKernel, "SinData", dataBuffer);
+			shader.SetBuffer(SinKernel, "SinResult", result.DataBuffer);
+			shader.Dispatch(SinKernel, this.size, 1, 1);
+			return result;
+		}
+ 
+	    public void SinGPU_()
+		{
+			shader.SetBuffer(SinKernel_, "SinData_", dataBuffer);
+			shader.Dispatch(SinKernel, this.size, 1, 1);
+	    }
+
+
 		public void SubScalarGPU_(float value)
 		{
 			Debug.LogFormat("<color=blue>FloatTensor.SubScalarGPU_ dataOnGpu: {0}</color>", dataOnGpu);
@@ -634,7 +725,23 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
-		public FloatTensor TanhGPU ()
+		public FloatTensor TanGPU()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			shader.SetBuffer(TanKernel, "TanData", dataBuffer);
+			shader.SetBuffer(TanKernel, "TanResult", result.DataBuffer);
+			shader.Dispatch(TanKernel, this.size, 1, 1);
+			return result;
+		}
+ 
+	    public void TanGPU_()
+	    {
+		    shader.SetBuffer(TanKernel_, "TanData_", dataBuffer);
+		    shader.Dispatch(TanKernel, this.size, 1, 1);
+	    }
+
+
+		public FloatTensor TanhGPU()
 		{
 			var result = new FloatTensor(shape, this.shader, dataOnGpu);
 			shader.SetBuffer(TanhKernel, "TanhData", dataBuffer);
