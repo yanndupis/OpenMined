@@ -106,39 +106,39 @@ void Ceil (uint3 id: SV_DispatchThreadID) {
 }
 
  #pragma kernel Cos
- 
+
 RWStructuredBuffer<float> CosData;
 RWStructuredBuffer<float> CosResult;
- 
+
 [numthreads(4,1,1)]
 void Cos (uint3 id: SV_DispatchThreadID) {
-	CosResult[id.x] = Cos(CosData[id.x]);
+	CosResult[id.x] = cos(CosData[id.x]);
 }
 
 #pragma kernel Cos_
 RWStructuredBuffer<float> CosData_;
- 
+
 [numthreads(4,1,1)]
 void Cos_ (uint3 id: SV_DispatchThreadID) {
-    CosData_[id.x] = Cos(CosData_[id.x]);
+    CosData_[id.x] = cos(CosData_[id.x]);
 }
 
  #pragma kernel Cosh
- 
+
 RWStructuredBuffer<float> CoshData;
 RWStructuredBuffer<float> CoshResult;
- 
+
 [numthreads(4,1,1)]
 void Cosh (uint3 id: SV_DispatchThreadID) {
-	CoshResult[id.x] = Cosh(CoshData[id.x]);
+	CoshResult[id.x] = cosh(CoshData[id.x]);
 }
 
 #pragma kernel Cosh_
 RWStructuredBuffer<float> CoshData_;
- 
+
 [numthreads(4,1,1)]
 void Cosh_ (uint3 id: SV_DispatchThreadID) {
-    CoshData_[id.x] = Cosh(CoshData_[id.x]);
+    CoshData_[id.x] = cosh(CoshData_[id.x]);
 }
 
 #pragma kernel DivScalar_
