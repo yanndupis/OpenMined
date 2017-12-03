@@ -238,8 +238,39 @@ namespace OpenMined.Syft.Tensor
 					// returns the function call name with the OK status
 					return id.ToString();
 				}
-
-
+                case "acos":
+                {
+                    var result = Acos();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+	            case "acos_":
+	            {
+		            Acos_();
+		            return Id.ToString();
+	            }
+                case "atan":
+                {
+                    var result = Atan();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+	            case "atan_":
+	            {
+		            Atan_();
+		            return Id.ToString();
+	            }
+                case "asin":
+                {
+                    var result = Asin();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
+	            case "asin_":
+	            {
+		            Asin_();
+		            return Id.ToString();
+	            }
                 case "add_elem":
                 {
 				    Debug.LogFormat("add_elem");

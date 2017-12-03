@@ -11,6 +11,18 @@ namespace OpenMined.Syft.Tensor
         [SerializeField]
 		private static int AbsKernel_;
 		[SerializeField]
+		private static int AcosKernel;
+		[SerializeField]
+	  	private static int AcosKernel_;
+    	[SerializeField]
+		private static int AsinKernel;
+		[SerializeField]
+	  	private static int AsinKernel_;
+    	[SerializeField]
+		private static int AtanKernel;
+		[SerializeField]
+	  	private static int AtanKernel_;
+		[SerializeField]
 		private static int AddScalarKernel_;
 		[SerializeField]
 		private static int AddElemKernel_;
@@ -92,6 +104,12 @@ namespace OpenMined.Syft.Tensor
 				// save shaders and kernels
 				AbsKernel = shader.FindKernel ("Abs");
 				AbsKernel_ = shader.FindKernel ("Abs_");
+                AcosKernel = shader.FindKernel("Acos");
+				AcosKernel_ = shader.FindKernel("Acos_");
+				AsinKernel = shader.FindKernel("Asin");
+				AsinKernel_ = shader.FindKernel("Asin_");
+        		AtanKernel = shader.FindKernel("Atan");
+				AtanKernel_ = shader.FindKernel("Atan_");
 				AddScalarKernel_ = shader.FindKernel ("AddScalar_");
 				AddElemKernel_ = shader.FindKernel ("AddElem_");
 				AddScalarKernel = shader.FindKernel ("AddScalar");
@@ -151,6 +169,51 @@ namespace OpenMined.Syft.Tensor
 				shader.Dispatch (AbsKernel_, this.size, 1, 1);
 			}
 		}
+
+		public FloatTensor AcosGPU ()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			shader.SetBuffer(AcosKernel, "AcosData", dataBuffer);
+			shader.SetBuffer(AcosKernel, "AcosResult", result.DataBuffer);
+			shader.Dispatch(AcosKernel, this.size, 1, 1);
+			return result;
+		}
+ 
+	    public void AcosGPU_()
+	    {
+		    shader.SetBuffer(AcosKernel_, "AcosData_", dataBuffer);
+		    shader.Dispatch(AcosKernel, this.size, 1, 1);
+	    }
+
+		public FloatTensor AsinGPU ()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			shader.SetBuffer(AsinKernel, "AsinData", dataBuffer);
+			shader.SetBuffer(AsinKernel, "AsinResult", result.DataBuffer);
+			shader.Dispatch(AsinKernel, this.size, 1, 1);
+			return result;
+		}
+ 
+	    public void AsinGPU_()
+	    {
+		    shader.SetBuffer(AsinKernel_, "AsinData_", dataBuffer);
+		    shader.Dispatch(AsinKernel, this.size, 1, 1);
+	    }
+
+		public FloatTensor AtanGPU ()
+		{
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			shader.SetBuffer(AtanKernel, "AtanData", dataBuffer);
+			shader.SetBuffer(AtanKernel, "AtanResult", result.DataBuffer);
+			shader.Dispatch(AtanKernel, this.size, 1, 1);
+			return result;
+		}
+ 
+	    public void AtanGPU_()
+	    {
+		    shader.SetBuffer(AtanKernel_, "AtanData_", dataBuffer);
+		    shader.Dispatch(AtanKernel, this.size, 1, 1);
+	    }
 
 		public void AddScalarGPU_(float value)
 		{
