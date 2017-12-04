@@ -608,7 +608,7 @@ namespace OpenMined.Tests
         }
 
         [Test]
-        public void ElementwiseMultiplicationUnequalSizes()
+        public void MulElementwiseUnequalSizes()
         {
             float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
             int[] shape1 = { 2, 5 };
@@ -623,7 +623,7 @@ namespace OpenMined.Tests
         }
 
         [Test]
-        public void ElementwiseMultiplicationUnequalDimensions()
+        public void MulElementwiseUnequalDimensions()
         {
             float[] data1 = { 1, 2, 3, 4 };
             int[] shape1 = { 4 };
@@ -638,7 +638,7 @@ namespace OpenMined.Tests
         }
 
         [Test]
-        public void ElementwiseMultiplicationUnequalShapes()
+        public void MulElementwiseUnequalShapes()
         {
             float[] data1 = { 1, 2, 3, 4, 5, 6 };
             int[] shape1 = { 2, 3 };
@@ -675,7 +675,7 @@ namespace OpenMined.Tests
         }
 
         [Test]
-        public void ElementwiseMultiplicationUnequalSizes_()
+        public void MulElementwiseUnequalSizes_()
         {
             float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
             int[] shape1 = { 2, 5 };
@@ -690,7 +690,7 @@ namespace OpenMined.Tests
         }
 
         [Test]
-        public void ElementwiseMultiplicationUnequalDimensions_()
+        public void MulElementwisenUnequalDimensions_()
         {
             float[] data1 = { 1, 2, 3, 4 };
             int[] shape1 = { 4 };
@@ -705,7 +705,7 @@ namespace OpenMined.Tests
         }
 
         [Test]
-        public void ElementwiseMultiplicationUnequalShapes_()
+        public void MulElementwiseUnequalShapes_()
         {
             float[] data1 = { 1, 2, 3, 4, 5, 6 };
             int[] shape1 = { 2, 3 };
@@ -719,7 +719,7 @@ namespace OpenMined.Tests
         }
 
         [Test]
-        public void DivElem_()
+        public void DivElementwise_()
         {
             float[] data1 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
             int[] shape1 = {2, 4};
@@ -738,7 +738,7 @@ namespace OpenMined.Tests
         }
 
         [Test]
-        public void DivElem()
+        public void DivElementwise()
         {
             float[] data1 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
             int[] shape1 = {2, 4};
@@ -758,7 +758,7 @@ namespace OpenMined.Tests
         }
 
         [Test]
-        public void DivElemUnequalSizes()
+        public void DivElementwiseUnequalSizes()
         {
             float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
             int[] shape1 = { 2, 5 };
@@ -773,7 +773,7 @@ namespace OpenMined.Tests
         }
 
         [Test]
-        public void DivElemUnequalDimensions()
+        public void DivElementwiseUnequalDimensions()
         {
             float[] data1 = { 1, 2, 3, 4 };
             int[] shape1 = { 4 };
@@ -788,7 +788,7 @@ namespace OpenMined.Tests
         }
 
         [Test]
-        public void DivElemUnequalShapes()
+        public void DivElementwiseUnequalShapes()
         {
             float[] data1 = { 1, 2, 3, 4, 5, 6 };
             int[] shape1 = { 2, 3 };
@@ -801,6 +801,7 @@ namespace OpenMined.Tests
             Assert.That(() => tensor1.Div(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
+
         [Test]
         public void DivScalar()
         {
