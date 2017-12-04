@@ -55,13 +55,13 @@ namespace OpenMined.Tests
             float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
             int[] shape1 = { 4 };
             var tensor = new FloatTensor(data1, shape1);
- 
+
             float[] data2 = { 0.92106099f,  0.87758256f,  0.95533649f,  0.99500417f };
             int[] shape2 = { 4 };
             var expectedCosTensor = new FloatTensor(data2, shape2);
- 
+
             var actualCosTensor = tensor.Cos();
- 
+
             for (int i = 2; i < actualCosTensor.Size; i++)
             {
                  Assert.AreEqual (expectedCosTensor.Data[i], actualCosTensor.Data[i]);
@@ -74,13 +74,13 @@ namespace OpenMined.Tests
             float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
             int[] shape1 = { 4 };
             var tensor = new FloatTensor(data1, shape1);
- 
+
             float[] data2 = {  0.92106099f,  0.87758256f,  0.95533649f,  0.99500417f };
             int[] shape2 = { 4 };
             var expectedCosTensor = new FloatTensor(data2, shape2);
- 
+
             tensor.Cos_();
- 
+
             for (int i = 2; i < tensor.Size; i++)
             {
                 Assert.AreEqual (expectedCosTensor.Data[i], tensor.Data[i]);
@@ -93,109 +93,109 @@ namespace OpenMined.Tests
             float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
             int[] shape1 = { 4 };
             var tensor = new FloatTensor(data1, shape1);
- 
+
             float[] data2 = { 1.15927948f,  1.04719755f,  1.26610367f,  1.67096375f };
             int[] shape2 = { 4 };
             var expectedAcosTensor = new FloatTensor(data2, shape2);
- 
+
             var actualAcosTensor = tensor.Acos();
- 
+
             for (int i = 2; i < actualAcosTensor.Size; i++)
             {
                  Assert.AreEqual (expectedAcosTensor.Data[i], actualAcosTensor.Data[i]);
             }
         }
- 
+
         [Test]
         public void Acos_()
         {
             float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
             int[] shape1 = { 4 };
             var tensor = new FloatTensor(data1, shape1);
- 
+
             float[] data2 = {  1.15927948f,  1.04719755f,  1.26610367f,  1.67096375f };
             int[] shape2 = { 4 };
             var expectedAcosTensor = new FloatTensor(data2, shape2);
- 
+
             tensor.Acos_();
- 
+
             for (int i = 2; i < tensor.Size; i++)
             {
                 Assert.AreEqual (expectedAcosTensor.Data[i], tensor.Data[i]);
             }
         }
- 
+
 	     [Test]
          public void Asin()
         {
             float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
             int[] shape1 = { 4 };
             var tensor = new FloatTensor(data1, shape1);
- 
+
             float[] data2 = { 0.41151685f,  0.52359878f,  0.30469265f, -0.10016742f };
             int[] shape2 = { 4 };
             var expectedAsinTensor = new FloatTensor(data2, shape2);
- 
+
             var actualAsinTensor = tensor.Asin();
- 
+
             for (int i = 2; i < actualAsinTensor.Size; i++)
             {
                  Assert.AreEqual (expectedAsinTensor.Data[i], actualAsinTensor.Data[i]);
             }
         }
- 
+
         [Test]
         public void Asin_()
         {
             float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
             int[] shape1 = { 4 };
             var tensor = new FloatTensor(data1, shape1);
- 
+
             float[] data2 = {  0.41151685f,  0.52359878f,  0.30469265f, -0.10016742f };
             int[] shape2 = { 4 };
             var expectedAsinTensor = new FloatTensor(data2, shape2);
- 
+
             tensor.Asin_();
- 
+
             for (int i = 2; i < tensor.Size; i++)
             {
                 Assert.AreEqual (expectedAsinTensor.Data[i], tensor.Data[i]);
             }
         }
- 
+
 	     [Test]
          public void Atan()
         {
             float[] data1 = { 30, 20, 40, 50 };
             int[] shape1 = { 4 };
             var tensor = new FloatTensor(data1, shape1);
- 
+
             float[] data2 = {  1.53747533f,  1.52083793f,  1.54580153f,  1.55079899f };
             int[] shape2 = { 4 };
             var expectedAtanTensor = new FloatTensor(data2, shape2);
 
             var actualAtanTensor = tensor.Atan();
- 
+
             for (int i = 2; i < actualAtanTensor.Size; i++)
             {
                  Assert.AreEqual (expectedAtanTensor.Data[i], actualAtanTensor.Data[i]);
             }
 
         }
- 
+
         [Test]
         public void Atan_()
         {
             float[] data1 = { 30, 20, 40, 50 };
             int[] shape1 = { 4 };
             var tensor = new FloatTensor(data1, shape1);
- 
+
             float[] data2 = { 1.53747533f,  1.52083793f,  1.54580153f,  1.55079899f };
             int[] shape2 = { 4 };
             var expectedAtanTensor = new FloatTensor(data2, shape2);
- 
+
             tensor.Atan_();
- 
+
             for (int i = 2; i < tensor.Size; i++)
             {
                 Assert.AreEqual (expectedAtanTensor.Data[i], tensor.Data[i]);
@@ -208,32 +208,32 @@ namespace OpenMined.Tests
             float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
             int[] shape1 = { 4 };
             var tensor = new FloatTensor(data1, shape1);
- 
+
             float[] data2 = { 0.38941834f,  0.47942554f,  0.29552021f, -0.09983342f };
             int[] shape2 = { 4 };
             var expectedSinTensor = new FloatTensor(data2, shape2);
- 
+
             var actualSinTensor = tensor.Sin();
- 
+
             for (int i = 2; i < actualSinTensor.Size; i++)
             {
                  Assert.AreEqual (expectedSinTensor.Data[i], actualSinTensor.Data[i]);
             }
         }
- 
+
         [Test]
         public void Sin_()
         {
             float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
             int[] shape1 = { 4 };
             var tensor = new FloatTensor(data1, shape1);
- 
+
             float[] data2 = {  0.38941834f,  0.47942554f,  0.29552021f, -0.09983342f };
             int[] shape2 = { 4 };
             var expectedSinTensor = new FloatTensor(data2, shape2);
- 
+
             tensor.Sin_();
- 
+
             for (int i = 2; i < tensor.Size; i++)
             {
                 Assert.AreEqual (expectedSinTensor.Data[i], tensor.Data[i]);
@@ -246,13 +246,13 @@ namespace OpenMined.Tests
             float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
             int[] shape1 = { 4 };
             var tensor = new FloatTensor(data1, shape1);
- 
+
             float[] data2 = {  1.08107237f,  1.12762597f,  1.04533851f,  1.00500417f };
             int[] shape2 = { 4 };
             var expectedCoshTensor = new FloatTensor(data2, shape2);
- 
+
             var actualCoshTensor = tensor.Cosh();
- 
+
             for (int i = 2; i < actualCoshTensor.Size; i++)
             {
                  Assert.AreEqual (expectedCoshTensor.Data[i], actualCoshTensor.Data[i]);
@@ -265,13 +265,13 @@ namespace OpenMined.Tests
             float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
             int[] shape1 = { 4 };
             var tensor = new FloatTensor(data1, shape1);
- 
+
             float[] data2 = {  1.08107237f,  1.12762597f,  1.04533851f,  1.00500417f };
             int[] shape2 = { 4 };
             var expectedCoshTensor = new FloatTensor(data2, shape2);
- 
+
             tensor.Cosh_();
- 
+
             for (int i = 2; i < tensor.Size; i++)
             {
                 Assert.AreEqual (expectedCoshTensor.Data[i], tensor.Data[i]);
@@ -982,32 +982,32 @@ namespace OpenMined.Tests
             float[] data1 = { 30, 20, 40, 50 };
             int[] shape1 = { 4 };
             var tensor = new FloatTensor(data1, shape1);
- 
+
             float[] data2 = {-6.4053312f , 2.23716094f, -1.11721493f, -0.27190061f};
             int[] shape2 = { 4 };
             var expectedTanTensor = new FloatTensor(data2, shape2);
- 
+
             var actualTanTensor = tensor.Tan();
- 
+
             for (int i = 2; i < actualTanTensor.Size; i++)
             {
                  Assert.AreEqual (expectedTanTensor.Data[i], actualTanTensor.Data[i]);
             }
         }
- 
+
         [Test]
         public void Tan_()
         {
             float[] data1 = { 30, 20, 40, 50 };
             int[] shape1 = { 4 };
             var tensor = new FloatTensor(data1, shape1);
- 
+
             float[] data2 = {-6.4053312f , 2.23716094f, -1.11721493f, -0.27190061f};
             int[] shape2 = { 4 };
             var expectedTanTensor = new FloatTensor(data2, shape2);
- 
+
             tensor.Tan_();
- 
+
             for (int i = 2; i < tensor.Size; i++)
             {
                 Assert.AreEqual (expectedTanTensor.Data[i], tensor.Data[i]);
@@ -1060,7 +1060,25 @@ namespace OpenMined.Tests
                  Assert.AreEqual (expectedTanhTensor.Data[i], actualTanhTensor.Data[i]);
             }
         }
-        
+
+        [Test]
+        public void SizeTensor()
+        {
+          float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+          int[] shape1 = { 2, 3, 2 };
+          var tensor = new FloatTensor(data1, shape1);
+          var actualSizeTensor = tensor.SizeTensor();
+
+          float[] data2 = { 2, 3, 2 };
+          int[] shape2 = { 3 };
+          var expectedSizeTensor = new FloatTensor(data2, shape2);
+
+          for (int i = 0; i < shape1.Length; i++)
+          {
+            Assert.AreEqual (actualSizeTensor.Data[i], expectedSizeTensor.Data[i]);
+          }
+        }
+
         [Test]
         public void Sqrt()
         {
@@ -1220,7 +1238,7 @@ namespace OpenMined.Tests
               Assert.AreEqual (tensor7.Data[i], tensor7Triu.Data[i]);
             }
         }
-      
+
         public void IsContiguous()
         {
           float[] data = new float[] { 1, 2, 3, 4, 5, 6 };

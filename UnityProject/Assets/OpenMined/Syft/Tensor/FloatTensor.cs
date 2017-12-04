@@ -220,7 +220,7 @@ namespace OpenMined.Syft.Tensor
 			size = _size;
 			shape = (int[]) _shape.Clone();
 			strides = new long[_shape.Length];
-			
+
 			shader = _shader;
 			initShaderKernels ();
 
@@ -346,7 +346,7 @@ namespace OpenMined.Syft.Tensor
 					var tensor_2 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[1]));
 					AddMatrixVectorProduct(tensor_1, tensor_2);
 					return msgObj.functionCall + ": OK";
-				}	
+				}
                 case "ceil":
                 {
                     var result = Ceil();
@@ -524,6 +524,12 @@ namespace OpenMined.Syft.Tensor
                 case "sqrt":
                 {
                   var result = Sqrt();
+                  ctrl.addTensor(result);
+                  return result.id.ToString();
+                }
+                case "size":
+                {
+                  var result = SizeTensor();
                   ctrl.addTensor(result);
                   return result.id.ToString();
                 }
