@@ -30,6 +30,60 @@ void Abs_ (uint3 id : SV_DispatchThreadID) {
 	}
 }
 
+#pragma kernel Acos
+ 
+RWStructuredBuffer<float> AcosData;
+RWStructuredBuffer<float> AcosResult;
+ 
+[numthreads(4,1,1)]
+void Acos (uint3 id: SV_DispatchThreadID) {
+	AcosResult[id.x] = acos(AcosData[id.x]);
+}
+ 
+#pragma kernel Acos_
+RWStructuredBuffer<float> AcosData_;
+ 
+[numthreads(4,1,1)]
+void Acos_ (uint3 id: SV_DispatchThreadID) {
+    AcosData_[id.x] = acos(AcosData_[id.x]);
+}
+
+#pragma kernel Asin
+ 
+RWStructuredBuffer<float> AsinData;
+RWStructuredBuffer<float> AsinResult;
+ 
+[numthreads(4,1,1)]
+void Asin (uint3 id: SV_DispatchThreadID) {
+	AsinResult[id.x] = asin(AsinData[id.x]);
+}
+ 
+#pragma kernel Asin_
+RWStructuredBuffer<float> AsinData_;
+ 
+[numthreads(4,1,1)]
+void Asin_ (uint3 id: SV_DispatchThreadID) {
+    AsinData_[id.x] = asin(AsinData_[id.x]);
+}
+
+#pragma kernel Atan
+ 
+RWStructuredBuffer<float> AtanData;
+RWStructuredBuffer<float> AtanResult;
+ 
+[numthreads(4,1,1)]
+void Atan (uint3 id: SV_DispatchThreadID) {
+	AtanResult[id.x] = atan(AtanData[id.x]);
+}
+ 
+#pragma kernel Atan_
+RWStructuredBuffer<float> AtanData_;
+ 
+[numthreads(4,1,1)]
+void Atan_ (uint3 id: SV_DispatchThreadID) {
+    AtanData_[id.x] = atan(AtanData_[id.x]);
+}
+
 #pragma kernel AddScalar_
 
 RWStructuredBuffer<float> AddScalarData_;
@@ -94,6 +148,21 @@ void AddMM_ (uint3 id : SV_DispatchThreadID) {
 	}
 
 	AddmmDataA_[id.x] += product;
+}
+
+#pragma kernel AddMV_
+
+RWStructuredBuffer<int> AddMVRefShape_;
+RWStructuredBuffer<float> AddMVRefData;
+RWStructuredBuffer<float> AddMVMatrixData;
+RWStructuredBuffer<float> AddMVVectorData;
+
+[numthreads(4,1,1)]
+void AddMV_ (uint3 id : SV_DispatchThreadID){
+	int refShape = AddMVRefShape_[0];
+	for (int i = 0; i < refShape; i++){
+		AddMVRefData[id.x] += AddMVVectorData[i] * AddMVMatrixData[i + (id.x * refShape)];
+	}
 }
 
 #pragma kernel Ceil
@@ -234,6 +303,48 @@ void MulElem (uint3 id: SV_DispatchThreadID) {
 	MulElemDataResult[id.x] = MulElemDataA[id.x] * MulElemDataB[id.x];
 }
 
+#pragma kernel PowScalar_
+
+RWStructuredBuffer<float> PowScalarData_;
+RWStructuredBuffer<float> PowScalarScalar_;
+
+[numthreads(4,1,1)]
+void PowScalar_ (uint3 id: SV_DispatchThreadID) {
+	PowScalarData_[id.x] = pow(PowScalarData_[id.x], PowScalarScalar_[0]);
+}
+
+#pragma kernel PowElem_
+
+RWStructuredBuffer<float> PowElemDataA_;
+RWStructuredBuffer<float> PowElemDataB_;
+
+[numthreads(4,1,1)]
+void PowElem_ (uint3 id: SV_DispatchThreadID) {
+	PowElemDataA_[id.x] = pow(PowElemDataA_[id.x], PowElemDataB_[id.x]);
+}
+
+#pragma kernel PowScalar
+
+RWStructuredBuffer<float> PowScalarData;
+RWStructuredBuffer<float> PowScalarScalar;
+RWStructuredBuffer<float> PowScalarResult;
+
+[numthreads(4,1,1)]
+void PowScalar (uint3 id: SV_DispatchThreadID) {
+	PowScalarResult[id.x] = pow(PowScalarData[id.x], PowScalarScalar[0]);
+}
+
+#pragma kernel PowElem
+
+RWStructuredBuffer<float> PowElemDataA;
+RWStructuredBuffer<float> PowElemDataB;
+RWStructuredBuffer<float> PowElemDataResult;
+
+[numthreads(4,1,1)]
+void PowElem (uint3 id: SV_DispatchThreadID) {
+	PowElemDataResult[id.x] = pow(PowElemDataA[id.x], PowElemDataB[id.x]);
+}
+
 #pragma kernel Negate
 
 RWStructuredBuffer<float> NegateData;
@@ -242,28 +353,6 @@ RWStructuredBuffer<float> NegateResult;
 void Negate (uint3 id: SV_DispatchThreadID) {
 	NegateResult[id.x] = -NegateData[id.x];
 }
-
-#pragma kernel Pow
-
-RWStructuredBuffer<float> PowScalarData;
-RWStructuredBuffer<float> PowScalarScalar;
-RWStructuredBuffer<float> PowScalarResult;
-
-[numthreads(4,1,1)]
-void Pow (uint3 id: SV_DispatchThreadID) {
-	PowScalarResult[id.x] = pow(abs(PowScalarData[id.x]),PowScalarScalar[0]);
-}
-
-#pragma kernel Pow_
-
-RWStructuredBuffer<float> PowScalarData_;
-RWStructuredBuffer<float> PowScalarScalar_;
-
-[numthreads(4,1,1)]
-void Pow_ (uint3 id: SV_DispatchThreadID) {
-	PowScalarData_[id.x] = pow(abs(PowScalarData_[id.x]),PowScalarScalar_[0]);
-}
-
 
 #pragma kernel Sigmoid_
 
@@ -288,6 +377,24 @@ void Sign (uint3 id : SV_DispatchThreadID) {
 	} else {
 		SignResult[id.x] = 0;
 	}
+}
+
+#pragma kernel Sin
+ 
+RWStructuredBuffer<float> SinData;
+RWStructuredBuffer<float> SinResult;
+ 
+[numthreads(4,1,1)]
+void Sin (uint3 id: SV_DispatchThreadID) {
+	SinResult[id.x] = sin(SinData[id.x]);
+}
+ 
+#pragma kernel Sin_
+RWStructuredBuffer<float> SinData_;
+ 
+[numthreads(4,1,1)]
+void Sin_ (uint3 id: SV_DispatchThreadID) {
+    SinData_[id.x] = sin(SinData_[id.x]);
 }
 
 #pragma kernel Sqrt
@@ -340,6 +447,24 @@ RWStructuredBuffer<float> SubElemDataResult;
 [numthreads(4,1,1)]
 void SubElem (uint3 id: SV_DispatchThreadID) {
 	SubElemDataResult[id.x] = SubElemDataA[id.x] - SubElemDataB[id.x];
+}
+
+#pragma kernel Tan
+ 
+RWStructuredBuffer<float> TanData;
+RWStructuredBuffer<float> TanResult;
+ 
+[numthreads(4,1,1)]
+void Tan (uint3 id: SV_DispatchThreadID) {
+	TanResult[id.x] = tan(TanData[id.x]);
+}
+ 
+#pragma kernel Tan_
+RWStructuredBuffer<float> TanData_;
+ 
+[numthreads(4,1,1)]
+void Tan_ (uint3 id: SV_DispatchThreadID) {
+    TanData_[id.x] = tan(TanData_[id.x]);
 }
 
 #pragma kernel Tanh

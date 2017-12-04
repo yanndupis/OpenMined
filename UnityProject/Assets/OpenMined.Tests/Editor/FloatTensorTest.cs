@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using UnityEngine;
 using UnityEditor;
 using NUnit.Framework;
@@ -85,6 +84,159 @@ namespace OpenMined.Tests
             for (int i = 2; i < tensor.Size; i++)
             {
                 Assert.AreEqual (expectedCosTensor.Data[i], tensor.Data[i]);
+            }
+        }
+
+	    [Test]
+        public void Acos()
+        {
+            float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+ 
+            float[] data2 = { 1.15927948f,  1.04719755f,  1.26610367f,  1.67096375f };
+            int[] shape2 = { 4 };
+            var expectedAcosTensor = new FloatTensor(data2, shape2);
+ 
+            var actualAcosTensor = tensor.Acos();
+ 
+            for (int i = 2; i < actualAcosTensor.Size; i++)
+            {
+                 Assert.AreEqual (expectedAcosTensor.Data[i], actualAcosTensor.Data[i]);
+            }
+        }
+ 
+        [Test]
+        public void Acos_()
+        {
+            float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+ 
+            float[] data2 = {  1.15927948f,  1.04719755f,  1.26610367f,  1.67096375f };
+            int[] shape2 = { 4 };
+            var expectedAcosTensor = new FloatTensor(data2, shape2);
+ 
+            tensor.Acos_();
+ 
+            for (int i = 2; i < tensor.Size; i++)
+            {
+                Assert.AreEqual (expectedAcosTensor.Data[i], tensor.Data[i]);
+            }
+        }
+ 
+	     [Test]
+         public void Asin()
+        {
+            float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+ 
+            float[] data2 = { 0.41151685f,  0.52359878f,  0.30469265f, -0.10016742f };
+            int[] shape2 = { 4 };
+            var expectedAsinTensor = new FloatTensor(data2, shape2);
+ 
+            var actualAsinTensor = tensor.Asin();
+ 
+            for (int i = 2; i < actualAsinTensor.Size; i++)
+            {
+                 Assert.AreEqual (expectedAsinTensor.Data[i], actualAsinTensor.Data[i]);
+            }
+        }
+ 
+        [Test]
+        public void Asin_()
+        {
+            float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+ 
+            float[] data2 = {  0.41151685f,  0.52359878f,  0.30469265f, -0.10016742f };
+            int[] shape2 = { 4 };
+            var expectedAsinTensor = new FloatTensor(data2, shape2);
+ 
+            tensor.Asin_();
+ 
+            for (int i = 2; i < tensor.Size; i++)
+            {
+                Assert.AreEqual (expectedAsinTensor.Data[i], tensor.Data[i]);
+            }
+        }
+ 
+	     [Test]
+         public void Atan()
+        {
+            float[] data1 = { 30, 20, 40, 50 };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+ 
+            float[] data2 = {  1.53747533f,  1.52083793f,  1.54580153f,  1.55079899f };
+            int[] shape2 = { 4 };
+            var expectedAtanTensor = new FloatTensor(data2, shape2);
+
+            var actualAtanTensor = tensor.Atan();
+ 
+            for (int i = 2; i < actualAtanTensor.Size; i++)
+            {
+                 Assert.AreEqual (expectedAtanTensor.Data[i], actualAtanTensor.Data[i]);
+            }
+
+        }
+ 
+        [Test]
+        public void Atan_()
+        {
+            float[] data1 = { 30, 20, 40, 50 };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+ 
+            float[] data2 = { 1.53747533f,  1.52083793f,  1.54580153f,  1.55079899f };
+            int[] shape2 = { 4 };
+            var expectedAtanTensor = new FloatTensor(data2, shape2);
+ 
+            tensor.Atan_();
+ 
+            for (int i = 2; i < tensor.Size; i++)
+            {
+                Assert.AreEqual (expectedAtanTensor.Data[i], tensor.Data[i]);
+            }
+        }
+
+        [Test]
+        public void Sin()
+        {
+            float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+ 
+            float[] data2 = { 0.38941834f,  0.47942554f,  0.29552021f, -0.09983342f };
+            int[] shape2 = { 4 };
+            var expectedSinTensor = new FloatTensor(data2, shape2);
+ 
+            var actualSinTensor = tensor.Sin();
+ 
+            for (int i = 2; i < actualSinTensor.Size; i++)
+            {
+                 Assert.AreEqual (expectedSinTensor.Data[i], actualSinTensor.Data[i]);
+            }
+        }
+ 
+        [Test]
+        public void Sin_()
+        {
+            float[] data1 = { 0.4f, 0.5f, 0.3f, -0.1f };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+ 
+            float[] data2 = {  0.38941834f,  0.47942554f,  0.29552021f, -0.09983342f };
+            int[] shape2 = { 4 };
+            var expectedSinTensor = new FloatTensor(data2, shape2);
+ 
+            tensor.Sin_();
+ 
+            for (int i = 2; i < tensor.Size; i++)
+            {
+                Assert.AreEqual (expectedSinTensor.Data[i], tensor.Data[i]);
             }
         }
 
@@ -209,13 +361,12 @@ namespace OpenMined.Tests
                 }
             }
 
-            tensor.Transpose();
-
-            for (int i = 0; i < tensor.Shape[0]; i++)
+            var transposed = tensor.Transpose();
+            for (int i = 0; i < tensor.Shape[1]; i++)
             {
-                for (int j = 0; j < tensor.Shape[1]; j++)
+                for (int j = 0; j < tensor.Shape[0]; j++)
                 {
-                    Assert.AreEqual(tensor[i, j], transpose[i, j]);
+                    Assert.AreEqual(transposed[i, j], transpose[i, j]);
                 }
             }
         }
@@ -242,15 +393,15 @@ namespace OpenMined.Tests
                     }
                 }
             }
-            tensor.Transpose(0, 2);
 
-            for (int i = 0; i < tensor.Shape[0]; i++)
+            var transposed = tensor.Transpose(0, 2);
+            for (int i = 0; i < transposed.Shape[0]; i++)
             {
-                for (int j = 0; j < tensor.Shape[1]; j++)
+                for (int j = 0; j < transposed.Shape[1]; j++)
                 {
-                    for (int k = 0; k < tensor.Shape [2]; k++)
+                    for (int k = 0; k < transposed.Shape [2]; k++)
                     {
-                        Assert.AreEqual(tensor[i, j, k], transpose[i, j, k]);
+                        Assert.AreEqual(transposed[i, j, k], transpose[i, j, k]);
                     }
                 }
             }
@@ -746,7 +897,7 @@ namespace OpenMined.Tests
 			Assert.That(() => tensor1.Sub(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
-//
+
 //        [Test]
 //        public void ElementwiseSubtractDataOnDifferent()
 //        {
@@ -758,7 +909,26 @@ namespace OpenMined.Tests
 //			Assert.That(() => tensor1.SubtractElementwise(tensor2),
 //                Throws.TypeOf<InvalidOperationException>());
 //        }
-//
+
+        [Test]
+        public void GetIndexGetIndeces()
+        {
+            float[] data = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+            int[] shape = { 3, 2, 2 };
+            var tensor = new FloatTensor(data, shape);
+
+            long[] idxs = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+            long[][] idxarrays = new long[][] {
+                new long[] { 0, 0, 0 },
+                new long[] { 0, 1, 0 },
+                new long[] { 2, 0, 1 } };
+
+            foreach (long i in idxs)
+                Assert.AreEqual(i,tensor.GetIndex(tensor.GetIndices(i)));
+            foreach (long[] i in idxarrays)
+                Assert.AreEqual(i, tensor.GetIndices(tensor.GetIndex(i)));
+        }
+
         [Test]
         public void AddMatrixMultiplyTest()
         {
@@ -805,6 +975,72 @@ namespace OpenMined.Tests
                 }
             }
         }
+
+        [Test]
+         public void Tan()
+        {
+            float[] data1 = { 30, 20, 40, 50 };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+ 
+            float[] data2 = {-6.4053312f , 2.23716094f, -1.11721493f, -0.27190061f};
+            int[] shape2 = { 4 };
+            var expectedTanTensor = new FloatTensor(data2, shape2);
+ 
+            var actualTanTensor = tensor.Tan();
+ 
+            for (int i = 2; i < actualTanTensor.Size; i++)
+            {
+                 Assert.AreEqual (expectedTanTensor.Data[i], actualTanTensor.Data[i]);
+            }
+        }
+ 
+        [Test]
+        public void Tan_()
+        {
+            float[] data1 = { 30, 20, 40, 50 };
+            int[] shape1 = { 4 };
+            var tensor = new FloatTensor(data1, shape1);
+ 
+            float[] data2 = {-6.4053312f , 2.23716094f, -1.11721493f, -0.27190061f};
+            int[] shape2 = { 4 };
+            var expectedTanTensor = new FloatTensor(data2, shape2);
+ 
+            tensor.Tan_();
+ 
+            for (int i = 2; i < tensor.Size; i++)
+            {
+                Assert.AreEqual (expectedTanTensor.Data[i], tensor.Data[i]);
+            }
+        }
+
+		[Test]
+		public void AddMatrixVectorProductTest()
+		{
+			float[] base_data = new float[] { 1, 2 };
+			int[] base_shape = new int[] { 2 };
+			var base_vector = new FloatTensor(base_data, base_shape);
+
+			float[] data1 = { 1, 2, 3, 4 };
+			int[] shape1 = new int[] { 2, 2 };
+			var matrix = new FloatTensor(data1, shape1);
+
+			float[] data2 = new float[] { 5, 6 };
+			int[] shape2 = new int[] { 2 };
+			var vector = new FloatTensor (data2, shape2);
+
+			base_vector.AddMatrixVectorProduct(matrix, vector);
+
+			float[] expected_data = new float[] { 18, 41 };
+			int[] expected_shape = new int[] { 2 };
+			var expected_vector = new FloatTensor(expected_data, expected_shape);
+
+			for (int i = 0; i < expected_vector.Size; i++)
+			{
+				Assert.AreEqual (expected_vector.Data[i], base_vector.Data[i]);
+			}
+				
+		}
 
         [Test]
         public void Tanh()
