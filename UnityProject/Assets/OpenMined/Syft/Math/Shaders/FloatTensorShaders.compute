@@ -379,6 +379,21 @@ void Sign (uint3 id : SV_DispatchThreadID) {
 	}
 }
 
+#pragma kernel Sign_
+
+RWStructuredBuffer<float> SignData_;
+
+[numthreads(1,1,1)]
+void Sign_ (uint3 id : SV_DispatchThreadID) {
+	if(SignData_[id.x] < 0) {
+		SignData_[id.x] = -1;
+	} else if(SignData_[id.x] > 0) {
+		SignData_[id.x] = 1;
+	} else {
+		SignData_[id.x] = 0;
+	}
+}
+
 #pragma kernel Sin
  
 RWStructuredBuffer<float> SinData;

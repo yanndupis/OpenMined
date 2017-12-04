@@ -76,6 +76,8 @@ namespace OpenMined.Syft.Tensor
 		private static int SigmoidKernel_;
 		[SerializeField]
 		private static int SignKernel;
+		[SerializeField]
+		private static int SignKernel_;
 	    [SerializeField] 
 		private static int SinKernel;
 		[SerializeField]
@@ -147,6 +149,7 @@ namespace OpenMined.Syft.Tensor
 				// PowKernel_ = shader.FindKernel ("Pow_");
 				SigmoidKernel_ = shader.FindKernel ("Sigmoid_");
 				SignKernel = shader.FindKernel("Sign");
+				SignKernel_ = shader.FindKernel("Sign_");
 				SinKernel = shader.FindKernel("Sin");
 				SinKernel_ = shader.FindKernel("Sin_");
 				SqrtKernel = shader.FindKernel("Sqrt");
@@ -659,6 +662,14 @@ namespace OpenMined.Syft.Tensor
 				shader.Dispatch (SignKernel, this.size, 1, 1);
 			}
 			return result;
+		}
+
+		public void SignGPU_() {
+			Debug.LogFormat("<color=blue>FloatTensor.SignGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+			if (dataOnGpu) {
+				shader.SetBuffer (SignKernel_, "SignData_", dataBuffer);
+				shader.Dispatch (SignKernel_, this.size, 1, 1);
+			}
 		}
 
 		public FloatTensor SinGPU ()
