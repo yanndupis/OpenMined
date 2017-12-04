@@ -293,6 +293,10 @@ namespace OpenMined.Syft.Tensor
 					}
 				});
 			}
+			else
+			{
+				Debug.Log("Data for all Tensors needs to be colocated on the same device. - CPU != GPU");
+			}
 
 			return this;
 		}
