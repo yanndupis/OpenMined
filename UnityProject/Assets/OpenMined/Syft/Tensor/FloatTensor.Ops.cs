@@ -573,6 +573,27 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+
+        public FloatTensor Rsqrt()
+        {
+            if (dataOnGpu)
+            {
+				return RsqrtGPU();
+            }
+
+			var result = new FloatTensor(shape, this.shader, dataOnGpu);
+			var nCpu = SystemInfo.processorCount;
+			Parallel.For(0, nCpu, workerId =>
+				{
+					var max = data.Length * (workerId + 1) / nCpu;
+					for (var i = data.Length * workerId / nCpu; i < max; i++)
+						result.data[i] = 1/(float)Math.Sqrt(data[i]);
+				});
+            return result;
+        }
+
+
+
 		public FloatTensor Sign()
 		{
 			var result = new FloatTensor(shape, this.shader, dataOnGpu);
@@ -885,7 +906,7 @@ namespace OpenMined.Syft.Tensor
             }
             if (dataOnGpu)
             {
-              UnityEngine.Debug.Log("Entra");
+              //UnityEngine.Debug.Log("Entra");
                 TriuGPU_(k);
                 return;
             }

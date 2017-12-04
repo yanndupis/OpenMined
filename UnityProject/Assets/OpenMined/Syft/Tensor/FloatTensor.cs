@@ -499,6 +499,12 @@ namespace OpenMined.Syft.Tensor
 
                     return data;
                 }
+                case "rsqrt":
+                {
+                    var result = Rsqrt();
+                    ctrl.addTensor(result);
+                    return result.Id.ToString();
+                }
                 case "sigmoid_":
                 {
                     Sigmoid_();
@@ -666,7 +672,7 @@ namespace OpenMined.Syft.Tensor
             string print = "";
 
             if (shape.Length > 3)
-                print += "Only printing the last 3 dimesnions\n";
+                print += "Only printing the last 3 dimensions\n";
             int d3 = 1;
             if (shape.Length > 2)
                 d3 = shape[shape.Length - 3];

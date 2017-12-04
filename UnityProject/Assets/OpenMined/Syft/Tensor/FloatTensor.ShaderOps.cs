@@ -73,6 +73,8 @@ namespace OpenMined.Syft.Tensor
 		[SerializeField]
 		private static int NegateKernel;
 		[SerializeField]
+		private static int RsqrtKernel;
+		[SerializeField]
 		private static int SigmoidKernel_;
 		[SerializeField]
 		private static int SignKernel;
@@ -143,6 +145,7 @@ namespace OpenMined.Syft.Tensor
         		PowScalarKernel = shader.FindKernel ("PowScalar");
         		PowElemKernel = shader.FindKernel ("PowElem");
 				NegateKernel = shader.FindKernel ("Negate");
+				RsqrtKernel = shader.FindKernel ("Rsqrt");
 				// PowKernel = shader.FindKernel ("Pow");
 				// PowKernel_ = shader.FindKernel ("Pow_");
 				SigmoidKernel_ = shader.FindKernel ("Sigmoid_");
@@ -592,6 +595,21 @@ namespace OpenMined.Syft.Tensor
 				shader.SetBuffer(NegateKernel, "NegateData", dataBuffer);
 				shader.SetBuffer(NegateKernel, "NegateResult", result.dataBuffer);
 				shader.Dispatch(NegateKernel, 1, 1, 1);
+                return result;
+            }
+
+            return this;
+        }
+
+
+        public FloatTensor RsqrtGPU()
+        {
+            if (dataOnGpu)
+            {
+				var result = new FloatTensor(shape, this.shader, dataOnGpu);
+				shader.SetBuffer(RsqrtKernel, "RsqrtData", dataBuffer);
+				shader.SetBuffer(RsqrtKernel, "RsqrtResult", result.dataBuffer);
+				shader.Dispatch(RsqrtKernel, 1, 1, 1);
                 return result;
             }
 
