@@ -504,23 +504,29 @@ namespace OpenMined.Syft.Tensor
                     Sigmoid_();
                     return msgObj.functionCall + ": OK";
                 }
+                case "sign":
+                {
+                  Debug.LogFormat("sign");
+                  var result = this.Sign();
+                  return ctrl.addTensor(result) + "";
+                }
                 case "sin":
                 {
                     var result = Sin();
                     ctrl.addTensor(result);
                     return result.Id.ToString();
                 }
-	            case "sin_":
-	            {
-	                Sin_();
-	                return Id.ToString();
+                case "sin_":
+                {
+                    Sin_();
+                    return Id.ToString();
                 }
-	            case "sqrt":
-	            {
-		            var result = Sqrt();
-		            ctrl.addTensor(result);
-		            return result.id.ToString();
-	            }
+                case "sqrt":
+                {
+                  var result = Sqrt();
+                  ctrl.addTensor(result);
+                  return result.id.ToString();
+                }
 				case "sub_elem":
 				{
 					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));

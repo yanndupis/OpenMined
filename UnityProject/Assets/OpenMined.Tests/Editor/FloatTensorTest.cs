@@ -573,6 +573,24 @@ namespace OpenMined.Tests
             }
         }
 
+		[Test]
+		public void Sign()
+		{
+			float[] data1 = {float.MinValue, -100.0f, -1.0f, -0.0001f, -0.0f, +0.0f, 0.0001f, 1.0f, 10.0f, float.MaxValue};
+			int[] shape1 = { 1, 10 };
+				
+			var tensor1 = new FloatTensor(data1, shape1);
+
+			float[] data2 = {-1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+			var tensorSign = new FloatTensor(data2, shape1);
+
+			var result1 = tensor1.Sign();
+
+			for (int i = 0; i < tensor1.Size; i++)
+			{
+				Assert.AreEqual (result1.Data[i], tensorSign.Data[i]);
+			}
+		}
 
         [Test]
         public void Zero_()
