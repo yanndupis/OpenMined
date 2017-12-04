@@ -161,7 +161,7 @@ RWStructuredBuffer<float> AddMVVectorData;
 void AddMV_ (uint3 id : SV_DispatchThreadID){
 	int refShape = AddMVRefShape_[0];
 	for (int i = 0; i < refShape; i++){
-		AddMVRefData[id.x] += AddMVVectorData[j] * AddMVMatrixData[j + (id.x * refShape)];
+		AddMVRefData[id.x] += AddMVVectorData[i] * AddMVMatrixData[i + (id.x * refShape)];
 	}
 }
 
