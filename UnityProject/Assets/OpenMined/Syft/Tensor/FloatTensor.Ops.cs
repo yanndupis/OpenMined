@@ -258,6 +258,49 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
 
+		public FloatTensor AddMatrixVectorProduct(FloatTensor matrix, FloatTensor vector)
+		{
+			bool gpu = dataOnGpu & matrix.DataOnGpu & vector.DataOnGpu;
+			bool cpu = !(dataOnGpu | matrix.DataOnGpu | vector.DataOnGpu);
+
+			int[] ref_shape = this.Shape;
+			int[] matrix_shape = matrix.Shape;
+			int[] vector_shape = vector.Shape;
+
+			if (ref_shape.Length != 1)
+				throw new InvalidOperationException("Cannot perform this operation on a tensor with more than one dimension");
+			if (ref_shape[0] != vector_shape[0])
+				throw new InvalidOperationException(String.Format("Cannot add matrix-vector product to tensor: {0} & {1}.", ref_shape[0], vector_shape[0]));
+			if (matrix_shape[1] != vector_shape[0])
+				throw new InvalidOperationException(String.Format("Last dimension of matrix doesn't match: {0} vs {1}.", matrix_shape[1], vector_shape[0]));
+
+			if (gpu) 
+			{
+				AddMatrixVectorProductGPU(matrix, vector);	
+			} 
+			else if (cpu) 
+			{
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => 
+				{
+					var max = size * (workerId + 1) / nCpu;	
+					for (var idx = size * workerId / nCpu; idx < max; idx++)
+					{
+						for (var j = 0; j < ref_shape[0]; j++)
+						{
+							Data[idx] += vector.Data[j] * matrix.Data[j + (idx * ref_shape[0])];
+						}		
+					}
+				});
+			}
+			else
+			{
+				Debug.Log("Data for all Tensors needs to be colocated on the same device. - CPU != GPU");
+			}
+
+			return this;
+		}
+
         public FloatTensor Ceil()
             // Returns a new Tensor with the smallest integer greater than or equal to each element
         {
