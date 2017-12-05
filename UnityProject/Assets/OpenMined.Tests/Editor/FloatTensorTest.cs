@@ -755,6 +755,25 @@ public void Sign()
 }
 
 [Test]
+public void Sign_()
+{
+    float[] data1 = {float.MinValue, -100.0f, -1.0f, -0.0001f, -0.0f, +0.0f, 0.0001f, 1.0f, 10.0f, float.MaxValue};
+    int[] shape1 = { 1, 10 };
+
+    var tensor1 = new FloatTensor(data1, shape1);
+
+    float[] data2 = {-1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+    var tensorSign_ = new FloatTensor(data2, shape1);
+
+    tensor1.Sign_();
+
+    for (int i = 0; i < tensor1.Size; i++)
+    {
+        Assert.AreEqual (tensor1.Data[i], tensorSign_.Data[i]);
+    }
+}
+
+[Test]
 public void Zero_()
 {
 	float[] data1 = { -1, 0, 1, float.MaxValue, float.MinValue };

@@ -513,6 +513,12 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 		var result = this.Sign ();
 		return ctrl.addTensor (result) + "";
 	}
+    case "sign_":
+        {
+            Debug.LogFormat("sign_");
+            Sign_();
+            return Id.ToString();
+        }
 	case "sin":
 	{
 		var result = Sin ();
