@@ -376,12 +376,11 @@ namespace OpenMined.Syft.Tensor
 				case "mul_scalar":
 				{
 					FloatTensor result = Mul(float.Parse(msgObj.tensorIndexParams[0]));
-
 					return ctrl.addTensor (result) + "";
 				}
 				case "mul_scalar_":
 				{
-					this.Mul_(float.Parse( msgObj.tensorIndexParams[0]));
+					this.Mul(float.Parse( msgObj.tensorIndexParams[0]), inline:true);
 					return this.id + "";
 				}
                 case "neg":

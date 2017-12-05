@@ -331,26 +331,25 @@ namespace OpenMined.Syft.Tensor
 				for (var i = size * workerId / nCpu; i < max; i++)
 					result.Data [i] = x.Data [i] * this.Data [i];
 			});
-      
+
 			return result;
 		}
 
-		public FloatTensor Mul(float value)
+		public FloatTensor Mul(float value, bool inline = false)
 		{
-			var result = new FloatTensor(shape, this.shader, false);
+			var result = inline ? this : this.emptyTensorCopy();
 
 			if (dataOnGpu) {
-				result.Gpu ();
-				return MulScalarGPU (value, result);
-			} else {
+        if (inline) { MulScalarGPU_(value); return this; }
+				else { return MulScalarGPU(value, result); }
+      }
 
-				var nCpu = SystemInfo.processorCount;
-				Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++)
-						result.Data [i] = value * Data [i];
-				});
-			}
+			var nCpu = SystemInfo.processorCount;
+			Parallel.For (0, nCpu, workerId => {
+				var max = size * (workerId + 1) / nCpu;
+				for (var i = size * workerId / nCpu; i < max; i++)
+					result.Data [i] = value * Data [i];
+			});
 			return result;
 		}
 
