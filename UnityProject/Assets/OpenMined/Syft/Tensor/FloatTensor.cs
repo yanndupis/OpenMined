@@ -435,7 +435,7 @@ namespace OpenMined.Syft.Tensor
 				{
 					Debug.LogFormat("sub_elem_");
 					var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
-					this.Sub_(tensor_1);
+					this.Sub(tensor_1, inline:true);
 					return this.id + "";
 				}
 				case "sub_scalar":

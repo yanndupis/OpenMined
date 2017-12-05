@@ -393,29 +393,24 @@ namespace OpenMined.Syft.Tensor
 		    return result;
 	    }
 
-		public FloatTensor Sub(FloatTensor x)
+		public FloatTensor Sub(FloatTensor x, bool inline = false)
 		{
 			// Check if both tensors are compatible for sum
 			SameSizeDimensionsShapeAndLocation(ref x);
 
-			FloatTensor result = new FloatTensor (shape, this.shader);
+			FloatTensor result = inline? this : this.emptyTensorCopy();
 
 			if (dataOnGpu & x.dataOnGpu) {
-				result.Gpu ();
-				SubElemGPU (x, result);
-
-			} else {
-
-
-				var nCpu = SystemInfo.processorCount;
-				Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++)
-						result.Data [i] = Data [i] - x.Data [i];
-				});
-
+        result.Gpu ();
+        if (inline) { SubElemGPU_(x); return this;}
+				else { return SubElemGPU (x, result); }
 			}
-
+      var nCpu = SystemInfo.processorCount;
+			Parallel.For (0, nCpu, workerId => {
+				var max = size * (workerId + 1) / nCpu;
+				for (var i = size * workerId / nCpu; i < max; i++)
+					result.Data [i] = Data [i] - x.Data [i];
+			});
 			return result;
 		}
 

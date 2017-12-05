@@ -1102,6 +1102,75 @@ namespace OpenMined.Tests
 			Assert.That(() => tensor1.Sub(tensor2),
                 Throws.TypeOf<InvalidOperationException>());
         }
+
+        [Test]
+        public void ElementwiseSubtract_()
+        {
+            float[] data1 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
+            int[] shape1 = {2, 4};
+            var tensor1 = new FloatTensor(data1, shape1);
+
+            float[] data2 = { float.MaxValue, 10, 1.5f, 0, -1.5f, -10, -20, float.MinValue };
+            int[] shape2 = {2, 4};
+            var tensor2 = new FloatTensor(data2, shape2);
+
+            float[] data3 = { float.NegativeInfinity, -20, -3, 0, 3, 20, 40, float.MaxValue - float.MinValue };
+            int[] shape3 = {2, 4};
+            var tensor3 = new FloatTensor(data3, shape3);
+
+            tensor1.Sub (tensor2, inline:true);
+
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+              Assert.AreEqual (tensor3.Data [i], tensor1.Data [i]);
+            }
+        }
+
+        [Test]
+        public void ElementwiseSubtractUnequalSizes_()
+        {
+            float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            int[] shape1 = { 2, 5 };
+            var tensor1 = new FloatTensor(data1, shape1);
+
+            float[] data2 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+            int[] shape2 = { 2, 6 };
+            var tensor2 = new FloatTensor(data2, shape2);
+
+        Assert.That(() => tensor1.Sub(tensor2, inline:true),
+                Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void ElementwiseSubtractUnequalDimensions_()
+        {
+            float[] data1 = { 1, 2, 3, 4 };
+            int[] shape1 = { 4 };
+            var tensor1 = new FloatTensor(data1, shape1);
+
+            float[] data2 = { 1, 2, 3, 4 };
+            int[] shape2 = { 2, 2 };
+            var tensor2 = new FloatTensor(data2, shape2);
+
+        Assert.That(() => tensor1.Sub(tensor2, inline:true),
+                Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void ElementwiseSubtractUnequalShapes_()
+        {
+            float[] data1 = { 1, 2, 3, 4, 5, 6 };
+            int[] shape1 = { 2, 3 };
+            var tensor1 = new FloatTensor(data1, shape1);
+
+            float[] data2 = { 1, 2, 3, 4, 5, 6 };
+            int[] shape2 = { 3, 2 };
+            var tensor2 = new FloatTensor(data2, shape2);
+
+        Assert.That(() => tensor1.Sub(tensor2, inline:true),
+                Throws.TypeOf<InvalidOperationException>());
+        }
+
 //
 //        [Test]
 //        public void ElementwiseSubtractDataOnDifferent()
