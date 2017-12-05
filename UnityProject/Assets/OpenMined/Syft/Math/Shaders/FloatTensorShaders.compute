@@ -426,8 +426,6 @@ void Sign_ (uint3 id : SV_DispatchThreadID) {
 		SignData_[id.x] = -1;
 	} else if(SignData_[id.x] > 0) {
 		SignData_[id.x] = 1;
-	} else {
-		SignData_[id.x] = 0;
 	}
 }
 
