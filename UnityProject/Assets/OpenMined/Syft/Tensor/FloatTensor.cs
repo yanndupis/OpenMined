@@ -448,7 +448,7 @@ namespace OpenMined.Syft.Tensor
 				case "sub_scalar_":
 				{
 					Debug.LogFormat("sub_scalar_");
-					this.Sub_(float.Parse( msgObj.tensorIndexParams[0]));
+					this.Sub(float.Parse( msgObj.tensorIndexParams[0]), inline : true);
 					return this.id + "";
 				}
 				case "sum_dim":

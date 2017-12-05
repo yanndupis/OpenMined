@@ -414,24 +414,21 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
-		public FloatTensor Sub(float value)
+		public FloatTensor Sub(float value, bool inline = false)
 		{
-			var result = new FloatTensor(shape, this.shader, false);
+			FloatTensor result = inline ? this : this.emptyTensorCopy();
 
 			if (dataOnGpu) {
-
-				result.Gpu ();
-				return SubScalarGPU (value, result);
-
-			} else {
-
-				var nCpu = SystemInfo.processorCount;
-				Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++)
-						result.Data [i] = value - Data [i];
-				});
-			}
+        result.Gpu ();
+        if (inline) { SubScalarGPU_(value); return this; }
+        else { return SubScalarGPU(value, result); }
+      }
+			var nCpu = SystemInfo.processorCount;
+			Parallel.For (0, nCpu, workerId => {
+				var max = size * (workerId + 1) / nCpu;
+				for (var i = size * workerId / nCpu; i < max; i++)
+					result.Data [i] = Data [i] - value;
+			});
 			return result;
 		}
 
