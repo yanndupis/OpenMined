@@ -9,23 +9,23 @@ using UnityEngine;
 
 namespace OpenMined.Network.Servers
 {
-    public class NetMqPublisher
-    {
-        private readonly Thread _listenerWorker;
+	public class NetMqPublisher
+	{
+		private readonly Thread _listenerWorker;
 
-        private bool _listenerCancelled;
+		private bool _listenerCancelled;
 
-        public delegate string MessageDelegate(string message);
+		public delegate string MessageDelegate (string message);
 
-        private readonly MessageDelegate _messageDelegate;
+		private readonly MessageDelegate _messageDelegate;
 
-        private readonly Stopwatch _contactWatch;
+		private readonly Stopwatch _contactWatch;
 
-        private const long ContactThreshold = 1000;
+		private const long ContactThreshold = 1000;
 
-        public bool Connected;
+		public bool Connected;
 
-		private readonly ConcurrentQueue<Request> _requestQueue = new ConcurrentQueue<Request>();
+		private readonly ConcurrentQueue<Request> _requestQueue = new ConcurrentQueue<Request> ();
 
 		public struct Request
 		{
@@ -33,7 +33,7 @@ namespace OpenMined.Network.Servers
 			public string identity;
 			public string message;
 
-			public Request(RouterSocket _router, string _identity, string _message)
+			public Request (RouterSocket _router, string _identity, string _message)
 			{
 				router = _router;
 				identity = _identity;
@@ -41,74 +41,70 @@ namespace OpenMined.Network.Servers
 			}
 		}
 
-        private void ListenerWork()
-        {
-            AsyncIO.ForceDotNet.Force();
+		private void ListenerWork ()
+		{
+			AsyncIO.ForceDotNet.Force ();
 
-			using (var server = new RouterSocket())
-			{
-				server.Bind("tcp://*:5555");
+			using (var server = new RouterSocket ()) {
+				server.Bind ("tcp://*:5555");
 
-				while (!_listenerCancelled)
-				{
+				while (!_listenerCancelled) {
 					//server.SkipFrame(); // to skip identity
 
 					string identity;
-					if (!server.TryReceiveFrameString(out identity)) continue;
+					if (!server.TryReceiveFrameString (out identity))
+						continue;
 					//UnityEngine.Debug.LogFormat ("identity {0}", identity);
 
 					string message;
-					if (!server.TryReceiveFrameString(out message)) continue;
+					if (!server.TryReceiveFrameString (out message))
+						continue;
 					//UnityEngine.Debug.LogFormat ("message {0}", message);
 
 					//server.SendMoreFrame(identity).SendFrame("message");
 					Request request = new Request (server, identity, message);
-					_requestQueue.Enqueue(request);
+					_requestQueue.Enqueue (request);
 				}
 			}
 
-            NetMQConfig.Cleanup();
-        }
+			NetMQConfig.Cleanup ();
+		}
 
-        public NetMqPublisher(MessageDelegate messageDelegate)
-        {
-            _messageDelegate = messageDelegate;
-            _contactWatch = new Stopwatch();
-            _contactWatch.Start();
-            _listenerWorker = new Thread(ListenerWork);
-        }
-
-        public void Start()
-        {
-            _listenerCancelled = false;
-            _listenerWorker.Start();
-        }
-
-		public void Update()
+		public NetMqPublisher (MessageDelegate messageDelegate)
 		{
-			while (!_requestQueue.IsEmpty)
-			{
+			_messageDelegate = messageDelegate;
+			_contactWatch = new Stopwatch ();
+			_contactWatch.Start ();
+			_listenerWorker = new Thread (ListenerWork);
+		}
+
+		public void Start ()
+		{
+			_listenerCancelled = false;
+			_listenerWorker.Start ();
+		}
+
+		public void Update ()
+		{
+			while (!_requestQueue.IsEmpty) {
 				Request request;
-				if (_requestQueue.TryDequeue(out request))
-				{
-					var response = _messageDelegate(request.message);
+				if (_requestQueue.TryDequeue (out request)) {
+					var response = _messageDelegate (request.message);
 
 					//UnityEngine.Debug.LogFormat("response: {0}", response);
 
 					request.router.SendMoreFrame (request.identity);
 					request.router.SendFrame (response);
-				}
-				else
-				{
+				} else {
 					break;
 				}
 			}
 		}
 
-        public void Stop()
-        {
-            _listenerCancelled = true;
-            _listenerWorker.Join();
-        }
-    }
+		public void Stop ()
+		{
+			_listenerCancelled = true;
+			_listenerWorker.Join ();
+		}
+	}
 }
