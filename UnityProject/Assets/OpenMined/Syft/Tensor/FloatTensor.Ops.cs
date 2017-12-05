@@ -953,7 +953,9 @@ public void View_ (int[] new_shape)
 public void Zero_()
 {
 	if (dataOnGpu)
-	{ ZeroGPU_(); }
+	{
+		ZeroGPU_(); return;
+	}
 
 	var nCpu = SystemInfo.processorCount;
 	Parallel.For(0, nCpu, workerId =>
