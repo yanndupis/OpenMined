@@ -442,7 +442,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 	case "pow_elem_":
 	{
 		var tensor_1 = ctrl.getTensor (int.Parse (msgObj.tensorIndexParams [0]));
-		this.Pow_ (tensor_1);
+		this.Pow (tensor_1, inline: true);
 		return this.id + "";
 	}
 	case "pow_scalar":

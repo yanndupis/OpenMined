@@ -516,20 +516,19 @@ public FloatTensor Sub(FloatTensor x, bool inline = false)
 	return result;
 }
 
-public FloatTensor Pow (FloatTensor x)
+public FloatTensor Pow (FloatTensor x, bool inline = true)
 {
 	// Check if both tensors are compatible for sum
 	SameSizeDimensionsShapeAndLocation (ref x);
 
-	var result = new FloatTensor (shape, this.shader, false);
+	FloatTensor result = inline ? this : this.emptyTensorCopy();
 
 	if (dataOnGpu) {
-
 		result.Gpu ();
-		return PowElemGPU (x, result);
+		if (inline) { result.PowElemGPU_(x); return this;}
+		else { return PowElemGPU (x, result); }
 
 	} else {
-
 
 		var nCpu = SystemInfo.processorCount;
 		Parallel.For (0, nCpu, workerId => {
@@ -537,7 +536,6 @@ public FloatTensor Pow (FloatTensor x)
 					for (var i = size * workerId / nCpu; i < max; i++)
 						result.Data [i] = (float)Math.Pow ((double)Data [i], x.Data [i]);
 				});
-
 	}
 	return result;
 }
