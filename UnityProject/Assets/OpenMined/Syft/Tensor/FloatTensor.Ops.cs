@@ -540,13 +540,14 @@ public FloatTensor Pow (FloatTensor x, bool inline = true)
 	return result;
 }
 
-public FloatTensor Pow (float value)
+public FloatTensor Pow (float value, bool inline = true)
 {
-	var result = new FloatTensor (shape, this.shader, false);
+	var result = inline ? this : this.emptyTensorCopy();
 
 	if (dataOnGpu) {
 		result.Gpu ();
-		return PowScalarGPU (value, result);
+		if (inline) { PowScalarGPU_(value); return this;}
+		else { return PowScalarGPU (value, result); }
 	} else {
 
 		var nCpu = SystemInfo.processorCount;

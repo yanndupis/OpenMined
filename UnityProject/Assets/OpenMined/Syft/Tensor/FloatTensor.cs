@@ -452,7 +452,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 	}
 	case "pow_scalar_":
 	{
-		this.Pow_ (float.Parse (msgObj.tensorIndexParams [0]));
+		this.Pow (float.Parse (msgObj.tensorIndexParams [0]), inline: true);
 		return this.id + "";
 	}
 	case "sigmoid_":
