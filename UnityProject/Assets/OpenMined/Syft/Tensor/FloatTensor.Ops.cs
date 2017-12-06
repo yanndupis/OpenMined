@@ -505,13 +505,14 @@ public FloatTensor Rsqrt ()
 }
 
 
-public FloatTensor Sign ()
+public FloatTensor Sign (bool inline = false)
 {
-	var result = new FloatTensor (shape, this.shader, dataOnGpu);
+	var result = inline ? this : this.emptyTensorCopy();
 
 	if (dataOnGpu) {
-		result.Gpu ();
-		return SignGPU (result);
+		result.Gpu();
+		if (inline) { SignGPU_(); return this; }
+		else { return SignGPU(result); }
 	}
 
 	var nCpu = SystemInfo.processorCount;
@@ -521,22 +522,6 @@ public FloatTensor Sign ()
 					result.data [i] = (float)Math.Sign (data [i]);
 			});
 	return result;
-}
-
-public void Sign_()
-{
-	if (dataOnGpu)
-	{
-		SignGPU_();
-		return;
-	}
-	var nCpu = SystemInfo.processorCount;
-	Parallel.For(0, nCpu, workerId =>
-			{
-				var max = size * (workerId + 1) / nCpu;
-				for (var i = size * workerId / nCpu; i < max; i++)
-					data[i] = (float)Math.Sign(data[i]);
-			});
 }
 
 public FloatTensor Sin (bool inline = false)

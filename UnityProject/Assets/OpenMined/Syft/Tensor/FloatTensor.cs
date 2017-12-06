@@ -518,7 +518,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 	case "sign_":
 	{
 		Debug.LogFormat("sign_");
-		Sign_();
+		Sign (inline: true);
 		return Id.ToString();
 	}
 	case "sin":

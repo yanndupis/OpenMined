@@ -765,7 +765,7 @@ public void Sign_()
 	float[] data2 = {-1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f};
 	var tensorSign_ = new FloatTensor(data2, shape1);
 
-	tensor1.Sign_();
+	tensor1.Sign (inline: true);
 
 	for (int i = 0; i < tensor1.Size; i++)
 	{
