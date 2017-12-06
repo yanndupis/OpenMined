@@ -357,7 +357,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 	}
 	case "Cosh_":
 	{
-		Cosh_ ();
+		Cosh (inline: true);
 		return Id.ToString ();
 	}
 	case "cpu":

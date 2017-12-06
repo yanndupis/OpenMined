@@ -230,15 +230,15 @@ public FloatTensor Cos(bool inline = true)
 	}
 }
 
-public FloatTensor      Cosh()
+public FloatTensor Cosh(bool inline = false)
 {
-	if (dataOnGpu)
-	{
-		return CoshGPU();
+	if (dataOnGpu) {
+		if (inline) { CoshGPU_(); return this; }
+		else { return CoshGPU(); }
 	}
 	else
 	{
-		var result = new FloatTensor(shape, this.shader, dataOnGpu);
+		var result = inline ? this : this.emptyTensorCopy();
 		var nCpu = SystemInfo.processorCount;
 		Parallel.For(0, nCpu, workerId =>
 				{
@@ -251,27 +251,6 @@ public FloatTensor      Cosh()
 				});
 
 		return result;
-	}
-}
-
-public void Cosh_()
-{
-	if (dataOnGpu)
-	{
-		CoshGPU_();
-	}
-	else
-	{
-		var nCpu = SystemInfo.processorCount;
-		Parallel.For(0, nCpu, workerId =>
-				{
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++)
-					{
-					        var d = (double) Data[i];
-					        Data[i] = (float) System.Math.Cosh(d);
-					}
-				});
 	}
 }
 

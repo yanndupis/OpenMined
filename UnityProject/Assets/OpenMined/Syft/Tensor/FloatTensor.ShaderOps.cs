@@ -334,7 +334,7 @@ public void CosGPU_ ()
 
 public FloatTensor CoshGPU ()
 {
-	var result = new FloatTensor (shape, this.shader, dataOnGpu);
+	var result = this.emptyTensorCopy();
 	shader.SetBuffer (CoshKernel, "CoshData", dataBuffer);
 	shader.SetBuffer (CoshKernel, "CoshResult", result.DataBuffer);
 	shader.Dispatch (CoshKernel, this.size, 1, 1);

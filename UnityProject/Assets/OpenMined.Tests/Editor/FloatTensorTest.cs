@@ -270,7 +270,7 @@ public void Cosh_()
 	int[] shape2 = { 4 };
 	var expectedCoshTensor = new FloatTensor(data2, shape2);
 
-	tensor.Cosh_();
+	tensor.Cosh (inline: true);
 
 	for (int i = 2; i < tensor.Size; i++)
 	{
