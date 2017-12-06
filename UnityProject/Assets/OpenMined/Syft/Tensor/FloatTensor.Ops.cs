@@ -56,12 +56,13 @@ public FloatTensor Add(FloatTensor x, bool inline = false)
 	return result;
 }
 
-public FloatTensor Acos ()
+public FloatTensor Acos (bool inline = false)
 {
 	if (dataOnGpu) {
-		return AcosGPU ();
+		if (inline) { AcosGPU_(); return this;}
+		else { return AcosGPU (); }
 	} else {
-		var result = new FloatTensor (shape, this.shader, dataOnGpu);
+		FloatTensor result = inline ? this : this.emptyTensorCopy();
 		var nCpu = SystemInfo.processorCount;
 		Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
@@ -70,24 +71,7 @@ public FloatTensor Acos ()
 					        result.Data [i] = (float)System.Math.Acos (d);
 					}
 				});
-
 		return result;
-	}
-}
-
-public void Acos_ ()
-{
-	if (dataOnGpu) {
-		AcosGPU_ ();
-	} else {
-		var nCpu = SystemInfo.processorCount;
-		Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++) {
-					        var d = (double)Data [i];
-					        Data [i] = (float)System.Math.Acos (d);
-					}
-				});
 	}
 }
 
@@ -576,21 +560,21 @@ public FloatTensor Neg ()
 			});
 	return result;
 }
-  
+
 public FloatTensor Rsqrt ()
 {
-  if (dataOnGpu) {
-    return RsqrtGPU ();
-  }
+	if (dataOnGpu) {
+		return RsqrtGPU ();
+	}
 
-  var result = new FloatTensor(shape, this.shader, dataOnGpu);
-  var nCpu = SystemInfo.processorCount;
-  Parallel.For(0, nCpu, workerId => {
-    var max = data.Length * (workerId + 1) / nCpu;
-    for (var i = data.Length * workerId / nCpu; i < max; i++)
-      result.data[i] = 1/(float)Math.Sqrt(data[i]);
-  });
-  return result;
+	var result = new FloatTensor(shape, this.shader, dataOnGpu);
+	var nCpu = SystemInfo.processorCount;
+	Parallel.For(0, nCpu, workerId => {
+				var max = data.Length * (workerId + 1) / nCpu;
+				for (var i = data.Length * workerId / nCpu; i < max; i++)
+					result.data[i] = 1/(float)Math.Sqrt(data[i]);
+			});
+	return result;
 }
 
 
@@ -614,18 +598,18 @@ public FloatTensor Sign ()
 
 public void Sign_()
 {
-    if (dataOnGpu)
-    {
-        SignGPU_();
-        return;
-    }
-    var nCpu = SystemInfo.processorCount;
-    Parallel.For(0, nCpu, workerId =>
-        {
-            var max = size * (workerId + 1) / nCpu;
-            for (var i = size * workerId / nCpu; i < max; i++)
-                data[i] = (float)Math.Sign(data[i]);
-        });
+	if (dataOnGpu)
+	{
+		SignGPU_();
+		return;
+	}
+	var nCpu = SystemInfo.processorCount;
+	Parallel.For(0, nCpu, workerId =>
+			{
+				var max = size * (workerId + 1) / nCpu;
+				for (var i = size * workerId / nCpu; i < max; i++)
+					data[i] = (float)Math.Sign(data[i]);
+			});
 }
 
 public FloatTensor  Sin ()

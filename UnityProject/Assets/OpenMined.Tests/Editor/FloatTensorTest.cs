@@ -117,7 +117,7 @@ public void Acos_()
 	int[] shape2 = { 4 };
 	var expectedAcosTensor = new FloatTensor(data2, shape2);
 
-	tensor.Acos_();
+	tensor.Acos (inline: true );
 
 	for (int i = 2; i < tensor.Size; i++)
 	{
@@ -673,21 +673,21 @@ public void Neg()
 		Assert.AreEqual (result.Data[i], tensorNeg.Data[i]);
 	}
 }
-  
+
 [Test]
 public void Rsqrt()
 {
-    float[] data1 = { 1, 2, 3, 4 };
-    int[] shape1 = { 4 };
-    float[] correct = { 1, (float)0.7071068, (float)0.5773503, (float)0.5};
-    var tensor1 = new FloatTensor(data1, shape1);
+	float[] data1 = { 1, 2, 3, 4 };
+	int[] shape1 = { 4 };
+	float[] correct = { 1, (float)0.7071068, (float)0.5773503, (float)0.5};
+	var tensor1 = new FloatTensor(data1, shape1);
 
-    var result = tensor1.Rsqrt();
+	var result = tensor1.Rsqrt();
 
-    for (int i = 2; i < correct.Length; i++)
-    {
-        Assert.AreEqual (Math.Round(correct[i], 3), Math.Round(result.Data[i], 3));
-    }
+	for (int i = 2; i < correct.Length; i++)
+	{
+		Assert.AreEqual (Math.Round(correct[i], 3), Math.Round(result.Data[i], 3));
+	}
 
 }
 
@@ -757,20 +757,20 @@ public void Sign()
 [Test]
 public void Sign_()
 {
-    float[] data1 = {float.MinValue, -100.0f, -1.0f, -0.0001f, -0.0f, +0.0f, 0.0001f, 1.0f, 10.0f, float.MaxValue};
-    int[] shape1 = { 1, 10 };
+	float[] data1 = {float.MinValue, -100.0f, -1.0f, -0.0001f, -0.0f, +0.0f, 0.0001f, 1.0f, 10.0f, float.MaxValue};
+	int[] shape1 = { 1, 10 };
 
-    var tensor1 = new FloatTensor(data1, shape1);
+	var tensor1 = new FloatTensor(data1, shape1);
 
-    float[] data2 = {-1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f};
-    var tensorSign_ = new FloatTensor(data2, shape1);
+	float[] data2 = {-1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+	var tensorSign_ = new FloatTensor(data2, shape1);
 
-    tensor1.Sign_();
+	tensor1.Sign_();
 
-    for (int i = 0; i < tensor1.Size; i++)
-    {
-        Assert.AreEqual (tensor1.Data[i], tensorSign_.Data[i]);
-    }
+	for (int i = 0; i < tensor1.Size; i++)
+	{
+		Assert.AreEqual (tensor1.Data[i], tensorSign_.Data[i]);
+	}
 }
 
 [Test]

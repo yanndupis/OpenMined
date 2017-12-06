@@ -264,7 +264,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 	}
 	case "acos_":
 	{
-		Acos_ ();
+		Acos (inline: true);
 		return Id.ToString ();
 	}
 	case "atan":
@@ -486,12 +486,12 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 		ctrl.addTensor (result);
 		return result.Id.ToString ();
 	}
-  case "rsqrt":
-  {
-     var result = Rsqrt();
-     ctrl.addTensor(result);
-     return result.Id.ToString();
-  }
+	case "rsqrt":
+	{
+		var result = Rsqrt();
+		ctrl.addTensor(result);
+		return result.Id.ToString();
+	}
 	case "print":
 	{
 		bool dataOriginallyOnGpu = dataOnGpu;
@@ -513,12 +513,12 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 		var result = this.Sign ();
 		return ctrl.addTensor (result) + "";
 	}
-    case "sign_":
-        {
-            Debug.LogFormat("sign_");
-            Sign_();
-            return Id.ToString();
-        }
+	case "sign_":
+	{
+		Debug.LogFormat("sign_");
+		Sign_();
+		return Id.ToString();
+	}
 	case "sin":
 	{
 		var result = Sin ();
