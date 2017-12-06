@@ -40,6 +40,8 @@ private static int CeilKernel;
 [SerializeField]
 private static int CeilKernel_;
 [SerializeField]
+private static int CopyBufferKernel;
+[SerializeField]
 private static int CosKernel;
 [SerializeField]
 private static int CosKernel_;
@@ -138,6 +140,7 @@ public void initShaderKernels ()
 		AddMVKernel_ = shader.FindKernel ("AddMV_");
 		CeilKernel = shader.FindKernel ("Ceil");
 		CeilKernel_ = shader.FindKernel ("Ceil_");
+		CopyBufferKernel = shader.FindKernel ("CopyBuffer");
 		CosKernel = shader.FindKernel ("Cos");
 		CosKernel_ = shader.FindKernel ("Cos_");
 		CoshKernel = shader.FindKernel ("Cosh");
@@ -317,6 +320,12 @@ public FloatTensor AddElemGPU (FloatTensor tensor, FloatTensor result)
 	return result;
 }
 
+public void CopyBuffer (ComputeBuffer buff1, ComputeBuffer buff2)
+{
+	shader.SetBuffer (CopyBufferKernel, "buffer1", buff1);
+	shader.SetBuffer (CopyBufferKernel, "buffer2", buff2);
+	shader.Dispatch (CopyBufferKernel, this.size, 1, 1);
+}
 public FloatTensor CosGPU ()
 {
 	var result = this.emptyTensorCopy();

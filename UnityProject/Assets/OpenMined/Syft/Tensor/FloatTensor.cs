@@ -192,10 +192,12 @@ public FloatTensor (ComputeBuffer _data, int[] _shape, int _size, ComputeShader 
 		throw new NotSupportedException ("Shader operations are not supported on the host machine.");
 	}
 
+	dataOnGpu = true;
 	dataBuffer = _data;
 
 	size = _size;
 	shape = (int[])_shape.Clone ();
+	shapeBuffer = new ComputeBuffer (_shape.Length, sizeof(int));
 	strides = new long[_shape.Length];
 
 	shader = _shader;
@@ -641,7 +643,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 		for (int i = 0; i < msgObj.tensorIndexParams.Length; i++) {
 			new_dims [i] = int.Parse (msgObj.tensorIndexParams [i]);
 		}
-		View_ (new_dims);
+		View (new_dims, inline: true);
 		return Id.ToString ();
 	}
 

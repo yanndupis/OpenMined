@@ -822,47 +822,35 @@ public FloatTensor Sigmoid(bool inline = false)
 	return result;
 }
 
-public FloatTensor View (int[] new_shape)
+public FloatTensor View (int[] new_shape, bool inline = false)
 {
 	int new_size = 1;
 	for (int i = 0; i < new_shape.Length; i++) {
 		new_size *= new_shape [i];
 	}
 
+	FloatTensor result = this;
 	if (new_size == size) {
 		shape = new_shape;
 
-
 		if (dataOnGpu) {
-			return new FloatTensor (dataBuffer, new_shape, size, this.shader);
-		} else {
-			// public FloatTensor(float[] _data, int[] _shape, ComputeShader _shader, bool _initOnGpu = false)
-			var result = new FloatTensor (data, new_shape, shader);
-			return result;
+			if (inline) {
+				shapeBuffer.Release ();
+				shapeBuffer = new ComputeBuffer (shape.Length, sizeof(int));
+				shapeBuffer.SetData (shape);
+			}
+			else {
+				result = new FloatTensor (new_shape, this.shader, true);
+				CopyBuffer(dataBuffer, result.DataBuffer);
+			}
+		}
+		else if (!inline) {
+			result = new FloatTensor (data, new_shape, shader);
 		}
 	}
-	return this;
-
+	return result;
 }
 
-public void View_ (int[] new_shape)
-{
-
-	int new_size = 1;
-	for (int i = 0; i < new_shape.Length; i++) {
-		new_size *= new_shape [i];
-	}
-
-	if (new_size == size) {
-
-		shape = new_shape;
-
-		if (dataOnGpu) {
-			shapeBuffer.Release ();
-			shapeBuffer.SetData (shape);
-		}
-	}
-}
 
 public void Zero_()
 {
@@ -879,6 +867,5 @@ public void Zero_()
 				{ this.Data[i] = 0; }
 			});
 }
-
 }
 }
