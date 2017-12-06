@@ -710,7 +710,7 @@ public void SignGPU_() {
 
 public FloatTensor SinGPU ()
 {
-	var result = new FloatTensor (shape, this.shader, dataOnGpu);
+	var result = this.emptyTensorCopy();
 	shader.SetBuffer (SinKernel, "SinData", dataBuffer);
 	shader.SetBuffer (SinKernel, "SinResult", result.DataBuffer);
 	shader.Dispatch (SinKernel, this.size, 1, 1);

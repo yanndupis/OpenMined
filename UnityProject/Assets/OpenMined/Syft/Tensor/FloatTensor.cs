@@ -527,7 +527,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 	}
 	case "sin_":
 	{
-		Sin_ ();
+		Sin (inline: true);
 		return Id.ToString ();
 	}
 	case "sqrt":

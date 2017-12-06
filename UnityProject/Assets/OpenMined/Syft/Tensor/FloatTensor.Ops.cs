@@ -539,12 +539,13 @@ public void Sign_()
 			});
 }
 
-public FloatTensor  Sin ()
+public FloatTensor Sin (bool inline = false)
 {
 	if (dataOnGpu) {
-		return SinGPU ();
+		if (inline) { SinGPU_(); return this;}
+		else {return SinGPU (); }
 	} else {
-		var result = new FloatTensor (shape, this.shader, dataOnGpu);
+		var result = inline ? this : this.emptyTensorCopy();
 		var nCpu = SystemInfo.processorCount;
 		Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
@@ -553,24 +554,7 @@ public FloatTensor  Sin ()
 					        result.Data [i] = (float)System.Math.Sin (d);
 					}
 				});
-
 		return result;
-	}
-}
-
-public void Sin_ ()
-{
-	if (dataOnGpu) {
-		SinGPU_ ();
-	} else {
-		var nCpu = SystemInfo.processorCount;
-		Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++) {
-					        var d = (double)Data [i];
-					        Data [i] = (float)System.Math.Sin (d);
-					}
-				});
 	}
 }
 

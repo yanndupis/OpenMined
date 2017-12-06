@@ -232,7 +232,7 @@ public void Sin_()
 	int[] shape2 = { 4 };
 	var expectedSinTensor = new FloatTensor(data2, shape2);
 
-	tensor.Sin_();
+	tensor.Sin (inline: true);
 
 	for (int i = 2; i < tensor.Size; i++)
 	{
