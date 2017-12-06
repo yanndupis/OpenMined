@@ -319,7 +319,7 @@ public FloatTensor AddElemGPU (FloatTensor tensor, FloatTensor result)
 
 public FloatTensor CosGPU ()
 {
-	var result = new FloatTensor (shape, this.shader, dataOnGpu);
+	var result = this.emptyTensorCopy();
 	shader.SetBuffer (CosKernel, "CosData", dataBuffer);
 	shader.SetBuffer (CosKernel, "CosResult", result.DataBuffer);
 	shader.Dispatch (CosKernel, this.size, 1, 1);

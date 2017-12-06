@@ -206,15 +206,15 @@ public FloatTensor Ceil(bool inline = false)
 	return result;
 }
 
-public FloatTensor Cos()
+public FloatTensor Cos(bool inline = true)
 {
-	if (dataOnGpu)
-	{
-		return CosGPU();
+	if (dataOnGpu) {
+		if (inline) { CosGPU_(); return this;}
+		else { return CosGPU(); }
 	}
 	else
 	{
-		var result = new FloatTensor(shape, this.shader, dataOnGpu);
+		var result = inline ? this : this.emptyTensorCopy();
 		var nCpu = SystemInfo.processorCount;
 		Parallel.For(0, nCpu, workerId =>
 				{
@@ -227,27 +227,6 @@ public FloatTensor Cos()
 				});
 
 		return result;
-	}
-}
-
-public void Cos_()
-{
-	if (dataOnGpu)
-	{
-		CosGPU_();
-	}
-	else
-	{
-		var nCpu = SystemInfo.processorCount;
-		Parallel.For(0, nCpu, workerId =>
-				{
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++)
-					{
-					        var d = (double) Data[i];
-					        Data[i] = (float) System.Math.Cos(d);
-					}
-				});
 	}
 }
 

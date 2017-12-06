@@ -346,7 +346,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 	}
 	case "cos_":
 	{
-		Cos_ ();
+		Cos (inline: true);
 		return Id.ToString ();
 	}
 	case "cosh":

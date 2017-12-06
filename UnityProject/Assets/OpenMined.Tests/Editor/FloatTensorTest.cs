@@ -79,7 +79,7 @@ public void Cos_()
 	int[] shape2 = { 4 };
 	var expectedCosTensor = new FloatTensor(data2, shape2);
 
-	tensor.Cos_();
+	tensor.Cos (inline: true);
 
 	for (int i = 2; i < tensor.Size; i++)
 	{
