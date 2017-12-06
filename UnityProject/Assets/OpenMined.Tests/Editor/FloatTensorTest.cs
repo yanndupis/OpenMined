@@ -1524,7 +1524,7 @@ public void Tan_()
 	int[] shape2 = { 4 };
 	var expectedTanTensor = new FloatTensor(data2, shape2);
 
-	tensor.Tan_();
+	tensor.Tan (inline: true);
 
 	for (int i = 2; i < tensor.Size; i++)
 	{

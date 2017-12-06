@@ -574,7 +574,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 	}
 	case "tan_":
 	{
-		Tan_ ();
+		Tan (inline: true);
 		return Id.ToString ();
 	}
 	case "tanh":

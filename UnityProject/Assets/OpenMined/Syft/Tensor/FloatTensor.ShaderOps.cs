@@ -795,7 +795,7 @@ public FloatTensor SubElemGPU (FloatTensor tensor, FloatTensor result)
 
 public FloatTensor TanGPU ()
 {
-	var result = new FloatTensor (shape, this.shader, dataOnGpu);
+	var result = this.emptyTensorCopy();
 	shader.SetBuffer (TanKernel, "TanData", dataBuffer);
 	shader.SetBuffer (TanKernel, "TanResult", result.DataBuffer);
 	shader.Dispatch (TanKernel, this.size, 1, 1);
