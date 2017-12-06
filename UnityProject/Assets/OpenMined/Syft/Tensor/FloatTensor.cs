@@ -192,10 +192,12 @@ public FloatTensor (ComputeBuffer _data, int[] _shape, int _size, ComputeShader 
 		throw new NotSupportedException ("Shader operations are not supported on the host machine.");
 	}
 
+	dataOnGpu = true;
 	dataBuffer = _data;
 
 	size = _size;
 	shape = (int[])_shape.Clone ();
+	shapeBuffer = new ComputeBuffer (_shape.Length, sizeof(int));
 	strides = new long[_shape.Length];
 
 	shader = _shader;
@@ -264,18 +266,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 	}
 	case "acos_":
 	{
-		Acos_ ();
-		return Id.ToString ();
-	}
-	case "atan":
-	{
-		var result = Atan ();
-		ctrl.addTensor (result);
-		return result.Id.ToString ();
-	}
-	case "atan_":
-	{
-		Atan_ ();
+		Acos (inline: true);
 		return Id.ToString ();
 	}
 	case "asin":
@@ -286,7 +277,18 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 	}
 	case "asin_":
 	{
-		Asin_ ();
+		Asin (inline: true);
+		return Id.ToString ();
+	}
+	case "atan":
+	{
+		var result = Atan ();
+		ctrl.addTensor (result);
+		return result.Id.ToString ();
+	}
+	case "atan_":
+	{
+		Atan (inline: true);
 		return Id.ToString ();
 	}
 	case "add_elem_":
@@ -346,7 +348,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 	}
 	case "cos_":
 	{
-		Cos_ ();
+		Cos (inline: true);
 		return Id.ToString ();
 	}
 	case "cosh":
@@ -357,7 +359,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 	}
 	case "Cosh_":
 	{
-		Cosh_ ();
+		Cosh (inline: true);
 		return Id.ToString ();
 	}
 	case "cpu":
@@ -486,12 +488,12 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 		ctrl.addTensor (result);
 		return result.Id.ToString ();
 	}
-  case "rsqrt":
-  {
-     var result = Rsqrt();
-     ctrl.addTensor(result);
-     return result.Id.ToString();
-  }
+	case "rsqrt":
+	{
+		var result = Rsqrt();
+		ctrl.addTensor(result);
+		return result.Id.ToString();
+	}
 	case "print":
 	{
 		bool dataOriginallyOnGpu = dataOnGpu;
@@ -513,12 +515,12 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 		var result = this.Sign ();
 		return ctrl.addTensor (result) + "";
 	}
-    case "sign_":
-        {
-            Debug.LogFormat("sign_");
-            Sign_();
-            return Id.ToString();
-        }
+	case "sign_":
+	{
+		Debug.LogFormat("sign_");
+		Sign (inline: true);
+		return Id.ToString();
+	}
 	case "sin":
 	{
 		var result = Sin ();
@@ -527,7 +529,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 	}
 	case "sin_":
 	{
-		Sin_ ();
+		Sin (inline: true);
 		return Id.ToString ();
 	}
 	case "sqrt":
@@ -574,7 +576,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 	}
 	case "tan_":
 	{
-		Tan_ ();
+		Tan (inline: true);
 		return Id.ToString ();
 	}
 	case "tanh":
@@ -591,7 +593,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 	}
 	case "sinh_":
 	{
-		Sinh_ ();
+		Sinh (inline: true);
 		return Id.ToString ();
 	}
 	case "transpose":
@@ -641,7 +643,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 		for (int i = 0; i < msgObj.tensorIndexParams.Length; i++) {
 			new_dims [i] = int.Parse (msgObj.tensorIndexParams [i]);
 		}
-		View_ (new_dims);
+		View (new_dims, inline: true);
 		return Id.ToString ();
 	}
 

@@ -40,6 +40,8 @@ private static int CeilKernel;
 [SerializeField]
 private static int CeilKernel_;
 [SerializeField]
+private static int CopyBufferKernel;
+[SerializeField]
 private static int CosKernel;
 [SerializeField]
 private static int CosKernel_;
@@ -138,6 +140,7 @@ public void initShaderKernels ()
 		AddMVKernel_ = shader.FindKernel ("AddMV_");
 		CeilKernel = shader.FindKernel ("Ceil");
 		CeilKernel_ = shader.FindKernel ("Ceil_");
+		CopyBufferKernel = shader.FindKernel ("CopyBuffer");
 		CosKernel = shader.FindKernel ("Cos");
 		CosKernel_ = shader.FindKernel ("Cos_");
 		CoshKernel = shader.FindKernel ("Cosh");
@@ -157,13 +160,13 @@ public void initShaderKernels ()
 		PowScalarKernel = shader.FindKernel ("PowScalar");
 		PowElemKernel = shader.FindKernel ("PowElem");
 		NegateKernel = shader.FindKernel ("Negate");
-    RsqrtKernel = shader.FindKernel ("Rsqrt");
+		RsqrtKernel = shader.FindKernel ("Rsqrt");
 		// PowKernel = shader.FindKernel ("Pow");
 		// PowKernel_ = shader.FindKernel ("Pow_");
 		SigmoidKernel = shader.FindKernel ("Sigmoid");
 		SigmoidKernel_ = shader.FindKernel ("Sigmoid_");
 		SignKernel = shader.FindKernel ("Sign");
-        SignKernel_ = shader.FindKernel("Sign_");
+		SignKernel_ = shader.FindKernel("Sign_");
 		SinKernel = shader.FindKernel ("Sin");
 		SinKernel_ = shader.FindKernel ("Sin_");
 		SqrtKernel = shader.FindKernel ("Sqrt");
@@ -220,7 +223,7 @@ public void AcosGPU_ ()
 
 public FloatTensor AsinGPU ()
 {
-	var result = new FloatTensor (shape, this.shader, dataOnGpu);
+	var result = this.emptyTensorCopy();
 	shader.SetBuffer (AsinKernel, "AsinData", dataBuffer);
 	shader.SetBuffer (AsinKernel, "AsinResult", result.DataBuffer);
 	shader.Dispatch (AsinKernel, this.size, 1, 1);
@@ -235,7 +238,7 @@ public void AsinGPU_ ()
 
 public FloatTensor AtanGPU ()
 {
-	var result = new FloatTensor (shape, this.shader, dataOnGpu);
+	var result = this.emptyTensorCopy();
 	shader.SetBuffer (AtanKernel, "AtanData", dataBuffer);
 	shader.SetBuffer (AtanKernel, "AtanResult", result.DataBuffer);
 	shader.Dispatch (AtanKernel, this.size, 1, 1);
@@ -317,9 +320,15 @@ public FloatTensor AddElemGPU (FloatTensor tensor, FloatTensor result)
 	return result;
 }
 
+public void CopyBuffer (ComputeBuffer buff1, ComputeBuffer buff2)
+{
+	shader.SetBuffer (CopyBufferKernel, "buffer1", buff1);
+	shader.SetBuffer (CopyBufferKernel, "buffer2", buff2);
+	shader.Dispatch (CopyBufferKernel, this.size, 1, 1);
+}
 public FloatTensor CosGPU ()
 {
-	var result = new FloatTensor (shape, this.shader, dataOnGpu);
+	var result = this.emptyTensorCopy();
 	shader.SetBuffer (CosKernel, "CosData", dataBuffer);
 	shader.SetBuffer (CosKernel, "CosResult", result.DataBuffer);
 	shader.Dispatch (CosKernel, this.size, 1, 1);
@@ -334,7 +343,7 @@ public void CosGPU_ ()
 
 public FloatTensor CoshGPU ()
 {
-	var result = new FloatTensor (shape, this.shader, dataOnGpu);
+	var result = this.emptyTensorCopy();
 	shader.SetBuffer (CoshKernel, "CoshData", dataBuffer);
 	shader.SetBuffer (CoshKernel, "CoshResult", result.DataBuffer);
 	shader.Dispatch (CoshKernel, this.size, 1, 1);
@@ -614,19 +623,19 @@ public FloatTensor NegateGPU ()
 
 	return this;
 }
-  
+
 public FloatTensor RsqrtGPU()
 {
-    if (dataOnGpu)
-    {
-var result = new FloatTensor(shape, this.shader, dataOnGpu);
-shader.SetBuffer(RsqrtKernel, "RsqrtData", dataBuffer);
-shader.SetBuffer(RsqrtKernel, "RsqrtResult", result.dataBuffer);
-shader.Dispatch(RsqrtKernel, 1, 1, 1);
-        return result;
-    }
+	if (dataOnGpu)
+	{
+		var result = new FloatTensor(shape, this.shader, dataOnGpu);
+		shader.SetBuffer(RsqrtKernel, "RsqrtData", dataBuffer);
+		shader.SetBuffer(RsqrtKernel, "RsqrtResult", result.dataBuffer);
+		shader.Dispatch(RsqrtKernel, 1, 1, 1);
+		return result;
+	}
 
-    return this;
+	return this;
 }
 
 // public FloatTensor PowGPU(float value, FloatTensor result)
@@ -701,16 +710,16 @@ public FloatTensor SignGPU (FloatTensor result)
 }
 
 public void SignGPU_() {
-    Debug.LogFormat("<color=blue>FloatTensor.SignGPU_ dataOnGpu: {0}</color>", dataOnGpu);
-    if (dataOnGpu) {
-        shader.SetBuffer (SignKernel_, "SignData_", dataBuffer);
-        shader.Dispatch (SignKernel_, this.size, 1, 1);
-    }
+	Debug.LogFormat("<color=blue>FloatTensor.SignGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+	if (dataOnGpu) {
+		shader.SetBuffer (SignKernel_, "SignData_", dataBuffer);
+		shader.Dispatch (SignKernel_, this.size, 1, 1);
+	}
 }
 
 public FloatTensor SinGPU ()
 {
-	var result = new FloatTensor (shape, this.shader, dataOnGpu);
+	var result = this.emptyTensorCopy();
 	shader.SetBuffer (SinKernel, "SinData", dataBuffer);
 	shader.SetBuffer (SinKernel, "SinResult", result.DataBuffer);
 	shader.Dispatch (SinKernel, this.size, 1, 1);
@@ -795,7 +804,7 @@ public FloatTensor SubElemGPU (FloatTensor tensor, FloatTensor result)
 
 public FloatTensor TanGPU ()
 {
-	var result = new FloatTensor (shape, this.shader, dataOnGpu);
+	var result = this.emptyTensorCopy();
 	shader.SetBuffer (TanKernel, "TanData", dataBuffer);
 	shader.SetBuffer (TanKernel, "TanResult", result.DataBuffer);
 	shader.Dispatch (TanKernel, this.size, 1, 1);
@@ -820,7 +829,7 @@ public FloatTensor TanhGPU ()
 
 public FloatTensor SinhGPU ()
 {
-	var result = new FloatTensor (shape, this.shader, dataOnGpu);
+	var result = this.emptyTensorCopy();
 	shader.SetBuffer (SinhKernel, "SinhData", dataBuffer);
 	shader.SetBuffer (SinhKernel, "SinhResult", result.DataBuffer);
 	shader.Dispatch (SinhKernel, this.size, 1, 1);

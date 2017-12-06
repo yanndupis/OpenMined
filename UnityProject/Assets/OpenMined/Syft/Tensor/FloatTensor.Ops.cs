@@ -56,12 +56,13 @@ public FloatTensor Add(FloatTensor x, bool inline = false)
 	return result;
 }
 
-public FloatTensor Acos ()
+public FloatTensor Acos (bool inline = false)
 {
 	if (dataOnGpu) {
-		return AcosGPU ();
+		if (inline) { AcosGPU_(); return this;}
+		else { return AcosGPU (); }
 	} else {
-		var result = new FloatTensor (shape, this.shader, dataOnGpu);
+		FloatTensor result = inline ? this : this.emptyTensorCopy();
 		var nCpu = SystemInfo.processorCount;
 		Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
@@ -70,33 +71,17 @@ public FloatTensor Acos ()
 					        result.Data [i] = (float)System.Math.Acos (d);
 					}
 				});
-
 		return result;
 	}
 }
 
-public void Acos_ ()
+public FloatTensor Asin ( bool inline = false)
 {
 	if (dataOnGpu) {
-		AcosGPU_ ();
+		if (inline) { AsinGPU_(); return this;}
+		else { return AsinGPU (); }
 	} else {
-		var nCpu = SystemInfo.processorCount;
-		Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++) {
-					        var d = (double)Data [i];
-					        Data [i] = (float)System.Math.Acos (d);
-					}
-				});
-	}
-}
-
-public FloatTensor Asin ()
-{
-	if (dataOnGpu) {
-		return AsinGPU ();
-	} else {
-		var result = new FloatTensor (shape, this.shader, dataOnGpu);
+		var result = inline ? this : this.emptyTensorCopy();
 		var nCpu = SystemInfo.processorCount;
 		Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
@@ -110,28 +95,13 @@ public FloatTensor Asin ()
 	}
 }
 
-public void Asin_ ()
+public FloatTensor Atan (bool inline = false)
 {
 	if (dataOnGpu) {
-		AsinGPU_ ();
+		if (inline) { AtanGPU_(); return this;}
+		else { return AtanGPU (); }
 	} else {
-		var nCpu = SystemInfo.processorCount;
-		Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++) {
-					        var d = (double)Data [i];
-					        Data [i] = (float)System.Math.Asin (d);
-					}
-				});
-	}
-}
-
-public FloatTensor Atan ()
-{
-	if (dataOnGpu) {
-		return AtanGPU ();
-	} else {
-		var result = new FloatTensor (shape, this.shader, dataOnGpu);
+		var result = inline ? this : this.emptyTensorCopy();
 		var nCpu = SystemInfo.processorCount;
 		Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
@@ -144,23 +114,6 @@ public FloatTensor Atan ()
 		return result;
 	}
 }
-
-public void Atan_ ()
-{
-	if (dataOnGpu) {
-		AtanGPU_ ();
-	} else {
-		var nCpu = SystemInfo.processorCount;
-		Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++) {
-					        var d = (double)Data [i];
-					        Data [i] = (float)System.Math.Atan (d);
-					}
-				});
-	}
-}
-
 
 public FloatTensor Add(float value, bool inline = false)
 {
@@ -253,15 +206,15 @@ public FloatTensor Ceil(bool inline = false)
 	return result;
 }
 
-public FloatTensor Cos()
+public FloatTensor Cos(bool inline = true)
 {
-	if (dataOnGpu)
-	{
-		return CosGPU();
+	if (dataOnGpu) {
+		if (inline) { CosGPU_(); return this;}
+		else { return CosGPU(); }
 	}
 	else
 	{
-		var result = new FloatTensor(shape, this.shader, dataOnGpu);
+		var result = inline ? this : this.emptyTensorCopy();
 		var nCpu = SystemInfo.processorCount;
 		Parallel.For(0, nCpu, workerId =>
 				{
@@ -277,36 +230,15 @@ public FloatTensor Cos()
 	}
 }
 
-public void Cos_()
+public FloatTensor Cosh(bool inline = false)
 {
-	if (dataOnGpu)
-	{
-		CosGPU_();
+	if (dataOnGpu) {
+		if (inline) { CoshGPU_(); return this; }
+		else { return CoshGPU(); }
 	}
 	else
 	{
-		var nCpu = SystemInfo.processorCount;
-		Parallel.For(0, nCpu, workerId =>
-				{
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++)
-					{
-					        var d = (double) Data[i];
-					        Data[i] = (float) System.Math.Cos(d);
-					}
-				});
-	}
-}
-
-public FloatTensor      Cosh()
-{
-	if (dataOnGpu)
-	{
-		return CoshGPU();
-	}
-	else
-	{
-		var result = new FloatTensor(shape, this.shader, dataOnGpu);
+		var result = inline ? this : this.emptyTensorCopy();
 		var nCpu = SystemInfo.processorCount;
 		Parallel.For(0, nCpu, workerId =>
 				{
@@ -319,27 +251,6 @@ public FloatTensor      Cosh()
 				});
 
 		return result;
-	}
-}
-
-public void Cosh_()
-{
-	if (dataOnGpu)
-	{
-		CoshGPU_();
-	}
-	else
-	{
-		var nCpu = SystemInfo.processorCount;
-		Parallel.For(0, nCpu, workerId =>
-				{
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++)
-					{
-					        var d = (double) Data[i];
-					        Data[i] = (float) System.Math.Cosh(d);
-					}
-				});
 	}
 }
 
@@ -576,31 +487,32 @@ public FloatTensor Neg ()
 			});
 	return result;
 }
-  
+
 public FloatTensor Rsqrt ()
 {
-  if (dataOnGpu) {
-    return RsqrtGPU ();
-  }
+	if (dataOnGpu) {
+		return RsqrtGPU ();
+	}
 
-  var result = new FloatTensor(shape, this.shader, dataOnGpu);
-  var nCpu = SystemInfo.processorCount;
-  Parallel.For(0, nCpu, workerId => {
-    var max = data.Length * (workerId + 1) / nCpu;
-    for (var i = data.Length * workerId / nCpu; i < max; i++)
-      result.data[i] = 1/(float)Math.Sqrt(data[i]);
-  });
-  return result;
+	var result = new FloatTensor(shape, this.shader, dataOnGpu);
+	var nCpu = SystemInfo.processorCount;
+	Parallel.For(0, nCpu, workerId => {
+				var max = data.Length * (workerId + 1) / nCpu;
+				for (var i = data.Length * workerId / nCpu; i < max; i++)
+					result.data[i] = 1/(float)Math.Sqrt(data[i]);
+			});
+	return result;
 }
 
 
-public FloatTensor Sign ()
+public FloatTensor Sign (bool inline = false)
 {
-	var result = new FloatTensor (shape, this.shader, dataOnGpu);
+	var result = inline ? this : this.emptyTensorCopy();
 
 	if (dataOnGpu) {
-		result.Gpu ();
-		return SignGPU (result);
+		result.Gpu();
+		if (inline) { SignGPU_(); return this; }
+		else { return SignGPU(result); }
 	}
 
 	var nCpu = SystemInfo.processorCount;
@@ -612,28 +524,13 @@ public FloatTensor Sign ()
 	return result;
 }
 
-public void Sign_()
-{
-    if (dataOnGpu)
-    {
-        SignGPU_();
-        return;
-    }
-    var nCpu = SystemInfo.processorCount;
-    Parallel.For(0, nCpu, workerId =>
-        {
-            var max = size * (workerId + 1) / nCpu;
-            for (var i = size * workerId / nCpu; i < max; i++)
-                data[i] = (float)Math.Sign(data[i]);
-        });
-}
-
-public FloatTensor  Sin ()
+public FloatTensor Sin (bool inline = false)
 {
 	if (dataOnGpu) {
-		return SinGPU ();
+		if (inline) { SinGPU_(); return this;}
+		else {return SinGPU (); }
 	} else {
-		var result = new FloatTensor (shape, this.shader, dataOnGpu);
+		var result = inline ? this : this.emptyTensorCopy();
 		var nCpu = SystemInfo.processorCount;
 		Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
@@ -642,24 +539,7 @@ public FloatTensor  Sin ()
 					        result.Data [i] = (float)System.Math.Sin (d);
 					}
 				});
-
 		return result;
-	}
-}
-
-public void Sin_ ()
-{
-	if (dataOnGpu) {
-		SinGPU_ ();
-	} else {
-		var nCpu = SystemInfo.processorCount;
-		Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++) {
-					        var d = (double)Data [i];
-					        Data [i] = (float)System.Math.Sin (d);
-					}
-				});
 	}
 }
 
@@ -746,12 +626,13 @@ public FloatTensor Sum (int dim)
 	return result;
 }
 
-public FloatTensor Tan ()
+public FloatTensor Tan (bool inline = true)
 {
 	if (dataOnGpu) {
-		return TanGPU ();
+		if (inline) { TanGPU_(); return this; }
+		else { return TanGPU (); }
 	} else {
-		var result = new FloatTensor (shape, this.shader, dataOnGpu);
+		var result = inline ? this : this.emptyTensorCopy();
 		var nCpu = SystemInfo.processorCount;
 		Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
@@ -760,24 +641,7 @@ public FloatTensor Tan ()
 					        result.Data [i] = (float)System.Math.Tan (d);
 					}
 				});
-
 		return result;
-	}
-}
-
-public void Tan_ ()
-{
-	if (dataOnGpu) {
-		TanGPU_ ();
-	} else {
-		var nCpu = SystemInfo.processorCount;
-		Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++) {
-					        var d = (double)Data [i];
-					        Data [i] = (float)System.Math.Tan (d);
-					}
-				});
 	}
 }
 
@@ -885,12 +749,13 @@ public void Triu_ (int k)
 
 }
 
-public FloatTensor Sinh ()
+public FloatTensor Sinh (bool inline = true)
 {
 	if (dataOnGpu) {
-		return SinhGPU ();
+		if (inline) { SinhGPU_(); return this; }
+		else { return SinhGPU (); }
 	} else {
-		var result = new FloatTensor (shape, this.shader, dataOnGpu);
+		var result = inline ? this : this.emptyTensorCopy();
 		var nCpu = SystemInfo.processorCount;
 		Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
@@ -942,47 +807,35 @@ public FloatTensor Sigmoid(bool inline = false)
 	return result;
 }
 
-public FloatTensor View (int[] new_shape)
+public FloatTensor View (int[] new_shape, bool inline = false)
 {
 	int new_size = 1;
 	for (int i = 0; i < new_shape.Length; i++) {
 		new_size *= new_shape [i];
 	}
 
+	FloatTensor result = this;
 	if (new_size == size) {
 		shape = new_shape;
 
-
 		if (dataOnGpu) {
-			return new FloatTensor (dataBuffer, new_shape, size, this.shader);
-		} else {
-			// public FloatTensor(float[] _data, int[] _shape, ComputeShader _shader, bool _initOnGpu = false)
-			var result = new FloatTensor (data, new_shape, shader);
-			return result;
+			if (inline) {
+				shapeBuffer.Release ();
+				shapeBuffer = new ComputeBuffer (shape.Length, sizeof(int));
+				shapeBuffer.SetData (shape);
+			}
+			else {
+				result = new FloatTensor (new_shape, this.shader, true);
+				CopyBuffer(dataBuffer, result.DataBuffer);
+			}
+		}
+		else if (!inline) {
+			result = new FloatTensor (data, new_shape, shader);
 		}
 	}
-	return this;
-
+	return result;
 }
 
-public void View_ (int[] new_shape)
-{
-
-	int new_size = 1;
-	for (int i = 0; i < new_shape.Length; i++) {
-		new_size *= new_shape [i];
-	}
-
-	if (new_size == size) {
-
-		shape = new_shape;
-
-		if (dataOnGpu) {
-			shapeBuffer.Release ();
-			shapeBuffer.SetData (shape);
-		}
-	}
-}
 
 public void Zero_()
 {
@@ -999,6 +852,5 @@ public void Zero_()
 				{ this.Data[i] = 0; }
 			});
 }
-
 }
 }

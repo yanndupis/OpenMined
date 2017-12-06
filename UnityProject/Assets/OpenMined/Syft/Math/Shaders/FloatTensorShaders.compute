@@ -182,6 +182,19 @@ void Ceil_ (uint3 id: SV_DispatchThreadID) {
 		CeilData_[id.x] = ceil(CeilData_[id.x]);
 }
 
+
+#pragma kernel CopyBuffer
+StructuredBuffer<float> buffer1;
+RWStructuredBuffer<float> buffer2;
+
+[numthreads(4,1,1)]
+
+void CopyBuffer (uint3 id : SV_DispatchThreadID)
+
+{
+	buffer2[id.x] = buffer1[id.x];
+}
+
 #pragma kernel Cos
 
 RWStructuredBuffer<float> CosData;
