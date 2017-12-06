@@ -8,16 +8,18 @@ public partial class FloatTensor
 {
 
 private FloatTensor emptyTensorCopy() {
-			return new FloatTensor(_shape:shape, _data:data, _dataBuffer:dataBuffer, _shader:this.shader);
+			return this.Copy ();
+			// TODO: initialize a new tensor with the correct shape without allocating values;
+//			return new FloatTensor(_shape:shape, _data:data, _dataBuffer:dataBuffer, _shader:this.shader);
 }
 
 public FloatTensor Abs(bool inline = false)
 // Returns a new Tensor with the smallest integer greater than or equal to each element
 {
-	FloatTensor result = inline ? this : this.emptyTensorCopy();
+	FloatTensor result = inline ? this : this.Copy();
 
 	if (dataOnGpu) {
-		result.Gpu ();
+		result.Gpu (this.shader);
 		if (inline) { AbsGPU_ (); return this; }
 		else { return AbsGPU (result); }
 	}
@@ -40,7 +42,7 @@ public FloatTensor Add(FloatTensor x, bool inline = false)
 
 	FloatTensor result = inline ? this : this.emptyTensorCopy();
 	if (dataOnGpu & x.dataOnGpu) {
-		result.Gpu ();
+		result.Gpu (this.shader);
 		if (inline) { AddElemGPU_ (x); return this; }
 		else { return AddElemGPU (x, result); }
 	}
@@ -120,7 +122,7 @@ public FloatTensor Add(float value, bool inline = false)
 	FloatTensor result = inline ? this : this.emptyTensorCopy();
 
 	if (dataOnGpu) {
-		result.Gpu ();
+		result.Gpu (this.shader);
 		if (inline) { AddScalarGPU_ (value); return this; }
 		else { return AddScalarGPU (value, result); }
 	}
@@ -189,7 +191,7 @@ public FloatTensor Ceil(bool inline = false)
 
 	if (dataOnGpu) {
 		//TODO: Fix GPU operations. https://github.com/OpenMined/OpenMined/issues/126
-		result.Gpu ();
+		result.Gpu (this.shader);
 		if (inline) { CeilGPU_ (); return this; }
 		else { return CeilGPU (result); }
 	}
@@ -262,7 +264,7 @@ public FloatTensor Div(FloatTensor x, bool inline = false)
 	FloatTensor result = inline ? this : this.emptyTensorCopy();
 
 	if (dataOnGpu & x.dataOnGpu) {
-		result.Gpu ();
+		result.Gpu (this.shader);
 		if (inline) { DivElemGPU_ (x); return this; }
 		else { return DivElemGPU (x, result); }
 	}
@@ -320,7 +322,7 @@ public FloatTensor Div(float value, bool inline = false)
 	FloatTensor result = inline ? this : this.emptyTensorCopy();
 
 	if (dataOnGpu) {
-		result.Gpu ();
+		result.Gpu (this.shader);
 		if (inline) { DivScalarGPU_ (value); return this; }
 		else { return DivScalarGPU (value, result); }
 	}
@@ -340,7 +342,7 @@ public FloatTensor Floor(bool inline = false)
 	FloatTensor result = inline ? this : this.emptyTensorCopy();
 	if (dataOnGpu)
 	{
-		result.Gpu();
+		result.Gpu(this.shader);
 		if (inline) { FloorGPU_ (); return this; }
 		else { return FloorGPU (result); }
 	}
@@ -372,7 +374,7 @@ public FloatTensor Mul(FloatTensor x, bool inline = false)
 	var result = inline ? this : this.emptyTensorCopy();
 
 	if (dataOnGpu) {
-		result.Gpu ();
+		result.Gpu (this.shader);
 		if (inline) { MulElemGPU_(x); return this;}
 		else { return MulElemGPU(x, result);}
 	}
@@ -392,6 +394,7 @@ public FloatTensor Mul(float value, bool inline = false)
 	var result = inline ? this : this.emptyTensorCopy();
 
 	if (dataOnGpu) {
+				result.Gpu (this.shader);
 		if (inline) { MulScalarGPU_(value); return this; }
 		else { return MulScalarGPU(value, result); }
 	}
@@ -414,7 +417,7 @@ public FloatTensor Sub(FloatTensor x, bool inline = false)
 	FloatTensor result = inline ? this : this.emptyTensorCopy();
 
 	if (dataOnGpu & x.dataOnGpu) {
-		result.Gpu ();
+		result.Gpu (this.shader);
 		if (inline) { SubElemGPU_(x); return this;}
 		else { return SubElemGPU (x, result); }
 	}
@@ -435,7 +438,7 @@ public FloatTensor Pow (FloatTensor x, bool inline = true)
 	FloatTensor result = inline ? this : this.emptyTensorCopy();
 
 	if (dataOnGpu) {
-		result.Gpu ();
+		result.Gpu (this.shader);
 		if (inline) { result.PowElemGPU_(x); return this;}
 		else { return PowElemGPU (x, result); }
 
@@ -456,7 +459,7 @@ public FloatTensor Pow (float value, bool inline = true)
 	var result = inline ? this : this.emptyTensorCopy();
 
 	if (dataOnGpu) {
-		result.Gpu ();
+		result.Gpu (this.shader);
 		if (inline) { PowScalarGPU_(value); return this;}
 		else { return PowScalarGPU (value, result); }
 	} else {
@@ -510,7 +513,7 @@ public FloatTensor Sign (bool inline = false)
 	var result = inline ? this : this.emptyTensorCopy();
 
 	if (dataOnGpu) {
-		result.Gpu();
+		result.Gpu (this.shader);
 		if (inline) { SignGPU_(); return this; }
 		else { return SignGPU(result); }
 	}
@@ -580,7 +583,7 @@ public FloatTensor Sub(float value, bool inline = false)
 	FloatTensor result = inline ? this : this.emptyTensorCopy();
 
 	if (dataOnGpu) {
-		result.Gpu ();
+		result.Gpu (this.shader);
 		if (inline) { SubScalarGPU_(value); return this; }
 		else { return SubScalarGPU(value, result); }
 	}
@@ -609,7 +612,7 @@ public FloatTensor Sum (int dim)
 
 	if (dataOnGpu) {
 		// TODO: write GPU kernel for summing over a dimension
-//				result.Gpu ();
+//				result.Gpu (this.shader);
 
 	} else {
 
@@ -827,7 +830,7 @@ public FloatTensor View (int[] new_shape, bool inline = false)
 			}
 			else {
 				result = new FloatTensor (_shape:new_shape, _shader:this.shader);
-				result.Gpu ();
+				result.Gpu (this.shader);
 				CopyBuffer(dataBuffer, result.DataBuffer);
 			}
 		}

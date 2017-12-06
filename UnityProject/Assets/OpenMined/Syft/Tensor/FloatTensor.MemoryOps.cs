@@ -18,9 +18,11 @@ namespace OpenMined.Syft.Tensor
             set { dataBuffer = value; }
         }
         
-        public bool Gpu()
+		public bool Gpu(ComputeShader _shader)
         {
             if (dataOnGpu || !SystemInfo.supportsComputeShaders) return false;
+			shader = _shader;
+
             CopyCputoGpu();
             EraseCpu();
             return true;
@@ -41,6 +43,8 @@ namespace OpenMined.Syft.Tensor
         
         private void CopyCputoGpu()
         {
+			initShaderKernels ();
+
             dataBuffer = new ComputeBuffer(size, sizeof(float));
             shapeBuffer = new ComputeBuffer(shape.Length, sizeof(int));
 

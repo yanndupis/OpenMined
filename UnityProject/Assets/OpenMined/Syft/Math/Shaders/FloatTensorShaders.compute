@@ -341,7 +341,7 @@ RWStructuredBuffer<float> PowScalarScalar_;
 
 [numthreads(4,1,1)]
 void PowScalar_ (uint3 id: SV_DispatchThreadID) {
-	PowScalarData_[id.x] = pow(PowScalarData_[id.x], PowScalarScalar_[0]);
+	PowScalarData_[id.x] = pow(abs(PowScalarData_[id.x]), PowScalarScalar_[0]);
 }
 
 #pragma kernel PowElem_
@@ -351,7 +351,7 @@ RWStructuredBuffer<float> PowElemDataB_;
 
 [numthreads(4,1,1)]
 void PowElem_ (uint3 id: SV_DispatchThreadID) {
-	PowElemDataA_[id.x] = pow(PowElemDataA_[id.x], PowElemDataB_[id.x]);
+	PowElemDataA_[id.x] = pow(abs(PowElemDataA_[id.x]), PowElemDataB_[id.x]);
 }
 
 #pragma kernel PowScalar
@@ -362,7 +362,7 @@ RWStructuredBuffer<float> PowScalarResult;
 
 [numthreads(4,1,1)]
 void PowScalar (uint3 id: SV_DispatchThreadID) {
-	PowScalarResult[id.x] = pow(PowScalarData[id.x], PowScalarScalar[0]);
+	PowScalarResult[id.x] = pow(abs(PowScalarData[id.x]), PowScalarScalar[0]);
 }
 
 #pragma kernel PowElem
@@ -373,7 +373,7 @@ RWStructuredBuffer<float> PowElemDataResult;
 
 [numthreads(4,1,1)]
 void PowElem (uint3 id: SV_DispatchThreadID) {
-	PowElemDataResult[id.x] = pow(PowElemDataA[id.x], PowElemDataB[id.x]);
+	PowElemDataResult[id.x] = pow(abs(PowElemDataA[id.x]), PowElemDataB[id.x]);
 }
 
 #pragma kernel Negate

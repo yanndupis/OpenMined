@@ -183,14 +183,24 @@ public long[] Strides {
 			} else {
 				throw new FormatException ("You tried to initialize a GPU tensor without access to a shader or gpu.");
 			}
-
+				
 			// Second: let's save our buffer.
-			dataBuffer = _dataBuffer;
-			shapeBuffer = _shapeBuffer;
-
 			if (_copyData) {
-				// TODO:
-				throw new FormatException ("Cannot copy data buffers yet");
+
+				// TODO: copying by moving to CPU is super inefficient - we should be able to copy directly.
+				dataBuffer = new ComputeBuffer (_dataBuffer.count, sizeof(float));
+				float[] temp_data = new float[_dataBuffer.count];
+				_dataBuffer.GetData (temp_data);
+				dataBuffer.SetData (temp_data);
+
+				shapeBuffer = new ComputeBuffer (_shapeBuffer.count, sizeof(int));
+				int[] temp_shape = new int[_shapeBuffer.count];
+				_shapeBuffer.GetData (temp_shape);
+				shapeBuffer.SetData (temp_shape);
+
+			} else {
+				dataBuffer = _dataBuffer;
+				shapeBuffer = _shapeBuffer;
 			}
 
 			// Third: let's set the tensor's size to be equal to that of the buffer
@@ -420,7 +430,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 	}
 	case "gpu":
 	{
-		if (Gpu())
+		if (Gpu(ctrl.GetShader()))
 		{
 			return msgObj.functionCall + ": OK : Moved data to GPU.";
 		}
@@ -506,7 +516,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 		Debug.LogFormat ("<color=cyan>Print:</color> {0}", string.Join (",", this.Data));
 
 		if (dataOriginallyOnGpu) {
-			Gpu ();
+			Gpu (ctrl.GetShader());
 		}
 		return data;
 	}
@@ -666,6 +676,8 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 public string Print ()
 {
 	bool dataOriginallyOnGpu = dataOnGpu;
+	ComputeShader _shader = this.shader;
+
 	if (dataOnGpu) {
 		Cpu ();
 	}
@@ -694,7 +706,7 @@ public string Print ()
 	}
 
 	if (dataOriginallyOnGpu) {
-		Gpu ();
+		Gpu (_shader);
 	}
 	return print;
 }
