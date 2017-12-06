@@ -157,13 +157,13 @@ public void initShaderKernels ()
 		PowScalarKernel = shader.FindKernel ("PowScalar");
 		PowElemKernel = shader.FindKernel ("PowElem");
 		NegateKernel = shader.FindKernel ("Negate");
-    RsqrtKernel = shader.FindKernel ("Rsqrt");
+		RsqrtKernel = shader.FindKernel ("Rsqrt");
 		// PowKernel = shader.FindKernel ("Pow");
 		// PowKernel_ = shader.FindKernel ("Pow_");
 		SigmoidKernel = shader.FindKernel ("Sigmoid");
 		SigmoidKernel_ = shader.FindKernel ("Sigmoid_");
 		SignKernel = shader.FindKernel ("Sign");
-        SignKernel_ = shader.FindKernel("Sign_");
+		SignKernel_ = shader.FindKernel("Sign_");
 		SinKernel = shader.FindKernel ("Sin");
 		SinKernel_ = shader.FindKernel ("Sin_");
 		SqrtKernel = shader.FindKernel ("Sqrt");
@@ -235,7 +235,7 @@ public void AsinGPU_ ()
 
 public FloatTensor AtanGPU ()
 {
-	var result = new FloatTensor (shape, this.shader, dataOnGpu);
+	var result = this.emptyTensorCopy();
 	shader.SetBuffer (AtanKernel, "AtanData", dataBuffer);
 	shader.SetBuffer (AtanKernel, "AtanResult", result.DataBuffer);
 	shader.Dispatch (AtanKernel, this.size, 1, 1);
@@ -614,19 +614,19 @@ public FloatTensor NegateGPU ()
 
 	return this;
 }
-  
+
 public FloatTensor RsqrtGPU()
 {
-    if (dataOnGpu)
-    {
-var result = new FloatTensor(shape, this.shader, dataOnGpu);
-shader.SetBuffer(RsqrtKernel, "RsqrtData", dataBuffer);
-shader.SetBuffer(RsqrtKernel, "RsqrtResult", result.dataBuffer);
-shader.Dispatch(RsqrtKernel, 1, 1, 1);
-        return result;
-    }
+	if (dataOnGpu)
+	{
+		var result = new FloatTensor(shape, this.shader, dataOnGpu);
+		shader.SetBuffer(RsqrtKernel, "RsqrtData", dataBuffer);
+		shader.SetBuffer(RsqrtKernel, "RsqrtResult", result.dataBuffer);
+		shader.Dispatch(RsqrtKernel, 1, 1, 1);
+		return result;
+	}
 
-    return this;
+	return this;
 }
 
 // public FloatTensor PowGPU(float value, FloatTensor result)
@@ -701,11 +701,11 @@ public FloatTensor SignGPU (FloatTensor result)
 }
 
 public void SignGPU_() {
-    Debug.LogFormat("<color=blue>FloatTensor.SignGPU_ dataOnGpu: {0}</color>", dataOnGpu);
-    if (dataOnGpu) {
-        shader.SetBuffer (SignKernel_, "SignData_", dataBuffer);
-        shader.Dispatch (SignKernel_, this.size, 1, 1);
-    }
+	Debug.LogFormat("<color=blue>FloatTensor.SignGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+	if (dataOnGpu) {
+		shader.SetBuffer (SignKernel_, "SignData_", dataBuffer);
+		shader.Dispatch (SignKernel_, this.size, 1, 1);
+	}
 }
 
 public FloatTensor SinGPU ()

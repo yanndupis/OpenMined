@@ -194,7 +194,7 @@ public void Atan_()
 	int[] shape2 = { 4 };
 	var expectedAtanTensor = new FloatTensor(data2, shape2);
 
-	tensor.Atan_();
+	tensor.Atan (inline: true);
 
 	for (int i = 2; i < tensor.Size; i++)
 	{

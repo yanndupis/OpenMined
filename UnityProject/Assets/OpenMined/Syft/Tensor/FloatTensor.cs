@@ -275,7 +275,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 	}
 	case "atan_":
 	{
-		Atan_ ();
+		Atan (inline: true);
 		return Id.ToString ();
 	}
 	case "asin":

@@ -110,12 +110,13 @@ public void Asin_ ()
 	}
 }
 
-public FloatTensor Atan ()
+public FloatTensor Atan (bool inline = false)
 {
 	if (dataOnGpu) {
-		return AtanGPU ();
+		if (inline) { AtanGPU_(); return this;}
+		else { return AtanGPU (); }
 	} else {
-		var result = new FloatTensor (shape, this.shader, dataOnGpu);
+		var result = inline ? this : this.emptyTensorCopy();
 		var nCpu = SystemInfo.processorCount;
 		Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
@@ -128,23 +129,6 @@ public FloatTensor Atan ()
 		return result;
 	}
 }
-
-public void Atan_ ()
-{
-	if (dataOnGpu) {
-		AtanGPU_ ();
-	} else {
-		var nCpu = SystemInfo.processorCount;
-		Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++) {
-					        var d = (double)Data [i];
-					        Data [i] = (float)System.Math.Atan (d);
-					}
-				});
-	}
-}
-
 
 public FloatTensor Add(float value, bool inline = false)
 {
