@@ -816,10 +816,11 @@ public FloatTensor View (int[] new_shape, bool inline = false)
 
 	FloatTensor result = this;
 	if (new_size == size) {
-		shape = new_shape;
 
 		if (dataOnGpu) {
 			if (inline) {
+				shape = new_shape;
+
 				shapeBuffer.Release ();
 				shapeBuffer = new ComputeBuffer (shape.Length, sizeof(int));
 				shapeBuffer.SetData (shape);
@@ -830,7 +831,12 @@ public FloatTensor View (int[] new_shape, bool inline = false)
 				CopyBuffer(dataBuffer, result.DataBuffer);
 			}
 		}
-		else if (!inline) {
+		else if (inline)
+		{
+			shape = new_shape;
+		}
+		else
+		{
 			result = new FloatTensor (_data:data, _shape:new_shape, _shader:shader);
 		}
 	}
