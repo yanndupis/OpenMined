@@ -75,12 +75,13 @@ public FloatTensor Acos (bool inline = false)
 	}
 }
 
-public FloatTensor Asin ()
+public FloatTensor Asin ( bool inline = false)
 {
 	if (dataOnGpu) {
-		return AsinGPU ();
+		if (inline) { AsinGPU_(); return this;}
+		else { return AsinGPU (); }
 	} else {
-		var result = new FloatTensor (shape, this.shader, dataOnGpu);
+		var result = inline ? this : this.emptyTensorCopy();
 		var nCpu = SystemInfo.processorCount;
 		Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
@@ -91,22 +92,6 @@ public FloatTensor Asin ()
 				});
 
 		return result;
-	}
-}
-
-public void Asin_ ()
-{
-	if (dataOnGpu) {
-		AsinGPU_ ();
-	} else {
-		var nCpu = SystemInfo.processorCount;
-		Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++) {
-					        var d = (double)Data [i];
-					        Data [i] = (float)System.Math.Asin (d);
-					}
-				});
 	}
 }
 

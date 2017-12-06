@@ -155,7 +155,7 @@ public void Asin_()
 	int[] shape2 = { 4 };
 	var expectedAsinTensor = new FloatTensor(data2, shape2);
 
-	tensor.Asin_();
+	tensor.Asin (inline: true);
 
 	for (int i = 2; i < tensor.Size; i++)
 	{

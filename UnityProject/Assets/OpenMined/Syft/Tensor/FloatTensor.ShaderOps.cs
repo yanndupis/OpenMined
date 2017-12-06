@@ -220,7 +220,7 @@ public void AcosGPU_ ()
 
 public FloatTensor AsinGPU ()
 {
-	var result = new FloatTensor (shape, this.shader, dataOnGpu);
+	var result = this.emptyTensorCopy();
 	shader.SetBuffer (AsinKernel, "AsinData", dataBuffer);
 	shader.SetBuffer (AsinKernel, "AsinResult", result.DataBuffer);
 	shader.Dispatch (AsinKernel, this.size, 1, 1);

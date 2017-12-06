@@ -267,6 +267,17 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 		Acos (inline: true);
 		return Id.ToString ();
 	}
+	case "asin":
+	{
+		var result = Asin ();
+		ctrl.addTensor (result);
+		return result.Id.ToString ();
+	}
+	case "asin_":
+	{
+		Asin (inline: true);
+		return Id.ToString ();
+	}
 	case "atan":
 	{
 		var result = Atan ();
@@ -276,17 +287,6 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 	case "atan_":
 	{
 		Atan (inline: true);
-		return Id.ToString ();
-	}
-	case "asin":
-	{
-		var result = Asin ();
-		ctrl.addTensor (result);
-		return result.Id.ToString ();
-	}
-	case "asin_":
-	{
-		Asin_ ();
 		return Id.ToString ();
 	}
 	case "add_elem_":
