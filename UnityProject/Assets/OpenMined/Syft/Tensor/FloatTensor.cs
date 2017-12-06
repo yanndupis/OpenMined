@@ -591,7 +591,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 	}
 	case "sinh_":
 	{
-		Sinh_ ();
+		Sinh (inline: true);
 		return Id.ToString ();
 	}
 	case "transpose":

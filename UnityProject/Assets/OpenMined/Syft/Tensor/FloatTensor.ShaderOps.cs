@@ -820,7 +820,7 @@ public FloatTensor TanhGPU ()
 
 public FloatTensor SinhGPU ()
 {
-	var result = new FloatTensor (shape, this.shader, dataOnGpu);
+	var result = this.emptyTensorCopy();
 	shader.SetBuffer (SinhKernel, "SinhData", dataBuffer);
 	shader.SetBuffer (SinhKernel, "SinhResult", result.DataBuffer);
 	shader.Dispatch (SinhKernel, this.size, 1, 1);

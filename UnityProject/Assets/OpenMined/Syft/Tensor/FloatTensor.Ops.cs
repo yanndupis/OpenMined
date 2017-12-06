@@ -764,12 +764,13 @@ public void Triu_ (int k)
 
 }
 
-public FloatTensor Sinh ()
+public FloatTensor Sinh (bool inline = true)
 {
 	if (dataOnGpu) {
-		return SinhGPU ();
+		if (inline) { SinhGPU_(); return this; }
+		else { return SinhGPU (); }
 	} else {
-		var result = new FloatTensor (shape, this.shader, dataOnGpu);
+		var result = inline ? this : this.emptyTensorCopy();
 		var nCpu = SystemInfo.processorCount;
 		Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
