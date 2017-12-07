@@ -1667,7 +1667,7 @@ public void Squeeze()
 	float[] data1 = {1, 2, 3, 4};
 	int[] shape1 = {2, 1, 2, 1};
 
-	var tensor = new FloatTensor(_data: data1, _shape: shape1);
+	var tensor = new FloatTensor(_ctrl:ctrl, _data: data1, _shape: shape1);
 
 	var newTensor = tensor.Squeeze();
 
@@ -1688,7 +1688,7 @@ public void Squeeze_()
 	float[] data1 = {1, 2, 3, 4};
 	int[] shape1 = {2, 1, 2, 1};
 
-	var tensor1 = new FloatTensor(_data: data1, _shape: shape1);
+	var tensor1 = new FloatTensor(_ctrl:ctrl, _data: data1, _shape: shape1);
 
 	tensor1.Squeeze(inline: true);
 
@@ -1699,7 +1699,7 @@ public void Squeeze_()
 	float[] data2 = {1, 2, 3, 4};
 	int[] shape2 = {2, 1, 2, 1};
 
-	var tensor2 = new FloatTensor(_data: data1, _shape: shape1);
+	var tensor2 = new FloatTensor(_ctrl:ctrl, _data: data1, _shape: shape1);
 
 	var anotherTensor = tensor2.Squeeze(dim: 3, inline: true);
 

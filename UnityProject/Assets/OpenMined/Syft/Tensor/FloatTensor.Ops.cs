@@ -143,7 +143,7 @@ namespace OpenMined.Syft.Tensor
 			FloatTensor result = inline ? this : this.emptyTensorCopy();
 
 			if (dataOnGpu) {
-				result.Gpu ();
+				result.Gpu (shader);
 				if (inline) { AddScalarGPU_ (value); return this; }
 				else { return AddScalarGPU (value, result); }
 			}
@@ -212,7 +212,7 @@ namespace OpenMined.Syft.Tensor
 
 			if (dataOnGpu) {
 				//TODO: Fix GPU operations. https://github.com/OpenMined/OpenMined/issues/126
-				result.Gpu ();
+				result.Gpu (shader);
 				if (inline) { CeilGPU_ (); return this; }
 				else { return CeilGPU (result); }
 			}
@@ -286,7 +286,7 @@ namespace OpenMined.Syft.Tensor
 			FloatTensor result = inline ? this : this.emptyTensorCopy();
 
 			if (dataOnGpu & x.dataOnGpu) {
-				result.Gpu ();
+				result.Gpu (shader);
 				if (inline) { DivElemGPU_ (x); return this; }
 				else { return DivElemGPU (x, result); }
 			}
@@ -343,7 +343,7 @@ namespace OpenMined.Syft.Tensor
 			FloatTensor result = inline ? this : this.emptyTensorCopy();
 
 			if (dataOnGpu) {
-				result.Gpu ();
+				result.Gpu (shader);
 				if (inline) { DivScalarGPU_ (value); return this; }
 				else { return DivScalarGPU (value, result); }
 			}
@@ -363,7 +363,7 @@ namespace OpenMined.Syft.Tensor
 			FloatTensor result = inline ? this : this.emptyTensorCopy();
 			if (dataOnGpu)
 			{
-				result.Gpu();
+				result.Gpu(shader);
 				if (inline) { FloorGPU_ (); return this; }
 				else { return FloorGPU (result); }
 			}
@@ -457,7 +457,7 @@ namespace OpenMined.Syft.Tensor
 			FloatTensor result = inline ? this : this.emptyTensorCopy();
 
 			if (dataOnGpu & x.dataOnGpu) {
-				result.Gpu ();
+				result.Gpu (shader);
 				if (inline) { SubElemGPU_(x); return this;}
 				else { return SubElemGPU (x, result); }
 			}
@@ -478,7 +478,7 @@ namespace OpenMined.Syft.Tensor
 			FloatTensor result = inline ? this : this.emptyTensorCopy();
 
 			if (dataOnGpu) {
-				result.Gpu ();
+				result.Gpu (shader);
 				if (inline) { result.PowElemGPU_(x); return this;}
 				else { return PowElemGPU (x, result); }
 
@@ -499,7 +499,7 @@ namespace OpenMined.Syft.Tensor
 			var result = inline ? this : this.emptyTensorCopy();
 
 			if (dataOnGpu) {
-				result.Gpu ();
+				result.Gpu (shader);
 				if (inline) { PowScalarGPU_(value); return this;}
 				else { return PowScalarGPU (value, result); }
 			} else {
@@ -552,7 +552,7 @@ namespace OpenMined.Syft.Tensor
 			var result = inline ? this : this.emptyTensorCopy();
 
 			if (dataOnGpu) {
-				result.Gpu();
+				result.Gpu(shader);
 				if (inline) { SignGPU_(); return this; }
 				else { return SignGPU(result); }
 			}
@@ -622,7 +622,7 @@ namespace OpenMined.Syft.Tensor
 			FloatTensor result = inline ? this : this.emptyTensorCopy();
 
 			if (dataOnGpu) {
-				result.Gpu ();
+				result.Gpu (shader);
 				if (inline) { SubScalarGPU_(value); return this; }
 				else { return SubScalarGPU(value, result); }
 			}
@@ -869,7 +869,7 @@ namespace OpenMined.Syft.Tensor
 					}
 					else {
 						result = new FloatTensor (_ctrl: ctrl, _shape:new_shape, _shader:this.shader);
-						result.Gpu ();
+						result.Gpu (shader);
 						CopyBuffer(dataBuffer, result.DataBuffer);
 					}
 				}
@@ -901,6 +901,62 @@ namespace OpenMined.Syft.Tensor
 						for (int i = data.Length * workerId / nCpu; i < max; i++)
 						{ this.Data[i] = 0; }
 					});
+		}
+
+
+		public FloatTensor Squeeze(int dim = -1, bool inline = false)
+		{
+			var list = new List<int>();
+
+			if (dim >= 0)
+			{
+				for (int i = 0; i < shape.Length; i++)
+				{
+					if (i != dim)
+					{
+						list.Add(shape[i]);
+					}
+					else
+					{
+						if (shape[i] != 1)
+						{
+							list.Add(shape[i]);
+						}
+					}
+				}
+			}
+			else
+			{
+				for (int i = 0; i < shape.Length; i++)
+				{
+					if(shape[i] > 1)
+					{
+						list.Add(shape[i]);
+					}
+				}
+			}
+
+			FloatTensor result = this;
+			if (list.Count == 0)
+			{
+				if (!inline)
+				{
+					result = new FloatTensor(_ctrl: ctrl, _data: data, _shape: shape, _shader: shader);
+				}
+			}
+			else
+			{
+				if (inline)
+				{
+					View(list.ToArray(), inline: true);
+				}
+				else
+				{
+					result = View(list.ToArray());
+				}
+			}
+
+			return result;
 		}
 	}
 
