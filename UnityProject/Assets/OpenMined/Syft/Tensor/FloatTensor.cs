@@ -548,7 +548,6 @@ namespace OpenMined.Syft.Tensor
                                 return "";
                             }
                         }
-
                         case "data":
                         {
                           string out_str = "";
@@ -567,7 +566,6 @@ namespace OpenMined.Syft.Tensor
 
                           return out_str;
                         }
-
                         case "dataOnGpu":
                         {
                             if (dataOnGpu)
@@ -631,6 +629,12 @@ namespace OpenMined.Syft.Tensor
                     var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
                     this.Mul(tensor_1, inline: true);
                     return this.id + "";
+                }
+                case "mm":
+                {
+                  var tensor_1 = ctrl.getTensor (int.Parse (msgObj.tensorIndexParams [0]));
+                  var result = this.MM (tensor_1);
+                  return result.id + "";
                 }
                 case "pow_elem_":
                 {
@@ -925,6 +929,7 @@ namespace OpenMined.Syft.Tensor
                     {
                         float f = data[i + j * d1 + k * d1 * d2];
 						            print += f.ToString("0.0000") + ", ";
+
                     }
                     print += "\n";
                 }

@@ -88,14 +88,20 @@ namespace OpenMined.Syft.Tensor
 						creators [1].Backward (grad, this);
 
 					} else if (creation_op == "mul_elem") {
+
 						creators [0].Backward (grad.Mul (creators [1]), this);
 						creators [1].Backward (grad.Mul (creators [0]), this);
+
 					} else if (creation_op == "div_elem") {
+
 						creators [0].Backward (grad.Div (creators [1]), this);
 						creators [1].Backward (grad.Div (creators [0]), this);
+
 					} else if (creation_op == "sub_elem") {
+						
 						creators [0].Backward (grad, this);
 						creators [1].Backward (grad.Neg(), this);
+
 					}
 
 //					if (!keepgrads) {

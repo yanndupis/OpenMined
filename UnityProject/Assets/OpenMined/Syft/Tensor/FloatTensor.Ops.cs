@@ -391,6 +391,28 @@ namespace OpenMined.Syft.Tensor
 			return false;
 		}
 
+		public FloatTensor MM(FloatTensor x) {
+
+			if (this.shape.Length != 2 || x.shape.Length != 2) {
+				throw new InvalidOperationException ("Cannot do MM on tensors that aren't 2 dimentional. Try calling view() to reshape");
+			}
+
+			int[] result_shape = new int[2];
+			result_shape [0] = shape [0];
+			result_shape [1] = x.shape [1];
+
+			FloatTensor result = new FloatTensor (_ctrl:ctrl, _shape:result_shape);
+
+			if (this.dataOnGpu) {
+				result.Gpu (shader);
+			}
+
+			result.AddMatrixMultiply (this, x);
+
+			return result;
+
+		}
+
 		public FloatTensor Mul(FloatTensor x, bool inline = false)
 		{
 			// Check if both tensors are compatible for sum
