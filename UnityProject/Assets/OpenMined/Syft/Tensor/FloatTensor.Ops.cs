@@ -10,7 +10,8 @@ namespace OpenMined.Syft.Tensor
 
 		private FloatTensor emptyTensorCopy() {
 //			FloatTensor result = new FloatTensor(ctrl, _shape:shape, _data:data, _dataBuffer:dataBuffer, _shader:this.shader);
-			return this.Copy();
+//			return new FloatTensor(ctrl, _shape:shape, _dataOnGpu:dataOnGpu, _shader:shader);
+			return Copy();
 		}
 
 		public FloatTensor Abs(bool inline = false)
@@ -455,20 +456,22 @@ namespace OpenMined.Syft.Tensor
 				if (inline) { 
 					if (autograd)
 						throw new InvalidOperationException ("Cannot call inline functions if you intend to run backprop.");
-					SubElemGPU_(x); 
+					SubElemGPU_ (x); 
 					return this;
+				} else {
+					result = SubElemGPU (x, result);
 				}
-				else { result = SubElemGPU (x, result); }
-			}
-			var nCpu = SystemInfo.processorCount;
-			Parallel.For (0, nCpu, workerId => {
-						var max = size * (workerId + 1) / nCpu;
-						for (var i = size * workerId / nCpu; i < max; i++)
-							result.Data [i] = Data [i] - x.Data [i];
-					});
+			} else {
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
+					var max = size * (workerId + 1) / nCpu;
+					for (var i = size * workerId / nCpu; i < max; i++)
+						result.Data [i] = Data [i] - x.Data [i];
+				});
 
-			if (autograd) {
-				HookAutograd (ref result, ref x, "sub_elem");
+				if (autograd) {
+					HookAutograd (ref result, ref x, "sub_elem");
+				}
 			}
 
 			return result;
