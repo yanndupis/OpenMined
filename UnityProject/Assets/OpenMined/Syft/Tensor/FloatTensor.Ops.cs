@@ -63,17 +63,11 @@ namespace OpenMined.Syft.Tensor
 						});
 			}
 
+		
 			if (autograd) {
-
-				result.InitAutograd ();
-				result.creators.Add (this);
-				result.creators.Add (x);
-				result.creation_op = "add";
-
-				children.Add (result.Id, 0);
-				x.children.Add (result.Id, 0);
-
+				HookAutograd (ref result, ref x, "add_elem");
 			}
+
 
 			return result;
 		}
@@ -287,8 +281,13 @@ namespace OpenMined.Syft.Tensor
 
 			if (dataOnGpu & x.dataOnGpu) {
 				result.Gpu (shader);
-				if (inline) { DivElemGPU_ (x); return this; }
-				else { return DivElemGPU (x, result); }
+				if (inline) { 
+					if(autograd) 
+						throw new InvalidOperationException ("Cannot call inline functions if you intend to run backprop.");
+					DivElemGPU_ (x); 
+					return this; 
+				}
+				else { result = DivElemGPU (x, result); }
 			}
 			else {
 				var nCpu = SystemInfo.processorCount;
@@ -300,6 +299,10 @@ namespace OpenMined.Syft.Tensor
 							}
 						});
 			}
+
+			if(autograd)
+				HookAutograd (ref result, ref x, "div_elem");
+			
 			return result;
 		}
 
@@ -416,15 +419,7 @@ namespace OpenMined.Syft.Tensor
 			}
 
 			if (autograd) {
-
-				result.InitAutograd ();
-				result.creators.Add (this);
-				result.creators.Add (x);
-				result.creation_op = "mul";
-
-				children.Add (result.Id, 0);
-				x.children.Add (result.Id, 0);
-
+				HookAutograd (ref result, ref x, "mul_elem");
 			}
 
 			return result;
@@ -457,9 +452,13 @@ namespace OpenMined.Syft.Tensor
 			FloatTensor result = inline ? this : this.emptyTensorCopy();
 
 			if (dataOnGpu & x.dataOnGpu) {
-				result.Gpu (shader);
-				if (inline) { SubElemGPU_(x); return this;}
-				else { return SubElemGPU (x, result); }
+				if (inline) { 
+					if (autograd)
+						throw new InvalidOperationException ("Cannot call inline functions if you intend to run backprop.");
+					SubElemGPU_(x); 
+					return this;
+				}
+				else { result = SubElemGPU (x, result); }
 			}
 			var nCpu = SystemInfo.processorCount;
 			Parallel.For (0, nCpu, workerId => {
@@ -467,6 +466,11 @@ namespace OpenMined.Syft.Tensor
 						for (var i = size * workerId / nCpu; i < max; i++)
 							result.Data [i] = Data [i] - x.Data [i];
 					});
+
+			if (autograd) {
+				HookAutograd (ref result, ref x, "sub_elem");
+			}
+
 			return result;
 		}
 
