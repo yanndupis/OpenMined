@@ -570,7 +570,7 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 		// calls the function on our tensor object
 		var result = this.Min ();
 		// returns the function call name with the OK status
-		return result.id + "";
+		return result + "";
 	}
 
 	case "mul_elem":
