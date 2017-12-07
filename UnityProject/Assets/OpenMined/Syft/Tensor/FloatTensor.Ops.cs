@@ -391,11 +391,10 @@ namespace OpenMined.Syft.Tensor
 		}
 
 		//public FloatTensor Min(bool inline = false)
-		public double Min()
-		// Returns a new Tensor with the smallest integer greater than or equal to each element
+		public float Min()
 		{
 			//FloatTensor result = inline ? this : this.emptyTensorCopy();
-			double smallest = data [0];
+			float smallest = data [0];
 
 			if (dataOnGpu) {
 				//if (inline) { AbsGPU_ (); return this; }
@@ -405,7 +404,7 @@ namespace OpenMined.Syft.Tensor
 				
 				for (int i = 0; i < size; i++) {
 					if (data [i] < smallest) {
-						smallest = (double)data [i];
+						smallest = (float)data [i];
 					} else {
 
 					}
