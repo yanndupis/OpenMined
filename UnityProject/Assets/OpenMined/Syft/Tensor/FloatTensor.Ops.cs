@@ -395,7 +395,7 @@ namespace OpenMined.Syft.Tensor
 		// Returns a new Tensor with the smallest integer greater than or equal to each element
 		{
 			//FloatTensor result = inline ? this : this.emptyTensorCopy();
-			double smallest = 0.0;
+			double smallest = data [0];
 
 			if (dataOnGpu) {
 				//if (inline) { AbsGPU_ (); return this; }
