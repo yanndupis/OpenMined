@@ -12,11 +12,17 @@ namespace OpenMined.Syft.Tensor
 
         public bool DataOnGpu => dataOnGpu;
 
-        public ComputeBuffer DataBuffer
-        {
-            get { return dataBuffer; }
-            set { dataBuffer = value; }
-        }
+		public ComputeBuffer DataBuffer
+		{
+			get { return dataBuffer; }
+			set { dataBuffer = value; }
+		}
+
+		public ComputeBuffer ShapeBuffer
+		{
+			get { return shapeBuffer; }
+			set { shapeBuffer = value; }
+		}
         
 		public bool Gpu(ComputeShader _shader)
         {
@@ -61,8 +67,10 @@ namespace OpenMined.Syft.Tensor
         
         private void EraseGpu()
         {
-            dataBuffer.Release();
-            shapeBuffer.Release();
+			if(dataBuffer != null)
+            	dataBuffer.Release();
+			if(shapeBuffer != null)
+            	shapeBuffer.Release();
             dataOnGpu = false;
         }
     }
