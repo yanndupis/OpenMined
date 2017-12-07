@@ -564,6 +564,15 @@ public string ProcessMessage (Command msgObj, SyftController ctrl)
 			return msgObj.functionCall + ": FAILED : Did not move data.";
 		}
 	}
+
+	case "min":
+	{
+		// calls the function on our tensor object
+		var result = this.Min ();
+		// returns the function call name with the OK status
+		return result.id + "";
+	}
+
 	case "mul_elem":
 	{
 		var tensor_1 = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
