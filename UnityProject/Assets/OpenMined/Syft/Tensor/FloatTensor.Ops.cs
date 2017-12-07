@@ -390,6 +390,32 @@ namespace OpenMined.Syft.Tensor
 			return false;
 		}
 
+		//public FloatTensor Min(bool inline = false)
+		public double Min()
+		// Returns a new Tensor with the smallest integer greater than or equal to each element
+		{
+			//FloatTensor result = inline ? this : this.emptyTensorCopy();
+			double smallest = 0.0;
+
+			if (dataOnGpu) {
+				//if (inline) { AbsGPU_ (); return this; }
+				//else { return AbsGPU (result); }
+			}
+			else {
+				
+				for (int i = 0; i < size; i++) {
+					if (data [i] < smallest) {
+						smallest = (double)data [i];
+					} else {
+
+					}
+
+				}
+			
+			}
+			return smallest;
+		}
+
 		public FloatTensor Mul(FloatTensor x, bool inline = false)
 		{
 			// Check if both tensors are compatible for sum
