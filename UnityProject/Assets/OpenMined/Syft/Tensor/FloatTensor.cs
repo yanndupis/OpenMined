@@ -548,6 +548,26 @@ namespace OpenMined.Syft.Tensor
                                 return "";
                             }
                         }
+
+                        case "data":
+                        {
+                          string out_str = "";
+
+                          if (dataOnGpu) {
+                            int[] temp_data = new int[size];
+                            dataBuffer.GetData (temp_data);
+                            for (int i = 0; i < size; i++) {
+                              out_str += temp_data [i] + ",";
+                            }
+                          } else {
+                            for (int i = 0; i < size; i++) {
+                              out_str += data [i] + ",";
+                            }
+                          }
+
+                          return out_str;
+                        }
+
                         case "dataOnGpu":
                         {
                             if (dataOnGpu)
@@ -904,7 +924,7 @@ namespace OpenMined.Syft.Tensor
                     for (int i = 0; i < d1; i++)
                     {
                         float f = data[i + j * d1 + k * d1 * d2];
-                        print += f.ToString() + ",\t";
+						            print += f.ToString("0.0000") + ", ";
                     }
                     print += "\n";
                 }
