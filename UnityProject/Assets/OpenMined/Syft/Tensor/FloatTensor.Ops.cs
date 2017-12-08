@@ -409,6 +409,10 @@ namespace OpenMined.Syft.Tensor
 
 			result.AddMatrixMultiply (this, x);
 
+			if (autograd) {
+				HookAutograd (ref result, ref x, "mm");
+			}
+
 			return result;
 
 		}
@@ -491,7 +495,7 @@ namespace OpenMined.Syft.Tensor
 						result.Data [i] = Data [i] - x.Data [i];
 				});
 
-				if (autograd) {
+				if (autograd && !inline) {
 					HookAutograd (ref result, ref x, "sub_elem");
 				}
 			}
@@ -504,15 +508,22 @@ namespace OpenMined.Syft.Tensor
 			// Check if both tensors are compatible for sum
 			SameSizeDimensionsShapeAndLocation (ref x);
 
+			if (inline & autograd)
+				throw new InvalidOperationException ("Cannot call inline functions if you intend to run backprop.");
+
 			FloatTensor result = inline ? this : this.emptyTensorCopy();
 
 			if (dataOnGpu) {
 				result.Gpu (shader);
-				if (inline) { result.PowElemGPU_(x); return this;}
+				if (inline) { 
+					
+					result.PowElemGPU_(x); 
+					return this;
+				}
 				else { return PowElemGPU (x, result); }
 
 			} else {
-
+				
 				var nCpu = SystemInfo.processorCount;
 				Parallel.For (0, nCpu, workerId => {
 							var max = size * (workerId + 1) / nCpu;
@@ -520,11 +531,17 @@ namespace OpenMined.Syft.Tensor
 								result.Data [i] = (float)Math.Pow ((double)Data [i], x.Data [i]);
 						});
 			}
+
+			HookAutograd (ref result, ref x, "pow_elem");
+
 			return result;
 		}
 
-		public FloatTensor Pow (float value, bool inline = true)
+		public FloatTensor Pow (float value, bool inline = false)
 		{
+			if (inline & autograd)
+				throw new InvalidOperationException ("Cannot call inline functions if you intend to run backprop.");
+
 			var result = inline ? this : this.emptyTensorCopy();
 
 			if (dataOnGpu) {
@@ -540,6 +557,9 @@ namespace OpenMined.Syft.Tensor
 								result.Data [i] = (float)Math.Pow ((double)Data [i], value);
 						});
 			}
+
+			HookAutograd (ref result, value, "pow_scalar");
+
 			return result;
 		}
 
@@ -548,16 +568,18 @@ namespace OpenMined.Syft.Tensor
 		{
 			if (dataOnGpu) {
 				return NegateGPU ();
+			} else {
+				
+				var result = this.Copy ();
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
+					var max = data.Length * (workerId + 1) / nCpu;
+					for (var i = data.Length * workerId / nCpu; i < max; i++)
+						result.data [i] = -data [i];
+				});
+				return result;
 			}
 
-			var result = new FloatTensor (_ctrl:ctrl, _shape:shape, _shader:this.shader);
-			var nCpu = SystemInfo.processorCount;
-			Parallel.For (0, nCpu, workerId => {
-						var max = data.Length * (workerId + 1) / nCpu;
-						for (var i = data.Length * workerId / nCpu; i < max; i++)
-							result.data [i] = -data [i];
-					});
-			return result;
 		}
 
 		public FloatTensor Rsqrt ()
@@ -858,23 +880,34 @@ namespace OpenMined.Syft.Tensor
 
 		public FloatTensor Sigmoid(bool inline = false)
 		{
-			if (dataOnGpu)
-			{
-				if (inline) {this.SigmoidGPU_(); return this;}
-				else { return SigmoidGPU(this.emptyTensorCopy()); }
+			FloatTensor result;
+			if (dataOnGpu) {
+				if (inline) {
+					if (autograd)
+						throw new InvalidOperationException ("Cannot call inline functions if you intend to run backprop.");
+					
+					this.SigmoidGPU_ (); 
+					return this;
+				} else {
+					result =  SigmoidGPU (this.emptyTensorCopy ());
+				}
+			} else {
+
+				result = inline ? this : this.emptyTensorCopy ();
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
+					var max = size * (workerId + 1) / nCpu;
+					for (var i = size * workerId / nCpu; i < max; i++) {
+						double s = Math.Exp ((double)this.Data [i]);
+						result.Data [i] = (float)(s / (1.0f + s));
+					}
+				});
 			}
 
-			FloatTensor result = inline ? this : this.emptyTensorCopy();
-			var nCpu = SystemInfo.processorCount;
-			Parallel.For(0, nCpu, workerId =>
-					{
-						var max = size * (workerId + 1) / nCpu;
-						for (var i = size * workerId / nCpu; i < max; i++)
-						{
-						        double s = Math.Exp((double)this.Data[i]);
-						        result.Data[i] = (float)(s / (1.0f + s));
-						}
-					});
+			if (autograd) {
+				HookAutograd (ref result, "sigmoid");
+			}
+
 			return result;
 		}
 
