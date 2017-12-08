@@ -43,18 +43,18 @@ namespace OpenMined.Syft.Tensor
 			FloatTensor result = inline ? this : this.emptyTensorCopy();
 			if (dataOnGpu & x.dataOnGpu) {
 
-				if (inline) { 
+				if (inline) {
 					if (autograd)
 						throw new InvalidOperationException ("Cannot call inline functions if you intend to run backprop.");
-						
+
 					AddElemGPU_ (x);
-					return this; 
-				} else { 
-					result = AddElemGPU (x, result); 
+					return this;
+				} else {
+					result = AddElemGPU (x, result);
 				}
 
 			} else {
-				
+
 				var nCpu = SystemInfo.processorCount;
 				Parallel.For (0, nCpu, workerId => {
 							var max = size * (workerId + 1) / nCpu;
@@ -64,7 +64,7 @@ namespace OpenMined.Syft.Tensor
 						});
 			}
 
-		
+
 			if (autograd) {
 				HookAutograd (ref result, ref x, "add_elem");
 			}
@@ -282,11 +282,11 @@ namespace OpenMined.Syft.Tensor
 
 			if (dataOnGpu & x.dataOnGpu) {
 				result.Gpu (shader);
-				if (inline) { 
-					if(autograd) 
+				if (inline) {
+					if(autograd)
 						throw new InvalidOperationException ("Cannot call inline functions if you intend to run backprop.");
-					DivElemGPU_ (x); 
-					return this; 
+					DivElemGPU_ (x);
+					return this;
 				}
 				else { result = DivElemGPU (x, result); }
 			}
@@ -303,7 +303,7 @@ namespace OpenMined.Syft.Tensor
 
 			if(autograd)
 				HookAutograd (ref result, ref x, "div_elem");
-			
+
 			return result;
 		}
 
@@ -444,12 +444,12 @@ namespace OpenMined.Syft.Tensor
 			var result = inline ? this : this.emptyTensorCopy();
 
 			if (dataOnGpu && x.dataOnGpu) {
-				
-				if (inline) { 
+
+				if (inline) {
 					if (autograd) {
 						throw new InvalidOperationException ("Cannot call inline functions if you intend to run backprop.");
 					}
-					MulElemGPU_ (x); 
+					MulElemGPU_ (x);
 					return this;
 				} else {
 					result = MulElemGPU (x, result);
@@ -498,10 +498,10 @@ namespace OpenMined.Syft.Tensor
 			FloatTensor result = inline ? this : this.emptyTensorCopy();
 
 			if (dataOnGpu & x.dataOnGpu) {
-				if (inline) { 
+				if (inline) {
 					if (autograd)
 						throw new InvalidOperationException ("Cannot call inline functions if you intend to run backprop.");
-					SubElemGPU_ (x); 
+					SubElemGPU_ (x);
 					return this;
 				} else {
 					result = SubElemGPU (x, result);
@@ -897,6 +897,24 @@ namespace OpenMined.Syft.Tensor
 			}
 		}
 
+        public float Trace()
+        {
+            if ((shape.Length != 2) || (shape[0] != shape[1]))
+                throw new InvalidOperationException("Trace is defined on square 2d matrices only.");
+
+            if (dataOnGpu)
+            {
+                return TraceGPU();
+            } else {
+                float trace = 0;
+                for (int i = 0; i < shape[0]; i++)
+                {
+                    trace += this[i, i];
+                }
+                return trace;
+            }
+        }
+
 		public FloatTensor Sigmoid(bool inline = false)
 		{
 			FloatTensor result;
@@ -971,7 +989,6 @@ namespace OpenMined.Syft.Tensor
 		{
 			if (dataOnGpu)
 			{
-
 				ZeroGPU_(); return;
 			}
 

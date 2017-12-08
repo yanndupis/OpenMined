@@ -1728,6 +1728,26 @@ public void Squeeze_()
 }
 
 [Test]
+public void Trace()
+{
+	// test #1
+	float[] data1 = { 1.2f, 2, 3, 4 };
+	int[] shape1 = { 2, 2 };
+	var tensor = new FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
+	float actual = tensor.Trace();
+	float expected = 5.2f;
+
+	Assert.AreEqual (expected, actual);
+
+	// test #2
+	float[] data3 = { 1, 2, 3 };
+	int[] shape3 = { 3 };
+	var non2DTensor = new FloatTensor(_ctrl: ctrl, _data: data3, _shape: shape3);
+	Assert.That(() => non2DTensor.Trace(),
+			Throws.TypeOf<InvalidOperationException>());
+}
+
+[Test]
 public void Trunc()
 {
 	float[] data = { -0.323232f, 0.323893f, 0.99999f, 1.2323389f };

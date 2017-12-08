@@ -148,7 +148,7 @@ namespace OpenMined.Syft.Tensor
             setStridesAndCheckShape();
 
             // Third: let's see what kind of data we've got. We should either have
-            // a GPU ComputeBuffer or a data[] object. 
+            // a GPU ComputeBuffer or a data[] object.
             if (_data != null && _shapeBuffer == null && _dataBuffer == null)
             {
                 InitCpu(_data: _data, _copyData: _copyData);
@@ -216,7 +216,7 @@ namespace OpenMined.Syft.Tensor
 //			// Lastly: let's set the ID of the tensor.
 //			// IDEs might show a warning, but ref and volatile seems to be working with Interlocked API.
             id = System.Threading.Interlocked.Increment (ref nCreated);
-            
+
             ctrl.addTensor(this);
             if (SystemInfo.supportsComputeShaders && shader == null)
             {
@@ -246,7 +246,7 @@ namespace OpenMined.Syft.Tensor
         {
             if (!SystemInfo.supportsComputeShaders)
                 throw new NotSupportedException("Shaders are not supported on the host machine");
-            
+
             // First: we need to check that we have a shader
             if (_shader != null)
             {
@@ -810,6 +810,11 @@ namespace OpenMined.Syft.Tensor
                 {
                     Sinh(inline: true);
                     return Id.ToString();
+                }
+                case "trace":
+                {
+                    var result = Trace();
+                    return result.ToString();
                 }
                 case "transpose":
                 {
