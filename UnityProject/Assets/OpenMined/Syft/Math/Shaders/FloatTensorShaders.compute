@@ -273,6 +273,16 @@ void DivElem (uint3 id: SV_DispatchThreadID) {
 	DivElemDataResult[id.x] = DivElemDataA[id.x] / DivElemDataB[id.x];
 }
 
+#pragma kernel Exp
+
+RWStructuredBuffer<float> ExpData;
+RWStructuredBuffer<float> ExpResult;
+
+[numthreads(4,1,1)]
+void Exp (uint3 id: SV_DispatchThreadID) {
+	ExpResult[id.x] = exp(ExpData[id.x]);
+}
+
 #pragma kernel Floor_
 
 RWStructuredBuffer<float> FloorData_;

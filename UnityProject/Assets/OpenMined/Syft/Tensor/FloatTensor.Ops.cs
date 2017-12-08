@@ -362,6 +362,25 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
+		public FloatTensor Exp()
+		{
+			var result = new FloatTensor(_ctrl:ctrl, _shape:shape, _shader:this.shader);
+
+			if (dataOnGpu) {
+				return ExpGPU ();
+			} else {
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
+							var max = size * (workerId + 1) / nCpu;
+							for (var i = size * workerId / nCpu; i < max; i++) {
+							        var d = (double)Data [i];
+							        result.Data [i] = (float)System.Math.Exp (d);
+							}
+						});
+			}
+			return result;
+		}
+
 		public FloatTensor Floor(bool inline = false)
 		{
 			FloatTensor result = inline ? this : this.emptyTensorCopy();
