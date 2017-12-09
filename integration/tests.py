@@ -46,3 +46,13 @@ def test_trace():
     a = a.gpu()
     actual = a.trace()
     np.testing.assert_almost_equal(actual, expected, decimal=5)
+
+def test_round():
+    data = np.array([12.7292, -3.11, 9.00, 20.4999, 20.5001])
+    expected = np.array(13, -3, 9, 20, 21)
+    a = pytest.sc.FloatTensor(data)
+    b = a.round()
+
+    np.testing.assert_array_equal(expected, b.to_numpy())
+    # a doesn't change
+    np.testing.assert_array_equal(data, a.to_numpy())
