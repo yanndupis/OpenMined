@@ -920,8 +920,14 @@ namespace OpenMined.Syft.Tensor
 				Parallel.For (0, nCpu, workerId => {
 					var max = size * (workerId + 1) / nCpu;
 					for (var i = size * workerId / nCpu; i < max; i++) {
-						double s = Math.Exp ((double)this.Data [i]);
-						result.Data [i] = (float)(s / (1.0f + s));
+						if (this.Data [i] >= 0)
+						{	
+							double s = Math.Exp (-(double)this.Data [i]);
+							result.Data [i] = (float)(1 / (1.0f + s));
+						} else {
+							double s = Math.Exp ((double)this.Data [i]);
+							result.Data [i] = (float)(s / (1.0f + s));
+						}
 					}
 				});
 			}

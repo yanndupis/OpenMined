@@ -718,6 +718,17 @@ public void Sigmoid_()
 	{
 		Assert.AreEqual(sum.Data[i], 1.0f);
 	}
+	
+	float[] data4 = { 1000.0f };
+	int[] shape4 = { 1 };	
+	float[] data5 = { -1000.0f };
+	int[] shape5 = { 1 };
+	
+	var tensor4 = new FloatTensor(_ctrl:ctrl, _data:data4, _shape:shape4);
+	var tensor5 = new FloatTensor(_ctrl:ctrl, _data:data5, _shape:shape5);
+	
+	Assert.DoesNotThrow(tensor4.Sigmoid(inline: true));
+	Assert.DoesNotThrow(tensor5.Sigmoid(inline: true));
 }
 
 [Test]
