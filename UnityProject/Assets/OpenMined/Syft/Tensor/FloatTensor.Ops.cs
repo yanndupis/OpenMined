@@ -402,6 +402,24 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
+		public FloatTensor Round()
+		{
+			var result = new FloatTensor(_ctrl:ctrl, _shape:shape, _shader:this.shader);
+
+			if (dataOnGpu) {
+				return RoundGPU ();
+			} else {
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
+							var max = size * (workerId + 1) / nCpu;
+							for (var i = size * workerId / nCpu; i < max; i++) {
+							        result.Data[i] = (float)(Math.Round(this.Data[i]));
+							}
+						});
+			}
+			return result;
+		}
+
 		public bool IsContiguous()
 		{
 			if (strides [strides.Length - 1] == 1L) {

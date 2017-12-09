@@ -1268,6 +1268,25 @@ public void Floor()
 }
 
 [Test]
+public void Round()
+{
+	float[] data1 = { 5.89221f, -20.11f, 9.0f, 100.4999f, 100.5001f };
+	int[] shape1 = { 5 };
+	var tensor = new FloatTensor(_ctrl:ctrl, _data:data1, _shape:shape1);
+
+	float[] data2 = {6, -20, 9, 100, 101};
+	int[] shape2 = { 5 };
+	var expectedRoundTensor = new FloatTensor(_ctrl:ctrl, _data:data2, _shape:shape2);
+
+	var actualRoundTensor = tensor.Round();
+
+	for (int i = 0; i < actualRoundTensor.Size; i++)
+	{
+		Assert.AreEqual(expectedRoundTensor.Data[i], actualRoundTensor.Data[i]);
+	}
+}
+
+[Test]
 public void SubtractElementwise()
 {
 	float[] data1 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };

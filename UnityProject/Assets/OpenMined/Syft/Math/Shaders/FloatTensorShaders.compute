@@ -317,6 +317,16 @@ void Floor (uint3 id: SV_DispatchThreadID) {
 		FloorResult[id.x] = floor(FloorData[id.x]);
 }
 
+#pragma kernel Round
+
+RWStructuredBuffer<float> RoundData;
+RWStructuredBuffer<float> RoundResult;
+
+[numthreads(4,1,1)]
+void Round (uint3 id: SV_DispatchThreadID) {
+	RoundResult[id.x] = round(RoundData[id.x]);
+}
+
 #pragma kernel MulScalar_
 
 RWStructuredBuffer<float> MulScalarData_;

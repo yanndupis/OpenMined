@@ -64,6 +64,8 @@ private static int FloorKernel_;
 [SerializeField]
 private static int FloorKernel;
 [SerializeField]
+private static int RoundKernel;
+[SerializeField]
 private static int MulScalarKernel_;
 [SerializeField]
 private static int MulElemKernel_;
@@ -158,6 +160,7 @@ public void initShaderKernels ()
 		ExpKernel = shader.FindKernel ("Exp");
 		FloorKernel_ = shader.FindKernel ("Floor_");
 		FloorKernel = shader.FindKernel ("Floor");
+		RoundKernel = shader.FindKernel ("Round");
 		MulScalarKernel_ = shader.FindKernel ("MulScalar_");
 		MulElemKernel_ = shader.FindKernel ("MulElem_");
 		MulScalarKernel = shader.FindKernel ("MulScalar");
@@ -508,6 +511,18 @@ public FloatTensor FloorGPU(FloatTensor result)
 		shader.SetBuffer(FloorKernel, "FloorResult", result.dataBuffer);
 		shader.Dispatch(FloorKernel, 1, 1, 1);
 	}
+	return result;
+}
+
+public FloatTensor RoundGPU()
+{
+	if (!dataOnGpu) return this;
+
+	var result = new FloatTensor (_ctrl: null, _shape:shape, _shader:this.shader, _dataOnGpu:dataOnGpu);
+	shader.SetBuffer(RoundKernel, "RoundData", dataBuffer);
+	shader.SetBuffer(RoundKernel, "RoundResult", result.dataBuffer);
+	shader.Dispatch(RoundKernel, this.Size, 1, 1);
+	
 	return result;
 }
 

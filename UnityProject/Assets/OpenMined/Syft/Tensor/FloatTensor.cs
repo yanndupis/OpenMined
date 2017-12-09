@@ -504,6 +504,11 @@ namespace OpenMined.Syft.Tensor
                     this.Floor(inline: true);
                     return this.id + "";
                 }
+                case "round":
+                {
+                    var result = Round();
+                    return result.Id.ToString();
+                }
                 case "get":
                 {
                     var param_to_get = msgObj.tensorIndexParams[0];
