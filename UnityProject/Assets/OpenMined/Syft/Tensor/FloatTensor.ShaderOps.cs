@@ -60,6 +60,8 @@ private static int DivElemKernel;
 [SerializeField]
 private static int ExpKernel;
 [SerializeField]
+private static int ExpKernel_;
+[SerializeField]
 private static int FloorKernel_;
 [SerializeField]
 private static int FloorKernel;
@@ -158,6 +160,7 @@ public void initShaderKernels ()
 		DivScalarKernel = shader.FindKernel ("DivScalar");
 		DivElemKernel = shader.FindKernel ("DivElem");
 		ExpKernel = shader.FindKernel ("Exp");
+		ExpKernel_ = shader.FindKernel ("Exp_");
 		FloorKernel_ = shader.FindKernel ("Floor_");
 		FloorKernel = shader.FindKernel ("Floor");
 		RoundKernel = shader.FindKernel ("Round");
@@ -486,11 +489,17 @@ private FloatTensor ExpGPU()
 	if (!dataOnGpu) return this;
 
 	var result = new FloatTensor (_ctrl: null, _shape:shape, _shader:this.shader, _dataOnGpu:dataOnGpu);
-	shader.SetBuffer(SqrtKernel, "ExptData", dataBuffer);
-	shader.SetBuffer(SqrtKernel, "ExpResult", result.dataBuffer);
+	shader.SetBuffer(ExpKernel, "ExptData", dataBuffer);
+	shader.SetBuffer(ExpKernel, "ExpResult", result.dataBuffer);
 	shader.Dispatch(SqrtKernel, size, 1, 1);
 
 	return result;
+}
+
+public void ExpGPU_ ()
+{
+	shader.SetBuffer (ExpKernel_, "ExpData_", dataBuffer);
+	shader.Dispatch (ExpKernel_, this.size, 1, 1);
 }
 
 public void FloorGPU_()

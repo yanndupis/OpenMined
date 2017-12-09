@@ -35,6 +35,27 @@ def test_abs_():
     np.testing.assert_array_equal(expected, a.to_numpy())
 
 
+def test_exp():
+    data = np.array([0., 1., 2., 5.])
+    expected = np.array([1., 2.71828183, 7.3890561, 148.4131591])
+    a = pytest.sc.FloatTensor(data)
+    b = a.exp()
+
+    np.testing.assert_almost_equal(expected, b.to_numpy(), decimal=4)
+    # a doesn't change
+    np.testing.assert_array_equal(data, a.to_numpy())
+
+
+def test_exp_():
+    data = np.array([0., 1., 2., 5.])
+    expected = np.array([1., 2.71828183, 7.3890561, 148.4131591])
+    a = pytest.sc.FloatTensor(data)
+    a.exp_()
+
+    # a does change when inlined
+    np.testing.assert_almost_equal(expected, b.to_numpy(), decimal=4)
+
+
 def test_trace():
     data = np.random.randn(17, 17).astype('float')
     expected = data.trace()
