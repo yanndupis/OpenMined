@@ -726,9 +726,11 @@ public void Sigmoid_()
 	
 	var tensor4 = new FloatTensor(_ctrl:ctrl, _data:data4, _shape:shape4);
 	var tensor5 = new FloatTensor(_ctrl:ctrl, _data:data5, _shape:shape5);
-	
-	Assert.DoesNotThrow(tensor4.Sigmoid(inline: true));
-	Assert.DoesNotThrow(tensor5.Sigmoid(inline: true));
+
+	tensor4.Sigmoid(inline: true);
+	tensor5.Sigmoid(inline: true);
+	//Assert.DoesNotThrow();
+	//Assert.DoesNotThrow();
 }
 
 [Test]
