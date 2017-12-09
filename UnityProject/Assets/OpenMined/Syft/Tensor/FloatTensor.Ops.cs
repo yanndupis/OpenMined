@@ -984,6 +984,10 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
+		public FloatTensor ViewAs (FloatTensor x, bool inline = false)
+		{
+			return this.View(x.shape, inline);
+		}
 
 		public void Zero_()
 		{

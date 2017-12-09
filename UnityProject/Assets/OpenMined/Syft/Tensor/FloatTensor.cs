@@ -863,7 +863,19 @@ namespace OpenMined.Syft.Tensor
                     View(new_dims, inline: true);
                     return Id.ToString();
                 }
+                case "view_as":
+                {
+                    var tensor_1 = ctrl.getTensor (int.Parse (msgObj.tensorIndexParams [0]));
+                    var result = ViewAs (tensor_1, false);
+                    return result.Id.ToString ();
+                }
 
+                case "view_as_":
+                {
+                    var tensor_1 = ctrl.getTensor (int.Parse (msgObj.tensorIndexParams [0]));
+                    this.ViewAs (tensor_1, true);
+                    return Id.ToString ();
+                }
                 case "zero_":
                 {
                     Zero_();
