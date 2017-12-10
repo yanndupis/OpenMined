@@ -39,5 +39,10 @@ namespace OpenMined.Network.Servers
 		{
 			_netMqPublisher.Stop ();
 		}
+
+		public ComputeShader Shader {
+			get { return shader; }
+		}
+
 	}
 }
