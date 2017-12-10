@@ -11,7 +11,7 @@ namespace OpenMined.Tests
 {
 
 	[Category("FloatTensorCPUTests")]
-	public class FloatTensorTest
+	public class FloatTensorCPUTest
 	{
 
 		public SyftController ctrl;
