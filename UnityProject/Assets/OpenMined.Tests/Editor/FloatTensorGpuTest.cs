@@ -16,7 +16,7 @@ namespace OpenMined.Tests
 
 		public SyftController ctrl;
 
-        [OneTimeSetUp]
+		[OneTimeSetUp]
 		public void Init()
 		{
 			//Init runs once before running test cases.
