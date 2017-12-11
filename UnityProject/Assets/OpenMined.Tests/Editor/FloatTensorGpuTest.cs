@@ -15,14 +15,14 @@ namespace OpenMined.Tests
 
 		public SyftController ctrl;
 
-		[TestFixtureSetUp]
+        [OneTimeSetUp]
 		public void Init()
 		{
 			//Init runs once before running test cases.
 			ctrl = new SyftController(null);
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void CleanUp()
 		{
 			//CleanUp runs once after all test cases are finished.
@@ -1042,7 +1042,7 @@ namespace OpenMined.Tests
 			// Test division
 			float[] data2 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
 			int[] shape2 = {2, 4};
-			var tensor2 = new FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
+			var tensor2 = new FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape2);
 
 			scalar = 99;
 			tensor1.Div (scalar, inline: true);
@@ -1769,9 +1769,9 @@ namespace OpenMined.Tests
 			float[] data2 = {1, 2, 3, 4};
 			int[] shape2 = {2, 1, 2, 1};
 
-			var tensor2 = new FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
+			var tensor2 = new FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape2);
 
-			var anotherTensor = tensor2.Squeeze(dim: 3, inline: true);
+			tensor2.Squeeze(dim: 3, inline: true);
 
 			Assert.AreEqual(2, tensor2.Shape[0]);
 			Assert.AreEqual(1, tensor2.Shape[1]);
