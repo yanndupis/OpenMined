@@ -674,14 +674,13 @@ namespace OpenMined.Syft.Tensor
 			return this;
 		}
 
-        public FloatTensor NegateGPU_ ()
+        public void NegateGPU_ ()
         {
             Debug.LogFormat("<color=blue>FloatTensor.NegateGPU_ dataOnGpu: {0}</color>", dataOnGpu);
             if (dataOnGpu) {
                 shader.SetBuffer (NegateKernel_, "NegateData_", dataBuffer);
                 shader.Dispatch (NegateKernel_, this.size, 1, 1);
             }
-            return this;
         }
 
         public FloatTensor RsqrtGPU()
