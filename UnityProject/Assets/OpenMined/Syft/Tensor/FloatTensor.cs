@@ -59,6 +59,7 @@ namespace OpenMined.Syft.Tensor
         public float[] Data
         {
             get { return data; }
+            set { data = value;  }
         }
 
         public int[] Shape
