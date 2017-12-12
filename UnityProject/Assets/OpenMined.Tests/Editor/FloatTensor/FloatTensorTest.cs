@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using NUnit.Framework;
 using OpenMined.Network.Controllers;
 
@@ -8,8 +9,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 	[Category("FloatTensorCPUTests")]
 	public class FloatTensorCPUTest
 	{
-
-		public SyftController ctrl;
+		private SyftController ctrl;
 
 		[TestFixtureSetUp]
 		public void Init()
@@ -2212,7 +2212,6 @@ namespace OpenMined.Tests.Editor.FloatTensor
 				Assert.AreEqual (expectedTensor.Data[i], tensor1.Data[i]);
 			}
 		}
-
 /* closes class and namespace */
 	}
 }

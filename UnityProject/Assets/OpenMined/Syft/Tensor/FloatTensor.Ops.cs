@@ -2,13 +2,16 @@ using UnityEngine;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Schema;
+using UnityEditor.Experimental.Build.AssetBundle;
 
 namespace OpenMined.Syft.Tensor
 {
 	public partial class FloatTensor
 	{
 
-		private FloatTensor emptyTensorCopy() {
+		internal FloatTensor emptyTensorCopy() {
 //			FloatTensor result = new FloatTensor(ctrl, _shape:shape, _data:data, _dataBuffer:dataBuffer, _shader:this.shader);
 //			return new FloatTensor(ctrl, _shape:shape, _dataOnGpu:dataOnGpu, _shader:shader);
 			return Copy();
@@ -1073,7 +1076,7 @@ namespace OpenMined.Syft.Tensor
 		}
 
 /*** Reduce Functions ***/
-
+		
 		public FloatTensor Reduce(
 		                          Func<float, float, long, float[], float> reducer,
 		                          Func<float, long, float> mapper
@@ -1081,9 +1084,31 @@ namespace OpenMined.Syft.Tensor
 		{
 			int[] outDims = { 1 };
 			float[] output = new float[1];
-			output[0] = mapper(MultiThread.Reduce<float>(data, reducer), Size);
+			output[0] = mapper(MultiThread.Reduce(data, reducer), Size);
 
 			return new FloatTensor(ctrl, outDims, output);
+		}
+		
+		internal void ForEach(
+			long dim,
+			Action<float[], long, long> iterator
+		)
+		{
+			long interations = size / shape[dim];
+			long values = shape[dim];
+			var stride = strides[dim];
+			MultiThread.For(interations, (i, len) =>
+			{
+				var temp = new float[values];
+				var offset = GetDimReduceOffset(i, values, stride);
+
+				for (long v = 0; v < values; v++)
+				{
+					temp[v] = data[offset + v * stride];
+				}
+
+				iterator(temp, offset, stride);
+			});
 		}
 
 		public FloatTensor Reduce(
@@ -1182,7 +1207,7 @@ namespace OpenMined.Syft.Tensor
 			// TODO: Implement GPU op. with GPU tests.
 			return Reduce(dim, keepdim, (acc, val, index, arr) => acc + val, (val, len) => val / (float)len);
 		}
-
+		
 /*** Reduce Functions End ***/
 
 // closes class and namespace
