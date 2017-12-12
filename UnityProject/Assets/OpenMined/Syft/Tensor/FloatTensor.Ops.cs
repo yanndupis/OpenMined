@@ -756,19 +756,7 @@ namespace OpenMined.Syft.Tensor
             if ((shape.Length != 2) || (shape[0] != shape[1]))
                 throw new InvalidOperationException("Trace is defined on square 2d matrices only.");
 
-            if (dataOnGpu)
-            {
-                return TraceGPU();
-            }
-            else
-            {
-                float trace = 0;
-                for (int i = 0; i < shape[0]; i++)
-                {
-                    trace += this[i, i];
-                }
-                return trace;
-            }
+            return dataOnGpu ? TraceGPU() : Enumerable.Range(0, shape[0]).AsParallel().Select(i => this[i, i]).Sum();
         }
 
         public FloatTensor Sigmoid(bool inline = false)
