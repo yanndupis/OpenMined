@@ -11,6 +11,7 @@ using UnityEditor.VersionControl;
 namespace OpenMined.Tests
 {
 
+	[Category("FloatTensorGPUTests")]
 	public class FloatTensorGPUTest
 	{
 
@@ -37,7 +38,7 @@ namespace OpenMined.Tests
 			Assert.That(data2, Is.EqualTo(data1).Within( .0001f) );
 		}
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void Init()
 		{
 			//Init runs once before running test cases.
@@ -45,7 +46,7 @@ namespace OpenMined.Tests
 			shader = Camera.main.GetComponents<SyftServer>()[0].Shader;
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void CleanUp()
 		{
 			//CleanUp runs once after all test cases are finished.
@@ -688,22 +689,6 @@ namespace OpenMined.Tests
 			            Throws.TypeOf<InvalidOperationException>());
 		}
 
-		[Test]
-		public void DivisionElementwiseUnequalShapes()
-		{
-			float[] data1 = { 1, 2, 3, 4, 5, 6 };
-			int[] shape1 = { 2, 3 };
-			var tensor1 = new FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
-			tensor1.Gpu(shader);
-
-			float[] data2 = { 1, 2, 3, 4, 5, 6 };
-			int[] shape2 = { 3, 2 };
-			var tensor2 = new FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape2);
-			tensor2.Gpu(shader);
-
-			Assert.That(() => tensor1.Div(tensor2),
-			            Throws.TypeOf<InvalidOperationException>());
-		}
 
 		[Test]
 		public void DivisionElementwiseUnequalShapes_()
@@ -754,78 +739,6 @@ namespace OpenMined.Tests
 
 			Assert.That(() => tensor1.Div(tensor2, inline: true),
 			            Throws.TypeOf<InvalidOperationException>());
-		}
-
-		[Test]
-		public void DivisionScalar()
-		{
-			float[] data1 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
-			int[] shape1 = {2, 4};
-			var tensor1 = new FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
-			tensor1.Gpu(shader);
-
-			// Test division by 0
-			float scalar = 0;
-			var result = tensor1.Div (scalar);
-
-			float[] data2 = { float.MinValue/scalar, -10/scalar, -1.5f/scalar, 0/scalar, 1.5f/scalar, 10/scalar, 20/scalar, float.MaxValue/scalar };
-			int[] shape2 = {2, 4};
-			var expectedTensor = new FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape2);
-			expectedTensor.Gpu(shader);
-
-			AssertEqualTensorsData(expectedTensor, result);
-
-			// Test division
-			float[] data3 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
-			int[] shape3 = {2, 4};
-			var tensor3 = new FloatTensor(_ctrl: ctrl, _data: data3, _shape: shape3);
-			tensor3.Gpu(shader);
-
-			scalar = 99;
-			tensor3.Div (scalar, inline: true);
-
-			float[] data4 = { float.MinValue/scalar, -10/scalar, -1.5f/scalar, 0/scalar, 1.5f/scalar, 10/scalar, 20/scalar, float.MaxValue/scalar };
-			int[] shape4 = {2, 4};
-			var expectedTensor2 = new FloatTensor(_ctrl: ctrl, _data: data4, _shape: shape4);
-			expectedTensor2.Gpu(shader);
-
-			AssertEqualTensorsData(expectedTensor2, tensor3);
-		}
-
-		[Test]
-		public void DivisionScalar_()
-		{
-			float[] data1 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
-			int[] shape1 = {2, 4};
-			var tensor1 = new FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
-			tensor1.Gpu(shader);
-
-			// Test division by 0
-			float scalar = 0;
-			var result = tensor1.Div (scalar);
-
-			float[] data2 = { float.MinValue/scalar, -10/scalar, -1.5f/scalar, 0/scalar, 1.5f/scalar, 10/scalar, 20/scalar, float.MaxValue/scalar };
-			int[] shape2 = {2, 4};
-			var expectedTensor = new FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape2);
-			expectedTensor.Gpu(shader);
-
-			AssertEqualTensorsData(expectedTensor, result);
-
-			// Test division
-			float[] data3 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
-			int[] shape3 = {2, 4};
-			var tensor3 = new FloatTensor(_ctrl: ctrl, _data: data3, _shape: shape3);
-			tensor3.Gpu(shader);
-
-			scalar = 99;
-			var result2 = tensor3.Div (scalar);
-
-			float[] data4 = { float.MinValue/scalar, -10/scalar, -1.5f/scalar, 0/scalar, 1.5f/scalar, 10/scalar, 20/scalar, float.MaxValue/scalar };
-			int[] shape4 = {2, 4};
-			var expectedTensor2 = new FloatTensor(_ctrl: ctrl, _data: data4, _shape: shape4);
-			expectedTensor2.Gpu(shader);
-
-			AssertEqualTensorsData(expectedTensor2, result2);
 		}
 
 		[Test]
@@ -1047,6 +960,66 @@ namespace OpenMined.Tests
 			int[] shape1 = {2, 4};
 			var tensor1 = new FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
 			tensor1.Gpu(shader);
+
+			float[] data2 = { 1, 2, 3, 4 };
+			int[] shape2 = { 2, 2 };
+			var tensor2 = new FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape2);
+
+			Assert.That(() => tensor1.Div(tensor2),
+			            Throws.TypeOf<InvalidOperationException>());
+		}
+
+		[Test]
+		public void DivisionElementwiseUnequalShapes()
+		{
+			float[] data1 = { 1, 2, 3, 4, 5, 6 };
+			int[] shape1 = { 2, 3 };
+			var tensor1 = new FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
+
+			float[] data2 = { 1, 2, 3, 4, 5, 6 };
+			int[] shape2 = { 3, 2 };
+			var tensor2 = new FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape2);
+
+			Assert.That(() => tensor1.Div(tensor2),
+			            Throws.TypeOf<InvalidOperationException>());
+		}
+
+		[Test]
+		public void DivisionScalar()
+		{
+			float[] data1 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
+			int[] shape1 = {2, 4};
+			var tensor1 = new FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
+
+			// Test division by 0
+			float scalar = 0;
+			var result = tensor1.Div (scalar);
+			for (int i = 0; i < tensor1.Size; i++)
+			{
+				Assert.AreEqual (tensor1.Data [i] / scalar, result.Data [i] );
+			}
+			// Test division
+			float[] data2 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
+			int[] shape2 = {2, 4};
+			var tensor2 = new FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape2);
+
+			scalar = 99;
+			tensor1.Div (scalar, inline: true);
+			for (int i = 0; i < tensor1.Size; i++)
+			{
+				Assert.AreEqual (tensor2.Data [i] / scalar, tensor1.Data [i] );
+			}
+		}
+
+		[Test]
+		public void DivisionScalar_()
+		{
+			float[] data1 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
+			int[] shape1 = {2, 4};
+			var tensor1 = new FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
+			tensor1.Gpu(shader);
+			
+			var tensor2 = new FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
 
 			// Test multiplication by 0
 			float scalar = 0;
@@ -1575,6 +1548,9 @@ namespace OpenMined.Tests
 			expectedTanhTensor.Gpu(shader);
 
 			var actualTanhTensor = tensor.Tanh();
+			var tensor2 = new FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape2);
+
+			tensor2.Squeeze(dim: 3, inline: true);
 
 			AssertApproximatelyEqualTensorsData(expectedTanhTensor, actualTanhTensor);
 		}
