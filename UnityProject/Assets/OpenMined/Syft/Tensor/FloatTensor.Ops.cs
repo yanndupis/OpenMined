@@ -756,8 +756,9 @@ namespace OpenMined.Syft.Tensor
             if ((shape.Length != 2) || (shape[0] != shape[1]))
                 throw new InvalidOperationException("Trace is defined on square 2d matrices only.");
 
-            var ishape = shape[0] + shape[1];
-            return dataOnGpu ? TraceGPU() : Enumerable.Range(0, shape[0]).AsParallel().Select(i => this[i * ishape]).Sum();
+            return dataOnGpu
+                ? TraceGPU()
+                : Enumerable.Range(0, shape.Min()).AsParallel().Select(i => this[i, i]).Sum();
         }
 
         public FloatTensor Sigmoid(bool inline = false)
@@ -772,7 +773,7 @@ namespace OpenMined.Syft.Tensor
                 SigmoidGPU_();
                 return this;
             }
-            
+
             var result = inline ? this : this.emptyTensorCopy();
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
@@ -855,15 +856,7 @@ namespace OpenMined.Syft.Tensor
                 return;
             }
 
-            var nCpu = SystemInfo.processorCount;
-            Parallel.For(0, nCpu, workerId =>
-            {
-                var max = data.Length * (workerId + 1) / nCpu;
-                for (int i = data.Length * workerId / nCpu; i < max; i++)
-                {
-                    this.Data[i] = 0;
-                }
-            });
+            Array.Clear(data, 0, size);
         }
 
 
