@@ -64,7 +64,7 @@ namespace OpenMined.Tests.Editor.Model
                 currentLoss = loss.Data.Sum(); 
             }
             
-            Assert.AreEqual (Math.Round(currentLoss, 5), 0.20936);
+            Assert.True(Math.Round(currentLoss, 5) <= 0.20936);
         }   
     }
 }
