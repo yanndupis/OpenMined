@@ -1607,7 +1607,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			float[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 			int[] shape1 = { 2, 3, 2 };
 			var tensor = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
-			var actualSizeTensor = tensor.SizeTensor();
+			var actualSizeTensor = tensor.ShapeTensor();
 
 			float[] data2 = { 2, 3, 2 };
 			int[] shape2 = { 3 };

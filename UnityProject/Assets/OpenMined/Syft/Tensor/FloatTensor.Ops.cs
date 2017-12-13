@@ -555,7 +555,7 @@ namespace OpenMined.Syft.Tensor
                 return this;
             }
 
-            result.Data = data.AsParallel().Select(x => x * (float) Math.Pow((double) x, value)).ToArray();
+            result.Data = data.AsParallel().Select(x => (float) Math.Pow((double) x, value)).ToArray();
             HookAutograd(ref result, value, "pow_scalar");
 
             return result;
@@ -618,15 +618,17 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-        public FloatTensor SizeTensor()
+        public FloatTensor ShapeTensor()
         {
             var data = new float[shape.Length];
-            var ndims = new int[shape.Length];
+            var ndims = new int[1];
+	        ndims[0] = shape.Length;
+	        
             for (var dim = 0; dim < shape.Length; dim++)
             {
                 data[dim] = shape[dim];
             }
-
+	        
             var result = new FloatTensor(_ctrl: ctrl, _data: data, _shape: ndims);
             return result;
         }

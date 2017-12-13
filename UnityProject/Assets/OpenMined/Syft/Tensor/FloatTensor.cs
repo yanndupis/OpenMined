@@ -786,9 +786,9 @@ namespace OpenMined.Syft.Tensor
                     var result = Sqrt();
                     return result.id.ToString();
                 }
-                case "size":
+                case "shape":
                 {
-                    var result = SizeTensor();
+                    var result = ShapeTensor();
                     return result.id.ToString();
                 }
 
@@ -1011,7 +1011,7 @@ namespace OpenMined.Syft.Tensor
                 default:
                     break;
             }
-            return "SyftController.processMessage: Command not found.";
+            return "FloatTensor.processMessage: Command not found:" + msgObj.functionCall;
         }
 
         public string Print()

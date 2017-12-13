@@ -1,12 +1,13 @@
 ﻿using JetBrains.Annotations;
 using OpenMined.Network.Controllers;
+using OpenMined.Network.Utils;
 using OpenMined.Syft.Tensor;
 
 namespace OpenMined.Syft.Model
 {
 	public class Linear: Layer.Model
 	{
-
+		
 		private int _input;
 		private int _output;
 
@@ -15,6 +16,8 @@ namespace OpenMined.Syft.Model
 		
 		public Linear (SyftController controller, int input, int output)
 		{
+			init();
+			
 			_input = input;
 			_output = output;
 			
@@ -23,7 +26,14 @@ namespace OpenMined.Syft.Model
 			_weights = new FloatTensor(controller, _shape: weightShape, _data: weights, _autograd: true);
 
 			int[] biasShape = {output};
-			_bias = new FloatTensor(controller, biasShape, _autograd: true);	
+			_bias = new FloatTensor(controller, biasShape, _autograd: true);
+
+			parameters.Add(_weights.Id);
+			parameters.Add(_bias.Id);
+			
+			#pragma warning disable 420
+			id = System.Threading.Interlocked.Increment(ref nCreated);
+			controller.addModel(this);
 		}
 
 		protected override FloatTensor Forward(FloatTensor input)
@@ -31,10 +41,6 @@ namespace OpenMined.Syft.Model
 			return input.MM(_weights);
 		}
 
-		public override FloatTensor GetWeights()
-		{
-			return _weights;
-		}
 	}
 }
 

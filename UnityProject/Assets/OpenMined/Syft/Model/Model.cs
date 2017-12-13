@@ -1,46 +1,79 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using OpenMined.Network.Controllers;
+using OpenMined.Network.Utils;
 using OpenMined.Syft.Tensor;
 
 namespace OpenMined.Syft.Layer
 {
     public class Model
     {
-        public readonly List<Model> Layers;
+        
+        protected static volatile int nCreated = 0;
+        
+        protected int id;
+        public int Id => id;
 
-        public Model(params Model[] layers)
+        // indices for weights used in forward prediction (not inluding those in models array)
+        protected List<int> parameters;
+        
+        // indices for models used in forward prediction (which themselves can contain weights)
+        protected List<int> models;
+
+        protected void init()
         {
-            Layers = new List<Model>();
-            
-            // TODO -- dumb way of doing this
-            foreach (var layer in layers)
-            {
-                Layers.Add(layer);
-            }
+            parameters = new List<int>();
+            models = new List<int>();
         }
-
-        public FloatTensor Predict(FloatTensor input)
-        {
-            
-            foreach (var layer in Layers)
-            {
-                input = layer.Forward(input);
-            }
-
-            return input;
-        }
-
+        
         protected virtual FloatTensor Forward(FloatTensor input)
         {
             // Model layer must implement forward
             throw new NotImplementedException();
         }
 
-        [CanBeNull]
-        public virtual FloatTensor GetWeights()
+        public string ProcessMessage(Command msgObj, SyftController ctrl)
         {
-            return null;
+            
+            switch (msgObj.functionCall)
+            {
+                case "forward":
+                {
+                    var input = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+                    var result = this.Forward(input);
+                    return result.Id + "";
+                }
+                case "params":
+                {
+                    string out_str = "";
+                    for (int i = 0; i < parameters.Count; i++)
+                    {
+                        if (i < parameters.Count - 1)
+                        {
+                            out_str += parameters[i].ToString() + ",";
+                        }
+                        else
+                        {
+                            out_str += parameters[i].ToString() + "";
+                        }
+                    }
+                    return out_str;
+                }
+            }
+
+            return ProcessMessageLocal(msgObj, ctrl);
         }
+
+        public int[] GetParameters()
+        {
+            return parameters.ToArray();
+        }
+
+        public virtual string ProcessMessageLocal(Command msgObj, SyftController ctrl)
+        {	
+            return "Model.processMessage not Implemented:" + msgObj.functionCall;
+        }
+
     }
 }

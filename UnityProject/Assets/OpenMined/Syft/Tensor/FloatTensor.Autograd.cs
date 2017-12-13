@@ -130,20 +130,27 @@ namespace OpenMined.Syft.Tensor
 						creators [1].Backward (grad.Div (creators [0]), this);
 
 					} else if (creation_op == "sub_elem") {
+						
 						creators [0].Backward (grad.Copy(), this);
 						creators [1].Backward (grad.Neg (), this);
 
 					} else if (creation_op == "mm") {
+						
 						creators [0].Backward (grad.MM (creators [1].Transpose ()), this);
 						creators [1].Backward (grad.Transpose ().MM (creators [0]), this);
+						
 					} else if (creation_op == "sigmoid") {
+						
 						FloatTensor c = this.Copy ();
 						c.autograd = false;
 						creators [0].Backward (c.Neg ().Add ((float)1).Mul (this).Mul (grad), this);
+						
 					} else if (creation_op == "pow_scalar") {
+						
 						FloatTensor self_nograd =  creators[0].Copy();
 						self_nograd.autograd = false;
 						creators [0].Backward (self_nograd.Mul(grad).Mul(creators[1].Data[0]), this);
+						
 					}
 
 //					if (!keepgrads) {
