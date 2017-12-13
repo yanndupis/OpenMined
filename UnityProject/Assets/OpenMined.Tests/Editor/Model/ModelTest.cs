@@ -13,9 +13,6 @@ using UnityEngine;
 
 namespace OpenMined.Tests.Editor.Model
 {
-    
-   
-    
     [Category("ModelCPUTests")]
     public class ModelTest
     {

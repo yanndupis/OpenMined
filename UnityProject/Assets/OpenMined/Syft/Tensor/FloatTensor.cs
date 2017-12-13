@@ -15,8 +15,8 @@ namespace OpenMined.Syft.Tensor
 
         public SyftController ctrl;
 
-        private float[] data;
-        private long[] strides;
+        internal float[] data;
+        internal long[] strides;
         private int[] shape;
         private int size;
 
