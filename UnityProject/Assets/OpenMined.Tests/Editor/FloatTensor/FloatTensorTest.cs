@@ -11,14 +11,14 @@ namespace OpenMined.Tests.Editor.FloatTensor
 	{
 		private SyftController ctrl;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void Init()
 		{
 			//Init runs once before running test cases.
 			ctrl = new SyftController(null);
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void CleanUp()
 		{
 			//CleanUp runs once after all test cases are finished.
@@ -948,9 +948,9 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			float[] data2 = { -0.54180f,  0.31642f, -0.36976f,  0.34706f,  0.46103f };
 			int[] shape2 = { 5 };
 			var tensorLog1p = new Syft.Tensor.FloatTensor(_ctrl:ctrl, _data:data2, _shape:shape2);
-		
+
 			var result = tensor1.Log1p();
-		
+
 			for (int i = 0; i < tensor1.Size; i++)
 			{
 				var rounded = Decimal.Round((Decimal)result.Data[i], 5);
@@ -1311,7 +1311,26 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			}
 		}
 
-		[Test]
+        [Test]
+        public void Neg_()
+        {
+            float[] data1 = { -1, 0, 1, float.MaxValue, float.MinValue };
+            int[] shape1 = { 5 };
+            var tensor1 = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
+
+            float[] data2 = { 1, 0, -1, (-1*float.MaxValue), (-1*float.MinValue) };
+            int[] shape2 = { 5 };
+            var expectedTensor = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape2);
+
+            tensor1.Neg (inline: true);
+
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+                Assert.AreEqual (expectedTensor.Data[i], tensor1.Data[i]);
+            }
+        }
+
+        [Test]
 		public void Prod()
 		{
 			float[] data = new float[] {
@@ -1640,7 +1659,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			var tensor2 = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
 
-			var anotherTensor = tensor2.Squeeze(dim: 3, inline: true);
+			tensor2.Squeeze(dim: 3, inline: true);
 
 			Assert.AreEqual(2, tensor2.Shape[0]);
 			Assert.AreEqual(1, tensor2.Shape[1]);

@@ -59,6 +59,7 @@ namespace OpenMined.Syft.Tensor
         public float[] Data
         {
             get { return data; }
+            set { data = value;  }
         }
 
         public int[] Shape
@@ -216,6 +217,7 @@ namespace OpenMined.Syft.Tensor
 //			// Lastly: let's set the ID of the tensor.
 //			// IDEs might show a warning, but ref and volatile seems to be working with Interlocked API.
 
+#pragma warning disable 420
             id = System.Threading.Interlocked.Increment(ref nCreated);
 
 
@@ -729,6 +731,11 @@ namespace OpenMined.Syft.Tensor
                 {
                     var result = Neg();
                     return result.Id.ToString();
+                }
+                case "neg_":
+                {
+                    Neg(inline: true);
+                    return Id.ToString();
                 }
                 case "rsqrt":
                 {
