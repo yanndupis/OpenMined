@@ -75,7 +75,7 @@ namespace OpenMined.Syft.Tensor
 
                 for (long v = 0; v < values; v++)
                 {
-                    temp[v] = data[offset + v * stride];
+                    temp[v] = this[offset + v * stride];
                 }
 
                 iterator(temp, i, temp.Length);

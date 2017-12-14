@@ -158,7 +158,7 @@ namespace OpenMined.Syft.Tensor
                         var row_offset = row * shape1[1];
                         for (var j = 0; j < shape1[1]; j++)
                         {
-                            Data[idx] += tensor1.Data[j + row_offset] * tensor2.Data[j * shape2[1] + col];
+                            this[idx] += tensor1[j + row_offset] * tensor2[j * shape2[1] + col];
                         }
                     }
                 });
@@ -280,7 +280,7 @@ namespace OpenMined.Syft.Tensor
                     {
                         for (var j = 0; j < ref_shape[0]; j++)
                         {
-                            Data[idx] += vector.Data[j] * matrix.Data[j + (idx * ref_shape[0])];
+                            this[idx] += vector[j] * matrix[j + (idx * ref_shape[0])];
                         }
                     }
                 });
@@ -592,8 +592,7 @@ namespace OpenMined.Syft.Tensor
             var result = new FloatTensor(_ctrl: ctrl, _data: data, _shape: ndims);
             return result;
         }
-
-
+        
         public FloatTensor Sqrt()
         {
             if (dataOnGpu)
@@ -724,7 +723,7 @@ namespace OpenMined.Syft.Tensor
                     var row = (i - col) / this.shape[1];
                     if (col < row + k)
                     {
-                        Data[i] = 0.0f;
+                        this[i] = 0.0f;
                     }
                 }
             });
@@ -751,7 +750,7 @@ namespace OpenMined.Syft.Tensor
             var stride = strides[0] + strides[1];
             return dataOnGpu
                 ? TraceGPU()
-                : Enumerable.Range(0, shape.Min()).AsParallel().Select(i => data[i * stride]).Sum();
+                : Enumerable.Range(0, shape.Min()).AsParallel().Select(i => this[i * stride]).Sum();
         }
 
         public FloatTensor Sigmoid(bool inline = false)
@@ -774,19 +773,18 @@ namespace OpenMined.Syft.Tensor
                 var max = size * (workerId + 1) / nCpu;
                 for (var i = size * workerId / nCpu; i < max; i++)
                 {
-                    if (this.Data[i] >= 0)
+                    if (this[i] >= 0)
                     {
-                        var s = Math.Exp(-(double) this.Data[i]);
-                        result.Data[i] = (float) (1 / (1.0f + s));
+                        var s = Math.Exp(-(double) this[i]);
+                        result[i] = (float) (1 / (1.0f + s));
                     }
                     else
                     {
-                        var s = Math.Exp((double) this.Data[i]);
-                        result.Data[i] = (float) (s / (1.0f + s));
+                        var s = Math.Exp((double) this[i]);
+                        result[i] = (float) (s / (1.0f + s));
                     }
                 }
             });
-
 
             if (autograd)
             {
@@ -856,7 +854,7 @@ namespace OpenMined.Syft.Tensor
                     var max = size * (workerId + 1) / nCpu;
                     for (var i = size * workerId / nCpu; i < max; i++)
                     {
-                        result.Data[i] = Data[i] % divisor;
+                        result[i] = this[i] % divisor;
                     };
                 });
             }
@@ -1003,7 +1001,7 @@ namespace OpenMined.Syft.Tensor
 
                 for (long v = 0; v < values; v++)
                 {
-                    temp[v] = data[offset + v * stride];
+                    temp[v] = this[offset + v * stride];
                 }
 
                 iterator(temp, offset, stride);

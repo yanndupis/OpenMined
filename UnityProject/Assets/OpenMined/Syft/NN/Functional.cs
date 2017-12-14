@@ -22,7 +22,7 @@ namespace OpenMined.Syft.NN
                 var sum = vals.Sum(d => (float) Math.Pow(Math.E, d));
                 for (var v = 0; v < vals.Length; ++v)
                 {
-                    copy.data[offset + v * stride] = (float) Math.Pow(Math.E, input.data[offset + v * stride]) / sum;
+                    copy[offset + v * stride] = (float) Math.Pow(Math.E, input[offset + v * stride]) / sum;
                 }
             });
 			

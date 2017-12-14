@@ -579,7 +579,7 @@ namespace OpenMined.Syft.Tensor
                             {
                                 for (int i = 0; i < size; i++)
                                 {
-                                    out_str += data[i] + ",";
+                                    out_str += this[i] + ",";
                                 }
                             }
 
@@ -1064,7 +1064,7 @@ namespace OpenMined.Syft.Tensor
                 {
                     for (int i = 0; i < d1; i++)
                     {
-                        float f = data[i + j * d1 + k * d1 * d2];
+                        float f = this[i + j * d1 + k * d1 * d2];
                         print += f.ToString("0.0000") + ", ";
                     }
                     print += "\n";

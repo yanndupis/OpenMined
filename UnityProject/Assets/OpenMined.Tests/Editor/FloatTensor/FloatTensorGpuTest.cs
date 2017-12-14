@@ -756,7 +756,7 @@ namespace OpenMined.Tests
 
             for (int i = 0; i < tensor1.Size; i++)
             {
-                Assert.AreEqual (expectedTensor.Data[i], tensor1.Data[i]);
+                Assert.AreEqual (expectedTensor[i], tensor1[i]);
             }
         }
 

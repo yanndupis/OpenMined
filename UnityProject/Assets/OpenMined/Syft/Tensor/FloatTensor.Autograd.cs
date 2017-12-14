@@ -143,7 +143,7 @@ namespace OpenMined.Syft.Tensor
 					} else if (creation_op == "pow_scalar") {
 						FloatTensor self_nograd =  creators[0].Copy();
 						self_nograd.autograd = false;
-						creators [0].Backward (self_nograd.Mul(grad).Mul(creators[1].Data[0]), this);
+						creators [0].Backward (self_nograd.Mul(grad).Mul(creators[1][0]), this);
 					}
 
 //					if (!keepgrads) {

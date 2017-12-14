@@ -55,7 +55,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (expectedTensor.Data[i], tensor2.Data[i]);
+				Assert.AreEqual (expectedTensor[i], tensor2[i]);
 			}
 		}
 
@@ -73,7 +73,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			tensor1.Abs(inline: true);
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (expectedTensor.Data[i], tensor1.Data[i]);
+				Assert.AreEqual (expectedTensor[i], tensor1[i]);
 			}
 		}
 
@@ -92,7 +92,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < actualAcosTensor.Size; i++)
 			{
-				Assert.AreEqual (expectedAcosTensor.Data[i], actualAcosTensor.Data[i]);
+				Assert.AreEqual (expectedAcosTensor[i], actualAcosTensor[i]);
 			}
 		}
 
@@ -111,7 +111,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor.Size; i++)
 			{
-				Assert.AreEqual (expectedAcosTensor.Data[i], tensor.Data[i]);
+				Assert.AreEqual (expectedAcosTensor[i], tensor[i]);
 			}
 		}
 
@@ -130,7 +130,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensorSum.Size; i++)
 			{
-				Assert.AreEqual (tensor1.Data [i] + tensor2.Data [i], tensorSum.Data [i]);
+				Assert.AreEqual (tensor1[i] + tensor2[i], tensorSum[i]);
 			}
 		}
 
@@ -153,7 +153,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (tensor3.Data[i], tensor1.Data [i]);
+				Assert.AreEqual (tensor3[i], tensor1[i]);
 			}
 		}
 
@@ -227,7 +227,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < expectedVector.Size; i++)
 			{
-				Assert.AreEqual (expectedVector.Data[i], baseVector.Data[i]);
+				Assert.AreEqual (expectedVector[i], baseVector[i]);
 			}
 		}
 
@@ -244,7 +244,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensorSum.Size; i++)
 			{
-				Assert.AreEqual (tensor1.Data [i] + scalar, tensorSum.Data [i]);
+				Assert.AreEqual (tensor1[i] + scalar, tensorSum[i]);
 			}
 		}
 
@@ -265,7 +265,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (tensor1.Data[i], tensor2.Data [i]);
+				Assert.AreEqual (tensor1[i], tensor2[i]);
 			}
 		}
 
@@ -374,7 +374,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < actualAsinTensor.Size; i++)
 			{
-				Assert.AreEqual (expectedAsinTensor.Data[i], actualAsinTensor.Data[i]);
+				Assert.AreEqual (expectedAsinTensor[i], actualAsinTensor[i]);
 			}
 		}
 
@@ -393,7 +393,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (expectedAsinTensor.Data[i], tensor1.Data[i]);
+				Assert.AreEqual (expectedAsinTensor[i], tensor1[i]);
 			}
 		}
 
@@ -412,7 +412,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < actualAtanTensor.Size; i++)
 			{
-				Assert.AreEqual (expectedAtanTensor.Data[i], actualAtanTensor.Data[i]);
+				Assert.AreEqual (expectedAtanTensor[i], actualAtanTensor[i]);
 			}
 
 		}
@@ -432,7 +432,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (expectedAtanTensor.Data[i], tensor1.Data[i]);
+				Assert.AreEqual (expectedAtanTensor[i], tensor1[i]);
 			}
 		}
 
@@ -451,7 +451,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (expectedTensor.Data[i], result.Data[i]);
+				Assert.AreEqual (expectedTensor[i], result[i]);
 			}
 		}
 
@@ -470,7 +470,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (expectedTensor.Data[i], tensor1.Data[i]);
+				Assert.AreEqual (expectedTensor[i], tensor1[i]);
 			}
 		}
 
@@ -503,7 +503,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < actualCosTensor.Size; i++)
 			{
-				Assert.AreEqual (expectedCosTensor.Data[i], actualCosTensor.Data[i]);
+				Assert.AreEqual (expectedCosTensor[i], actualCosTensor[i]);
 			}
 		}
 
@@ -522,7 +522,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor.Size; i++)
 			{
-				Assert.AreEqual (expectedCosTensor.Data[i], tensor.Data[i]);
+				Assert.AreEqual (expectedCosTensor[i], tensor[i]);
 			}
 		}
 
@@ -542,7 +542,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < actualCoshTensor.Size; i++)
 			{
-				Assert.AreEqual (expectedCoshTensor.Data[i], actualCoshTensor.Data[i]);
+				Assert.AreEqual (expectedCoshTensor[i], actualCoshTensor[i]);
 			}
 		}
 
@@ -561,7 +561,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (expectedCoshTensor.Data[i], tensor1.Data[i]);
+				Assert.AreEqual (expectedCoshTensor[i], tensor1[i]);
 			}
 		}
 
@@ -644,8 +644,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensorMult.Size; i++)
 			{
-				float current = tensor1.Data [i] / tensor2.Data [i];
-				Assert.AreEqual (tensorMult.Data [i], current);
+				Assert.AreEqual (tensorMult[i], tensor1[i] / tensor2[i]);
 			}
 		}
 
@@ -664,7 +663,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (tensor2.Data [i], tensor1.Data [i]);
+				Assert.AreEqual (tensor2[i], tensor1[i]);
 			}
 		}
 
@@ -775,7 +774,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (expectedTensor.Data [i], result.Data [i] );
+				Assert.AreEqual (expectedTensor[i], result[i] );
 			}
 			// Test division
 			float[] data3 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
@@ -791,7 +790,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor3.Size; i++)
 			{
-				Assert.AreEqual (expectedTensor2.Data [i], tensor3.Data [i] );
+				Assert.AreEqual (expectedTensor2[i], tensor3[i] );
 			}
 		}
 
@@ -812,7 +811,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (expectedTensor.Data [i], result.Data [i] );
+				Assert.AreEqual (expectedTensor[i], result[i] );
 			}
 			// Test division
 			float[] data3 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
@@ -828,7 +827,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor3.Size; i++)
 			{
-				Assert.AreEqual (expectedTensor2.Data [i], result2.Data [i] );
+				Assert.AreEqual (expectedTensor2[i], result2[i] );
 			}
 		}
 
@@ -847,7 +846,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < actualExpTensor.Size; i++)
 			{
-				Assert.AreEqual (Math.Round(expectedExpTensor.Data[i],3), Math.Round(actualExpTensor.Data[i],3));
+				Assert.AreEqual (expectedExpTensor[i], actualExpTensor[i],1e-3);
 			}
 		}
 
@@ -866,7 +865,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (Math.Round(expectedExpTensor.Data[i],3), Math.Round(tensor1.Data[i],3));
+				Assert.AreEqual (expectedExpTensor[i], tensor1[i], 1e-3);
 			}
 		}
 
@@ -885,7 +884,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual(expectedTensor.Data[i], result.Data[i]);
+				Assert.AreEqual(expectedTensor[i], result[i]);
 			}
 		}
 
@@ -904,7 +903,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual(expectedTensor.Data[i], tensor1.Data[i]);
+				Assert.AreEqual(expectedTensor[i], tensor1[i]);
 			}
 		}
 
@@ -953,8 +952,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				var rounded = Decimal.Round((Decimal)result.Data[i], 5);
-				Assert.AreEqual(tensorLog1p.Data[i], rounded);
+				Assert.AreEqual(tensorLog1p[i], result[i], 1e-5);
 			}
 		}
 
@@ -977,7 +975,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape.Length, 1);
 			Assert.AreEqual(result.Shape[0], 1);
 			Assert.AreEqual(result.Size, 1);
-			Assert.AreEqual(result.Data[0], 6.0);
+			Assert.AreEqual(result[0], 6.0);
 
 			result = tensor.Max(0);
 
@@ -985,9 +983,9 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape.Length, 1);
 			Assert.AreEqual(result.Shape[0], 3);
 			Assert.AreEqual(result.Size, 3);
-			Assert.AreEqual(result.Data[0], 4.0);
-			Assert.AreEqual(result.Data[1], 5.0);
-			Assert.AreEqual(result.Data[2], 6.0);
+			Assert.AreEqual(result[0], 4.0);
+			Assert.AreEqual(result[1], 5.0);
+			Assert.AreEqual(result[2], 6.0);
 
 			result = tensor.Max(1);
 
@@ -995,8 +993,8 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape.Length, 1);
 			Assert.AreEqual(result.Shape[0], 2);
 			Assert.AreEqual(result.Size, 2);
-			Assert.AreEqual(result.Data[0], 3.0);
-			Assert.AreEqual(result.Data[1], 6.0);
+			Assert.AreEqual(result[0], 3.0);
+			Assert.AreEqual(result[1], 6.0);
 
 			result = tensor.Max(0, true);
 
@@ -1005,9 +1003,9 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape[0], 1);
 			Assert.AreEqual(result.Shape[1], 3);
 			Assert.AreEqual(result.Size, 3);
-			Assert.AreEqual(result.Data[0], 4.0);
-			Assert.AreEqual(result.Data[1], 5.0);
-			Assert.AreEqual(result.Data[2], 6.0);
+			Assert.AreEqual(result[0], 4.0);
+			Assert.AreEqual(result[1], 5.0);
+			Assert.AreEqual(result[2], 6.0);
 		}
 
 		[Test]
@@ -1029,7 +1027,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape.Length, 1);
 			Assert.AreEqual(result.Shape[0], 1);
 			Assert.AreEqual(result.Size,  1);
-			Assert.AreEqual(result.Data[0], 21.0 / 6.0);
+			Assert.AreEqual(result[0], 21.0 / 6.0);
 
 			result = tensor.Mean(0);
 
@@ -1037,9 +1035,9 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape.Length, 1);
 			Assert.AreEqual(result.Shape[0], 3);
 			Assert.AreEqual(result.Size, 3);
-			Assert.AreEqual(result.Data[0], 5.0 / 2.0);
-			Assert.AreEqual(result.Data[1], 7.0 / 2.0);
-			Assert.AreEqual(result.Data[2], 9.0 / 2.0);
+			Assert.AreEqual(result[0], 5.0 / 2.0);
+			Assert.AreEqual(result[1], 7.0 / 2.0);
+			Assert.AreEqual(result[2], 9.0 / 2.0);
 
 			result = tensor.Mean(1);
 
@@ -1047,8 +1045,8 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape.Length, 1);
 			Assert.AreEqual(result.Shape[0], 2);
 			Assert.AreEqual(result.Size, 2);
-			Assert.AreEqual(result.Data[0], 6.0 / 3.0);
-			Assert.AreEqual(result.Data[1], 15.0 / 3.0);
+			Assert.AreEqual(result[0], 6.0 / 3.0);
+			Assert.AreEqual(result[1], 15.0 / 3.0);
 
 			result = tensor.Mean(0, true);
 
@@ -1057,9 +1055,9 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape[0], 1);
 			Assert.AreEqual(result.Shape[1], 3);
 			Assert.AreEqual(result.Size, 3);
-			Assert.AreEqual(result.Data[0], 5.0 / 2.0);
-			Assert.AreEqual(result.Data[1], 7.0 / 2.0);
-			Assert.AreEqual(result.Data[2], 9.0 / 2.0);
+			Assert.AreEqual(result[0], 5.0 / 2.0);
+			Assert.AreEqual(result[1], 7.0 / 2.0);
+			Assert.AreEqual(result[2], 9.0 / 2.0);
 		}
 
 		[Test]
@@ -1081,7 +1079,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape.Length, 1);
 			Assert.AreEqual(result.Shape[0], 1);
 			Assert.AreEqual(result.Size, 1);
-			Assert.AreEqual(result.Data[0], 1.0);
+			Assert.AreEqual(result[0], 1.0);
 
 			result = tensor.Min(0);
 
@@ -1089,9 +1087,9 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape.Length, 1);
 			Assert.AreEqual(result.Shape[0], 3);
 			Assert.AreEqual(result.Size, 3);
-			Assert.AreEqual(result.Data[0], 1.0);
-			Assert.AreEqual(result.Data[1], 2.0);
-			Assert.AreEqual(result.Data[2], 3.0);
+			Assert.AreEqual(result[0], 1.0);
+			Assert.AreEqual(result[1], 2.0);
+			Assert.AreEqual(result[2], 3.0);
 
 			result = tensor.Min(1);
 
@@ -1099,8 +1097,8 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape.Length, 1);
 			Assert.AreEqual(result.Shape[0], 2);
 			Assert.AreEqual(result.Size, 2);
-			Assert.AreEqual(result.Data[0], 1.0);
-			Assert.AreEqual(result.Data[1], 4.0);
+			Assert.AreEqual(result[0], 1.0);
+			Assert.AreEqual(result[1], 4.0);
 
 			result = tensor.Min(0, true);
 
@@ -1109,9 +1107,9 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape[0], 1);
 			Assert.AreEqual(result.Shape[1], 3);
 			Assert.AreEqual(result.Size, 3);
-			Assert.AreEqual(result.Data[0], 1.0);
-			Assert.AreEqual(result.Data[1], 2.0);
-			Assert.AreEqual(result.Data[2], 3.0);
+			Assert.AreEqual(result[0], 1.0);
+			Assert.AreEqual(result[1], 2.0);
+			Assert.AreEqual(result[2], 3.0);
 		}
 
 		[Test]
@@ -1129,8 +1127,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensorMult.Size; i++)
 			{
-				float current = tensor1.Data [i] * tensor2.Data [i];
-				Assert.AreEqual (tensorMult.Data [i], current);
+				Assert.AreEqual (tensorMult[i], tensor1[i] * tensor2[i]);
 			}
 		}
 
@@ -1153,7 +1150,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensorMult.Size; i++)
 			{
-				Assert.AreEqual (tensorMult.Data [i], tensor1.Data [i]);
+				Assert.AreEqual (tensorMult[i], tensor1[i]);
 			}
 		}
 
@@ -1258,7 +1255,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			var result = tensor1.Mul (scalar);
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (tensor2.Data [i] * scalar, result.Data [i] );
+				Assert.AreEqual (tensor2[i] * scalar, result[i] );
 			}
 
 			// Test multiplication by positive
@@ -1268,7 +1265,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (tensor2.Data [i] * scalar, result.Data [i] );
+				Assert.AreEqual (tensor2[i] * scalar, result[i] );
 			}
 
 			// Test multiplication by negative
@@ -1278,7 +1275,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (tensor2.Data [i] * scalar, result.Data [i] );
+				Assert.AreEqual (tensor2[i] * scalar, result[i] );
 			}
 
 			// Test multiplication by decimal
@@ -1288,7 +1285,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (tensor2.Data [i] * scalar, result.Data [i] );
+				Assert.AreEqual (tensor2[i] * scalar, result[i] );
 			}
 		}
 
@@ -1307,7 +1304,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < result.Size; i++)
 			{
-				Assert.AreEqual (expectedTensor.Data[i], result.Data[i]);
+				Assert.AreEqual (expectedTensor[i], result[i]);
 			}
 		}
 
@@ -1326,7 +1323,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
             for (int i = 0; i < tensor1.Size; i++)
             {
-                Assert.AreEqual (expectedTensor.Data[i], tensor1.Data[i]);
+                Assert.AreEqual (expectedTensor[i], tensor1[i]);
             }
         }
 
@@ -1349,7 +1346,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape.Length, 1);
 			Assert.AreEqual(result.Shape[0], 1);
 			Assert.AreEqual(result.Size,  1);
-			Assert.AreEqual(result.Data[0], 720.0);
+			Assert.AreEqual(result[0], 720.0);
 
 			result = tensor.Prod(0);
 
@@ -1357,9 +1354,9 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape.Length, 1);
 			Assert.AreEqual(result.Shape[0], 3);
 			Assert.AreEqual(result.Size, 3);
-			Assert.AreEqual(result.Data[0], 4.0);
-			Assert.AreEqual(result.Data[1], 10.0);
-			Assert.AreEqual(result.Data[2], 18.0);
+			Assert.AreEqual(result[0], 4.0);
+			Assert.AreEqual(result[1], 10.0);
+			Assert.AreEqual(result[2], 18.0);
 
 			result = tensor.Prod(1);
 
@@ -1367,8 +1364,8 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape.Length, 1);
 			Assert.AreEqual(result.Shape[0], 2);
 			Assert.AreEqual(result.Size, 2);
-			Assert.AreEqual(result.Data[0], 6.0);
-			Assert.AreEqual(result.Data[1], 120.0);
+			Assert.AreEqual(result[0], 6.0);
+			Assert.AreEqual(result[1], 120.0);
 
 			result = tensor.Prod(0, true);
 
@@ -1377,9 +1374,9 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape[0], 1);
 			Assert.AreEqual(result.Shape[1], 3);
 			Assert.AreEqual(result.Size, 3);
-			Assert.AreEqual(result.Data[0], 4.0);
-			Assert.AreEqual(result.Data[1], 10.0);
-			Assert.AreEqual(result.Data[2], 18.0);
+			Assert.AreEqual(result[0], 4.0);
+			Assert.AreEqual(result[1], 10.0);
+			Assert.AreEqual(result[2], 18.0);
 		}
 
 		[Test]
@@ -1439,9 +1436,9 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor.Size; i++)
 			{
-				Assert.AreEqual(out_mod2.Data[i], res_mod2[i], 5e-7);
-				Assert.AreEqual(out_mod3.Data[i], res_mod3[i], 5e-7);
-				Assert.AreEqual(out_mod1p2.Data[i], res_mod1p2[i], 5e-6);
+				Assert.AreEqual(out_mod2[i], res_mod2[i], 5e-7);
+				Assert.AreEqual(out_mod3[i], res_mod3[i], 5e-7);
+				Assert.AreEqual(out_mod1p2[i], res_mod1p2[i], 5e-6);
 			}
 		}
 
@@ -1453,8 +1450,6 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			var tensor = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data, _shape: shape);
 
 			float[] res_mod3 = { -1, -2, -0.5f, 1.5f, 1, 2 };
-
-			var out_mod3 = tensor.Remainder(3);
 
 			tensor.Remainder(3, inline: true);
 			for (int i = 0; i < tensor.Size; i++)
@@ -1478,7 +1473,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < actualRoundTensor.Size; i++)
 			{
-				Assert.AreEqual(expectedRoundTensor.Data[i], actualRoundTensor.Data[i]);
+				Assert.AreEqual(expectedRoundTensor[i], actualRoundTensor[i]);
 			}
 		}
 
@@ -1497,7 +1492,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Data.Length; i++)
 			{
-				Assert.AreEqual (Math.Round(expectedTensor.Data[i], 3), Math.Round(result.Data[i], 3));
+				Assert.AreEqual (expectedTensor[i], result[i], 1e-3);
 			}
 		}
 
@@ -1511,7 +1506,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			float[] data2 = { 0.5f };
 			int[] shape2 = { 1 };
 			var expectedTensor = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape2);
-			Assert.AreEqual(expectedTensor.Data[0], tensor1.Data[0]);
+			Assert.AreEqual(expectedTensor[0], tensor1[0]);
 
 			float[] data3 = { 0.1f, 0.5f, 1.0f, 2.0f };
 			int[] shape3 = { 4 };
@@ -1543,7 +1538,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			float[] data2 = { 0.5f };
 			int[] shape2 = { 1 };
 			var expectedTensor = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape2);
-			Assert.AreEqual(expectedTensor.Data[0], tensor1.Data[0]);
+			Assert.AreEqual(expectedTensor[0], tensor1[0]);
 
 			float[] data3 = { 0.1f, 0.5f, 1.0f, 2.0f };
 			int[] shape3 = { 4 };
@@ -1581,7 +1576,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (expectedTensor.Data[i], result1.Data[i]);
+				Assert.AreEqual (expectedTensor[i], result1[i]);
 			}
 		}
 
@@ -1600,7 +1595,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (expectedTensor.Data[i], tensor1.Data[i]);
+				Assert.AreEqual (expectedTensor[i], tensor1[i]);
 			}
 		}
 
@@ -1619,7 +1614,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < actualSinTensor.Size; i++)
 			{
-				Assert.AreEqual (expectedSinTensor.Data[i], actualSinTensor.Data[i]);
+				Assert.AreEqual (expectedSinTensor[i], actualSinTensor[i]);
 			}
 		}
 
@@ -1638,7 +1633,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (expectedSinTensor.Data[i], tensor1.Data[i]);
+				Assert.AreEqual (expectedSinTensor[i], tensor1[i]);
 			}
 		}
 
@@ -1657,8 +1652,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < actualSinhTensor.Size; i++)
 			{
-				var rounded = Decimal.Round((Decimal)actualSinhTensor.Data[i], 5);
-				Assert.AreEqual (expectedSinhTensor.Data[i], rounded);
+				Assert.AreEqual (expectedSinhTensor[i], actualSinhTensor[i],1e-5);
 			}
 		}
 
@@ -1677,8 +1671,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				var rounded = Decimal.Round((Decimal)tensor1.Data[i], 5);
-				Assert.AreEqual (expectedSinhTensor.Data[i], rounded);
+				Assert.AreEqual (expectedSinhTensor[i], tensor1[i], 1e-5);
 			}
 		}
 
@@ -1696,7 +1689,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < shape1.Length; i++)
 			{
-				Assert.AreEqual (actualSizeTensor.Data[i], expectedSizeTensor.Data[i]);
+				Assert.AreEqual (actualSizeTensor[i], expectedSizeTensor[i]);
 			}
 		}
 
@@ -1735,8 +1728,8 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(2, tensor1.Shape[1]);
 			Assert.AreEqual(2, tensor1.Shape.Length);
 
-//			float[] data2 = {1, 2, 3, 4};
-//			int[] shape2 = {2, 1, 2, 1};
+			float[] data2 = {1, 2, 3, 4};
+			int[] shape2 = {2, 1, 2, 1};
 
 			var tensor2 = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape2);
 
@@ -1762,7 +1755,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < expectedTensor.Size; i++)
 			{
-				Assert.AreEqual (Math.Round(expectedTensor.Data[i], 3), Math.Round(actualTensor.Data[i], 3));
+				Assert.AreEqual (expectedTensor[i], actualTensor[i], 1e-3);
 			}
 		}
 
@@ -1785,7 +1778,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < result.Size; i++)
 			{
-				Assert.AreEqual (expectedTensor.Data [i], result.Data [i]);
+				Assert.AreEqual (expectedTensor[i], result[i]);
 			}
 		}
 
@@ -1808,7 +1801,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (expectedTensor.Data [i], tensor1.Data [i]);
+				Assert.AreEqual (expectedTensor[i], tensor1[i]);
 			}
 		}
 
@@ -1962,7 +1955,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape.Length, 1);
 			Assert.AreEqual(result.Shape[0], 1);
 			Assert.AreEqual(result.Size,  1);
-			Assert.AreEqual(result.Data[0], 21.0);
+			Assert.AreEqual(result[0], 21.0);
 
 			result = tensor.Sum(0);
 
@@ -1970,9 +1963,9 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape.Length, 1);
 			Assert.AreEqual(result.Shape[0], 3);
 			Assert.AreEqual(result.Size, 3);
-			Assert.AreEqual(result.Data[0], 5.0);
-			Assert.AreEqual(result.Data[1], 7.0);
-			Assert.AreEqual(result.Data[2], 9.0);
+			Assert.AreEqual(result[0], 5.0);
+			Assert.AreEqual(result[1], 7.0);
+			Assert.AreEqual(result[2], 9.0);
 
 			result = tensor.Sum(1);
 
@@ -1980,8 +1973,8 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape.Length, 1);
 			Assert.AreEqual(result.Shape[0], 2);
 			Assert.AreEqual(result.Size, 2);
-			Assert.AreEqual(result.Data[0], 6.0);
-			Assert.AreEqual(result.Data[1], 15.0);
+			Assert.AreEqual(result[0], 6.0);
+			Assert.AreEqual(result[1], 15.0);
 
 			result = tensor.Sum(0, true);
 
@@ -1990,9 +1983,9 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(result.Shape[0], 1);
 			Assert.AreEqual(result.Shape[1], 3);
 			Assert.AreEqual(result.Size, 3);
-			Assert.AreEqual(result.Data[0], 5.0);
-			Assert.AreEqual(result.Data[1], 7.0);
-			Assert.AreEqual(result.Data[2], 9.0);
+			Assert.AreEqual(result[0], 5.0);
+			Assert.AreEqual(result[1], 7.0);
+			Assert.AreEqual(result[2], 9.0);
 		}
 
 		[Test]
@@ -2010,7 +2003,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < actualTanTensor.Size; i++)
 			{
-				Assert.AreEqual (expectedTanTensor.Data[i], actualTanTensor.Data[i]);
+				Assert.AreEqual (expectedTanTensor[i], actualTanTensor[i]);
 			}
 		}
 
@@ -2029,7 +2022,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (expectedTanTensor.Data[i], tensor1.Data[i]);
+				Assert.AreEqual (expectedTanTensor[i], tensor1[i]);
 			}
 		}
 
@@ -2048,7 +2041,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < actualTanhTensor.Size; i++)
 			{
-				Assert.AreEqual (expectedTanhTensor.Data[i], actualTanhTensor.Data[i]);
+				Assert.AreEqual (expectedTanhTensor[i], actualTanhTensor[i]);
 			}
 		}
 
@@ -2220,7 +2213,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			var tensor3Triu = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data3Triu, _shape: shape3);
 			for (int i = 0; i < tensor3.Size; i++)
 			{
-				Assert.AreEqual (tensor3.Data[i], tensor3Triu.Data[i]);
+				Assert.AreEqual (tensor3[i], tensor3Triu[i]);
 			}
 
 			// Test dim = 2, k = 2
@@ -2233,7 +2226,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			var tensor4Triu = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data4Triu, _shape: shape4);
 			for (int i = 0; i < tensor4.Size; i++)
 			{
-				Assert.AreEqual (tensor4.Data[i], tensor4Triu.Data[i]);
+				Assert.AreEqual (tensor4[i], tensor4Triu[i]);
 			}
 
 			// Test dim = 2, k = -1
@@ -2246,7 +2239,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			var tensor5Triu = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data5Triu, _shape: shape5);
 			for (int i = 0; i < tensor5.Size; i++)
 			{
-				Assert.AreEqual (tensor5.Data[i], tensor5Triu.Data[i]);
+				Assert.AreEqual (tensor5[i], tensor5Triu[i]);
 			}
 
 			// Test dim = 2, k >> ndims
@@ -2259,7 +2252,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			var tensor6Triu = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data6Triu, _shape: shape6);
 			for (int i = 0; i < tensor6.Size; i++)
 			{
-				Assert.AreEqual (tensor6.Data[i], tensor6Triu.Data[i]);
+				Assert.AreEqual (tensor6[i], tensor6Triu[i]);
 			}
 
 			// Test dim = 2, k << ndims
@@ -2272,7 +2265,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			var tensor7Triu = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data7Triu, _shape: shape7);
 			for (int i = 0; i < tensor7.Size; i++)
 			{
-				Assert.AreEqual (tensor7.Data[i], tensor7Triu.Data[i]);
+				Assert.AreEqual (tensor7[i], tensor7Triu[i]);
 			}
 		}
 
@@ -2289,7 +2282,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			var truncatedTensor = tensor.Trunc();
 			for (int i = 0; i < truncatedTensor.Size; i++)
 			{
-				Assert.AreEqual (expectedTensor.Data[i], truncatedTensor.Data[i]);
+				Assert.AreEqual (expectedTensor[i], truncatedTensor[i]);
 			}
 		}
 
@@ -2308,7 +2301,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
 			for (int i = 0; i < tensor1.Size; i++)
 			{
-				Assert.AreEqual (expectedTensor.Data[i], tensor1.Data[i]);
+				Assert.AreEqual (expectedTensor[i], tensor1[i]);
 			}
 		}
 /* closes class and namespace */
