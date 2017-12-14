@@ -4,7 +4,6 @@ namespace OpenMined.Syft.Tensor
 {
     public partial class FloatTensor
     {
-
         [SerializeField] private static int AbsKernel;
         [SerializeField] private static int AbsKernel_;
         [SerializeField] private static int AcosKernel;
@@ -81,7 +80,7 @@ namespace OpenMined.Syft.Tensor
         {
             //TODO: This function should only be called once. These members are static!
             if (shader == null) return;
-            
+
             // save shaders and kernels
             AbsKernel = shader.FindKernel("Abs");
             AbsKernel_ = shader.FindKernel("Abs_");
@@ -113,10 +112,10 @@ namespace OpenMined.Syft.Tensor
             FloorKernel_ = shader.FindKernel("Floor_");
             FloorKernel = shader.FindKernel("Floor");
             RoundKernel = shader.FindKernel("Round");
-            RemainderElemKernel_ = shader.FindKernel("RemainderElemKernel_");
-            RemainderElemKernel = shader.FindKernel("RemainderElemKernel");
-            RemainderScalarKernel_ = shader.FindKernel("RemainderScalarKernel_");
-            RemainderScalarKernel = shader.FindKernel("RemainderScalarKernel");
+            RemainderElemKernel_ = shader.FindKernel("RemainderElem_");
+            RemainderElemKernel = shader.FindKernel("RemainderElem");
+            RemainderScalarKernel_ = shader.FindKernel("RemainderScalar_");
+            RemainderScalarKernel = shader.FindKernel("RemainderScalar");
 //				Log1pKernel = shader.FindKernel ("Log1p");
             MulScalarKernel_ = shader.FindKernel("MulScalar_");
             MulElemKernel_ = shader.FindKernel("MulElem_");

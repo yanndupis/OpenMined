@@ -95,7 +95,16 @@ namespace OpenMined.Syft.Tensor
         {
             if (!SystemInfo.supportsComputeShaders)
                 throw new NotSupportedException("Shaders are not supported on the host machine");
-
+            
+            if (_shader != null)
+            {
+                shader = _shader;
+            }
+            else
+            {
+                throw new FormatException("You tried to initialize a GPU tensor without access to a shader or gpu.");
+            }
+            
             if (_copyData)
             {
                 var tempData = new T[_dataBuffer.count];
