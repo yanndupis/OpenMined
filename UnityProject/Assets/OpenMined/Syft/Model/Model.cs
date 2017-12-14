@@ -12,6 +12,7 @@ namespace OpenMined.Syft.Layer
         
         protected static volatile int nCreated = 0;
         
+        // unique identifier held by SyftController
         protected int id;
         public int Id => id;
 
@@ -21,18 +22,30 @@ namespace OpenMined.Syft.Layer
         // indices for models used in forward prediction (which themselves can contain weights)
         protected List<int> models;
 
+        protected SyftController controller;
+        
         protected void init()
         {
             parameters = new List<int>();
             models = new List<int>();
         }
         
-        protected virtual FloatTensor Forward(FloatTensor input)
+        public virtual FloatTensor Forward(FloatTensor input)
         {
             // Model layer must implement forward
             throw new NotImplementedException();
         }
 
+        public List<int> getParameters()
+        {
+            return parameters;
+        }
+        
+        public List<int> getModels()
+        {
+            return models;
+        }
+        
         public string ProcessMessage(Command msgObj, SyftController ctrl)
         {
             
@@ -46,17 +59,23 @@ namespace OpenMined.Syft.Layer
                 }
                 case "params":
                 {
+                    
                     string out_str = "";
+
+                    for (int i = 0; i < models.Count; i++)
+                    {
+                        List<int> model_params = controller.getModel(models[i]).getParameters();
+                        for (int j = 0; j < model_params.Count; j++)
+                        {
+                            out_str += model_params[j].ToString() + ",";
+                        }
+                    }
+                    
                     for (int i = 0; i < parameters.Count; i++)
                     {
-                        if (i < parameters.Count - 1)
-                        {
-                            out_str += parameters[i].ToString() + ",";
-                        }
-                        else
-                        {
-                            out_str += parameters[i].ToString() + "";
-                        }
+                        
+                        out_str += parameters[i].ToString() + ",";
+                        
                     }
                     return out_str;
                 }

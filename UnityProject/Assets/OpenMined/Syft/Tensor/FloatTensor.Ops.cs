@@ -18,7 +18,7 @@ namespace OpenMined.Syft.Tensor
 		}
 
 		public FloatTensor Abs(bool inline = false)
-// Returns a new Tensor with the smallest integer greater than or equal to each element
+		// Returns a new Tensor with the smallest integer greater than or equal to each element
 		{
 			FloatTensor result = inline ? this : this.emptyTensorCopy();
 

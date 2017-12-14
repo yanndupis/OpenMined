@@ -26,6 +26,7 @@
                 <e p="MSELoss.cs" t="Include" />
               </e>
               <e p="Model.cs" t="Include" />
+              <e p="Sequential.cs" t="Include" />
               <e p="Sigmoid.cs" t="Include" />
             </e>
             <e p="NN" t="Include">

@@ -117,9 +117,25 @@ namespace OpenMined.Network.Controllers
 				{
 					if (msgObj.functionCall == "create")
 					{
-						Debug.LogFormat("<color=magenta>createModel:</color> {0} : {1}", msgObj.tensorIndexParams[0],msgObj.tensorIndexParams[1]);
-						Linear model = new Linear(this,int.Parse(msgObj.tensorIndexParams[0]),int.Parse(msgObj.tensorIndexParams[1]));
-						return model.Id.ToString();
+						string model_type = msgObj.tensorIndexParams[0];
+
+						if (model_type == "linear")
+						{
+							Debug.LogFormat("<color=magenta>createModel:</color> {0} : {1} {2}", model_type,
+								msgObj.tensorIndexParams[1], msgObj.tensorIndexParams[2]);
+							Linear model = new Linear(this, int.Parse(msgObj.tensorIndexParams[1]), int.Parse(msgObj.tensorIndexParams[2]));
+							return model.Id.ToString();
+						} else if (model_type == "sigmoid")
+						{
+							Debug.LogFormat("<color=magenta>createModel:</color> {0}", model_type);
+							Sigmoid model = new Sigmoid(this);
+							return model.Id.ToString();
+						} else if (model_type == "sequential")
+						{
+							Debug.LogFormat("<color=magenta>createModel:</color> {0}", model_type);
+							Sequential model = new Sequential(this);
+							return model.Id.ToString();
+						}
 
 					} 
 					else

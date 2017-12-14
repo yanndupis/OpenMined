@@ -14,9 +14,11 @@ namespace OpenMined.Syft.Model
 		private readonly FloatTensor _weights;
 		private FloatTensor _bias;
 		
-		public Linear (SyftController controller, int input, int output)
+		public Linear (SyftController _controller, int input, int output)
 		{
 			init();
+
+			this.controller = _controller;
 			
 			_input = input;
 			_output = output;
@@ -36,7 +38,7 @@ namespace OpenMined.Syft.Model
 			controller.addModel(this);
 		}
 
-		protected override FloatTensor Forward(FloatTensor input)
+		public override FloatTensor Forward(FloatTensor input)
 		{
 			return input.MM(_weights);
 		}
