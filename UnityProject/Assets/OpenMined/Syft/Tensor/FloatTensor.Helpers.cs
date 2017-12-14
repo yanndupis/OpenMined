@@ -10,7 +10,7 @@ namespace OpenMined.Syft.Tensor
             // Check if both tensors have same size
             if (tensor.Size != size)
             {
-                throw new InvalidOperationException("Tensors cannot be added since they have different sizes.");
+                throw new InvalidOperationException(String.Format("Tensors cannot be added since they have different sizes: {0} != {1}", tensor.Size, size));
             }
             // Check if both tensors have same number of dimensions
             if (tensor.Shape.Length != shape.Length)

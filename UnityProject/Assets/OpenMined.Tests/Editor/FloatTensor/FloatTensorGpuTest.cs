@@ -744,14 +744,14 @@ namespace OpenMined.Tests
             int[] shape1 = { 5 };
             var tensor1 = new FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
 	        tensor1.Gpu(shader);
-	        
+
             float[] data2 = { 1, 0, -1, (-1*float.MaxValue), (-1*float.MinValue) };
             int[] shape2 = { 5 };
             var expectedTensor = new FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape2);
-	        
+
 
             tensor1.Neg (inline: true);
-	        
+
 	        tensor1.Cpu();
 
             for (int i = 0; i < tensor1.Size; i++)
@@ -1037,8 +1037,6 @@ namespace OpenMined.Tests
 			int[] shape1 = {2, 4};
 			var tensor1 = new FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
 			tensor1.Gpu(shader);
-			
-			var tensor2 = new FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
 
 			// Test multiplication by 0
 			float scalar = 0;

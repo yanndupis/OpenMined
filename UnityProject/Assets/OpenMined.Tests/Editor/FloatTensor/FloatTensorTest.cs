@@ -944,7 +944,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			float[] data1 = { -0.4183f, 0.3722f, -0.3091f, 0.4149f, 0.5857f };
 			int[] shape1 = { 5 };
 			var tensor1 = new Syft.Tensor.FloatTensor(_ctrl:ctrl, _data:data1, _shape:shape1);
-		
+
 			float[] data2 = { -0.54180f,  0.31642f, -0.36976f,  0.34706f,  0.46103f };
 			int[] shape2 = { 5 };
 			var tensorLog1p = new Syft.Tensor.FloatTensor(_ctrl:ctrl, _data:data2, _shape:shape2);
@@ -1738,7 +1738,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
 //			float[] data2 = {1, 2, 3, 4};
 //			int[] shape2 = {2, 1, 2, 1};
 
-			var tensor2 = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
+			var tensor2 = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape2);
 
 			tensor2.Squeeze(dim: 3, inline: true);
 
