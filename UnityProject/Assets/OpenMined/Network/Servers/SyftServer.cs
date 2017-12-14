@@ -1,12 +1,12 @@
-﻿using Nethereum.RPC.Eth;
+using Nethereum.RPC.Eth;
 using UnityEngine;
-
 using OpenMined.Network.Controllers;
 using OpenMined.Syft;
 using Org.BouncyCastle.Security;
 
 namespace OpenMined.Network.Servers
 {
+
 	public class SyftServer : MonoBehaviour
 	{
 		public bool Connected;
@@ -15,31 +15,34 @@ namespace OpenMined.Network.Servers
 
 		private SyftController controller;
 
-		[SerializeField]
-		private ComputeShader shader;
+		[SerializeField] private ComputeShader shader;
 
-		private void Start ()
+		private void Start()
 		{
-			_netMqPublisher = new NetMqPublisher (HandleMessage);
-			_netMqPublisher.Start ();
+			_netMqPublisher = new NetMqPublisher(HandleMessage);
+			_netMqPublisher.Start();
 
-			controller = new SyftController (shader);
+			controller = new SyftController(shader);
 		}
 
-		private void Update ()
+		private void Update()
 		{
-			_netMqPublisher.Update ();
+			_netMqPublisher.Update();
 		}
 
-		private string HandleMessage (string message)
+		private string HandleMessage(string message)
 		{
 			//Debug.LogFormat("HandleMessage... {0}", message);
-			return controller.processMessage (message);
+			return controller.processMessage(message);
 		}
 
-		private void OnDestroy ()
+		private void OnDestroy()
 		{
-			_netMqPublisher.Stop ();
+			_netMqPublisher.Stop();
+		}
+
+		public ComputeShader Shader {
+			get { return shader; }
 		}
 	}
 }
