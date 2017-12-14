@@ -701,7 +701,6 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-
         public void Triu_(int k)
         {
             if (shape.Length != 2)
@@ -832,6 +831,74 @@ namespace OpenMined.Syft.Tensor
             {
                 result = new FloatTensor(_ctrl: ctrl, _data: data, _shape: new_shape, _shader: shader);
             }
+            return result;
+        }
+
+        public FloatTensor Remainder(float divisor, bool inline = false)
+        {
+            if (inline & autograd)
+                throw new InvalidOperationException("Cannot call inline functions if you intend to run backprop.");
+            if (autograd)
+                throw new InvalidOperationException("Autograd not available for Remainder.");
+
+            var result = inline ? this : this.emptyTensorCopy();
+
+            if (dataOnGpu)
+            {
+                result.Gpu(shader);
+                if (inline) { RemainderScalarGPU_(divisor); return this; }
+                else { result = RemainderScalarGPU(result, divisor); }
+            }
+            else
+            {
+                var nCpu = SystemInfo.processorCount;
+                Parallel.For(0, nCpu, workerId => {
+                    var max = size * (workerId + 1) / nCpu;
+                    for (var i = size * workerId / nCpu; i < max; i++)
+                    {
+                        result.Data[i] = Data[i] % divisor;
+                    };
+                });
+            }
+
+            return result;
+        }
+
+        public FloatTensor Remainder(FloatTensor divisor, bool inline = false)
+        {
+            SameSizeDimensionsShapeAndLocation(ref divisor);
+            if (inline & autograd)
+                throw new InvalidOperationException("Cannot call inline functions if you intend to run backprop.");
+            if (autograd)
+                throw new InvalidOperationException("Autograd not available for Remainder.");
+
+            var result = inline ? this : this.emptyTensorCopy();
+
+            if (dataOnGpu)
+            {
+                result.Gpu(shader);
+                if (inline)
+                {
+                    RemainderElemGPU_(divisor);
+                    return this;
+                }
+                else
+                {
+                    result = RemainderElemGPU(divisor,result);
+                }
+            }
+            else
+            {
+                var nCpu = SystemInfo.processorCount;
+                Parallel.For(0, nCpu, workerId => {
+                    var max = size * (workerId + 1) / nCpu;
+                    for (var i = size * workerId / nCpu; i < max; i++)
+                    {
+                        result[i] = this[i] % divisor[i];
+                    };
+                });
+            }
+
             return result;
         }
 

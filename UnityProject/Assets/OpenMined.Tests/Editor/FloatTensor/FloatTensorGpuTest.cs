@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEditor;
 using NUnit.Framework;
 using OpenMined.Network.Controllers;
-
 using OpenMined.Syft.Tensor;
 using OpenMined.Network.Servers;
 using UnityEditor.VersionControl;
@@ -18,24 +17,24 @@ namespace OpenMined.Tests
 		public SyftController ctrl;
 		public ComputeShader shader;
 
-		public void AssertEqualTensorsData(FloatTensor t1, FloatTensor t2) {
-
+		public void AssertEqualTensorsData(FloatTensor t1, FloatTensor t2, double delta = 0.0d)
+		{
 			float[] data1 = new float[t1.Size]; t1.DataBuffer.GetData(data1);
 			float[] data2 = new float[t2.Size]; t2.DataBuffer.GetData(data2);
 			Assert.AreEqual(t1.DataBuffer.count, t2.DataBuffer.count);
 			Assert.AreEqual(t1.DataBuffer.stride, t2.DataBuffer.stride);
 			Assert.AreNotEqual(t1.DataBuffer.GetNativeBufferPtr(), t2.DataBuffer.GetNativeBufferPtr());
-			Assert.AreEqual(data1, data2);
+			Assert.AreEqual(data1.Length, data2.Length);
+			for (var i = 0; i < data1.Length; ++i)
+			{
+				//Debug.LogFormat("Asserting {0} equals {1} with accuracy {2} where diff is {3}", data1[i], data2[i], delta, data1[i] - data2[i]);
+				Assert.AreEqual(data1[i], data2[i], delta);
+			}
 		}
 
-		public void AssertApproximatelyEqualTensorsData(FloatTensor t1, FloatTensor t2) {
-
-			float[] data1 = new float[t1.Size]; t1.DataBuffer.GetData(data1);
-			float[] data2 = new float[t2.Size]; t2.DataBuffer.GetData(data2);
-			Assert.AreEqual(t1.DataBuffer.count, t2.DataBuffer.count);
-			Assert.AreEqual(t1.DataBuffer.stride, t2.DataBuffer.stride);
-			Assert.AreNotEqual(t1.DataBuffer.GetNativeBufferPtr(), t2.DataBuffer.GetNativeBufferPtr());
-			Assert.That(data2, Is.EqualTo(data1).Within( .0001f) );
+		public void AssertApproximatelyEqualTensorsData(FloatTensor t1, FloatTensor t2)
+        {
+			AssertEqualTensorsData(t1, t2, .0001f);
 		}
 
 		[OneTimeSetUp]
@@ -556,7 +555,7 @@ namespace OpenMined.Tests
 			var actualCosTensor = tensor.Cos();
 			actualCosTensor.Gpu(shader);
 
-			AssertEqualTensorsData(expectedCosTensor, actualCosTensor);
+			AssertEqualTensorsData(expectedCosTensor, actualCosTensor,5e-5);
 		}
 
 		[Test]
@@ -573,7 +572,7 @@ namespace OpenMined.Tests
 			var expectedCosTensor = new FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape2);
 			expectedCosTensor.Gpu(shader);
 
-			AssertEqualTensorsData(tensor, expectedCosTensor);
+			AssertEqualTensorsData(tensor, expectedCosTensor,5e-5);
 		}
 
 		[Test]
@@ -617,17 +616,14 @@ namespace OpenMined.Tests
 		[Test]
 		public void DivisionElementwise()
 		{
-			float[] data1 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
-			int[] shape1 = {2, 4};
-			var tensor1 = new FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
+			float[] data = { -10, -1.5f, 0, 1.5f, 10, 20, float.MinValue / 50, float.MaxValue / 50 };
+			int[] shape = {2, 4};
+			var tensor1 = new FloatTensor(_ctrl: ctrl, _data: data, _shape: shape);
 			tensor1.Gpu(shader);
 
-			float[] data2 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
-			int[] shape2 = {2, 4};
-			var tensor2 = new FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape2);
-			tensor2.Gpu(shader);
+			var tensor2 = tensor1.Copy();
 
-			float[] data3 = { 1, 1, 1, (float)Double.NaN, 1, 1, 1, 1 };
+			float[] data3 = { 1, 1, (float)Double.NaN, 1, 1, 1, 1, 1 };
 			int[] shape3 = {2, 4};
 			var expectedTensor = new FloatTensor(_ctrl: ctrl, _data: data3, _shape: shape3);
 			expectedTensor.Gpu(shader);
@@ -640,17 +636,17 @@ namespace OpenMined.Tests
 		[Test]
 		public void DivisionElementwise_()
 		{
-			float[] data1 = { float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue };
+			float[] data1 = { -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue / 50, float.MinValue / 50 };
 			int[] shape1 = {2, 4};
 			var tensor1 = new FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
 			tensor1.Gpu(shader);
 
-			float[] data2 = { 1, 1, 1, (float)Double.NaN, 1, 1, 1, 1 };
+			float[] data2 = { 1, 1, (float)Double.NaN, 1, 1, 1, 1, 1 };
 			int[] shape2 = {2, 4};
 			var tensor2 = new FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape2);
 			tensor2.Gpu(shader);
 
-			tensor1.Div (tensor1, inline: true);
+			tensor1.Div (tensor1.Copy(), inline: true);
 
 			AssertEqualTensorsData(tensor2, tensor1);
 		}
@@ -1125,6 +1121,93 @@ namespace OpenMined.Tests
 		}
 
 		[Test]
+		public void RemainderElem()
+		{
+			float[] data = { -10, -5, -3.5f, 4.5f, 10, 20 };
+			float[] data_divisor = { 2, 3, 1.5f, 0.5f, 7, 9 };
+			float[] data_expected = { 0, -2, -0.5f, 0, 3, 2 };
+
+            int[] shape = { 2, 3 };
+
+            var tensor = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data, _shape: shape);
+			tensor.Gpu(shader);
+			var divisor = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data_divisor, _shape: shape);
+			divisor.Gpu(shader);
+			var expected = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data_expected, _shape: shape);
+            expected.Gpu(shader);
+			var result = tensor.Remainder(divisor);
+
+            AssertEqualTensorsData(result, expected, 1e-6);
+		}
+
+		[Test]
+		public void RemainderElem_()
+		{
+			float[] data = { -10, -5, -3.5f, 4.5f, 10, 20 };
+			float[] data_divisor = { 2, 3, 1.5f, 0.5f, 7, 9 };
+			float[] data_expected = { 0, -2, -0.5f, 0, 3, 2 };
+
+			int[] shape = { 2, 3 };
+
+			var tensor = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data, _shape: shape);
+			tensor.Gpu(shader);
+			var divisor = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data_divisor, _shape: shape);
+			divisor.Gpu(shader);
+			var expected = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data_expected, _shape: shape);
+            expected.Gpu(shader);
+
+			tensor.Remainder(divisor,true);
+
+			AssertEqualTensorsData(tensor, expected, 1e-6);
+		}
+
+		[Test]
+		public void RemainderScalar()
+		{
+			float[] data = { -10, -5, -3.5f, 4.5f, 10, 20 };
+			float[] data_mod2 = { 0, -1, -1.5f, 0.5f, 0, 0 };
+			float[] data_mod3 = { -1, -2, -0.5f, 1.5f, 1, 2 };
+			float[] data_mod1p2 = { -0.4f, -0.2f, -1.1f, 0.9f, 0.4f, 0.8f };
+
+			int[] shape = { 2, 3 };
+
+			var tensor = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data, _shape: shape);
+			tensor.Gpu(shader);
+			var tensor_mod2 = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data_mod2, _shape: shape);
+			tensor_mod2.Gpu(shader);
+			var tensor_mod3 = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data_mod3, _shape: shape);
+			tensor_mod3.Gpu(shader);
+			var tensor_mod1p2 = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data_mod1p2, _shape: shape);
+			tensor_mod1p2.Gpu(shader);
+
+			var out_mod2 = tensor.Remainder(2);
+			var out_mod3 = tensor.Remainder(3);
+			var out_mod1p2 = tensor.Remainder(1.2f);
+
+			AssertEqualTensorsData(out_mod2, tensor_mod2, 1e-6);
+			AssertEqualTensorsData(out_mod3, tensor_mod3, 1e-6);
+			AssertEqualTensorsData(out_mod1p2, tensor_mod1p2, 1e-6);
+		}
+
+		[Test]
+		public void RemainderScalar_()
+		{
+			float[] data = { -10, -5, -3.5f, 4.5f, 10, 20 };
+			float[] data_mod1p2 = { -0.4f, -0.2f, -1.1f, 0.9f, 0.4f, 0.8f };
+
+			int[] shape = { 2, 3 };
+
+			var tensor = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data, _shape: shape);
+			tensor.Gpu(shader);
+			var tensor_mod1p2 = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data_mod1p2, _shape: shape);
+			tensor_mod1p2.Gpu(shader);
+
+			tensor.Remainder(1.2f, true);
+
+			AssertEqualTensorsData(tensor, tensor_mod1p2, 1e-6);
+		}
+
+		[Test]
 		public void Rsqrt()
 		{
 			float[] data1 = { 1, 2, 3, 4 };
@@ -1524,19 +1607,26 @@ namespace OpenMined.Tests
 		[Test]
 		public void Tan()
 		{
-			float[] data1 = { 30, 20, 40, 50 };
-			int[] shape1 = { 4 };
-			var tensor1 = new FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
-			tensor1.Gpu(shader);
+			float[] data = { 3, 2, 4, 5 };
+			int[] shape = { 4 };
+			var tensor = new FloatTensor(_ctrl: ctrl, _data: data, _shape: shape);
+			tensor.Gpu(shader);
 
-			float[] data2 = {-6.4053312f, 2.23716094f, -1.11721493f, -0.27190061f};
-			int[] shape2 = { 4 };
-			var expectedTanTensor = new FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape2);
-			expectedTanTensor.Gpu(shader);
+			float[] data1 = { (float)Math.Tan(3.0d), (float)Math.Tan(2.0d), (float)Math.Tan(4.0d), (float)Math.Tan(5.0d)};
+			var expectedTanTensor1 = new FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape);
+			expectedTanTensor1.Gpu(shader);
 
-			var actualTanTensor = tensor1.Tan();
+			var actualTanTensor1 = tensor.Tan();
 
-			AssertApproximatelyEqualTensorsData(expectedTanTensor, actualTanTensor);
+			AssertEqualTensorsData(expectedTanTensor1, actualTanTensor1,5e-5);
+
+			tensor.Mul(10,true);
+			var actualTanTensor2 = tensor.Tan();
+			float[] data2 = { -6.4053312f, 2.23716094f, -1.11721493f, -0.27190061f };
+			var expectedTanTensor2 = new FloatTensor(_ctrl: ctrl, _data: data2, _shape: shape);
+			expectedTanTensor2.Gpu(shader);
+
+			AssertEqualTensorsData(expectedTanTensor2, actualTanTensor2,5e-3);
 		}
 
 		[Test]
@@ -1554,7 +1644,7 @@ namespace OpenMined.Tests
 
 			tensor1.Tan(inline: true);
 
-			AssertApproximatelyEqualTensorsData(expectedTanTensor, tensor1);
+			AssertEqualTensorsData(expectedTanTensor, tensor1,2e-4);
 		}
 
 		[Test]

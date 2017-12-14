@@ -1383,6 +1383,87 @@ namespace OpenMined.Tests.Editor.FloatTensor
 		}
 
 		[Test]
+		public void RemainderElem()
+		{
+			float[] data = { -10, -5, -3.5f, 4.5f, 10, 20 };
+			float[] data_divisor = { 2, 3, 1.5f, 0.5f, 7, 9 };
+			float[] data_expected = { 0, -2, -0.5f, 0, 3, 2 };
+			int[] shape = { 2, 3 };
+
+			var tensor = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data, _shape: shape);
+			var divisor = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data_divisor, _shape: shape);
+			var expected = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data_expected, _shape: shape);
+
+			var result = tensor.Remainder(divisor);
+
+			for (int i = 0; i < tensor.Size; i++)
+			{
+				Assert.AreEqual(result[i], expected[i], 5e-7);
+			}
+		}
+
+		[Test]
+		public void RemainderElem_()
+		{
+			float[] data = { -10, -5, -3.5f, 4.5f, 10, 20 };
+			float[] data_divisor = { 2, 3, 1.5f, 0.5f, 7, 9 };
+			float[] data_expected = { 0, -2, -0.5f, 0, 3, 2 };
+			int[] shape = { 2, 3 };
+
+			var tensor = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data, _shape: shape);
+			var divisor = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data_divisor, _shape: shape);
+			var expected = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data_expected, _shape: shape);
+
+			tensor.Remainder(divisor,true);
+
+			for (int i = 0; i < tensor.Size; i++)
+			{
+				Assert.AreEqual(tensor[i], expected[i], 5e-7);
+			}
+		}
+
+		[Test]
+		public void RemainderScalar()
+		{
+			float[] data = { -10, -5, -3.5f, 4.5f, 10, 20 };
+			int[] shape = { 2, 3 };
+			var tensor = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data, _shape: shape);
+
+			float[] res_mod2 = { 0, -1, -1.5f, 0.5f, 0, 0 };
+			float[] res_mod3 = { -1, -2, -0.5f, 1.5f, 1, 2 };
+			float[] res_mod1p2 = { -0.4f, -0.2f, -1.1f, 0.9f, 0.4f, 0.8f };
+
+			var out_mod2 = tensor.Remainder(2);
+			var out_mod3 = tensor.Remainder(3);
+			var out_mod1p2 = tensor.Remainder(1.2f);
+
+			for (int i = 0; i < tensor.Size; i++)
+			{
+				Assert.AreEqual(out_mod2.Data[i], res_mod2[i], 5e-7);
+				Assert.AreEqual(out_mod3.Data[i], res_mod3[i], 5e-7);
+				Assert.AreEqual(out_mod1p2.Data[i], res_mod1p2[i], 5e-6);
+			}
+		}
+
+		[Test]
+		public void RemainderScalar_()
+		{
+			float[] data = { -10, -5, -3.5f, 4.5f, 10, 20 };
+			int[] shape = { 2, 3 };
+			var tensor = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data, _shape: shape);
+
+			float[] res_mod3 = { -1, -2, -0.5f, 1.5f, 1, 2 };
+
+			var out_mod3 = tensor.Remainder(3);
+
+			tensor.Remainder(3, inline: true);
+			for (int i = 0; i < tensor.Size; i++)
+			{
+				Assert.AreEqual(tensor[i], res_mod3[i], 5e-7);
+			}
+		}
+
+		[Test]
 		public void Round()
 		{
 			float[] data1 = { 5.89221f, -20.11f, 9.0f, 100.4999f, 100.5001f };
@@ -1654,8 +1735,8 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(2, tensor1.Shape[1]);
 			Assert.AreEqual(2, tensor1.Shape.Length);
 
-			float[] data2 = {1, 2, 3, 4};
-			int[] shape2 = {2, 1, 2, 1};
+//			float[] data2 = {1, 2, 3, 4};
+//			int[] shape2 = {2, 1, 2, 1};
 
 			var tensor2 = new Syft.Tensor.FloatTensor(_ctrl: ctrl, _data: data1, _shape: shape1);
 
@@ -1665,7 +1746,6 @@ namespace OpenMined.Tests.Editor.FloatTensor
 			Assert.AreEqual(1, tensor2.Shape[1]);
 			Assert.AreEqual(3, tensor2.Shape.Length);
 		}
-
 
 		[Test]
 		public void Sqrt()

@@ -87,8 +87,16 @@ namespace OpenMined.Syft.Tensor
 		private static int PowElemKernel;
 		[SerializeField]
 		private static int NegateKernel;
-        [SerializeField]
-        private static int NegateKernel_;
+		[SerializeField]
+		private static int NegateKernel_;
+		[SerializeField]
+		private static int RemainderElemKernel;
+		[SerializeField]
+		private static int RemainderElemKernel_;
+		[SerializeField]
+		private static int RemainderScalarKernel;
+		[SerializeField]
+		private static int RemainderScalarKernel_;
 		[SerializeField]
 		private static int RsqrtKernel;
 		[SerializeField]
@@ -178,7 +186,11 @@ namespace OpenMined.Syft.Tensor
 				PowScalarKernel = shader.FindKernel ("PowScalar");
 				PowElemKernel = shader.FindKernel ("PowElem");
 				NegateKernel = shader.FindKernel ("Negate");
-                NegateKernel_ = shader.FindKernel ("Negate_");
+				NegateKernel_ = shader.FindKernel ("Negate_");
+				RemainderElemKernel = shader.FindKernel("RemainderElem");
+				RemainderElemKernel_ = shader.FindKernel("RemainderElem_");
+				RemainderScalarKernel = shader.FindKernel("RemainderScalar");
+				RemainderScalarKernel_ = shader.FindKernel("RemainderScalar_");
 				RsqrtKernel = shader.FindKernel ("Rsqrt");
 				// PowKernel = shader.FindKernel ("Pow");
 				// PowKernel_ = shader.FindKernel ("Pow_");
@@ -298,7 +310,6 @@ namespace OpenMined.Syft.Tensor
 					Debug.LogFormat ("addition with itself should be multiplication instead", dataOnGpu);
 					this.MulScalarGPU_ (2);
 				}
-
 			}
 		}
 
@@ -334,8 +345,6 @@ namespace OpenMined.Syft.Tensor
 					Debug.LogFormat ("addition with itself should be multiplication instead", dataOnGpu);
 					return this.MulScalarGPU (2, result);
 				}
-
-
 			}
 			return result;
 		}
@@ -648,7 +657,6 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
-
 		public FloatTensor PowElemGPU (FloatTensor tensor, FloatTensor result)
 		{
 			Debug.LogFormat ("<color=blue>FloatTensor.PowElemGPU dataOnGpu: {0}</color>", dataOnGpu);
@@ -658,11 +666,9 @@ namespace OpenMined.Syft.Tensor
 				shader.SetBuffer (PowElemKernel, "PowElemDataB", tensor.dataBuffer);
 				shader.SetBuffer (PowElemKernel, "PowElemDataResult", result.dataBuffer);
 				shader.Dispatch (PowElemKernel, this.size, 1, 1);
-
 			}
 			return result;
 		}
-
 
 		public FloatTensor NegateGPU ()
 		{
@@ -677,16 +683,86 @@ namespace OpenMined.Syft.Tensor
 			return this;
 		}
 
-        public void NegateGPU_ ()
-        {
-            Debug.LogFormat("<color=blue>FloatTensor.NegateGPU_ dataOnGpu: {0}</color>", dataOnGpu);
-            if (dataOnGpu) {
-                shader.SetBuffer (NegateKernel_, "NegateData_", dataBuffer);
-                shader.Dispatch (NegateKernel_, this.size, 1, 1);
-            }
-        }
+		public void NegateGPU_ ()
+		{
+			Debug.LogFormat("<color=blue>FloatTensor.NegateGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+			if (dataOnGpu) {
+				shader.SetBuffer (NegateKernel_, "NegateData_", dataBuffer);
+				shader.Dispatch (NegateKernel_, this.size, 1, 1);
+			}
+		}
 
-        public FloatTensor RsqrtGPU()
+		public void RemainderElemGPU_(FloatTensor divisor)
+		{
+			Debug.LogFormat("<color=blue>FloatTensor.RemainderElemGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+
+			if (dataOnGpu)
+			{
+				if (this.id != divisor.id)
+				{
+					shader.SetBuffer (RemainderElemKernel_, "RemainderElemDataA_", dataBuffer);
+					shader.SetBuffer (RemainderElemKernel_, "RemainderElemDataB_", divisor.DataBuffer);
+					shader.Dispatch (RemainderElemKernel_, this.size, 1, 1);
+				}
+				else
+				{
+					this.ZeroGPU_();
+				}
+			}
+		}
+
+		public FloatTensor RemainderElemGPU (FloatTensor divisor,FloatTensor result)
+		{
+			Debug.LogFormat("<color=blue>FloatTensor.RemainderElemGPU dataOnGpu: {0}</color>", dataOnGpu);
+			if (dataOnGpu)
+			{
+				if (this.Id != divisor.Id)
+				{
+                    shader.SetBuffer (RemainderElemKernel, "RemainderElemDataA", this.DataBuffer);
+					shader.SetBuffer (RemainderElemKernel, "RemainderElemDataB", divisor.DataBuffer);
+					shader.SetBuffer (RemainderElemKernel, "RemainderElemResult", result.DataBuffer);
+					shader.Dispatch (RemainderElemKernel, this.size, 1, 1);
+				}
+				else
+				{
+                    result.ZeroGPU_();
+				}
+			}
+			return result;
+		}
+
+		public void RemainderScalarGPU_(float divisor)
+		{
+			Debug.LogFormat("<color=blue>FloatTensor.RemainderScalarGPU_ dataOnGpu: {0}</color>", dataOnGpu);
+
+			if (dataOnGpu)
+			{
+				var valBuffer = SendFloatToGpu(RemainderScalarKernel_, divisor, "RemainderScalarScalar_");
+
+				shader.SetBuffer(RemainderScalarKernel_, "RemainderScalarData_", dataBuffer);
+				shader.Dispatch(RemainderScalarKernel_, this.size, 1, 1);
+
+				valBuffer.Release();
+			}
+		}
+
+		public FloatTensor RemainderScalarGPU(FloatTensor result, float value)
+		{
+			Debug.LogFormat("<color=blue>FloatTensor.RemainderScalarGPU dataOnGpu: {0}</color>", dataOnGpu);
+
+			if (dataOnGpu)
+			{
+				var valBuffer = SendFloatToGpu(RemainderScalarKernel, value, "RemainderScalarScalar");
+
+				shader.SetBuffer(RemainderScalarKernel, "RemainderScalarData", dataBuffer);
+				shader.SetBuffer(RemainderScalarKernel, "RemainderScalarResult", result.dataBuffer);
+				shader.Dispatch(RemainderScalarKernel, this.size, 1, 1);
+				valBuffer.Release();
+			}
+			return result;
+		}
+
+		public FloatTensor RsqrtGPU()
 		{
 			if (dataOnGpu)
 			{

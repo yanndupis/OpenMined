@@ -513,11 +513,6 @@ namespace OpenMined.Syft.Tensor
                     this.Floor(inline: true);
                     return this.id + "";
                 }
-                case "round":
-                {
-                    var result = Round();
-                    return result.Id.ToString();
-                }
                 case "get":
                 {
                     var param_to_get = msgObj.tensorIndexParams[0];
@@ -680,6 +675,33 @@ namespace OpenMined.Syft.Tensor
                 {
                     this.Pow(float.Parse(msgObj.tensorIndexParams[0]), inline: true);
                     return this.id + "";
+                }
+                case "remainder_elem":
+                {
+	                var divisor = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+	                FloatTensor result = Remainder(divisor);
+	                return result.id + "";
+                }
+                case "remainder_elem_":
+                {
+	                var divisor = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
+	                this.Remainder(divisor, inline: true);
+	                return this.id + "";
+                }
+                case "remainder_scalar":
+                {
+	                FloatTensor result = Remainder(float.Parse(msgObj.tensorIndexParams[0]));
+	                return result.id + "";
+                }
+                case "remainder_scalar_":
+                {
+	                this.Remainder(float.Parse(msgObj.tensorIndexParams[0]), inline: true);
+	                return this.id + "";
+                }
+                case "round":
+                {
+                    var result = Round();
+                    return result.Id.ToString();
                 }
                 case "set":
                 {
