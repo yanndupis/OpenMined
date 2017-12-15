@@ -163,7 +163,7 @@ namespace OpenMined.Network.Controllers
 			}
 
 			// If not executing createTensor or tensor function, return default error.
-			return "SyftController.processMessage: Command not found.";            
+			return "Unity Error: SyftController.processMessage: Command not found:" + msgObj.objectType + ":" + msgObj.functionCall;            
 		}
 	}
 }
