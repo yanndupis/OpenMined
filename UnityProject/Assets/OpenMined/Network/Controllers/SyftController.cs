@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using OpenMined.Syft.Tensor;
 using OpenMined.Network.Utils;
 using OpenMined.Syft.Layer;
 using OpenMined.Syft.Model;
+using Random = UnityEngine.Random;
 
 
 namespace OpenMined.Network.Controllers
@@ -92,63 +94,74 @@ namespace OpenMined.Network.Controllers
 			//Debug.LogFormat("<color=green>SyftController.processMessage {0}</color>", json_message);
 
 			Command msgObj = JsonUtility.FromJson<Command> (json_message);
+			try
+			{
 
-			switch (msgObj.objectType) {
-				case "tensor":
+				switch (msgObj.objectType)
 				{
-					if (msgObj.objectIndex == 0 && msgObj.functionCall == "create")
+					case "tensor":
 					{
-						FloatTensor tensor = new FloatTensor(this, _shape: msgObj.shape, _data: msgObj.data, _shader: this.Shader);
-						Debug.LogFormat("<color=magenta>createTensor:</color> {0}", string.Join(", ", tensor.Data));
-						return tensor.Id.ToString();
-					}
-					else if (msgObj.objectIndex > tensors.Count)
-					{
-						return "Invalid objectIndex: " + msgObj.objectIndex;
-					}
-					else
-					{
-						FloatTensor tensor = this.getTensor(msgObj.objectIndex);
-						// Process message's function
-						return tensor.ProcessMessage(msgObj, this);
-					}
-				}
-				case "model":
-				{
-					if (msgObj.functionCall == "create")
-					{
-						string model_type = msgObj.tensorIndexParams[0];
-
-						if (model_type == "linear")
+						if (msgObj.objectIndex == 0 && msgObj.functionCall == "create")
 						{
-							Debug.LogFormat("<color=magenta>createModel:</color> {0} : {1} {2}", model_type,
-								msgObj.tensorIndexParams[1], msgObj.tensorIndexParams[2]);
-							Linear model = new Linear(this, int.Parse(msgObj.tensorIndexParams[1]), int.Parse(msgObj.tensorIndexParams[2]));
-							return model.Id.ToString();
-						} else if (model_type == "sigmoid")
-						{
-							Debug.LogFormat("<color=magenta>createModel:</color> {0}", model_type);
-							Sigmoid model = new Sigmoid(this);
-							return model.Id.ToString();
-						} else if (model_type == "sequential")
-						{
-							Debug.LogFormat("<color=magenta>createModel:</color> {0}", model_type);
-							Sequential model = new Sequential(this);
-							return model.Id.ToString();
+							FloatTensor tensor = new FloatTensor(this, _shape: msgObj.shape, _data: msgObj.data, _shader: this.Shader);
+							Debug.LogFormat("<color=magenta>createTensor:</color> {0}", string.Join(", ", tensor.Data));
+							return tensor.Id.ToString();
 						}
-
-					} 
-					else
-					{
-						Model model = this.getModel(msgObj.objectIndex);
-						return model.ProcessMessage(msgObj, this);
+						else if (msgObj.objectIndex > tensors.Count)
+						{
+							return "Invalid objectIndex: " + msgObj.objectIndex;
+						}
+						else
+						{
+							FloatTensor tensor = this.getTensor(msgObj.objectIndex);
+							// Process message's function
+							return tensor.ProcessMessage(msgObj, this);
+						}
 					}
-					return "hello";
+					case "model":
+					{
+						if (msgObj.functionCall == "create")
+						{
+							string model_type = msgObj.tensorIndexParams[0];
+
+							if (model_type == "linear")
+							{
+								Debug.LogFormat("<color=magenta>createModel:</color> {0} : {1} {2}", model_type,
+									msgObj.tensorIndexParams[1], msgObj.tensorIndexParams[2]);
+								Linear model = new Linear(this, int.Parse(msgObj.tensorIndexParams[1]), int.Parse(msgObj.tensorIndexParams[2]));
+								return model.Id.ToString();
+							}
+							else if (model_type == "sigmoid")
+							{
+								Debug.LogFormat("<color=magenta>createModel:</color> {0}", model_type);
+								Sigmoid model = new Sigmoid(this);
+								return model.Id.ToString();
+							}
+							else if (model_type == "sequential")
+							{
+								Debug.LogFormat("<color=magenta>createModel:</color> {0}", model_type);
+								Sequential model = new Sequential(this);
+								return model.Id.ToString();
+							}
+
+						}
+						else
+						{
+							Model model = this.getModel(msgObj.objectIndex);
+							return model.ProcessMessage(msgObj, this);
+						}
+						return "hello";
+					}
+					default:
+						break;
 				}
-				default:
-				break;                
 			}
- 
+			catch (Exception e)
+			{
+				Debug.LogFormat("<color=red>{0}</color>",e.ToString());
+				return "Unity Error: " + e.ToString();
+			}
+
 			// If not executing createTensor or tensor function, return default error.
 			return "SyftController.processMessage: Command not found.";            
 		}
