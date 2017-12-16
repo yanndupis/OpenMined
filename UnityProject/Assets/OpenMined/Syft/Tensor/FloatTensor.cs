@@ -632,6 +632,11 @@ namespace OpenMined.Syft.Tensor
                     var result = Rsqrt();
                     return result.Id.ToString();
                 }
+                case "rsqrt_":
+                {
+                    Rsqrt(inline: true);
+                    return Id.ToString();
+                }
                 case "print":
                 {
                     bool dataOriginallyOnGpu = dataOnGpu;
