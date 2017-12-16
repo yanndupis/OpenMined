@@ -183,10 +183,9 @@ namespace OpenMined.Syft.Tensor
 
 				    }
 
-//					if (!keepgrads) {
-//						ctrl.RemoveTensor (grad.id);
-//					}
-
+					/*if (!keepgrads) {
+						controller.RemoveTensor (grad.id);
+					}*/
 
 			    }
 		    }

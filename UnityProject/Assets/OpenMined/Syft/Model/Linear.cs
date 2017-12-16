@@ -17,7 +17,7 @@ namespace OpenMined.Syft.Model
 		
 		public Linear (SyftController _controller, int input, int output)
 		{
-			init();
+			init("linear");
 
 			this.controller = _controller;
 			
@@ -26,7 +26,7 @@ namespace OpenMined.Syft.Model
 			
 			int[] weightShape = { input, output };
 			var weights = controller.RandomWeights(input * output);
-			_weights = new FloatTensor(controller, _shape: weightShape, _data: weights, _autograd: true);
+			_weights = new FloatTensor(controller, _shape: weightShape, _data: weights, _autograd: true, _keepgrads: true);
 
 			// TODO: add bias when broadcast is available
 			int[] biasShape = {output};
