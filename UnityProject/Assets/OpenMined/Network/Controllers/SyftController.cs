@@ -58,6 +58,7 @@ namespace OpenMined.Network.Controllers
 
 		public void RemoveTensor (int index)
 		{
+			//Debug.LogFormat("<color=purple>Removing Tensor {0}</color>", index);
 			var tensor = tensors [index];
 			tensors.Remove (index);
 			tensor.Dispose ();
@@ -65,6 +66,7 @@ namespace OpenMined.Network.Controllers
 
 		public int addTensor (FloatTensor tensor)
 		{
+			//Debug.LogFormat("<color=green>Adding Tensor {0}</color>", tensor.Id);
 			tensor.Controller = this;
 			tensors.Add (tensor.Id, tensor);
 			return (tensor.Id);
@@ -104,7 +106,7 @@ namespace OpenMined.Network.Controllers
 						if (msgObj.objectIndex == 0 && msgObj.functionCall == "create")
 						{
 							FloatTensor tensor = new FloatTensor(this, _shape: msgObj.shape, _data: msgObj.data, _shader: this.Shader);
-							Debug.LogFormat("<color=magenta>createTensor:</color> {0}", string.Join(", ", tensor.Data));
+							Debug.LogFormat("<color=magenta>createTensor:{1}</color> {0}", string.Join(", ", tensor.Data), tensor.Id);
 							return tensor.Id.ToString();
 						}
 						else if (msgObj.objectIndex > tensors.Count)
@@ -152,7 +154,19 @@ namespace OpenMined.Network.Controllers
 						}
 						return "hello";
 					}
-					default:
+					case "controller":
+					{
+						if (msgObj.functionCall == "num_tensors")
+						{
+							return tensors.Count + "";
+						} else if (msgObj.functionCall == "num_models")
+						{
+							return models.Count + "";
+						}
+						return "Unity Error: SyftController.processMessage: Command not found:" + msgObj.objectType + ":" + msgObj.functionCall;
+					}
+						
+				default:
 						break;
 				}
 			}
