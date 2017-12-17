@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="668ffa2f-e358-477f-9c14-27735b3a57d8" name="Default" comment="" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -13,11 +14,10 @@
       <file leaf-file-name="FloatTensor.cs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Assets/OpenMined/Syft/Tensor/FloatTensor.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-41">
+            <state relative-caret-position="2520">
               <caret line="174" column="41" lean-forward="false" selection-start-line="174" selection-start-column="39" selection-end-line="174" selection-end-column="41" />
               <folding>
                 <marker date="1513447333000" expanded="false" signature="6:210" ph="..." />
-                <marker date="1513447333000" expanded="true" signature="243:33856" ph="{...}" />
                 <marker date="1513447333000" expanded="true" signature="302:33854" ph="{...}" />
                 <marker date="1513447333000" expanded="true" signature="337:433" ph="{...}" />
                 <marker date="1513447333000" expanded="true" signature="504:982" ph="{...}" />
@@ -92,7 +92,7 @@
       <file leaf-file-name="SyftController.cs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Assets/OpenMined/Network/Controllers/SyftController.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="945">
+            <state relative-caret-position="2310">
               <caret line="163" column="20" lean-forward="false" selection-start-line="163" selection-start-column="20" selection-end-line="163" selection-end-column="20" />
               <folding>
                 <marker date="1513526018000" expanded="false" signature="6:262" ph="..." />
@@ -132,7 +132,7 @@
       <file leaf-file-name="FloatTensor.Ops.cs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Assets/OpenMined/Syft/Tensor/FloatTensor.Ops.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="514">
+            <state relative-caret-position="6285">
               <caret line="425" column="30" lean-forward="false" selection-start-line="425" selection-start-column="30" selection-end-line="425" selection-end-column="30" />
               <folding>
                 <marker date="1513447333000" expanded="false" signature="6:190" ph="..." />
@@ -175,14 +175,13 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Model.cs" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Model.cs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Assets/OpenMined/Syft/Model/Model.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="494">
+            <state relative-caret-position="1755">
               <caret line="122" column="47" lean-forward="false" selection-start-line="122" selection-start-column="47" selection-end-line="122" selection-end-column="47" />
               <folding>
                 <marker date="1513527282000" expanded="false" signature="6:173" ph="..." />
-                <marker date="1513527282000" expanded="true" signature="205:4247" ph="{...}" />
                 <marker date="1513527282000" expanded="true" signature="230:4245" ph="{...}" />
                 <marker date="1513527282000" expanded="true" signature="873:1044" ph="{...}" />
                 <marker date="1513527282000" expanded="true" signature="1115:1234" ph="{...}" />
@@ -204,44 +203,43 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FloatTensor.Autograd.cs" pinned="false" current-in-tab="false">
+      <file leaf-file-name="FloatTensor.Autograd.cs" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Assets/OpenMined/Syft/Tensor/FloatTensor.Autograd.cs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="795">
-              <caret line="92" column="29" lean-forward="false" selection-start-line="92" selection-start-column="29" selection-end-line="92" selection-end-column="29" />
+            <state relative-caret-position="716">
+              <caret line="182" column="20" lean-forward="false" selection-start-line="182" selection-start-column="20" selection-end-line="182" selection-end-column="20" />
               <folding>
-                <marker date="1513525752000" expanded="false" signature="6:47" ph="..." />
-                <marker date="1513525752000" expanded="true" signature="80:4825" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="119:4823" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="407:583" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="635:858" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="688:823" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="739:809" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="996:1476" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="1032:1471" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="1599:1828" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="1619:1823" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="1934:2097" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="1954:2093" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="2181:4817" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="2209:4810" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="2242:2350" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="2383:2616" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="2434:2534" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="2547:2607" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="2647:2691" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="2703:2756" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="2845:2942" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="2951:3197" ph="/* only continue backpropping if there's something to backprop into ... */" />
-                <marker date="1513525752000" expanded="true" signature="3317:4802" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="3365:3487" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="3531:3673" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="3717:3859" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="3903:4024" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="4062:4256" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="4299:4469" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="4515:4716" ph="{...}" />
-                <marker date="1513525752000" expanded="true" signature="4723:4792" ph="/* if (!keepgrads) { ... */" />
+                <marker date="1513529731000" expanded="false" signature="6:47" ph="..." />
+                <marker date="1513529731000" expanded="true" signature="119:4819" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="407:583" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="635:858" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="688:823" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="739:809" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="996:1476" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="1032:1471" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="1599:1828" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="1619:1823" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="1934:2097" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="1954:2093" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="2181:4813" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="2209:4806" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="2242:2350" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="2383:2616" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="2434:2534" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="2547:2607" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="2647:2691" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="2703:2756" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="2845:2942" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="2951:3197" ph="/* only continue backpropping if there's something to backprop into ... */" />
+                <marker date="1513529731000" expanded="true" signature="3317:4798" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="3365:3487" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="3531:3673" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="3717:3859" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="3903:4024" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="4062:4256" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="4299:4469" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="4515:4716" ph="{...}" />
+                <marker date="1513529731000" expanded="true" signature="4723:4788" ph="/* if (!keepgrads) { ... */" />
               </folding>
             </state>
           </provider>
@@ -254,7 +252,6 @@
               <caret line="21" column="35" lean-forward="false" selection-start-line="21" selection-start-column="12" selection-end-line="21" selection-end-column="35" />
               <folding>
                 <marker date="1513524643000" expanded="false" signature="6:79" ph="..." />
-                <marker date="1513524643000" expanded="true" signature="111:630" ph="{...}" />
                 <marker date="1513524643000" expanded="true" signature="145:628" ph="{...}" />
                 <marker date="1513524643000" expanded="true" signature="205:417" ph="{...}" />
                 <marker date="1513524643000" expanded="true" signature="489:622" ph="{...}" />
@@ -421,6 +418,7 @@
         <option value="$PROJECT_DIR$/Assets/OpenMined/Syft/Model/Linear.cs" />
         <option value="$PROJECT_DIR$/Assets/OpenMined/Network/Controllers/SyftController.cs" />
         <option value="$PROJECT_DIR$/Assets/OpenMined/Syft/Model/Model.cs" />
+        <option value="$PROJECT_DIR$/Assets/OpenMined/Syft/Tensor/FloatTensor.Autograd.cs" />
       </list>
     </option>
   </component>
@@ -429,6 +427,11 @@
   <component name="JsGulpfileManager">
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="y" value="23" />
+    <option name="width" value="1680" />
+    <option name="height" value="1023" />
   </component>
   <component name="ProjectView">
     <navigator currentView="SolutionExplorer" proportions="" version="1">
@@ -445,73 +448,13 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
       <pane id="SolutionExplorer">
         <subPane>
           <expand>
             <path>
               <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="UnityProject (3 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="UnityProject (3 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Assembly-CSharp" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="UnityProject (3 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Assembly-CSharp" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Assets" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="UnityProject (3 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Assembly-CSharp" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Assets" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="OpenMined" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="UnityProject (3 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Assembly-CSharp" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Assets" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="OpenMined" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Network" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="UnityProject (3 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Assembly-CSharp" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Assets" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="OpenMined" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Network" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Controllers" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="UnityProject (3 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Assembly-CSharp" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Assets" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="OpenMined" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Syft" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="UnityProject (3 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Assembly-CSharp" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Assets" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="OpenMined" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Syft" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Model" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="UnityProject (3 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Assembly-CSharp" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Assets" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="OpenMined" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Syft" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Tensor" type="977d5f41:SolutionExplorerNodeRider" />
+              <item name="UnityProject (synchronizing...)" type="977d5f41:SolutionExplorerNodeRider" />
             </path>
           </expand>
           <select />
@@ -519,8 +462,10 @@
         <option name="show-file-system" value="false" />
         <option name="show-all-items" value="false" />
       </pane>
-      <pane id="Scratches" />
     </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -542,7 +487,7 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="52556531-a09d-479a-ae01-ae537128cae5" name="Default" comment="" />
+      <changelist id="668ffa2f-e358-477f-9c14-27735b3a57d8" name="Default" comment="" />
       <created>1513091329245</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -552,11 +497,12 @@
       <workItem from="1513292234791" duration="128000" />
       <workItem from="1513343510243" duration="133000" />
       <workItem from="1513399210862" duration="7218000" />
+      <workItem from="1513529723976" duration="10000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="28013000" />
+    <option name="totallyTimeSpent" value="28023000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -569,20 +515,21 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1680" height="1023" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Errors In Solution" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Unit Tests" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="NuGet" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -610,38 +557,37 @@
         <state relative-caret-position="2685">
           <caret line="180" column="12" lean-forward="false" selection-start-line="180" selection-start-column="12" selection-end-line="180" selection-end-column="12" />
           <folding>
-            <marker date="1513525752000" expanded="false" signature="6:47" ph="..." />
-            <marker date="1513525752000" expanded="true" signature="80:4825" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="119:4823" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="407:583" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="635:858" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="688:823" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="739:809" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="996:1476" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="1032:1471" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="1599:1828" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="1619:1823" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="1934:2097" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="1954:2093" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2181:4817" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2209:4810" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2242:2350" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2383:2616" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2434:2534" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2547:2607" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2647:2691" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2703:2756" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2845:2942" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2951:3197" ph="/* only continue backpropping if there's something to backprop into ... */" />
-            <marker date="1513525752000" expanded="true" signature="3317:4802" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="3365:3487" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="3531:3673" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="3717:3859" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="3903:4024" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="4062:4256" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="4299:4469" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="4515:4716" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="4723:4792" ph="/* if (!keepgrads) { ... */" />
+            <marker date="1513529731000" expanded="false" signature="6:47" ph="..." />
+            <marker date="1513529731000" expanded="true" signature="119:4819" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="407:583" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="635:858" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="688:823" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="739:809" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="996:1476" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="1032:1471" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="1599:1828" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="1619:1823" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="1934:2097" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="1954:2093" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2181:4813" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2209:4806" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2242:2350" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2383:2616" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2434:2534" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2547:2607" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2647:2691" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2703:2756" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2845:2942" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2951:3197" ph="/* only continue backpropping if there's something to backprop into ... */" />
+            <marker date="1513529731000" expanded="true" signature="3317:4798" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="3365:3487" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="3531:3673" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="3717:3859" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="3903:4024" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="4062:4256" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="4299:4469" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="4515:4716" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="4723:4788" ph="/* if (!keepgrads) { ... */" />
           </folding>
         </state>
       </provider>
@@ -754,7 +700,6 @@
           <caret line="361" column="20" lean-forward="false" selection-start-line="361" selection-start-column="20" selection-end-line="361" selection-end-column="20" />
           <folding>
             <marker date="1513447333000" expanded="false" signature="6:210" ph="..." />
-            <marker date="1513447333000" expanded="true" signature="243:33856" ph="{...}" />
             <marker date="1513447333000" expanded="true" signature="302:33854" ph="{...}" />
             <marker date="1513447333000" expanded="true" signature="337:433" ph="{...}" />
             <marker date="1513447333000" expanded="true" signature="504:982" ph="{...}" />
@@ -859,38 +804,37 @@
         <state relative-caret-position="2685">
           <caret line="180" column="12" lean-forward="false" selection-start-line="180" selection-start-column="12" selection-end-line="180" selection-end-column="12" />
           <folding>
-            <marker date="1513525752000" expanded="false" signature="6:47" ph="..." />
-            <marker date="1513525752000" expanded="true" signature="80:4825" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="119:4823" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="407:583" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="635:858" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="688:823" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="739:809" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="996:1476" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="1032:1471" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="1599:1828" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="1619:1823" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="1934:2097" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="1954:2093" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2181:4817" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2209:4810" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2242:2350" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2383:2616" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2434:2534" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2547:2607" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2647:2691" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2703:2756" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2845:2942" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2951:3197" ph="/* only continue backpropping if there's something to backprop into ... */" />
-            <marker date="1513525752000" expanded="true" signature="3317:4802" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="3365:3487" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="3531:3673" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="3717:3859" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="3903:4024" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="4062:4256" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="4299:4469" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="4515:4716" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="4723:4792" ph="/* if (!keepgrads) { ... */" />
+            <marker date="1513529731000" expanded="false" signature="6:47" ph="..." />
+            <marker date="1513529731000" expanded="true" signature="119:4819" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="407:583" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="635:858" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="688:823" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="739:809" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="996:1476" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="1032:1471" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="1599:1828" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="1619:1823" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="1934:2097" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="1954:2093" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2181:4813" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2209:4806" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2242:2350" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2383:2616" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2434:2534" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2547:2607" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2647:2691" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2703:2756" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2845:2942" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2951:3197" ph="/* only continue backpropping if there's something to backprop into ... */" />
+            <marker date="1513529731000" expanded="true" signature="3317:4798" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="3365:3487" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="3531:3673" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="3717:3859" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="3903:4024" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="4062:4256" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="4299:4469" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="4515:4716" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="4723:4788" ph="/* if (!keepgrads) { ... */" />
           </folding>
         </state>
       </provider>
@@ -1019,7 +963,6 @@
           <caret line="24" column="33" lean-forward="false" selection-start-line="24" selection-start-column="33" selection-end-line="24" selection-end-column="33" />
           <folding>
             <marker date="1513447333000" expanded="false" signature="6:210" ph="..." />
-            <marker date="1513447333000" expanded="true" signature="243:33856" ph="{...}" />
             <marker date="1513447333000" expanded="true" signature="302:33854" ph="{...}" />
             <marker date="1513447333000" expanded="true" signature="337:433" ph="{...}" />
             <marker date="1513447333000" expanded="true" signature="504:982" ph="{...}" />
@@ -1284,11 +1227,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Assets/OpenMined/Syft/Tensor/FloatTensor.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-41">
+        <state relative-caret-position="2520">
           <caret line="174" column="41" lean-forward="false" selection-start-line="174" selection-start-column="39" selection-end-line="174" selection-end-column="41" />
           <folding>
             <marker date="1513447333000" expanded="false" signature="6:210" ph="..." />
-            <marker date="1513447333000" expanded="true" signature="243:33856" ph="{...}" />
             <marker date="1513447333000" expanded="true" signature="302:33854" ph="{...}" />
             <marker date="1513447333000" expanded="true" signature="337:433" ph="{...}" />
             <marker date="1513447333000" expanded="true" signature="504:982" ph="{...}" />
@@ -1361,7 +1303,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Assets/OpenMined/Syft/Tensor/FloatTensor.Ops.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="514">
+        <state relative-caret-position="6285">
           <caret line="425" column="30" lean-forward="false" selection-start-line="425" selection-start-column="30" selection-end-line="425" selection-end-column="30" />
           <folding>
             <marker date="1513447333000" expanded="false" signature="6:190" ph="..." />
@@ -1383,41 +1325,40 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Assets/OpenMined/Syft/Tensor/FloatTensor.Autograd.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="795">
-          <caret line="92" column="29" lean-forward="false" selection-start-line="92" selection-start-column="29" selection-end-line="92" selection-end-column="29" />
+        <state relative-caret-position="716">
+          <caret line="182" column="20" lean-forward="false" selection-start-line="182" selection-start-column="20" selection-end-line="182" selection-end-column="20" />
           <folding>
-            <marker date="1513525752000" expanded="false" signature="6:47" ph="..." />
-            <marker date="1513525752000" expanded="true" signature="80:4825" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="119:4823" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="407:583" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="635:858" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="688:823" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="739:809" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="996:1476" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="1032:1471" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="1599:1828" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="1619:1823" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="1934:2097" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="1954:2093" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2181:4817" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2209:4810" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2242:2350" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2383:2616" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2434:2534" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2547:2607" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2647:2691" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2703:2756" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2845:2942" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="2951:3197" ph="/* only continue backpropping if there's something to backprop into ... */" />
-            <marker date="1513525752000" expanded="true" signature="3317:4802" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="3365:3487" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="3531:3673" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="3717:3859" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="3903:4024" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="4062:4256" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="4299:4469" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="4515:4716" ph="{...}" />
-            <marker date="1513525752000" expanded="true" signature="4723:4792" ph="/* if (!keepgrads) { ... */" />
+            <marker date="1513529731000" expanded="false" signature="6:47" ph="..." />
+            <marker date="1513529731000" expanded="true" signature="119:4819" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="407:583" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="635:858" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="688:823" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="739:809" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="996:1476" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="1032:1471" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="1599:1828" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="1619:1823" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="1934:2097" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="1954:2093" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2181:4813" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2209:4806" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2242:2350" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2383:2616" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2434:2534" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2547:2607" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2647:2691" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2703:2756" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2845:2942" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="2951:3197" ph="/* only continue backpropping if there's something to backprop into ... */" />
+            <marker date="1513529731000" expanded="true" signature="3317:4798" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="3365:3487" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="3531:3673" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="3717:3859" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="3903:4024" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="4062:4256" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="4299:4469" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="4515:4716" ph="{...}" />
+            <marker date="1513529731000" expanded="true" signature="4723:4788" ph="/* if (!keepgrads) { ... */" />
           </folding>
         </state>
       </provider>
@@ -1428,7 +1369,6 @@
           <caret line="21" column="35" lean-forward="false" selection-start-line="21" selection-start-column="12" selection-end-line="21" selection-end-column="35" />
           <folding>
             <marker date="1513524643000" expanded="false" signature="6:79" ph="..." />
-            <marker date="1513524643000" expanded="true" signature="111:630" ph="{...}" />
             <marker date="1513524643000" expanded="true" signature="145:628" ph="{...}" />
             <marker date="1513524643000" expanded="true" signature="205:417" ph="{...}" />
             <marker date="1513524643000" expanded="true" signature="489:622" ph="{...}" />
@@ -1472,7 +1412,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Assets/OpenMined/Network/Controllers/SyftController.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="945">
+        <state relative-caret-position="2310">
           <caret line="163" column="20" lean-forward="false" selection-start-line="163" selection-start-column="20" selection-end-line="163" selection-end-column="20" />
           <folding>
             <marker date="1513526018000" expanded="false" signature="6:262" ph="..." />
@@ -1510,11 +1450,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Assets/OpenMined/Syft/Model/Model.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="494">
+        <state relative-caret-position="1755">
           <caret line="122" column="47" lean-forward="false" selection-start-line="122" selection-start-column="47" selection-end-line="122" selection-end-column="47" />
           <folding>
             <marker date="1513527282000" expanded="false" signature="6:173" ph="..." />
-            <marker date="1513527282000" expanded="true" signature="205:4247" ph="{...}" />
             <marker date="1513527282000" expanded="true" signature="230:4245" ph="{...}" />
             <marker date="1513527282000" expanded="true" signature="873:1044" ph="{...}" />
             <marker date="1513527282000" expanded="true" signature="1115:1234" ph="{...}" />

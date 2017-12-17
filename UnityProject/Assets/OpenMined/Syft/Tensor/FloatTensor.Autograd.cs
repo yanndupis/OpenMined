@@ -180,9 +180,9 @@ namespace OpenMined.Syft.Tensor
 
 				    }
 
-					/*if (!keepgrads) {
+					if (!keepgrads) {
 						controller.RemoveTensor (grad.id);
-					}*/
+					}
 
 			    }
 		    }
