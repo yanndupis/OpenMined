@@ -43,7 +43,9 @@ namespace OpenMined.Syft.Model
 
 		public override FloatTensor Forward(FloatTensor input)
 		{
-			return input.MM(_weights);
+			FloatTensor output = input.MM(_weights);
+			activation = output.Id;
+			return output;
 		}
 
 	}

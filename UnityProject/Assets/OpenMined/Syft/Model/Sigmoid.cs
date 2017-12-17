@@ -18,7 +18,9 @@ namespace OpenMined.Syft.Layer
         
         public override FloatTensor Forward(FloatTensor input)
         {
-            return input.Sigmoid();
+            FloatTensor output = input.Sigmoid();
+            activation = output.Id;
+            return output;
         }
     }
 }

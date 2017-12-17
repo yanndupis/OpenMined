@@ -23,11 +23,14 @@ namespace OpenMined.Syft.Layer
         protected List<int> models;
 
         protected string layer_type;
+
+        protected int activation;
         
         protected SyftController controller;
         
         protected void init(string layer_type)
         {
+            activation = -1;
             parameters = new List<int>();
             models = new List<int>();
             this.layer_type = layer_type;
@@ -113,6 +116,12 @@ namespace OpenMined.Syft.Layer
                     }
                     return out_str;
 
+                }
+                case "activation":
+                {
+                    if (activation != null)
+                        return activation + "";
+                    return "-1";
                 }
                 case "layer_type":
                 {

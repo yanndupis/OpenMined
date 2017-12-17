@@ -39,6 +39,7 @@ namespace OpenMined.Syft.Model
                     input = controller.getModel((this.models[i])).Forward(input);
                 }
             }
+            activation = input.Id;
             return input;
         }
         
