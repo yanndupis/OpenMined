@@ -10,7 +10,7 @@ namespace OpenMined.Syft.Tensor
 
         private bool keepgrads;
 
-        private List<FloatTensor> creators;
+        private List<int> creators;
         private string creation_op;
         private Dictionary<int, int> children;
 
@@ -18,7 +18,7 @@ namespace OpenMined.Syft.Tensor
         {
 //			if(!autograd) {
             autograd = true;
-            creators = new List<FloatTensor>();
+            creators = new List<int>();
             children = new Dictionary<int, int>();
 //			}
         }
@@ -45,9 +45,9 @@ namespace OpenMined.Syft.Tensor
                     new FloatTensor(_controller: controller, _shape: new int[] {1}, _data: new float[] {x});
 
                 result.InitAutograd();
-                result.creators.Add(this);
-                result.creators.Add(new_child);
-                result.creation_op = creation_op;
+                result.creators.Add(this.id);
+                result.creators.Add(new_child.id);
+                result.creation_op = creation_op; 
 
                 children.Add(result.Id, 0);
 //				new_child.children.Add (result.Id, 0);
@@ -61,8 +61,8 @@ namespace OpenMined.Syft.Tensor
 			if (autograd) {
 
 				result.InitAutograd ();
-				result.creators.Add (this);
-				result.creators.Add (x);
+				result.creators.Add (this.id);
+				result.creators.Add (x.id);
 				result.creation_op = creation_op;
 
 				children.Add (result.Id, 0);
@@ -78,7 +78,7 @@ namespace OpenMined.Syft.Tensor
 			if (autograd) {
 
 				result.InitAutograd ();
-				result.creators.Add (this);
+				result.creators.Add (this.id);
 				result.creation_op = creation_op;
 
 				children.Add (result.Id, 0);
@@ -131,36 +131,36 @@ namespace OpenMined.Syft.Tensor
 				    if (creation_op == "add_elem")
 				    {
 
-					    creators[0].Backward(grad.Copy(), this);
-					    creators[1].Backward(grad.Copy(), this);
+					    controller.getTensor(creators[0]).Backward(grad, this);
+					    controller.getTensor(creators[1]).Backward(grad, this);
 
 				    }
 				    else if (creation_op == "mul_elem")
 				    {
 
-					    creators[0].Backward(grad.Mul(creators[1]), this);
-					    creators[1].Backward(grad.Mul(creators[0]), this);
+					    controller.getTensor(creators[0]).Backward(grad.Mul(creators[1]), this);
+					    controller.getTensor(creators[1]).Backward(grad.Mul(creators[0]), this);
 
 				    }
 				    else if (creation_op == "div_elem")
 				    {
 
-					    creators[0].Backward(grad.Div(creators[1]), this);
-					    creators[1].Backward(grad.Div(creators[0]), this);
+					    controller.getTensor(creators[0]).Backward(grad.Div(creators[1]), this);
+					    controller.getTensor(creators[1]).Backward(grad.Div(creators[0]), this);
 
 				    }
 				    else if (creation_op == "sub_elem")
 				    {
 
-					    creators[0].Backward(grad.Copy(), this);
-					    creators[1].Backward(grad.Neg(), this);
+					    controller.getTensor(creators[0]).Backward(grad, this);
+					    controller.getTensor(creators[1]).Backward(grad.Neg(), this);
 
 				    }
 				    else if (creation_op == "mm")
 				    {
 
-                        creators[0].Backward(grad.MM(creators[1].Transpose()), this);
-                        creators[1].Backward(creators[0].Transpose().MM(grad), this);
+					    controller.getTensor(creators[0]).Backward(grad.MM(controller.getTensor(creators[1]).Transpose()), this);
+					    controller.getTensor(creators[1]).Backward(controller.getTensor(creators[0]).Transpose().MM(grad), this);
 
 				    }
 				    else if (creation_op == "sigmoid")
@@ -168,21 +168,18 @@ namespace OpenMined.Syft.Tensor
 
 					    FloatTensor c = this.Copy();
 					    c.autograd = false;
-					    creators[0].Backward(c.Neg().Add((float) 1).Mul(this).Mul(grad), this);
+					    controller.getTensor(creators[0]).Backward(c.Neg().Add((float) 1).Mul(this).Mul(grad), this);
 
 				    }
 				    else if (creation_op == "pow_scalar")
 				    {
 
-					    FloatTensor self_nograd = creators[0].Copy();
+					    FloatTensor self_nograd = controller.getTensor(creators[0]).Copy();
 					    self_nograd.autograd = false;
-					    creators[0].Backward(self_nograd.Mul(grad).Mul(creators[1].Data[0]), this);
+					    controller.getTensor(creators[0]).Backward(self_nograd.Mul(grad).Mul(controller.getTensor(creators[1]).Data[0]), this);
 
 				    }
 
-					if (!keepgrads) {
-						controller.RemoveTensor (grad.id);
-					}
 
 			    }
 		    }

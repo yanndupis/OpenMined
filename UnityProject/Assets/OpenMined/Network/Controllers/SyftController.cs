@@ -58,7 +58,7 @@ namespace OpenMined.Network.Controllers
 
 		public void RemoveTensor (int index)
 		{
-			//Debug.LogFormat("<color=purple>Removing Tensor {0}</color>", index);
+			Debug.LogFormat("<color=purple>Removing Tensor {0}</color>", index);
 			var tensor = tensors [index];
 			tensors.Remove (index);
 			tensor.Dispose ();

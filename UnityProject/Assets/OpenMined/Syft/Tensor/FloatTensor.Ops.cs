@@ -423,7 +423,7 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-        public FloatTensor MM(FloatTensor x)
+        public FloatTensor MM(FloatTensor x, FloatTensor result = null)
         {
             if (!IsContiguous() || !x.IsContiguous()) {
                 throw new InvalidOperationException ("All tensors must be contiguous, call Contiguous() to convert");
@@ -438,8 +438,9 @@ namespace OpenMined.Syft.Tensor
             var resultShape = new int[2];
             resultShape[0] = shape[0];
             resultShape[1] = x.shape[1];
-
-            var result = new FloatTensor(_controller: controller, _shape: resultShape);
+            
+            if(result == null)
+                result = new FloatTensor(_controller: controller, _shape: resultShape);
 
             if (this.dataOnGpu)
             {

@@ -411,8 +411,9 @@ namespace OpenMined.Syft.Tensor
                             if (creators != null)
                             {
                                 string creators_str = "";
-                                foreach (FloatTensor entry in creators)
+                                foreach (int entry_id in creators)
                                 {
+                                    FloatTensor entry = controller.getTensor((entry_id));
                                     creators_str += (entry.id + ",");
                                 }
                                 return creators_str;
