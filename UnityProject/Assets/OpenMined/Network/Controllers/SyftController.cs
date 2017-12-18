@@ -18,6 +18,7 @@ namespace OpenMined.Network.Controllers
 
 		private Dictionary<int, FloatTensor> tensors;
 		private Dictionary<int, Model> models;
+		private bool allow_new_tensors = true;
 
 		public SyftController (ComputeShader _shader)
 		{
@@ -66,10 +67,17 @@ namespace OpenMined.Network.Controllers
 
 		public int addTensor (FloatTensor tensor)
 		{
-			//Debug.LogFormat("<color=green>Adding Tensor {0}</color>", tensor.Id);
-			tensor.Controller = this;
-			tensors.Add (tensor.Id, tensor);
-			return (tensor.Id);
+			if (allow_new_tensors)
+			{
+				//Debug.LogFormat("<color=green>Adding Tensor {0}</color>", tensor.Id);
+				tensor.Controller = this;
+				tensors.Add(tensor.Id, tensor);
+				return (tensor.Id);
+			}
+			else
+			{
+				throw new Exception("Tried to allocate tensor");
+			}
 		}
 		
 		public int addModel (Model model)
@@ -162,6 +170,24 @@ namespace OpenMined.Network.Controllers
 						} else if (msgObj.functionCall == "num_models")
 						{
 							return models.Count + "";
+						} else if (msgObj.functionCall == "new_tensors_allowed")
+						{
+							
+							
+								Debug.LogFormat("New Tensors Allowed:{0}", msgObj.tensorIndexParams[0]);	
+								if (msgObj.tensorIndexParams[0] == "True")
+								{
+									allow_new_tensors = true;
+								} else if (msgObj.tensorIndexParams[0] == "False")
+								{
+									allow_new_tensors = false;
+								}
+								else
+								{
+									throw new Exception("Invalid parameter for new_tensors_allowed. Did you mean true or false?");
+								}
+							
+							return allow_new_tensors + "";
 						}
 						return "Unity Error: SyftController.processMessage: Command not found:" + msgObj.objectType + ":" + msgObj.functionCall;
 					}

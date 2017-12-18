@@ -386,12 +386,12 @@ namespace OpenMined.Syft.Tensor
                         }
                         case "children":
                         {
-                            if (children != null)
+                            if (children_indices != null)
                             {
                                 string children_str = "";
-                                foreach (KeyValuePair<int, int> entry in children)
+                                foreach (int entry in children_indices)
                                 {
-                                    children_str += (entry.Key + ",");
+                                    children_str += (entry + ",");
                                 }
                                 return children_str;
                             }

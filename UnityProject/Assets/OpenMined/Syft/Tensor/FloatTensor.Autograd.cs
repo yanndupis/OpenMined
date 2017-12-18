@@ -12,22 +12,35 @@ namespace OpenMined.Syft.Tensor
 
         private List<int> creators;
         private string creation_op;
-        private Dictionary<int, int> children;
+        private List<int> children_indices; // children -> counts
+	    private List<int> children_counts; // children -> counts
+	    private int sibling;
 
         public void InitAutograd()
         {
 //			if(!autograd) {
             autograd = true;
             creators = new List<int>();
-            children = new Dictionary<int, int>();
+	        children_indices = new List<int>();
+	        children_counts = new List<int>();
+	        
 //			}
         }
 
+	    public void ResetAutogradCounts()
+	    {
+		    for (int i = 0; i < children_counts.Count; i++)
+		    {
+			    children_counts[i] = 0;
+		    }
+		    
+	    }
+
         public bool AllChildrenGradsAccountedFor()
         {
-            foreach (var item in children)
+            foreach (var item in children_counts)
             {
-                if (item.Value == 0)
+                if (item == 0)
                 {
                     return false;
                 }
@@ -47,9 +60,10 @@ namespace OpenMined.Syft.Tensor
                 result.InitAutograd();
                 result.creators.Add(this.id);
                 result.creators.Add(new_child.id);
-                result.creation_op = creation_op; 
-
-                children.Add(result.Id, 0);
+                result.creation_op = creation_op;
+		        
+                children_indices.Add(result.Id);
+	            children_counts.Add(0);
 //				new_child.children.Add (result.Id, 0);
 			}
 
@@ -65,9 +79,13 @@ namespace OpenMined.Syft.Tensor
 				result.creators.Add (x.id);
 				result.creation_op = creation_op;
 
-				children.Add (result.Id, 0);
-				x.children.Add (result.Id, 0);
-
+				children_indices.Add(result.Id);
+				children_counts.Add(0);
+				
+				x.children_indices.Add(result.Id);
+				x.children_counts.Add(0);
+				
+				this.sibling = x.id;
 			}
 
 		}
@@ -81,7 +99,8 @@ namespace OpenMined.Syft.Tensor
 				result.creators.Add (this.id);
 				result.creation_op = creation_op;
 
-				children.Add (result.Id, 0);
+				children_indices.Add(result.Id);
+				children_counts.Add(0);
 			}
 		}
 
@@ -98,13 +117,14 @@ namespace OpenMined.Syft.Tensor
 
 			    if (grad_origin != null)
 			    {
-				    if (children[grad_origin.Id] > 0)
+				    int child_index = children_indices.IndexOf(grad_origin.Id);
+				    if (children_counts[child_index] > 0)
 				    {
 					    throw new InvalidOperationException("Can't backprop more than once.");
 				    }
 				    else
 				    {
-					    children[grad_origin.Id] += 1;
+					    children_counts[child_index] += 1;
 				    }
 			    }
 
