@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace OpenMined.Syft.Tensor
 {
@@ -55,23 +56,24 @@ namespace OpenMined.Syft.Tensor
 			    {
 				    if (creation_op == "add_elem")
 				    {
-
+					
 					    controller.getTensor(creators[0]).Backward(grad, this);
 					    controller.getTensor(creators[1]).Backward(grad, this);
 
 				    }
 				    else if (creation_op == "mul_elem")
 				    {
-
-					    controller.getTensor(creators[0]).Backward(grad.Mul(creators[1]), this);
-					    controller.getTensor(creators[1]).Backward(grad.Mul(creators[0]), this);
+					    
+					    
+					    controller.getTensor(creators[0]).Backward(grad.Mul(controller.getTensor(creators[1])), this);
+					    controller.getTensor(creators[1]).Backward(grad.Mul(controller.getTensor(creators[0])), this);
 
 				    }
 				    else if (creation_op == "div_elem")
 				    {
 
-					    controller.getTensor(creators[0]).Backward(grad.Div(creators[1]), this);
-					    controller.getTensor(creators[1]).Backward(grad.Div(creators[0]), this);
+					    controller.getTensor(creators[0]).Backward(grad.Div(controller.getTensor(creators[1])), this);
+					    controller.getTensor(creators[1]).Backward(grad.Div(controller.getTensor(creators[0])), this);
 
 				    }
 				    else if (creation_op == "sub_elem")
