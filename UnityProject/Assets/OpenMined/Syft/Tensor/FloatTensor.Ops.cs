@@ -40,37 +40,41 @@ namespace OpenMined.Syft.Tensor
 
 		public FloatTensor Add(FloatTensor x, bool inline = false, FloatTensor result = null)
 		{
-		    if (!IsContiguous() || !x.IsContiguous()) {
+		    
+		    if (!IsContiguous() || !x.IsContiguous()) 
 		        throw new InvalidOperationException ("All tensors must be contiguous, call Contiguous() to convert");
-		    }
 
 			// Check if both tensors are compatible for sum
 			SameSizeDimensionsShapeAndLocation(ref x);
 
-		  result = HookAutograd (ref result, ref x, "add_elem", inline);
-			if (dataOnGpu & x.dataOnGpu) {
 
-				if (inline) {
-					if (autograd)
-						throw new InvalidOperationException ("Cannot call inline functions if you intend to run backprop.");
+		    result = HookAutograd (ref result, ref x, "add_elem", inline);
 
-					AddElemGPU_ (x);
-					return this;
-				} else {
-					result = AddElemGPU (x, result);
-				}
 
-			} else {
+		    if (dataOnGpu)
+		    {
+		        if (inline)
+		        {
+		            if (autograd)
+		                throw new InvalidOperationException("Cannot call inline functions if you intend to run backprop.");
 
-				var nCpu = SystemInfo.processorCount;
-				Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++) {
-					        result.Data [i] = x.Data [i] + Data [i];
-					}
-				});
-			}
 
+		            AddElemGPU_(x);
+		            return this;
+		        }
+		        else
+		        {
+		            return AddElemGPU(x, result);
+		        }
+		    }
+
+		    var nCpu = SystemInfo.processorCount;
+            Parallel.For (0, nCpu, workerId => {
+                var max = size * (workerId + 1) / nCpu;
+                for (var i = size * workerId / nCpu; i < max; i++) {
+                        result.Data [i] = x.Data [i] + Data [i];
+                }
+            });
 
 
 			return result;
