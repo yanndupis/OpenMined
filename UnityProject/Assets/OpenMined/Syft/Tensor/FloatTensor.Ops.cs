@@ -38,7 +38,7 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
-		public FloatTensor Add(FloatTensor x, bool inline = false)
+		public FloatTensor Add(FloatTensor x, bool inline = false, FloatTensor result = null)
 		{
 		    if (!IsContiguous() || !x.IsContiguous()) {
 		        throw new InvalidOperationException ("All tensors must be contiguous, call Contiguous() to convert");
@@ -47,8 +47,7 @@ namespace OpenMined.Syft.Tensor
 			// Check if both tensors are compatible for sum
 			SameSizeDimensionsShapeAndLocation(ref x);
 
-			FloatTensor result = inline ? this : this.emptyTensorCopy();
-		    
+		  result = HookAutograd (ref result, ref x, "add_elem", inline);
 			if (dataOnGpu & x.dataOnGpu) {
 
 				if (inline) {
@@ -72,10 +71,6 @@ namespace OpenMined.Syft.Tensor
 				});
 			}
 
-
-			if (autograd) {
-				HookAutograd (ref result, ref x, "add_elem");
-			}
 
 
 			return result;
@@ -442,7 +437,7 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-        public FloatTensor Mul(FloatTensor x, bool inline = false)
+        public FloatTensor Mul(FloatTensor x, bool inline = false, FloatTensor result = null)
         {
             if (!IsContiguous() || !x.IsContiguous()) {
                 throw new InvalidOperationException ("All tensors must be contiguous, call Contiguous() to convert");
@@ -451,7 +446,7 @@ namespace OpenMined.Syft.Tensor
             // Check if both tensors are compatible for sum
             SameSizeDimensionsShapeAndLocation(ref x);
 
-            var result = inline ? this : this.emptyTensorCopy();
+            result = HookAutograd(ref result, ref x, "mul_elem", inline);
 
             if (dataOnGpu && x.dataOnGpu)
             {
@@ -470,11 +465,6 @@ namespace OpenMined.Syft.Tensor
             else
             {
                 result.Data = data.AsParallel().Zip(x.Data.AsParallel(), (a, b) => a * b).ToArray();
-            }
-
-            if (autograd)
-            {
-                HookAutograd(ref result, ref x, "mul_elem");
             }
 
             return result;
@@ -528,7 +518,7 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-        public FloatTensor Pow(FloatTensor x, bool inline = false)
+        public FloatTensor Pow(FloatTensor x, bool inline = false, FloatTensor result = null)
         {
             if (!IsContiguous() || !x.IsContiguous()) {
                 throw new InvalidOperationException ("All tensors must be contiguous, call Contiguous() to convert");
@@ -537,10 +527,7 @@ namespace OpenMined.Syft.Tensor
             // Check if both tensors are compatible for sum
             SameSizeDimensionsShapeAndLocation(ref x);
 
-            if (inline & autograd)
-                throw new InvalidOperationException("Cannot call inline functions if you intend to run backprop.");
-
-            var result = inline ? this : this.emptyTensorCopy();
+            result = HookAutograd(ref result, ref x, "pow_elem", inline);
 
             if (dataOnGpu)
             {
@@ -553,9 +540,6 @@ namespace OpenMined.Syft.Tensor
             result.Data = data.AsParallel().Zip(x.Data.AsParallel(), (a, b) => (float) Math.Pow((double) a, b))
                 .ToArray();
             
-            if(autograd)
-                HookAutograd(ref result, ref x, "pow_elem");
-
             return result;
         }
 
