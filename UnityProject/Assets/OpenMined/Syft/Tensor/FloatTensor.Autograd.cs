@@ -73,8 +73,11 @@ namespace OpenMined.Syft.Tensor
 				    else if (creation_op == "div_elem")
 				    {
 
-					    controller.getTensor(creators[0]).Backward(grad.Div(controller.getTensor(creators[1])), this);
-					    controller.getTensor(creators[1]).Backward(grad.Div(controller.getTensor(creators[0])), this);
+					    FloatTensor x = controller.getTensor(creators[0]);
+					    FloatTensor y = controller.getTensor(creators[1]);
+					    
+						x.Backward(grad.Div(y));
+					    y.Backward(grad.Mul(x.Neg().Div(y.Pow(2))));
 
 				    }
 				    else if (creation_op == "sub_elem")
