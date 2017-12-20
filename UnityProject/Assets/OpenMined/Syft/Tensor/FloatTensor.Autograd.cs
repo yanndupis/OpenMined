@@ -40,6 +40,7 @@ namespace OpenMined.Syft.Tensor
 			    }
 			    else
 			    {
+				    this.Grad.Zero_();
 				    this.Grad.Add(grad, true);
 			    }
 
