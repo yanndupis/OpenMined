@@ -641,6 +641,15 @@ void Sqrt (uint3 id : SV_DispatchThreadID) {
 	SqrtResult[id.x] = sqrt(SqrtData[id.x]);
 }
 
+#pragma kernel Sqrt_
+
+RWStructuredBuffer<float> SqrtData_;
+
+[numthreads(4,1,1)]
+void Sqrt_ (uint3 id: SV_DispatchThreadID) {
+	SqrtData_[id.x] = sqrt(SqrtData_[id.x]);
+}
+
 #pragma kernel SubScalar_
 
 RWStructuredBuffer<float> SubScalarData_;

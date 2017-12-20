@@ -60,6 +60,7 @@ namespace OpenMined.Syft.Tensor
         [SerializeField] private static int SinKernel;
         [SerializeField] private static int SinKernel_;
         [SerializeField] private static int SqrtKernel;
+        [SerializeField] private static int SqrtKernel_;
         [SerializeField] private static int SubScalarKernel_;
         [SerializeField] private static int SubElemKernel_;
         [SerializeField] private static int SubScalarKernel;
@@ -139,6 +140,7 @@ namespace OpenMined.Syft.Tensor
             SinKernel = shader.FindKernel("Sin");
             SinKernel_ = shader.FindKernel("Sin_");
             SqrtKernel = shader.FindKernel("Sqrt");
+            SqrtKernel_ = shader.FindKernel("Sqrt_");
             SubScalarKernel_ = shader.FindKernel("SubScalar_");
             SubElemKernel_ = shader.FindKernel("SubElem_");
             SubScalarKernel = shader.FindKernel("SubScalar");
@@ -812,6 +814,12 @@ namespace OpenMined.Syft.Tensor
             shader.Dispatch(SqrtKernel, size, 1, 1);
 
             return result;
+        }
+
+        public void SqrtGPU_()
+        {
+            shader.SetBuffer(SqrtKernel_, "SqrtData_", dataBuffer);
+            shader.Dispatch(SqrtKernel_, this.size, 1, 1);
         }
 
         public void SigmoidGPU_()

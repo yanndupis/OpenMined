@@ -642,14 +642,17 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-        public FloatTensor Sqrt()
+        public FloatTensor Sqrt(bool inline = false)
         {
+            var result = inline ? this : this.emptyTensorCopy();
+
             if (dataOnGpu)
             {
-                return SqrtGPU();
+                if (!inline) return SqrtGPU();
+                SqrtGPU_();
+                return this;
             }
 
-            var result = new FloatTensor(_controller: controller, _shape: shape, _shader: shader);
             result.Data = data.AsParallel().Select(x => (float) Math.Sqrt((double) x)).ToArray();
             return result;
         }

@@ -690,6 +690,11 @@ namespace OpenMined.Syft.Tensor
                     var result = Sqrt();
                     return result.id.ToString();
                 }
+                case "sqrt_":
+                {
+                    Sqrt(inline: true);
+                    return Id.ToString();
+                }
                 case "shape":
                 {
                     var result = ShapeTensor();

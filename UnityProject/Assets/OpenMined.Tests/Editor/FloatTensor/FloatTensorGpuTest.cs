@@ -1500,6 +1500,24 @@ namespace OpenMined.Tests
         }
 
         [Test]
+        public void Sqrt_()
+        {
+          float[] data1 = {float.MaxValue, float.MinValue, 1f, 4f, 5f, 2.3232f, -30f};
+          int[] shape1 = { 7 };
+          var tensor1 = new FloatTensor(_controller: ctrl, _data: data1, _shape: shape1);
+          tensor1.Gpu(shader);
+
+          float[] data2 = { 1.8446743E+19f, float.NaN, 1f, 2f, 2.236068f, 1.524205f, float.NaN};
+          int[] shape2 = { 7 };
+          var tensorSqrt = new FloatTensor(_controller: ctrl, _data: data2, _shape: shape2);
+          tensorSqrt.Gpu(shader);
+
+          tensor1.Sqrt(inline: true);
+
+          AssertApproximatelyEqualTensorsData(tensorSqrt, tensor1);
+        }
+
+        [Test]
         public void SubtractElementwise()
         {
             float[] data1 = {float.MinValue, -10, -1.5f, 0, 1.5f, 10, 20, float.MaxValue};
