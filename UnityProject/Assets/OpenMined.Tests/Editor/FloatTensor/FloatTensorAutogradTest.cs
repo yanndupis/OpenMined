@@ -650,6 +650,68 @@ namespace OpenMined.Tests.Editor.FloatTensor
         }
         
         [Test]
+        public void PowScalarAutograd()
+        {
+            
+            var a = new Syft.Tensor.FloatTensor(ctrl, _data: new float[]{1,2,3,4,5}, _shape: new int[]{5});
+
+            a.Autograd = true;
+            
+            var c_expected = new Syft.Tensor.FloatTensor(ctrl, _data: new float[]{1,4,9,16,25}, _shape: new int[]{5});
+            var c_grad = new Syft.Tensor.FloatTensor(ctrl, _data: new float[]{1,1,1,1,1}, _shape: new int[]{5});
+            
+            var a_grad = new Syft.Tensor.FloatTensor(ctrl, _data: new float[]{2,4,6,8,10}, _shape: new int[]{5});
+
+            var c = a.Pow(2);
+            c.Backward(c_grad);
+
+            for (int i = 0; i < a.Size; i++)
+            {
+                // multiplication is correct
+                Assert.AreEqual(c_expected[i],c[i]);
+                
+                // gradients are correct
+                Assert.AreEqual(a_grad[i], a.Grad[i]);
+            }
+            
+            
+            // check that repeating doesn't break it
+            c = a.Pow(2);
+            c.Backward(c_grad);
+
+            for (int i = 0; i < a.Size; i++)
+            {
+                // sum is correct
+                Assert.AreEqual(c_expected[i],c[i]);
+                
+                // gradients are correct
+                Assert.AreEqual(a_grad[i], a.Grad[i]);
+            }
+
+            // see if it's allocating new tensors during the forward pass
+            ctrl.allow_new_tensors = false;
+            
+            // check that repeating the forward pass doesn't break it
+            c = a.Pow(2);
+            c = a.Pow(2);
+            c.Backward(c_grad);
+
+            for (int i = 0; i < a.Size; i++)
+            {
+                // sum is correct
+                Assert.AreEqual(c_expected[i],c[i]);
+                
+                // gradients are correct
+                Assert.AreEqual(a_grad[i], a.Grad[i]);
+            }
+            
+            // cleanup
+            ctrl.allow_new_tensors = true;
+           
+        }
+        
+        
+        [Test]
         public void TransposeAutograd()
         {
 

@@ -81,7 +81,6 @@ namespace OpenMined.Syft.Tensor
 				    }
 				    else if (creation_op == "div_elem")
 				    {
-
 					    FloatTensor x = controller.getTensor(creators[0]);
 					    FloatTensor y = controller.getTensor(creators[1]);
 					    
@@ -91,8 +90,7 @@ namespace OpenMined.Syft.Tensor
 					    FloatTensor xn = x.Neg();
 					    FloatTensor xny2 = xn.Div(y2);
 					    FloatTensor gradxny2 = grad.Mul(xny2);
-					    y.Backward(gradxny2);
-						
+					    y.Backward(gradxny2);	
 				    }
 				    else if (creation_op == "div_scalar")
 				    {
@@ -100,39 +98,27 @@ namespace OpenMined.Syft.Tensor
 				    }
 				    else if (creation_op == "mul_elem")
 				    {
-					    
-					    
 					    controller.getTensor(creators[0]).Backward(grad.Mul(controller.getTensor(creators[1])), this);
 					    controller.getTensor(creators[1]).Backward(grad.Mul(controller.getTensor(creators[0])), this);
-
 				    }
 				    else if (creation_op == "mul_scalar")
 				    {
-					    
 					    controller.getTensor(creators[0]).Backward(grad.Mul(controller.getTensor(creators[1]).data[0]), this);
-
 				    }
 				    else if (creation_op == "mm")
 				    {
-
 					    controller.getTensor(creators[0]).Backward(grad.MM(controller.getTensor(creators[1]).Transpose()), this);
 					    controller.getTensor(creators[1]).Backward(controller.getTensor(creators[0]).Transpose().MM(grad), this);
-
 				    }
 				    else if (creation_op == "pow_scalar")
 				    {
-
-					    FloatTensor self_nograd = controller.getTensor(creators[0]).Copy();
-					    self_nograd.autograd = false;
+					    FloatTensor self_nograd = controller.getTensor(creators[0]);
 					    controller.getTensor(creators[0]).Backward(self_nograd.Mul(grad).Mul(controller.getTensor(creators[1]).Data[0]), this);
-
 				    }
 				    else if (creation_op == "sub_elem")
 				    {
-
 					    controller.getTensor(creators[0]).Backward(grad, this);
 					    controller.getTensor(creators[1]).Backward(grad.Neg(), this);
-
 				    }
 				    else if (creation_op == "sub_scalar")
 				    {
@@ -141,7 +127,6 @@ namespace OpenMined.Syft.Tensor
 				    else if (creation_op == "sigmoid")
 				    {
 					    controller.getTensor(creators[0]).Backward(this.Neg().Add((float) 1).Mul(this).Mul(grad), this);
-
 				    }
 				    else if (creation_op == "transpose")
 				    {
