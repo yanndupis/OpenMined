@@ -1852,6 +1852,34 @@ namespace OpenMined.Tests.Editor.FloatTensor
                 Assert.AreEqual(expectedTensor[i], actualTensor[i], 1e-3);
             }
         }
+        
+        [Test]
+        public void Softmax1DAutoGrad()
+        {
+            float[] data = {(float)1, (float)0.7, (float)0.5, (float)0.3};
+            float[] gradData = {1, 0, 0, 0};
+            int[] shape = {4};
+
+            var tensor = new Syft.Tensor.FloatTensor(_controller: ctrl, _data: data, _shape: shape, _autograd:true);
+            var gradTensor = new Syft.Tensor.FloatTensor(_controller: ctrl, _data: gradData, _shape: shape);
+
+            var outputTensor = Functional.Softmax(tensor);
+            
+            var gradInput = Functional.SoftmaxGradient(outputTensor, gradTensor, 0);
+
+            var expectedTensor = new float[]
+                {(float) 0.2280, (float) -0.0916, (float) -0.0750, (float) -0.0614};
+            for (var i = 0; i < expectedTensor.Length; i++)
+            {
+                Assert.AreEqual(expectedTensor[i], gradInput[i], 1e-3);
+            }
+            
+            outputTensor.Backward(gradTensor, null);
+            for (var i = 0; i < expectedTensor.Length; i++)
+            {
+                Assert.AreEqual(expectedTensor[i], tensor.Grad[i], 1e-3);
+            }
+        }
 
         [Test]
         public void Softmax2D()
