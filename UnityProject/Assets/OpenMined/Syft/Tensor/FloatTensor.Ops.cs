@@ -745,7 +745,7 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-        public FloatTensor Transpose(int dimension1, int dimension2)
+        public FloatTensor Transpose(int dimension1, int dimension2, FloatTensor result = null)
         {
             if (!IsContiguous()) {
                 throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
@@ -767,7 +767,9 @@ namespace OpenMined.Syft.Tensor
             newShape[dimension1] = newShape[dimension2];
             newShape[dimension2] = tmpDim;
 
-            var result = new FloatTensor(_controller: controller, _shape: newShape, _shader: this.shader);
+            //var result = new FloatTensor(_controller: controller, _shape: newShape, _shader: this.shader);
+            result = HookAutograd(ref result, "transpose", false, newShape);
+  
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
             {
@@ -875,7 +877,6 @@ namespace OpenMined.Syft.Tensor
                     }
                 }
             });
-
 
             return result;
         }

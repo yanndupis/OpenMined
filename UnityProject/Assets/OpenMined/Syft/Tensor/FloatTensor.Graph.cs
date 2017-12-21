@@ -90,7 +90,7 @@ namespace OpenMined.Syft.Tensor
 			        autograd_pre_initialized = true;
 			        result = controller.getTensor(child_index);
 			        result.Zero_();
-			        Debug.Log("Graph:84:Fetching Tensor:" + result.id + " with creation_op:" + result.creation_op + " called under creation op:" + creation_op);
+			        Debug.Log("Graph:93:Fetching Tensor:" + result.id + " with creation_op:" + result.creation_op + " called under creation op:" + creation_op);
 		        }
 		        else
 		        {
@@ -106,7 +106,7 @@ namespace OpenMined.Syft.Tensor
 				        _keepgrads: keepgrads,
 				        _creation_op: creation_op);
 			        
-			        Debug.Log("Graph:100:Creating Tensor:" + result.id + " with creation_op:" + result.creation_op);
+			        Debug.Log("Graph:109:Creating Tensor:" + result.id + " with creation_op:" + result.creation_op);
 		        }
 	        }
 
@@ -153,9 +153,14 @@ namespace OpenMined.Syft.Tensor
 				int child_index = 0;
 				if (this.children_indices.Count > 0)
 				{
+					// iterate through children
 					for (int i = 0; i < this.children_indices.Count; i++)
 					{
 						FloatTensor temp = controller.getTensor(children_indices[i]);
+						
+						// if a child was created using the same op as the one currently being called
+						// and the child was also created using the same tensor as x
+						// then it's exactly the same operation and we can re-use variables.
 						if (temp.creation_op == creation_op && temp.creators.Contains(x.id))
 						{
 							child_pre_initialized = true;
@@ -164,7 +169,6 @@ namespace OpenMined.Syft.Tensor
 					}
 			        
 				}
-				
 				
 				if (child_pre_initialized)
 				{
@@ -178,10 +182,18 @@ namespace OpenMined.Syft.Tensor
 				{
 					if (resultShape != null)
 					{
-						result = new FloatTensor(_controller: controller, _shape: resultShape);
+						// initializes an empty tensor with new shape
+						result = new FloatTensor(controller,
+							_shape: resultShape,
+							_dataOnGpu: dataOnGpu,
+							_autograd: x.autograd && autograd,
+							_keepgrads: keepgrads,
+							_creation_op: creation_op);
+						Debug.Log("Graph:187:Creating Tensor:" + result.id + " with creation_op:" + result.creation_op);
 					}
 					else
 					{
+						// initializes an empty tensor with identical shape
 						result = new FloatTensor(controller,
 							_shape: this.shape,
 							_data: data,
@@ -190,12 +202,15 @@ namespace OpenMined.Syft.Tensor
 							_shader: shader,
 							_copyData: true,
 							_dataOnGpu: dataOnGpu,
-							_autograd: autograd,
-							_keepgrads: keepgrads,
-							_creation_op: creation_op);
-						Debug.Log("Graph:170:Creating Tensor:" + result.id + " with creation_op:" + result.creation_op);
+							_autograd: x.autograd && autograd, // if either tensor doesn't have gradients
+							_keepgrads: keepgrads,			   // neither does the result. This might not end up being
+							_creation_op: creation_op);        // a good decision in the long run. We'll see.
+						Debug.Log("Graph:202:Creating Tensor:" + result.id + " with creation_op:" + result.creation_op);
 					}
-
+					
+					
+					// this is sortof a backup check. In theory, the result tensor should have been 
+					// initialized correctly.
 					if (this.dataOnGpu)
 						result.Gpu(shader);
 
@@ -231,7 +246,7 @@ namespace OpenMined.Syft.Tensor
 		}
 
 		// hook autograd single parent
-		public FloatTensor HookAutograd(ref FloatTensor result, string creation_op, bool inline=false) {
+		public FloatTensor HookAutograd(ref FloatTensor result, string creation_op, bool inline=false, int[] resultShape = null) {
 
 			if (inline)
 				return this;
@@ -265,20 +280,33 @@ namespace OpenMined.Syft.Tensor
 				}
 				else
 				{
-					
-					result = new FloatTensor(controller,
-						_shape: this.shape,
-						_data: data,
-						_dataBuffer: dataBuffer,
-						_shapeBuffer: shapeBuffer,
-						_shader: shader,
-						_copyData: true,
-						_dataOnGpu: dataOnGpu,
-						_autograd: autograd,
-						_keepgrads: keepgrads,
-						_creation_op: creation_op);
+					if (resultShape != null)
+					{
+						result = new FloatTensor(controller,
+							_shape: resultShape,
+							_dataOnGpu: dataOnGpu,
+							_autograd: autograd,
+							_keepgrads: keepgrads,
+							_creation_op: creation_op);
+						
+						Debug.Log("Graph:187:Creating Tensor:" + result.id + " with creation_op:" + result.creation_op);
+					}
+					else
+					{
+						result = new FloatTensor(controller,
+							_shape: this.shape,
+							_data: data,
+							_dataBuffer: dataBuffer,
+							_shapeBuffer: shapeBuffer,
+							_shader: shader,
+							_copyData: true,
+							_dataOnGpu: dataOnGpu,
+							_autograd: autograd,
+							_keepgrads: keepgrads,
+							_creation_op: creation_op);
 
-					Debug.Log("Graph:254:Creating Tensor:" + result.id + " with creation_op:" + result.creation_op);
+						Debug.Log("Graph:254:Creating Tensor:" + result.id + " with creation_op:" + result.creation_op);
+					}
 				}
 			}
 			

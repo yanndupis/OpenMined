@@ -126,6 +126,10 @@ namespace OpenMined.Syft.Tensor
 					    controller.getTensor(creators[1]).Backward(controller.getTensor(creators[0]).Transpose().MM(grad), this);
 
 				    }
+				    else if (creation_op == "transpose")
+				    {
+					    controller.getTensor(creators[0]).Backward(grad.Transpose());
+				    }
 				    else if (creation_op == "sigmoid")
 				    {
 

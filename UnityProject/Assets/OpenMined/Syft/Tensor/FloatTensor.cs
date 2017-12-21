@@ -40,7 +40,6 @@ namespace OpenMined.Syft.Tensor
             {
                 InitAutograd();
             }
-
             
             // First: check that shape is valid.
             if (_shape == null || _shape.Length == 0)
