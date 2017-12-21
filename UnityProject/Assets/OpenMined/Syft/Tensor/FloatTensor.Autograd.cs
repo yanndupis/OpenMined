@@ -75,20 +75,6 @@ namespace OpenMined.Syft.Tensor
 				    {
 					    controller.getTensor(creators[0]).Backward(grad, this);
 				    }
-				    else if (creation_op == "mul_elem")
-				    {
-					    
-					    
-					    controller.getTensor(creators[0]).Backward(grad.Mul(controller.getTensor(creators[1])), this);
-					    controller.getTensor(creators[1]).Backward(grad.Mul(controller.getTensor(creators[0])), this);
-
-				    }
-				    else if (creation_op == "mul_scalar")
-				    {
-					    
-					    controller.getTensor(creators[0]).Backward(grad.Mul(controller.getTensor(creators[1]).data[0]), this);
-
-				    }
 				    else if (creation_op == "div_elem")
 				    {
 
@@ -108,6 +94,35 @@ namespace OpenMined.Syft.Tensor
 				    {
 					    controller.getTensor(creators[0]).Backward(grad.Div(controller.getTensor(creators[1]).data[0]), this);
 				    }
+				    else if (creation_op == "mul_elem")
+				    {
+					    
+					    
+					    controller.getTensor(creators[0]).Backward(grad.Mul(controller.getTensor(creators[1])), this);
+					    controller.getTensor(creators[1]).Backward(grad.Mul(controller.getTensor(creators[0])), this);
+
+				    }
+				    else if (creation_op == "mul_scalar")
+				    {
+					    
+					    controller.getTensor(creators[0]).Backward(grad.Mul(controller.getTensor(creators[1]).data[0]), this);
+
+				    }
+				    else if (creation_op == "mm")
+				    {
+
+					    controller.getTensor(creators[0]).Backward(grad.MM(controller.getTensor(creators[1]).Transpose()), this);
+					    controller.getTensor(creators[1]).Backward(controller.getTensor(creators[0]).Transpose().MM(grad), this);
+
+				    }
+				    else if (creation_op == "pow_scalar")
+				    {
+
+					    FloatTensor self_nograd = controller.getTensor(creators[0]).Copy();
+					    self_nograd.autograd = false;
+					    controller.getTensor(creators[0]).Backward(self_nograd.Mul(grad).Mul(controller.getTensor(creators[1]).Data[0]), this);
+
+				    }
 				    else if (creation_op == "sub_elem")
 				    {
 
@@ -119,35 +134,15 @@ namespace OpenMined.Syft.Tensor
 				    {
 					    controller.getTensor(creators[0]).Backward(grad, this);
 				    }
-				    else if (creation_op == "mm")
+				    else if (creation_op == "sigmoid")
 				    {
-
-					    controller.getTensor(creators[0]).Backward(grad.MM(controller.getTensor(creators[1]).Transpose()), this);
-					    controller.getTensor(creators[1]).Backward(controller.getTensor(creators[0]).Transpose().MM(grad), this);
+					    controller.getTensor(creators[0]).Backward(this.Neg().Add((float) 1).Mul(this).Mul(grad), this);
 
 				    }
 				    else if (creation_op == "transpose")
 				    {
 					    controller.getTensor(creators[0]).Backward(grad.Transpose());
 				    }
-				    else if (creation_op == "sigmoid")
-				    {
-
-					    FloatTensor c = this.Copy();
-					    c.autograd = false;
-					    controller.getTensor(creators[0]).Backward(c.Neg().Add((float) 1).Mul(this).Mul(grad), this);
-
-				    }
-				    else if (creation_op == "pow_scalar")
-				    {
-
-					    FloatTensor self_nograd = controller.getTensor(creators[0]).Copy();
-					    self_nograd.autograd = false;
-					    controller.getTensor(creators[0]).Backward(self_nograd.Mul(grad).Mul(controller.getTensor(creators[1]).Data[0]), this);
-
-				    }
-
-
 			    }
 		    }
 	    }

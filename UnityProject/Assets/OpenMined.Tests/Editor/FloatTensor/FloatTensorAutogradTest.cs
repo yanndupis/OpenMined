@@ -721,6 +721,82 @@ namespace OpenMined.Tests.Editor.FloatTensor
             ctrl.allow_new_tensors = true;
               
         }
+
+        [Test]
+        public void SigmoidAutograd()
+        {
+
+            int[] ash = new int[] {2, 5};
+            float[] a_data = new float[] {1, 2, 3, 4, 5, 2, 3, 4, 5, 6};
+            var a = new Syft.Tensor.FloatTensor(ctrl, _data: a_data, _shape: ash);
+
+            a.Autograd = true;
+
+            int[] ces = ash;
+            float[] c_data = new float[] {0.7310586f ,  0.88079703f,  0.95257413f,  0.98201376f,  0.99330717f,
+                0.88079703f,  0.95257413f,  0.98201376f,  0.99330717f,  0.99752742f};
+
+            var c_expected = new Syft.Tensor.FloatTensor(ctrl, _data: c_data,_shape: ces);
+            var c_grad = new Syft.Tensor.FloatTensor(ctrl, _data: new float[]{1,1,1,1,1,1,1,1,1,1}, _shape: ces);
+
+            float[] a_grad_data = new float[] {0.1966f,  0.1050f,  0.0452f,  0.0177f,  0.0066f,
+                0.1050f,  0.0452f,  0.0177f,  0.0066f,  0.0025f};
+            var a_grad = new Syft.Tensor.FloatTensor(ctrl, _data: a_grad_data, _shape: ash);
+
+            var c = a.Sigmoid();
+            c.Backward(c_grad);
+
+            for (int i = 0; i < c.Size; i++)
+            {
+                // multiplication is correct
+                Assert.True(Math.Abs(c_expected.Data[i] - c.Data[i]) < 0.000001);
+            }
+
+            for (int i = 0; i < a_grad.Size; i++)
+            {
+                // a gradients are correct
+                Assert.True(Math.Abs(a_grad.Data[i] - a.Grad.Data[i]) < 0.0001);    
+            }
+            
+            
+            // check that repeating doesn't break it
+            c = a.Sigmoid();
+            c.Backward(c_grad);
+
+            for (int i = 0; i < c.Size; i++)
+            {
+                // multiplication is correct
+                Assert.True(Math.Abs(c_expected.Data[i] - c.Data[i]) < 0.000001);
+            }
+
+            for (int i = 0; i < a_grad.Size; i++)
+            {
+                // a gradients are correct
+                Assert.True(Math.Abs(a_grad.Data[i] - a.Grad.Data[i]) < 0.0001);    
+            }
+
+            // see if it's allocating new tensors during the forward pass
+            ctrl.allow_new_tensors = false;
+            
+            // check that repeating the forward pass doesn't break it
+            c = a.Sigmoid();
+            c = a.Sigmoid();
+            c.Backward(c_grad);
+
+            for (int i = 0; i < c.Size; i++)
+            {
+                // multiplication is correct
+                Assert.True(Math.Abs(c_expected.Data[i] - c.Data[i]) < 0.000001);
+            }
+
+            for (int i = 0; i < a_grad.Size; i++)
+            {
+                // a gradients are correct
+                Assert.True(Math.Abs(a_grad.Data[i] - a.Grad.Data[i]) < 0.0001);    
+            }
+            ctrl.allow_new_tensors = true;
+              
+        }
         
     }
 }
