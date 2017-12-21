@@ -132,7 +132,7 @@ namespace OpenMined.Network.Controllers
         {
             FloatTensor new_tensor = tensor.Copy();
             new_tensor.Zero_();
-            new_tensor.Add(tensor.Unit, true);
+            new_tensor.Add(1, true);
             return new_tensor;
         }
 
@@ -140,7 +140,7 @@ namespace OpenMined.Network.Controllers
         {
             IntegerTensor new_tensor = tensor.Copy();
             new_tensor.Zero_();
-            new_tensor.Add(tensor.Unit, true);
+            new_tensor.Add(1, true);
             return new_tensor;
         }
 

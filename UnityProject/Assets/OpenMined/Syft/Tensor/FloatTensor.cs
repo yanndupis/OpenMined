@@ -15,11 +15,6 @@ namespace OpenMined.Syft.Tensor
             set { autograd = value; }
         }
 
-        override public float Unit
-        {
-            get { return 1; }
-        }
-
         // parameters are overrides
         public FloatTensor Copy()
         {

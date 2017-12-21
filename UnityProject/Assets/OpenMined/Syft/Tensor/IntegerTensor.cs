@@ -14,10 +14,6 @@ namespace OpenMined.Syft.Tensor
         private List<int> children_counts; // children -> counts
         private int sibling;
 
-        public override int Unit
-        {
-            get { return 1; }
-        }
 
         public IntegerTensor(SyftController _controller,
             int[] _shape,

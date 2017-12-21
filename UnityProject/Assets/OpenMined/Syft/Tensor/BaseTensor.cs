@@ -80,11 +80,6 @@ namespace OpenMined.Syft.Tensor
             protected set { nCreated = value; }
         }
 
-        public abstract T Unit
-        {
-            get;
-        }
-
         #endregion
 
         public void InitCpu(T[] _data, bool _copyData)
