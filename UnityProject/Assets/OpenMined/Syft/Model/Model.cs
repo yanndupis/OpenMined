@@ -119,9 +119,9 @@ namespace OpenMined.Syft.Layer
                 }
                 case "activation":
                 {
-                    if (activation != null)
-                        return activation + "";
-                    return "-1";
+                    
+                    return activation + "";
+                    
                 }
                 case "layer_type":
                 {

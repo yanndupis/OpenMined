@@ -18,7 +18,7 @@ namespace OpenMined.Network.Controllers
 
 		private Dictionary<int, FloatTensor> tensors;
 		private Dictionary<int, Model> models;
-		private bool allow_new_tensors = true;
+		public bool allow_new_tensors = true;
 
 		public SyftController (ComputeShader _shader)
 		{
@@ -87,13 +87,13 @@ namespace OpenMined.Network.Controllers
 		}
 
 		public FloatTensor createZerosTensorLike(FloatTensor tensor) {
-			FloatTensor new_tensor = tensor.Copy ();
+			FloatTensor new_tensor = tensor.emptyTensorCopy ();
 			new_tensor.Zero_ ();
 			return new_tensor;
 		}
 
 		public FloatTensor createOnesTensorLike(FloatTensor tensor) {
-			FloatTensor new_tensor = tensor.Copy ();
+			FloatTensor new_tensor = tensor.emptyTensorCopy();
 			new_tensor.Zero_ ();
 			new_tensor.Add ((float)1,true);
 			return new_tensor;
