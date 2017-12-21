@@ -17,6 +17,7 @@ namespace OpenMined.Network.Controllers
 		[SerializeField] private ComputeShader shader;
 
 		private Dictionary<int, FloatTensor> tensors;
+        private Dictionary<int, IntegerTensor> integerTensors;
 		private Dictionary<int, Model> models;
 		private bool allow_new_tensors = true;
 
@@ -24,8 +25,9 @@ namespace OpenMined.Network.Controllers
 		{
 			shader = _shader;
 
-			tensors = new Dictionary<int, FloatTensor> ();
-			models = new Dictionary<int, Model> ();
+            tensors = new Dictionary<int, FloatTensor>();
+            integerTensors = new Dictionary<int, IntegerTensor>();
+            models = new Dictionary<int, Model> ();
 		}
 
 		public ComputeShader Shader {
@@ -42,12 +44,16 @@ namespace OpenMined.Network.Controllers
 			return syn0;
 		}
 
-		public FloatTensor getTensor (int index)
-		{
-			return tensors [index];
-		}
+        public FloatTensor getTensor(int index)
+        {
+            return tensors[index];
+        }
+        public IntegerTensor getIntegerTensor(int index)
+        {
+            return integerTensors[index];
+        }
 
-		public Model getModel(int index)
+        public Model getModel(int index)
 		{
 			return models[index];
 		}
@@ -57,51 +63,90 @@ namespace OpenMined.Network.Controllers
 			return shader;
 		}
 
-		public void RemoveTensor (int index)
-		{
-			Debug.LogFormat("<color=purple>Removing Tensor {0}</color>", index);
-			var tensor = tensors [index];
-			tensors.Remove (index);
-			tensor.Dispose ();
-		}
+        public void RemoveTensor(int index)
+        {
+            Debug.LogFormat("<color=purple>Removing Tensor {0}</color>", index);
+            var tensor = getTensor(index);
+            tensors.Remove(index);
+            tensor.Dispose();
+        }
 
-		public int addTensor (FloatTensor tensor)
-		{
-			if (allow_new_tensors)
-			{
-				//Debug.LogFormat("<color=green>Adding Tensor {0}</color>", tensor.Id);
-				tensor.Controller = this;
-				tensors.Add(tensor.Id, tensor);
-				return (tensor.Id);
-			}
-			else
-			{
-				throw new Exception("Tried to allocate tensor");
-			}
-		}
-		
-		public int addModel (Model model)
+        public void RemoveIntegerTensor(int index)
+        {
+            Debug.LogFormat("<color=purple>Removing Tensor {0}</color>", index);
+            var tensor = integerTensors[index];
+            integerTensors.Remove(index);
+            tensor.Dispose();
+        }
+
+        public int addTensor(FloatTensor tensor)
+        {
+            if (allow_new_tensors)
+            {
+                //Debug.LogFormat("<color=green>Adding Tensor {0}</color>", tensor.Id);
+                tensor.Controller = this;
+                tensors.Add(tensor.Id, tensor);
+                return (tensor.Id);
+            }
+            else
+            {
+                throw new Exception("Tried to allocate tensor");
+            }
+        }
+
+        public int addIntegerTensor(IntegerTensor tensor)
+        {
+            if (allow_new_tensors)
+            {
+                //Debug.LogFormat("<color=green>Adding Integer Tensor {0}</color>", tensor.Id);
+                tensor.Controller = this;
+                integerTensors.Add(tensor.Id, tensor);
+                return (tensor.Id);
+            }
+            else
+            {
+                throw new Exception("Tried to allocate tensor");
+            }
+        }
+
+        public int addModel (Model model)
 		{
 			models.Add (model.Id, model);
 			return (model.Id);
 		}
 
-		public FloatTensor createZerosTensorLike(FloatTensor tensor) {
-			FloatTensor new_tensor = tensor.Copy ();
-			new_tensor.Zero_ ();
-			return new_tensor;
-		}
+        public FloatTensor createZerosTensorLike(FloatTensor tensor)
+        {
+            FloatTensor new_tensor = tensor.Copy();
+            new_tensor.Zero_();
+            return new_tensor;
+        }
+        public IntegerTensor createZerosTensorLike<T>(IntegerTensor tensor)
+        {
+            IntegerTensor new_tensor = tensor.Copy();
+            new_tensor.Zero_();
+            return new_tensor;
+        }
 
-		public FloatTensor createOnesTensorLike(FloatTensor tensor) {
-			FloatTensor new_tensor = tensor.Copy ();
-			new_tensor.Zero_ ();
-			new_tensor.Add ((float)1,true);
-			return new_tensor;
-		}
+        public FloatTensor createOnesTensorLike(FloatTensor tensor)
+        {
+            FloatTensor new_tensor = tensor.Copy();
+            new_tensor.Zero_();
+            new_tensor.Add(tensor.Unit, true);
+            return new_tensor;
+        }
 
-		public string processMessage (string json_message)
+        public IntegerTensor createOnesTensorLike(IntegerTensor tensor)
+        {
+            IntegerTensor new_tensor = tensor.Copy();
+            new_tensor.Zero_();
+            new_tensor.Add(tensor.Unit, true);
+            return new_tensor;
+        }
+
+        public string processMessage (string json_message)
 		{
-			//Debug.LogFormat("<color=green>SyftController.processMessage {0}</color>", json_message);
+			Debug.LogFormat("<color=green>SyftController.processMessage {0}</color>", json_message);
 
 			Command msgObj = JsonUtility.FromJson<Command> (json_message);
 			try
@@ -109,26 +154,46 @@ namespace OpenMined.Network.Controllers
 
 				switch (msgObj.objectType)
 				{
-					case "tensor":
-					{
-						if (msgObj.objectIndex == 0 && msgObj.functionCall == "create")
-						{
-							FloatTensor tensor = new FloatTensor(this, _shape: msgObj.shape, _data: msgObj.data, _shader: this.Shader);
-							Debug.LogFormat("<color=magenta>createTensor:{1}</color> {0}", string.Join(", ", tensor.Data), tensor.Id);
-							return tensor.Id.ToString();
-						}
-						else if (msgObj.objectIndex > tensors.Count)
-						{
-							return "Invalid objectIndex: " + msgObj.objectIndex;
-						}
-						else
-						{
-							FloatTensor tensor = this.getTensor(msgObj.objectIndex);
-							// Process message's function
-							return tensor.ProcessMessage(msgObj, this);
-						}
-					}
-					case "model":
+                    case "tensor":
+                        {
+                            if (msgObj.objectIndex == 0 && msgObj.functionCall == "create")
+                            {
+                                FloatTensor tensor = new FloatTensor(this, _shape: msgObj.shape, _data: msgObj.data, _shader: this.Shader);
+                                Debug.LogFormat("<color=magenta>createTensor:{1}</color> {0}", string.Join(", ", tensor.Data), tensor.Id);
+                                return tensor.Id.ToString();
+                            }
+                            else if (msgObj.objectIndex > tensors.Count)
+                            {
+                                return "Invalid objectIndex: " + msgObj.objectIndex;
+                            }
+                            else
+                            {
+                                FloatTensor tensor = getTensor(msgObj.objectIndex);
+                                // Process message's function
+                                return tensor.ProcessMessage(msgObj, this);
+                            }
+                        }
+                    case "integertensor":
+                        {
+                            if (msgObj.objectIndex == 0 && msgObj.functionCall == "create")
+                            {
+                                int[] tmpData = { 1, 2, 3 }; // FIXME
+                                IntegerTensor tensor = new IntegerTensor(this, _shape: msgObj.shape, _data: tmpData, _shader: this.Shader);
+                                Debug.LogFormat("<color=magenta>createTensor:{1}</color> {0}", string.Join(", ", tensor.Data), tensor.Id);
+                                return tensor.Id.ToString();
+                            }
+                            else if (msgObj.objectIndex > tensors.Count)
+                            {
+                                return "Invalid objectIndex: " + msgObj.objectIndex;
+                            }
+                            else
+                            {
+                                IntegerTensor tensor = getIntegerTensor(msgObj.objectIndex);
+                                // Process message's function
+                                return tensor.ProcessMessage(msgObj, this);
+                            }
+                        }
+                    case "model":
 					{
 						if (msgObj.functionCall == "create")
 						{

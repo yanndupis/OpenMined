@@ -398,17 +398,6 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-        public bool IsContiguous()
-        {
-            foreach (var stride in strides) {
-                if (stride == 0) {
-                    return false;
-                }
-            }
-            
-            return strides[strides.Length - 1] == 1L;
-        }
-
         public FloatTensor Log1p(bool inline = false)
         {	
         	var result = inline ? this : this.emptyTensorCopy();
@@ -1098,21 +1087,6 @@ namespace OpenMined.Syft.Tensor
         public FloatTensor ViewAs(FloatTensor x, bool inline = false)
         {
             return this.View(x.shape, inline);
-        }
-
-        public void Zero_()
-        {
-            if (!IsContiguous()) {
-                throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
-            }
-
-            if (dataOnGpu)
-            {
-                ZeroGPU_();
-                return;
-            }
-
-            Array.Clear(data, 0, size);
         }
 
         public FloatTensor Squeeze(int dim = -1, bool inline = false)
