@@ -36,6 +36,8 @@ namespace OpenMined.Syft.Tensor
         {
             
             result = HookAutograd(ref result, "copy", false);
+            result.Zero_();
+            result.Add(this, inline: true);
             
             return result;
         }

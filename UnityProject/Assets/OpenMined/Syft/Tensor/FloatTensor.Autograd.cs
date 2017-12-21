@@ -75,6 +75,10 @@ namespace OpenMined.Syft.Tensor
 				    {
 					    controller.getTensor(creators[0]).Backward(grad, this);
 				    }
+				    else if (creation_op == "copy")
+				    {
+					    controller.getTensor(creators[0]).Backward(grad, this);
+				    }
 				    else if (creation_op == "div_elem")
 				    {
 
