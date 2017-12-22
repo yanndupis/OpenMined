@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using OpenMined.Network.Controllers;
 using OpenMined.Syft.NN;
+using UnityEngine;
 
 namespace OpenMined.Tests.Editor.FloatTensor
 {
@@ -907,5 +908,74 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
         }
 
+
+        [Test]
+        public void TwoLayerMLPAutograd()
+        {
+            
+            int[] input_shape = new int[] {4, 3};
+            float[] input_data = new float[] { 0,  0,  1,  0,  1,  1,  1,  0,  1,  1,  1,  1};
+            var input = new Syft.Tensor.FloatTensor(ctrl, _data: input_data, _shape: input_shape);
+            input.Autograd = true;
+            
+            int[] target_shape = new int[] {4, 1};
+            float[] target_data = new float[] { 0,0,1,1,};
+            var target = new Syft.Tensor.FloatTensor(ctrl, _data: target_data, _shape: target_shape);
+            target.Autograd = true;
+            
+            int[] grad_shape = new int[] {4, 1};
+            float[] grad_data = new float[] { 1,1,1,1};
+            var grad = new Syft.Tensor.FloatTensor(ctrl, _data: grad_data, _shape: grad_shape);
+            grad.Autograd = false;
+            
+            int[] weights1_shape = new int[] {3, 4};
+            float[] weights1_data = new float[] { 0.4170f,  0.7203f, 0.0001f,  0.3023f, 0.1468f,  0.0923f,  0.1863f, 
+                0.3456f, 0.3968f,  0.5388f,  0.4192f,  0.6852f};
+            var weights1 = new Syft.Tensor.FloatTensor(ctrl, _data: weights1_data, _shape: weights1_shape);
+            weights1.Autograd = true;
+            
+            int[] weights2_shape = new int[] {4, 1};
+            float[] weights2_data = new float[] { 0.2045f,0.8781f,0.0274f,0.6705f};
+            var weights2 = new Syft.Tensor.FloatTensor(ctrl, _data: weights2_data, _shape: weights2_shape);
+            weights2.Autograd = true;
+
+            var layer_1 = input.MM(weights1).Sigmoid();
+            var layer_2 = layer_1.MM(weights2).Sigmoid();
+            var loss = layer_2.Sub(target).Pow(2);
+            loss.Backward(grad);
+
+            Assert.True(Math.Abs(weights1.Grad.Data[0] - (-0.00559968)) < 0.00001);
+            Assert.True(Math.Abs(weights1.Grad.Data[1] - (-0.01954043)) < 0.00001);
+            Assert.True(Math.Abs(weights1.Grad.Data[2] - (-0.00084936)) < 0.00001);
+            Assert.True(Math.Abs(weights1.Grad.Data[3] - (-0.01617729)) < 0.00001);
+            
+            Assert.True(Math.Abs(weights1.Grad.Data[8] - (0.02101371)) < 0.00001);
+            Assert.True(Math.Abs(weights1.Grad.Data[9] - (0.09150549)) < 0.00001);
+            Assert.True(Math.Abs(weights1.Grad.Data[10] - (0.00267767)) < 0.00001);
+            Assert.True(Math.Abs(weights1.Grad.Data[11] - (0.06076522)) < 0.00001);
+
+            weights1.Sub(weights1.Grad,inline:true);
+            weights2.Sub(weights2.Grad,inline:true);
+            
+            ctrl.allow_new_tensors = false;
+            
+            layer_1 = input.MM(weights1).Sigmoid();
+            layer_2 = layer_1.MM(weights2).Sigmoid();
+            loss = layer_2.Sub(target).Pow(2);
+            loss.Backward(grad);
+            
+            Assert.True(Math.Abs(weights1.Grad.Data[0] - (0.00273491)) < 0.00001);
+            Assert.True(Math.Abs(weights1.Grad.Data[1] - (-0.036114253)) < 0.00001);
+            Assert.True(Math.Abs(weights1.Grad.Data[2] - (0.01777665)) < 0.00001);
+            Assert.True(Math.Abs(weights1.Grad.Data[3] - (-0.02339926)) < 0.00001);
+            
+            Assert.True(Math.Abs(weights1.Grad.Data[8] - (-0.00287705)) < 0.00001);
+            Assert.True(Math.Abs(weights1.Grad.Data[9] - (0.05070414)) < 0.00001);
+            Assert.True(Math.Abs(weights1.Grad.Data[10] - (-0.01417091)) < 0.00001);
+            Assert.True(Math.Abs(weights1.Grad.Data[11] - (0.02481702)) < 0.00001);
+            
+            ctrl.allow_new_tensors = true;
+
+        }
     }
 }
