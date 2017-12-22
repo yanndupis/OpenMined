@@ -1482,6 +1482,26 @@ namespace OpenMined.Tests.Editor.FloatTensor
         }
 
         [Test]
+        public void Reciprocal_()
+        {
+            float[] data1 = {1f, 2f, 3f, 4f};
+            int[] shape1 = {4};
+            var tensor1 = new Syft.Tensor.FloatTensor(_controller: ctrl, _data: data1, _shape: shape1);
+
+            float[] data2 = {1f, 0.5f, 0.33333333f, 0.25f};
+            int[] shape2 = {4};
+            var expectedReciprocalTensor = new Syft.Tensor.FloatTensor(_controller: ctrl, _data: data2, _shape: shape2);
+
+            tensor1.Reciprocal(inline: true);
+
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+                Assert.AreEqual(expectedReciprocalTensor[i], tensor1[i], 1e-3);
+            }
+        }
+
+
+        [Test]
         public void RemainderElem()
         {
             float[] data = {-10, -5, -3.5f, 4.5f, 10, 20};

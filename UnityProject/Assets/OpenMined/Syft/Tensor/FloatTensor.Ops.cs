@@ -597,9 +597,8 @@ namespace OpenMined.Syft.Tensor
             if (dataOnGpu)
             {
                 if (!inline) return ReciprocalGPU();
-                //TODO impolemnt inline for GPU
-                //ReciprocalGPU_();
-                //return this;
+                ReciprocalGPU_();
+                return this;
             }
             result.Data = data.AsParallel().Select(x => (float) 1/x).ToArray();
             return result;
