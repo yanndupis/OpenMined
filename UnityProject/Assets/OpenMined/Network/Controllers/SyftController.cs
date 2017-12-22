@@ -6,7 +6,7 @@ using UnityEngine;
 using OpenMined.Syft.Tensor;
 using OpenMined.Network.Utils;
 using OpenMined.Syft.Layer;
-using OpenMined.Syft.Model;
+using OpenMined.Syft.Layer.Loss;
 using Random = UnityEngine.Random;
 
 
@@ -159,6 +159,19 @@ namespace OpenMined.Network.Controllers
                                 Tanh model = new Tanh(this);
                                 return model.Id.ToString();
                             }
+                            else if (model_type == "crossentropyloss")
+                            {
+                                Debug.LogFormat("<color=magenta>createModel:</color> {0}", model_type);
+                                CrossEntropyLoss model = new CrossEntropyLoss(this);
+                                return model.Id.ToString();
+                            }
+                            else if (model_type == "mseloss")
+                            {
+                                Debug.LogFormat("<color=magenta>createModel:</color> {0}", model_type);
+                                MSELoss model = new MSELoss(this);
+                                return model.Id.ToString();
+                            }
+
 						}
 						else
 						{
