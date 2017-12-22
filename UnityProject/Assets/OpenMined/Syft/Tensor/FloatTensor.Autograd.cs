@@ -25,7 +25,7 @@ namespace OpenMined.Syft.Tensor
 	    
 	    public void Backward(FloatTensor grad = null, FloatTensor grad_origin = null)
 	    {
-		    //Debug.Log("Backward:" + this.id);
+		    Debug.Log("Backward:" + this.id + " creation_op:" + creation_op);
 		  
 		    if (autograd)
 		    {
@@ -138,8 +138,14 @@ namespace OpenMined.Syft.Tensor
 				    }
 				    else if (creation_op == "mm")
 				    {
-					    controller.getTensor(creators[0]).Backward(grad.MM(controller.getTensor(creators[1]).Transpose()), this);
-					    controller.getTensor(creators[1]).Backward(controller.getTensor(creators[0]).Transpose().MM(grad), this);
+					    FloatTensor x = controller.getTensor(creators[1]).Transpose();
+					    x.autograd = false;
+
+					    FloatTensor y = controller.getTensor(creators[0]).Transpose();
+					    y.autograd = false;
+					    
+					    controller.getTensor(creators[0]).Backward(grad.MM(x), this);
+					    controller.getTensor(creators[1]).Backward(y.MM(grad), this);
 				    }
 				    else if (creation_op == "neg")
 				    {
