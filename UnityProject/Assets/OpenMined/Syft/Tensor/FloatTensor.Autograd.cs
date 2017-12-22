@@ -52,18 +52,18 @@ namespace OpenMined.Syft.Tensor
 			    if (this.Grad == null)
 			    {
 				    this.Grad = grad;
-				    Debug.Log("Setting Grad Tensor Id:" + this.id);
+				    //Debug.Log("Setting Grad Tensor Id:" + this.id);
 			    }
 			    else
 			    {
 				    if (this.Grad.id == grad.id)
 				    {
 					    // do nothing
-					    Debug.Log("Not Updating For Tensor Id:" + this.id);
+					    //Debug.Log("Not Updating For Tensor Id:" + this.id);
 				    }
 				    else
 				    {
-					    Debug.Log("Updating For Tensor Id:" + this.id);
+					    //Debug.Log("Updating For Tensor Id:" + this.id);
 					    this.Grad.Zero_();
 					    this.Grad.Add(grad, inline: true);
 				    }
@@ -77,9 +77,6 @@ namespace OpenMined.Syft.Tensor
 			    }
 			    
 			  
-			    // only continue backpropping if there's something to backprop into
-			    // only continue backpropping if all gradients (from children) are accounted for
-			    // override waiting for children if "backprop" was called on this variable directly
 			    
 			    
 				// RULES FOR AUTOGRAD:
@@ -88,6 +85,11 @@ namespace OpenMined.Syft.Tensor
 			    // will not work!!! Make sure there's a "hookautograd" function in every method you use for backprop.
 			    // 3) whenever backpropping into a method where the forward prop involved a scalar (such as scalar
 			    // multiplication), current implementations assume you will NOT backprop into the scalar itself.
+			    
+			    
+			    // only continue backpropping if there's something to backprop into
+			    // only continue backpropping if all gradients (from children) are accounted for
+			    // override waiting for children if "backprop" was called on this variable directly
 			    if (this.creators != null && this.creators.Count > 0 && (grad_origin == null || AllAutogradChildrenAccountedFor()))
 			    {
 				    
@@ -168,7 +170,7 @@ namespace OpenMined.Syft.Tensor
 				    }
 				    else
 				    {
-					    //Debug.Log("Autograd couldn't find matching operation for:" + creation_op);   
+					    Debug.Log("Autograd couldn't find matching operation for:" + creation_op);   
 				    }
 			    }
 		    }
