@@ -76,15 +76,17 @@ namespace OpenMined.Syft.Tensor
 				    throw new InvalidOperationException("Sorry, grads cannot have grads");
 			    }
 			    
-			  
-			    
-			    
 				// RULES FOR AUTOGRAD:
 			    // 1) if you need to use "this" for calculating a gradient, copy it first and set autograd to false (see sigmoid)
 			    // 2) if you use a method in your backprop logic that doesn't hook into the dynamic graph yet, backprop
 			    // will not work!!! Make sure there's a "hookautograd" function in every method you use for backprop.
 			    // 3) whenever backpropping into a method where the forward prop involved a scalar (such as scalar
 			    // multiplication), current implementations assume you will NOT backprop into the scalar itself.
+			    // 4) Because of rule (2), do NOT use "emptyTensorCopy" at all in backprop unless you know what you're
+			    // doing. 
+			    // 5) I will be especially strict about Unit tests for all backprop logic as this is the most complex
+			    // piece of functionality we have. Furthermore, most errors go completely undetected (not discovered
+			    // by runtime errors). Autograd bugs just make convergence go slowly and sub-optimally.
 			    
 			    
 			    // only continue backpropping if there's something to backprop into
