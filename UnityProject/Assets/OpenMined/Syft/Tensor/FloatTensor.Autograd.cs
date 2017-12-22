@@ -25,7 +25,7 @@ namespace OpenMined.Syft.Tensor
 	    
 	    public void Backward(FloatTensor grad = null, FloatTensor grad_origin = null)
 	    {
-		    Debug.Log("Backward:" + this.id + " creation_op:" + creation_op);
+		    //Debug.Log("Backward:" + this.id + " creation_op:" + creation_op);
 		  
 		    if (autograd)
 		    {
@@ -87,7 +87,9 @@ namespace OpenMined.Syft.Tensor
 			    // 5) I will be especially strict about Unit tests for all backprop logic as this is the most complex
 			    // piece of functionality we have. Furthermore, most errors go completely undetected (not discovered
 			    // by runtime errors). Autograd bugs just make convergence go slowly and sub-optimally.
-			    
+			    // 6) If you use a forward propagation tensor to backprop, you MUST remember to turn off autograd
+			    // when backpropagating (see "mm" below for example). Otherwise, it will cause autograd to break because
+			    // whatever child you select will think it needs to wait for another gradient before backpropagating.
 			    
 			    // only continue backpropping if there's something to backprop into
 			    // only continue backpropping if all gradients (from children) are accounted for
@@ -114,6 +116,8 @@ namespace OpenMined.Syft.Tensor
 				    {
 					    FloatTensor x = controller.getTensor(creators[0]);
 					    FloatTensor y = controller.getTensor(creators[1]);
+					    x.autograd = false;
+					    y.autograd = false;
 
 					    x.Backward(grad.Div(y));
 
