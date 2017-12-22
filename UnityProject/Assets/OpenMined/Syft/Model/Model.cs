@@ -62,7 +62,9 @@ namespace OpenMined.Syft.Layer
                 return ProcessParamsMessage (msgObj, ctrl);
             case "activation":
                 {
+                    
                     return activation + "";
+                    
                 }
             case "model_type":
                 {

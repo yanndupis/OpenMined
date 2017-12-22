@@ -1,10 +1,7 @@
 using System;
-using System.Linq;
-using Nethereum.ABI.Decoders;
 using NUnit.Framework;
 using OpenMined.Network.Controllers;
 using OpenMined.Syft.NN;
-using UnityEngine;
 
 namespace OpenMined.Tests.Editor.FloatTensor
 {
