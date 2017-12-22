@@ -25,7 +25,7 @@ namespace OpenMined.Syft.Tensor
 	    
 	    public void Backward(FloatTensor grad = null, FloatTensor grad_origin = null)
 	    {
-		    Debug.Log("Backward:" + this.id);
+		    //Debug.Log("Backward:" + this.id);
 		  
 		    if (autograd)
 		    {

@@ -859,6 +859,53 @@ namespace OpenMined.Tests.Editor.FloatTensor
             ctrl.allow_new_tensors = true;
               
         }
-        
+
+        [Test]
+        public void OneLayerMLPAutograd()
+        {
+            int[] input_shape = new int[] {4, 3};
+            float[] input_data = new float[] { 0,  0,  1,  0,  1,  1,  1,  0,  1,  1,  1,  1};
+            var input = new Syft.Tensor.FloatTensor(ctrl, _data: input_data, _shape: input_shape);
+            input.Autograd = true;
+            
+            int[] target_shape = new int[] {4, 1};
+            float[] target_data = new float[] { 0,0,1,1,};
+            var target = new Syft.Tensor.FloatTensor(ctrl, _data: target_data, _shape: target_shape);
+            target.Autograd = true;
+            
+            int[] grad_shape = new int[] {4, 1};
+            float[] grad_data = new float[] { 1,1,1,1};
+            var grad = new Syft.Tensor.FloatTensor(ctrl, _data: grad_data, _shape: grad_shape);
+            grad.Autograd = false;
+            
+            int[] weights_shape = new int[] {3, 1};
+            float[] weights_data = new float[] { 0.2f,0.1f,0.3f};
+            var weights = new Syft.Tensor.FloatTensor(ctrl, _data: weights_data, _shape: weights_shape);
+            weights.Autograd = true;
+
+            var layer_1 = input.MM(weights).Sigmoid();
+            var loss = (layer_1.Sub(target)).Pow(2);
+            loss.Backward(grad);
+            
+            Assert.True(Math.Abs(weights.Grad.Data[0] - (-0.3395834)) < 0.0001);
+            Assert.True(Math.Abs(weights.Grad.Data[1] - (0.1255458)) < 0.0001);
+            Assert.True(Math.Abs(weights.Grad.Data[2] - (0.2289533)) < 0.0001);
+
+            weights.Sub(weights.Grad, inline: true);
+
+            ctrl.allow_new_tensors = false;
+            
+            layer_1 = input.MM(weights).Sigmoid();
+            loss = (layer_1.Sub(target)).Pow(2);
+            loss.Backward(grad);
+            
+            Assert.True(Math.Abs(weights.Grad.Data[0] - (-0.3249292)) < 0.0001);
+            Assert.True(Math.Abs(weights.Grad.Data[1] - (0.09114857)) < 0.0001);
+            Assert.True(Math.Abs(weights.Grad.Data[2] - (0.1891759)) < 0.0001);
+            
+            ctrl.allow_new_tensors = true;
+
+        }
+
     }
 }
