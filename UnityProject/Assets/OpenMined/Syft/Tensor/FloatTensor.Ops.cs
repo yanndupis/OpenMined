@@ -607,16 +607,12 @@ namespace OpenMined.Syft.Tensor
 
         public FloatTensor ReLU(bool inline = false, FloatTensor result = null)
         {
-            //var result = new FloatTensor(_ctrl:ctrl, _shape:shape, _shader:this.shader);
-            //var result = inline ? this : this.emptyTensorCopy();
 
             result = HookAutograd(ref result, "relu", inline);
 
             if (dataOnGpu)
             {
-                //if (!inline) return ExpGPU();
-                //ExpGPU_();
-                //return this;
+                
             }
             result.Data = data.AsParallel().Select(x => (float) Math.Max((double) x,0)).ToArray();
             return result;
