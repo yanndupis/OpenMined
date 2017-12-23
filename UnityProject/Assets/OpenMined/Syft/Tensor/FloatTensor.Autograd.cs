@@ -68,6 +68,7 @@ namespace OpenMined.Syft.Tensor
                         controller.getTensor(creators[1]).Backward(grad.Mul(creators[0]), this);
 
                     }
+
                     else if (creation_op == "div_elem")
                     {
 
@@ -87,6 +88,14 @@ namespace OpenMined.Syft.Tensor
 
                         controller.getTensor(creators[0]).Backward(grad.MM(controller.getTensor(creators[1]).Transpose()), this);
                         controller.getTensor(creators[1]).Backward(controller.getTensor(creators[0]).Transpose().MM(grad), this);
+
+                    }
+                    else if (creation_op == "relu")
+                    {
+
+                        FloatTensor c = this.Copy();
+                        c.autograd = false;
+                        controller.getTensor(creators[0]).Backward(grad, this);
 
                     }
                     else if (creation_op == "sigmoid")

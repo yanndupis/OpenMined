@@ -230,6 +230,29 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+        public FloatTensor Clamp(float m, bool inline = false)
+        {
+            var result = inline ? this : this.emptyTensorCopy();
+            if (dataOnGpu)
+            {
+                //result.Gpu(shader);
+                //if (!inline) return DivScalarGPU(value, result);
+                //DivScalarGPU_(value);
+                //return this;
+            }
+            result.Data = data.AsParallel().Select(x => 1/x //(x < m) ? m : x
+                                //if(x < value)
+                                //{return value;
+                                //}
+                                //else
+                                //{
+                                 //   return x;
+                                //}
+
+                                ).ToArray();
+            return result;
+        }
+
         public FloatTensor Cos(bool inline = false)
         {
             if (dataOnGpu)
@@ -602,6 +625,23 @@ namespace OpenMined.Syft.Tensor
                 //return this;
             }
             result.Data = data.AsParallel().Select(x => (float) 1/x).ToArray();
+            return result;
+        }
+
+        public FloatTensor ReLU(bool inline = false, FloatTensor result = null)
+        {
+            //var result = new FloatTensor(_ctrl:ctrl, _shape:shape, _shader:this.shader);
+            //var result = inline ? this : this.emptyTensorCopy();
+
+            result = HookAutograd(ref result, "relu", inline);
+
+            if (dataOnGpu)
+            {
+                //if (!inline) return ExpGPU();
+                //ExpGPU_();
+                //return this;
+            }
+            result.Data = data.AsParallel().Select(x => (float) Math.Max((double) x,0)).ToArray();
             return result;
         }
 
