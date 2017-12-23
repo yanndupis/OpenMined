@@ -1,9 +1,7 @@
 using System;
-using System.Linq;
 using NUnit.Framework;
 using OpenMined.Network.Controllers;
 using OpenMined.Syft.NN;
-using UnityEngine;
 
 namespace OpenMined.Tests.Editor.FloatTensor
 {
@@ -984,14 +982,18 @@ namespace OpenMined.Tests.Editor.FloatTensor
                 Assert.AreEqual(i, tensor.GetIndices(tensor.GetIndex(i)));
         }
 
+        [Test]
         public void IsContiguous()
         {
-            float[] data = new float[] {1, 2, 3, 4, 5, 6};
-            int[] shape = new int[] {2, 3};
+            float[] data = new float[] {1, 2, 3, 4};
+            int[] shape = new int[] {4, 1};
             var tensor = new Syft.Tensor.FloatTensor(_controller: ctrl, _data: data, _shape: shape);
             Assert.AreEqual(tensor.IsContiguous(), true);
-            var transposedTensor = tensor.Transpose();
-            Assert.AreEqual(transposedTensor.IsContiguous(), false);
+
+            var newShape = new int[] {4, 4};
+
+            var expandedTensor = tensor.Expand(newShape);
+            Assert.AreEqual(expandedTensor.IsContiguous(), false);
         }
 
         [Test]
@@ -1458,6 +1460,45 @@ namespace OpenMined.Tests.Editor.FloatTensor
         }
 
         [Test]
+        public void Reciprocal()
+        {
+            float[] data1 = {1f, 2f, 3f, 4f};
+            int[] shape1 = {4};
+            var tensor1 = new Syft.Tensor.FloatTensor(_controller: ctrl, _data: data1, _shape: shape1);
+
+            float[] data2 = {1f, 0.5f, 0.33333333f, 0.25f};
+            int[] shape2 = {4};
+            var expectedReciprocalTensor = new Syft.Tensor.FloatTensor(_controller: ctrl, _data: data2, _shape: shape2);
+
+            var actualReciprocalTensor = tensor1.Reciprocal();
+
+            for (int i = 0; i < actualReciprocalTensor.Size; i++)
+            {
+                Assert.AreEqual(expectedReciprocalTensor[i], actualReciprocalTensor[i], 1e-3);
+            }
+        }
+
+        [Test]
+        public void Reciprocal_()
+        {
+            float[] data1 = {1f, 2f, 3f, 4f};
+            int[] shape1 = {4};
+            var tensor1 = new Syft.Tensor.FloatTensor(_controller: ctrl, _data: data1, _shape: shape1);
+
+            float[] data2 = {1f, 0.5f, 0.33333333f, 0.25f};
+            int[] shape2 = {4};
+            var expectedReciprocalTensor = new Syft.Tensor.FloatTensor(_controller: ctrl, _data: data2, _shape: shape2);
+
+            tensor1.Reciprocal(inline: true);
+
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+                Assert.AreEqual(expectedReciprocalTensor[i], tensor1[i], 1e-3);
+            }
+        }
+
+
+        [Test]
         public void RemainderElem()
         {
             float[] data = {-10, -5, -3.5f, 4.5f, 10, 20};
@@ -1828,6 +1869,34 @@ namespace OpenMined.Tests.Editor.FloatTensor
                 Assert.AreEqual(expectedTensor[i], actualTensor[i], 1e-3);
             }
         }
+        
+        [Test]
+        public void Softmax1DAutoGrad()
+        {
+            float[] data = {(float)1, (float)0.7, (float)0.5, (float)0.3};
+            float[] gradData = {1, 0, 0, 0};
+            int[] shape = {4};
+
+            var tensor = new Syft.Tensor.FloatTensor(_controller: ctrl, _data: data, _shape: shape, _autograd:true);
+            var gradTensor = new Syft.Tensor.FloatTensor(_controller: ctrl, _data: gradData, _shape: shape);
+
+            var outputTensor = Functional.Softmax(tensor);
+            
+            var gradInput = Functional.SoftmaxGradient(outputTensor, gradTensor, 0);
+
+            var expectedTensor = new float[]
+                {(float) 0.2280, (float) -0.0916, (float) -0.0750, (float) -0.0614};
+            for (var i = 0; i < expectedTensor.Length; i++)
+            {
+                Assert.AreEqual(expectedTensor[i], gradInput[i], 1e-3);
+            }
+            
+            outputTensor.Backward(gradTensor, null);
+            for (var i = 0; i < expectedTensor.Length; i++)
+            {
+                Assert.AreEqual(expectedTensor[i], tensor.Grad[i], 1e-3);
+            }
+        }
 
         [Test]
         public void Softmax2D()
@@ -1967,6 +2036,26 @@ namespace OpenMined.Tests.Editor.FloatTensor
                 Assert.AreEqual(expectedTensor[i], actualTensor[i], 1e-3);
             }
         }
+
+        [Test]
+        public void Sqrt_()
+        {
+            float[] data1 = {float.MaxValue, float.MinValue, 1f, 4f, 5f, 2.3232f, -30f};
+            int[] shape1 = {7};
+            var tensor1 = new Syft.Tensor.FloatTensor(_controller: ctrl, _data: data1, _shape: shape1);
+
+            float[] data2 = {1.8446743E+19f, float.NaN, 1f, 2f, 2.236068f, 1.524205f, float.NaN};
+            int[] shape2 = {7};
+            var expectedExpTensor = new Syft.Tensor.FloatTensor(_controller: ctrl, _data: data2, _shape: shape2);
+
+            tensor1.Sqrt(inline: true);
+
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+                Assert.AreEqual(expectedExpTensor[i], tensor1[i], 1e-3);
+            }
+        }
+
 
         [Test]
         public void SubtractElementwise()

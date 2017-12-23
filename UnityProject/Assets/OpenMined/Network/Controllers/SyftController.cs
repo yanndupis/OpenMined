@@ -6,7 +6,7 @@ using UnityEngine;
 using OpenMined.Syft.Tensor;
 using OpenMined.Network.Utils;
 using OpenMined.Syft.Layer;
-using OpenMined.Syft.Model;
+using OpenMined.Syft.Layer.Loss;
 using Random = UnityEngine.Random;
 
 
@@ -19,7 +19,7 @@ namespace OpenMined.Network.Controllers
 		private Dictionary<int, FloatTensor> tensors;
         private Dictionary<int, IntegerTensor> integerTensors;
 		private Dictionary<int, Model> models;
-		private bool allow_new_tensors = true;
+		public bool allow_new_tensors = true;
 
 		public SyftController (ComputeShader _shader)
 		{
@@ -115,6 +115,7 @@ namespace OpenMined.Network.Controllers
 			return (model.Id);
 		}
 
+
         public FloatTensor createZerosTensorLike(FloatTensor tensor)
         {
             FloatTensor new_tensor = tensor.Copy();
@@ -144,6 +145,7 @@ namespace OpenMined.Network.Controllers
             return new_tensor;
         }
 
+
         public string processMessage (string json_message)
 		{
 			Debug.LogFormat("<color=green>SyftController.processMessage {0}</color>", json_message);
@@ -154,6 +156,7 @@ namespace OpenMined.Network.Controllers
 
 				switch (msgObj.objectType)
 				{
+
                     case "tensor":
                         {
                             if (msgObj.objectIndex == 0 && msgObj.functionCall == "create")
@@ -194,6 +197,7 @@ namespace OpenMined.Network.Controllers
                             }
                         }
                     case "model":
+
 					{
 						if (msgObj.functionCall == "create")
 						{
@@ -218,6 +222,24 @@ namespace OpenMined.Network.Controllers
 								Sequential model = new Sequential(this);
 								return model.Id.ToString();
 							}
+                            else if (model_type == "tanh")
+                            {
+                                Debug.LogFormat("<color=magenta>createModel:</color> {0}", model_type);
+                                Tanh model = new Tanh(this);
+                                return model.Id.ToString();
+                            }
+                            else if (model_type == "crossentropyloss")
+                            {
+                                Debug.LogFormat("<color=magenta>createModel:</color> {0}", model_type);
+                                CrossEntropyLoss model = new CrossEntropyLoss(this);
+                                return model.Id.ToString();
+                            }
+                            else if (model_type == "mseloss")
+                            {
+                                Debug.LogFormat("<color=magenta>createModel:</color> {0}", model_type);
+                                MSELoss model = new MSELoss(this);
+                                return model.Id.ToString();
+                            }
 
 						}
 						else
@@ -225,7 +247,7 @@ namespace OpenMined.Network.Controllers
 							Model model = this.getModel(msgObj.objectIndex);
 							return model.ProcessMessage(msgObj, this);
 						}
-						return "hello";
+                        return "Unity Error: SyftController.processMessage: Command not found:" + msgObj.objectType + ":" + msgObj.functionCall;
 					}
 					case "controller":
 					{

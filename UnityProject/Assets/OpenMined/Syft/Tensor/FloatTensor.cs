@@ -15,23 +15,6 @@ namespace OpenMined.Syft.Tensor
             set { autograd = value; }
         }
 
-        // parameters are overrides
-        public FloatTensor Copy()
-        {
-            FloatTensor copy = new FloatTensor(controller,
-                _shape: this.shape,
-                _data: data,
-                _dataBuffer: dataBuffer,
-                _shapeBuffer: shapeBuffer,
-                _shader: shader,
-                _copyData: true,
-                _dataOnGpu: dataOnGpu,
-                _autograd: autograd,
-                _keepgrads: keepgrads,
-                _creation_op: creation_op);
-            return copy;
-        }
-
         public FloatTensor(SyftController _controller,
             int[] _shape,
             float[] _data = null,
@@ -51,11 +34,13 @@ namespace OpenMined.Syft.Tensor
             keepgrads = _keepgrads;
             creation_op = _creation_op;
 
+            InitGraph();
+            
             if (autograd)
             {
                 InitAutograd();
             }
-
+            
             // First: check that shape is valid.
             if (_shape == null || _shape.Length == 0)
             {
@@ -523,6 +508,16 @@ namespace OpenMined.Syft.Tensor
                     this.Pow(float.Parse(msgObj.tensorIndexParams[0]), inline: true);
                     return this.id + "";
                 }
+                case "reciprocal":
+                {
+                    var result = Reciprocal();
+                    return result.Id.ToString();
+                }
+                case "reciprocal_":
+                {
+                    Reciprocal(inline: true);
+                    return Id.ToString();
+                }
                 case "remainder_elem":
                 {
 	                var divisor = ctrl.getTensor(int.Parse(msgObj.tensorIndexParams[0]));
@@ -672,6 +667,11 @@ namespace OpenMined.Syft.Tensor
                 {
                     var result = Sqrt();
                     return result.id.ToString();
+                }
+                case "sqrt_":
+                {
+                    Sqrt(inline: true);
+                    return Id.ToString();
                 }
                 case "shape":
                 {
