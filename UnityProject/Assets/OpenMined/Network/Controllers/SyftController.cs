@@ -18,6 +18,7 @@ namespace OpenMined.Network.Controllers
 
 		private Dictionary<int, FloatTensor> tensors;
 		private Dictionary<int, Model> models;
+		
 		public bool allow_new_tensors = true;
 
 		public SyftController (ComputeShader _shader)
