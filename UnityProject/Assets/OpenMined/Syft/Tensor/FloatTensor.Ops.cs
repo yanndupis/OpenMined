@@ -230,29 +230,6 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-        public FloatTensor Clamp(float m, bool inline = false)
-        {
-            var result = inline ? this : this.emptyTensorCopy();
-            if (dataOnGpu)
-            {
-                //result.Gpu(shader);
-                //if (!inline) return DivScalarGPU(value, result);
-                //DivScalarGPU_(value);
-                //return this;
-            }
-            result.Data = data.AsParallel().Select(x => 1/x //(x < m) ? m : x
-                                //if(x < value)
-                                //{return value;
-                                //}
-                                //else
-                                //{
-                                 //   return x;
-                                //}
-
-                                ).ToArray();
-            return result;
-        }
-
         public FloatTensor Cos(bool inline = false)
         {
             if (dataOnGpu)

@@ -141,6 +141,12 @@ namespace OpenMined.Network.Controllers
 								Linear model = new Linear(this, int.Parse(msgObj.tensorIndexParams[1]), int.Parse(msgObj.tensorIndexParams[2]));
 								return model.Id.ToString();
 							}
+							else if (model_type == "relu")
+							{
+								Debug.LogFormat("<color=magenta>createModel:</color> {0}", model_type);
+								ReLU model = new ReLU(this);
+								return model.Id.ToString();
+							}
 							else if (model_type == "sigmoid")
 							{
 								Debug.LogFormat("<color=magenta>createModel:</color> {0}", model_type);

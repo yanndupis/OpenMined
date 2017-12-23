@@ -281,14 +281,6 @@ namespace OpenMined.Syft.Tensor
                     this.Ceil(inline: true);
                     return this.id + "";
                 }
-                case "clamp":
-                {
-                    //FloatTensor result = Clamp(float.Parse(msgObj.tensorIndexParams[0]));
-                    var m = float.Parse(msgObj.tensorIndexParams[0]);
-                    var result = Copy();
-                    result.Clamp(m);
-                    return result.Id + "";
-                }
                 case "copy":
                 {
                     var result = Copy();
