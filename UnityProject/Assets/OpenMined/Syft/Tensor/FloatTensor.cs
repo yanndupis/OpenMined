@@ -677,6 +677,11 @@ namespace OpenMined.Syft.Tensor
                     }
                     return data;
                 }
+                case "sample":
+                {
+                    var result = this.Sample();
+                    return result.Id + "";
+                }
                 case "sign":
                 {
                     Debug.LogFormat("sign");

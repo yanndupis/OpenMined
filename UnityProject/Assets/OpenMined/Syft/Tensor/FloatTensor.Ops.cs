@@ -3,8 +3,6 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Schema;
-using UnityEditor.Experimental.Build.AssetBundle;
 
 namespace OpenMined.Syft.Tensor
 {
@@ -652,6 +650,30 @@ namespace OpenMined.Syft.Tensor
                 return this;
             }
             result.Data = data.AsParallel().Select(x => 1 / (float) Math.Sqrt(x)).ToArray();
+            return result;
+        }
+
+        public IntTensor Sample()
+        {
+            var result = factory.ctrl.intTensorFactory.Create(shape);
+
+            if (dataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+
+            for (int i = 0; i < size; i++)
+            {
+                if (UnityEngine.Random.value < data[i])
+                {
+                    result.Data[i] = 1;
+                }
+                else
+                {
+                    result.Data[i] = 0;
+                }
+                 
+            }
             return result;
         }
 
