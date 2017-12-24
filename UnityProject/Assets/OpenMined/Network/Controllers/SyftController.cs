@@ -18,6 +18,8 @@ namespace OpenMined.Network.Controllers
 		[SerializeField] private ComputeShader shader;
 
 		public FloatTensorFactory floatTensorFactory;
+		public IntTensorFactory intTensorFactory;
+		
 		private Dictionary<int, Model> models;
 		
 		public bool allow_new_tensors = true;
@@ -26,8 +28,9 @@ namespace OpenMined.Network.Controllers
 		{
 			shader = _shader;
 
-			//tensors = new Dictionary<int, FloatTensor> ();
 			floatTensorFactory = new FloatTensorFactory(_shader);
+			intTensorFactory = new IntTensorFactory(_shader);
+			
 			models = new Dictionary<int, Model> ();
 		}
 
@@ -71,17 +74,35 @@ namespace OpenMined.Network.Controllers
 
 				switch (msgObj.objectType)
 				{
-					case "tensor":
+					case "FloatTensor":
 					{
 						if (msgObj.objectIndex == 0 && msgObj.functionCall == "create")
 						{
 							FloatTensor tensor = floatTensorFactory.Create(_shape: msgObj.shape, _data: msgObj.data, _shader: this.Shader);
-							//Debug.LogFormat("<color=magenta>createTensor:{1}</color> {0}", string.Join(", ", tensor.Data), tensor.Id);
 							return tensor.Id.ToString();
 						}
 						else
 						{
 							FloatTensor tensor = floatTensorFactory.Get(msgObj.objectIndex);
+							// Process message's function
+							return tensor.ProcessMessage(msgObj, this);
+						}
+					}
+					case "IntegerTensor":
+					{
+						if (msgObj.objectIndex == 0 && msgObj.functionCall == "create")
+						{
+							int[] data = new int[msgObj.data.Length];
+							for (int i = 0; i < msgObj.data.Length; i++)
+							{
+								data[i] = (int)msgObj.data[i];
+							}
+							IntTensor tensor = intTensorFactory.Create(_shape: msgObj.shape, _data: data, _shader: this.Shader);
+							return tensor.Id.ToString();
+						}
+						else
+						{
+							IntTensor tensor = intTensorFactory.Get(msgObj.objectIndex);
 							// Process message's function
 							return tensor.ProcessMessage(msgObj, this);
 						}
