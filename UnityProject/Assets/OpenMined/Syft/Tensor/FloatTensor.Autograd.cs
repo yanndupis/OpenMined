@@ -157,6 +157,7 @@ namespace OpenMined.Syft.Tensor
 				    }
 				    else if (creation_op == "pow_scalar")
 				    {
+
 					    FloatTensor x = factory.Get(creators[0]).Copy();
 					    x.autograd = false;
 					    
