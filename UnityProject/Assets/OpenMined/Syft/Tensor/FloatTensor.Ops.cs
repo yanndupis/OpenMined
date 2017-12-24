@@ -14,7 +14,7 @@ namespace OpenMined.Syft.Tensor
         {
 //			FloatTensor result = new FloatTensor(ctrl, _shape:shape, _data:data, _dataBuffer:dataBuffer, _shader:this.shader);
 //			return new FloatTensor(ctrl, _shape:shape, _dataOnGpu:dataOnGpu, _shader:shader);
-            FloatTensor result = new FloatTensor(controller,
+            FloatTensor result = factory.Create(
                 _shape: this.shape,
                 _data: data,
                 _dataBuffer: dataBuffer,
@@ -42,6 +42,19 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+        public FloatTensor createZerosTensorLike() {
+            FloatTensor new_tensor = this.emptyTensorCopy ();
+            new_tensor.Zero_ ();
+            return new_tensor;
+        }
+
+        public FloatTensor createOnesTensorLike() {
+            FloatTensor new_tensor = this.emptyTensorCopy();
+            new_tensor.Zero_ ();
+            new_tensor.Add ((float)1,true);
+            return new_tensor;
+        }
+        
 		public FloatTensor Abs(bool inline = false)
 		// Returns a new Tensor with the smallest integer greater than or equal to each element
 		{
@@ -682,7 +695,7 @@ namespace OpenMined.Syft.Tensor
                 data[dim] = shape[dim];
             }
 
-            var result = new FloatTensor(_controller: controller, _data: data, _shape: ndims);
+            var result = factory.Create(_data: data, _shape: ndims);
 
             return result;
         }
@@ -758,7 +771,7 @@ namespace OpenMined.Syft.Tensor
             {
                 return TruncGPU();
             }
-            var result = new FloatTensor(_controller: controller, _shape: shape, _shader: this.shader);
+            var result = factory.Create(_shape: shape, _shader: this.shader);
             result.Data = data.AsParallel().Select(x => (float) Math.Truncate((double) x)).ToArray();
             return result;
         }
@@ -927,7 +940,7 @@ namespace OpenMined.Syft.Tensor
                 }
                 else
                 {
-                    result = new FloatTensor(_controller: controller, _shape: new_shape, _shader: this.shader, _copyData: false);
+                    result = factory.Create(_shape: new_shape, _shader: this.shader, _copyData: false);
                 }
             }
             else if (inline)
@@ -937,7 +950,7 @@ namespace OpenMined.Syft.Tensor
             }
             else
             {
-                result = new FloatTensor(_controller: controller, _data: data, _shape: new_shape, _shader: shader, _copyData: false);
+                result = factory.Create(_data: data, _shape: new_shape, _shader: shader, _copyData: false);
             }
             return result;
         }
@@ -1075,7 +1088,7 @@ namespace OpenMined.Syft.Tensor
             {
                 if (!inline)
                 {
-                    result = new FloatTensor(_controller: controller, _data: data, _shape: shape, _shader: shader, _copyData: false);
+                    result = factory.Create(_data: data, _shape: shape, _shader: shader, _copyData: false);
                 }
             }
             else
@@ -1094,7 +1107,7 @@ namespace OpenMined.Syft.Tensor
         }
 
 		private FloatTensor expand(int[] sizes) {
-			FloatTensor result = new FloatTensor(_controller: controller, _data: data, _shape: shape, _shader: shader, _copyData: false);
+			FloatTensor result = factory.Create(_data: data, _shape: shape, _shader: shader, _copyData: false);
 
 			for (int i = 0; i < shape.Length; i++) {
 				if (sizes[i] != -1 && sizes[i] != shape[i]) {
@@ -1111,7 +1124,7 @@ namespace OpenMined.Syft.Tensor
 		}
 
 		private FloatTensor expandNewDimensions(int[] sizes) {
-			FloatTensor result = new FloatTensor(_controller: controller, _data: data, _shape: shape, _shader: shader, _copyData: false);
+			FloatTensor result = factory.Create(_data: data, _shape: shape, _shader: shader, _copyData: false);
 
 			int diffLength = sizes.Length - shape.Length;
 			
@@ -1173,7 +1186,7 @@ namespace OpenMined.Syft.Tensor
             var output = new float[1];
             output[0] = mapper(MultiThread.Reduce(data, reducer), Size);
 
-            return new FloatTensor(controller, outDims, output);
+            return factory.Create(_shape:outDims, _data:output);
         }
 
         internal void ForEach(
@@ -1262,7 +1275,7 @@ namespace OpenMined.Syft.Tensor
                 output[index] = mapper(acc, length);
             });
 
-            return new FloatTensor(controller, outDims, output);
+            return factory.Create(_shape:outDims, _data:output);
         }
 
         public FloatTensor Min(int dim = -1, bool keepdim = false)

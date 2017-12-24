@@ -7,6 +7,7 @@ using OpenMined.Syft.Tensor;
 using OpenMined.Network.Utils;
 using OpenMined.Syft.Layer;
 using OpenMined.Syft.Layer.Loss;
+using OpenMined.Syft.Tensor.Factories;
 using Random = UnityEngine.Random;
 
 
@@ -16,10 +17,8 @@ namespace OpenMined.Network.Controllers
 	{
 		[SerializeField] private ComputeShader shader;
 
-		private Dictionary<int, FloatTensor> tensors;
+		public FloatTensorFactory floatTensorFactory;
 		private Dictionary<int, Model> models;
-		
-		private Dictionary<int, FloatTensor> deleted_tensors;
 		
 		public bool allow_new_tensors = true;
 
@@ -27,7 +26,8 @@ namespace OpenMined.Network.Controllers
 		{
 			shader = _shader;
 
-			tensors = new Dictionary<int, FloatTensor> ();
+			//tensors = new Dictionary<int, FloatTensor> ();
+			floatTensorFactory = new FloatTensorFactory(_shader);
 			models = new Dictionary<int, Model> ();
 		}
 
@@ -45,11 +45,6 @@ namespace OpenMined.Network.Controllers
 			return syn0;
 		}
 
-		public FloatTensor getTensor (int index)
-		{
-			return tensors [index];
-		}
-
 		public Model getModel(int index)
 		{
 			return models[index];
@@ -59,54 +54,11 @@ namespace OpenMined.Network.Controllers
 		{
 			return shader;
 		}
-
-		public void GetMoreMemory()
-		{
-			// TODO: iterate through deleted_tensors and delete some of them... maybe... the oldest?
-		}
-		
-		public void RemoveTensor (int index)
-		{
-			Debug.LogFormat("<color=purple>Removing Tensor {0}</color>", index);
-			
-			var tensor = tensors [index];
-			
-			tensors.Remove (index);
-			deleted_tensors.Add(index,tensor);
-		}
-
-		public int addTensor (FloatTensor tensor)
-		{
-			if (allow_new_tensors)
-			{
-				//Debug.LogFormat("<color=green>Adding Tensor {0}</color>", tensor.Id);
-				tensor.Controller = this;
-				tensors.Add(tensor.Id, tensor);
-				return (tensor.Id);
-			}
-			else
-			{
-				throw new Exception("Tried to allocate tensor");
-			}
-		}
 		
 		public int addModel (Model model)
 		{
 			models.Add (model.Id, model);
 			return (model.Id);
-		}
-
-		public FloatTensor createZerosTensorLike(FloatTensor tensor) {
-			FloatTensor new_tensor = tensor.emptyTensorCopy ();
-			new_tensor.Zero_ ();
-			return new_tensor;
-		}
-
-		public FloatTensor createOnesTensorLike(FloatTensor tensor) {
-			FloatTensor new_tensor = tensor.emptyTensorCopy();
-			new_tensor.Zero_ ();
-			new_tensor.Add ((float)1,true);
-			return new_tensor;
 		}
 
 		public string processMessage (string json_message)
@@ -123,17 +75,13 @@ namespace OpenMined.Network.Controllers
 					{
 						if (msgObj.objectIndex == 0 && msgObj.functionCall == "create")
 						{
-							FloatTensor tensor = new FloatTensor(this, _shape: msgObj.shape, _data: msgObj.data, _shader: this.Shader);
+							FloatTensor tensor = floatTensorFactory.Create(_shape: msgObj.shape, _data: msgObj.data, _shader: this.Shader);
 							//Debug.LogFormat("<color=magenta>createTensor:{1}</color> {0}", string.Join(", ", tensor.Data), tensor.Id);
 							return tensor.Id.ToString();
 						}
-						else if (msgObj.objectIndex > tensors.Count)
-						{
-							return "Invalid objectIndex: " + msgObj.objectIndex;
-						}
 						else
 						{
-							FloatTensor tensor = this.getTensor(msgObj.objectIndex);
+							FloatTensor tensor = floatTensorFactory.Get(msgObj.objectIndex);
 							// Process message's function
 							return tensor.ProcessMessage(msgObj, this);
 						}
@@ -194,7 +142,7 @@ namespace OpenMined.Network.Controllers
 					{
 						if (msgObj.functionCall == "num_tensors")
 						{
-							return tensors.Count + "";
+							return floatTensorFactory.Count() + "";
 						} else if (msgObj.functionCall == "num_models")
 						{
 							return models.Count + "";

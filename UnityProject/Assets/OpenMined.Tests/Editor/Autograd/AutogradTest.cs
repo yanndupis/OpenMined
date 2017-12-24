@@ -46,17 +46,17 @@ namespace OpenMined.Tests.Editor.Autograd
         {
             float[] data1 = { 1, 2, 3, 4 };
             int[] shape1 = { 2, 2 };
-            var tensor = new Syft.Tensor.FloatTensor(_controller: ctrl, _data: data1, _shape: shape1, _autograd: true);
+            var tensor = ctrl.floatTensorFactory.Create(_data: data1, _shape: shape1, _autograd: true);
 
             float[] data2 = { 0.4200f, 0.0707f, 0.0099f, 0.0013f };
             int[] shape2 = { 2, 2 };
 
-            var expectedGradTensor = new Syft.Tensor.FloatTensor(_controller: ctrl, _data: data2, _shape: shape2);
+            var expectedGradTensor = ctrl.floatTensorFactory.Create(_data: data2, _shape: shape2);
 
             float[] data3 = { 0.7616f, 0.9640f, 0.9951f, 0.9993f };
             int[] shape3 = { 2, 2 };
 
-            var expectedTanhTensor = new Syft.Tensor.FloatTensor(_controller: ctrl, _data: data3, _shape: shape3);
+            var expectedTanhTensor = ctrl.floatTensorFactory.Create(_data: data3, _shape: shape3);
 
             var tanhTensor = tensor.Tanh();
 
@@ -78,12 +78,12 @@ namespace OpenMined.Tests.Editor.Autograd
         {
             float[] data1 = { 1, 2, 3, 4 };
             int[] shape1 = { 2, 2 };
-            var tensor1 = new Syft.Tensor.FloatTensor(_controller: ctrl, _data: data1, _shape: shape1, _autograd: true);
+            var tensor1 = ctrl.floatTensorFactory.Create(_data: data1, _shape: shape1, _autograd: true);
 
             float[] data2 = { 0.1966f, 0.1050f, 0.0452f, 0.0177f };
             int[] shape2 = { 2, 2 };
 
-            var expectedGradTensor = new Syft.Tensor.FloatTensor(_controller: ctrl, _data: data2, _shape: shape2);
+            var expectedGradTensor = ctrl.floatTensorFactory.Create(_data: data2, _shape: shape2);
 
             var sigmoidTensor = tensor1.Sigmoid();
 
