@@ -12,8 +12,7 @@ namespace OpenMined.Syft.Tensor
     {
         internal FloatTensor emptyTensorCopy()
         {
-//			FloatTensor result = new FloatTensor(ctrl, _shape:shape, _data:data, _dataBuffer:dataBuffer, _shader:this.shader);
-//			return new FloatTensor(ctrl, _shape:shape, _dataOnGpu:dataOnGpu, _shader:shader);
+
             FloatTensor result = factory.Create(
                 _shape: this.shape,
                 _data: data,
@@ -34,7 +33,6 @@ namespace OpenMined.Syft.Tensor
         // parameters are overrides
         public FloatTensor Copy(FloatTensor result = null)
         {
-            
             result = HookAutograd(ref result, "copy", false);
             result.Zero_();
             result.Add(this, inline: true);
