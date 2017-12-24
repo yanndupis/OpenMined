@@ -173,25 +173,8 @@ namespace OpenMined.Syft.Tensor
             return (int) (hash % int.MaxValue);
         }
 
-        public void setStridesAndCheckShape()
-        {
-            // Third: let's initialize our strides.
-            strides = new int[shape.Length];
 
-            // Fifth: we should check that the buffer's size matches our shape.
-            int acc = 1;
-            for (var i = shape.Length - 1; i >= 0; --i)
-            {
-                strides[i] = acc;
-                acc *= shape[i];
-            }
-
-            // Sixth: let's check to see that our shape and data sizes match.
-            size = acc;
-        }
-
-
-        public string ProcessMessage(Command msgObj, SyftController ctrl)
+        override public string ProcessMessage(Command msgObj, SyftController ctrl)
         {
             switch (msgObj.functionCall)
             {
@@ -256,7 +239,7 @@ namespace OpenMined.Syft.Tensor
                 case "add_scalar":
                 {
                     Debug.LogFormat("add_scalar");
-                    FloatTensor result = Add(float.Parse(msgObj.tensorIndexParams[0]));
+                    FloatTensor result = (FloatTensor) Add(float.Parse(msgObj.tensorIndexParams[0]));
                     return result.Id + "";
                 }
                 case "add_scalar_":
@@ -747,8 +730,18 @@ namespace OpenMined.Syft.Tensor
                 }
                 case "to_numpy":
                 {
-                    return string.Join(" ", data);
-                }
+                    if (DataOnGpu)
+                        {
+                            var tmpData = new float[size];
+                            dataBuffer.GetData(tmpData);
+                            return string.Join(" ", tmpData);
+
+                        } else
+                        {
+                            return string.Join(" ", Data);
+
+                        }
+                    }
                 case "tan":
                 {
                     var result = Tan();
