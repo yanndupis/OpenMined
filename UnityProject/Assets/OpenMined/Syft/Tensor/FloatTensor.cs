@@ -27,8 +27,8 @@ namespace OpenMined.Syft.Tensor
             bool _keepgrads = false,
             string _creation_op = null)
         {
+            
             controller = _controller;
-
             dataOnGpu = _dataOnGpu;
             autograd = _autograd;
             keepgrads = _keepgrads;
@@ -133,8 +133,38 @@ namespace OpenMined.Syft.Tensor
             {
                 shader = controller.GetShader();
             }
-//
-//
+
+        }
+        
+        // a poorly designed hash function based on the shape and location (CPU/GPU) of this tensor
+        // it's used primarily to help search for 
+        public int ConfigShapeHash()
+        {
+            
+            long hash = 0;
+            if (DataOnGpu)
+                hash += 31415;
+            
+            for (int i = 0; i < shape.Length; i++)
+            {
+                hash += ((hash * 314159) % (long)int.MaxValue + (long)shape[i]) % int.MaxValue;
+                hash = hash % int.MaxValue;
+            }
+            
+            return (int) hash;
+        }
+        
+        // a reasonalbe hash based on size and data location
+        // it's used primarily to help search for 
+        public int ConfigSizeHash()
+        {
+            
+            long hash = 0;
+            if (DataOnGpu)
+                hash += int.MaxValue / 2;
+            hash += size;
+            
+            return (int) (hash % int.MaxValue);
         }
 
         public void setStridesAndCheckShape()

@@ -19,6 +19,8 @@ namespace OpenMined.Network.Controllers
 		private Dictionary<int, FloatTensor> tensors;
 		private Dictionary<int, Model> models;
 		
+		private Dictionary<int, FloatTensor> deleted_tensors;
+		
 		public bool allow_new_tensors = true;
 
 		public SyftController (ComputeShader _shader)
@@ -58,12 +60,19 @@ namespace OpenMined.Network.Controllers
 			return shader;
 		}
 
+		public void GetMoreMemory()
+		{
+			// TODO: iterate through deleted_tensors and delete some of them... maybe... the oldest?
+		}
+		
 		public void RemoveTensor (int index)
 		{
 			Debug.LogFormat("<color=purple>Removing Tensor {0}</color>", index);
+			
 			var tensor = tensors [index];
+			
 			tensors.Remove (index);
-			tensor.Dispose ();
+			deleted_tensors.Add(index,tensor);
 		}
 
 		public int addTensor (FloatTensor tensor)
