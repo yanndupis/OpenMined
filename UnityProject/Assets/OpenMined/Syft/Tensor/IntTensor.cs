@@ -23,7 +23,7 @@ namespace OpenMined.Syft.Tensor
             // DON'T USE THIS CONSTRUCTOR - USE FACTORY INSTEAD.
             // factory.Create(all, my, params)
         }
-        
+
         public void init(IntTensorFactory _factory,
             int[] _shape,
             int[] _data = null,
@@ -48,7 +48,7 @@ namespace OpenMined.Syft.Tensor
             }
 
             // Second: since shape is valid, let's save it
-            shape = (int[])_shape.Clone();
+            shape = (int[]) _shape.Clone();
 
             setStridesAndCheckShape();
 
@@ -124,14 +124,14 @@ namespace OpenMined.Syft.Tensor
             // Lastly: let's set the ID of the tensor.
             // IDEs might show a warning, but ref and volatile seems to be working with Interlocked API.
 
-            #pragma warning disable 420
+#pragma warning disable 420
             id = System.Threading.Interlocked.Increment(ref nCreated);
 
             if (SystemInfo.supportsComputeShaders && shader == null)
             {
                 shader = factory.GetShader();
             }
-            
+
         }
 
         public void initShaderKernels()
@@ -153,7 +153,88 @@ namespace OpenMined.Syft.Tensor
 
         public override string ProcessMessage(Command msgObj, SyftController ctrl)
         {
-            throw new NotImplementedException();
+            switch (msgObj.functionCall)
+            {
+                case "get":
+                {
+                    var param_to_get = msgObj.tensorIndexParams[0];
+                    switch (param_to_get)
+                    {
+                        case "creation_op":
+                        {
+                            if (creation_op != null)
+                                return creation_op;
+                            return "";
+                        }
+                        case "data":
+                        {
+                            string out_str = "";
+
+                            if (dataOnGpu)
+                            {
+                                int[] temp_data = new int[size];
+                                dataBuffer.GetData(temp_data);
+                                for (int i = 0; i < size; i++)
+                                {
+                                    out_str += temp_data[i] + ",";
+                                }
+                            }
+                            else
+                            {
+                                for (int i = 0; i < size; i++)
+                                {
+                                    out_str += this[i] + ",";
+                                }
+                            }
+
+                            return out_str;
+                        }
+                        case "dataOnGpu":
+                        {
+                            if (dataOnGpu)
+                            {
+                                return "1";
+                            }
+                            return "0";
+                        }
+                        case "id":
+                        {
+                            return this.id + "";
+                        }
+                        case "size":
+                        {
+                            return this.size + "";
+                        }
+                        case "shape":
+                        {
+                            string shape_str = "";
+                            for (int i = 0; i < shape.Length; i++)
+                            {
+                                shape_str += (shape[i] + ",");
+                            }
+                            return shape_str;
+                        }
+                    }
+                    return "param not found or not configured with a getter";
+                }
+                    
+                case "to_numpy":
+                {
+                    if (DataOnGpu)
+                    {
+                        var tmpData = new float[size];
+                        dataBuffer.GetData(tmpData);
+                        return string.Join(" ", tmpData);
+
+                    } else
+                    {
+                        return string.Join(" ", Data);
+
+                    }
+                }
+
+            }
+            return "IntTensor.processMessage: Command not found:" + msgObj.functionCall;
         }
     }
 }

@@ -88,7 +88,7 @@ namespace OpenMined.Network.Controllers
 							return tensor.ProcessMessage(msgObj, this);
 						}
 					}
-					case "IntegerTensor":
+					case "IntTensor":
 					{
 						if (msgObj.objectIndex == 0 && msgObj.functionCall == "create")
 						{
