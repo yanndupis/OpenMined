@@ -25,8 +25,6 @@ namespace OpenMined.Syft.Tensor
 
         protected ComputeShader shader;
 
-        protected SyftController controller;
-
         #endregion
 
         #region Properties
@@ -35,12 +33,6 @@ namespace OpenMined.Syft.Tensor
         {
             get { return shader; }
             set { shader = value; }
-        }
-
-        public SyftController Controller
-        {
-            get { return controller; }
-            set { controller = value; }
         }
 
         public T[] Data
