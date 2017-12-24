@@ -66,7 +66,7 @@ namespace OpenMined.Syft.Tensor
 				    else
 				    {
 					    //Debug.Log("Updating For Tensor Id:" + this.id);
-					    this.Grad.Zero_();
+					    //this.Grad.Zero_();
 					    this.Grad.Add(grad, inline: true);
 				    }
 
@@ -157,12 +157,14 @@ namespace OpenMined.Syft.Tensor
 				    }
 				    else if (creation_op == "pow_scalar")
 				    {
-					    FloatTensor x = factory.Get(creators[0]);
-					    x.Backward(x.Mul(grad).Mul(factory.Get(creators[1]).Data[0]), this);
+					    FloatTensor x = factory.Get(creators[0]).Copy();
+					    x.autograd = false;
+					    
+					    factory.Get(creators[0]).Backward(x.Mul(grad).Mul(factory.Get(creators[1]).Data[0]), this);
 				    }
 				    else if (creation_op == "sub_elem")
 				    {
-					    factory.Get(creators[0]).Backward(grad.Copy(), this);
+					    factory.Get(creators[0]).Backward(grad, this);
 					    factory.Get(creators[1]).Backward(grad.Neg(), this);
 				    }
 				    else if (creation_op == "sub_scalar")
