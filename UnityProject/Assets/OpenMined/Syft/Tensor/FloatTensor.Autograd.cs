@@ -168,7 +168,8 @@ namespace OpenMined.Syft.Tensor
 
                         FloatTensor c = this.Copy();
                         c.autograd = false;
-                        factory.Get(creators[0]).Backward(grad, this);
+                        var dim = int.Parse(creation_op.Split('-')[1]);
+                        factory.Get(creators[0]).Backward(Functional.ReLUGradient(this, grad, dim), this);
 
                     }
 				    else if (creation_op == "sub_elem")
