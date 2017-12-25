@@ -650,6 +650,11 @@ namespace OpenMined.Syft.Tensor
                     Neg(inline: true);
                     return Id.ToString();
                 }
+                case "relu":
+                {
+                    var result = ReLU();
+                    return result.Id.ToString();
+                }
                 case "rsqrt":
                 {
                     var result = Rsqrt();
