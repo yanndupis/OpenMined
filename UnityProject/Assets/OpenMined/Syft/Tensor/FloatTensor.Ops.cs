@@ -1307,12 +1307,20 @@ namespace OpenMined.Syft.Tensor
 
         public FloatTensor Sum(int dim = -1, bool keepdim = false)
         {
-            if (!IsContiguous()) {
-                throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
+            if (!IsContiguous())
+            {
+                throw new InvalidOperationException("Tensor must be contiguous, call Contiguous() to convert");
             }
 
             // TODO: Implement GPU op. with GPU tests.
-            return Reduce(dim, keepdim, (acc, val, index, arr) => acc + val, (val, len) => val);
+            var result = Reduce(dim, keepdim, (acc, val, index, arr) => acc + val, (val, len) => val);
+
+            result = HookAutograd(ref result, "sum-" + dim.ToString(), false);
+            
+            // is there a better way autograd should be being turned on here????
+            result.autograd = true;
+
+            return result;
         }
 
         public FloatTensor Prod(int dim = -1, bool keepdim = false)
