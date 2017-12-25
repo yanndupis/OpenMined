@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using OpenMined.Network.Controllers;
 using UnityEngine;
 
 namespace OpenMined.Syft.Tensor.Factories
@@ -8,10 +9,12 @@ namespace OpenMined.Syft.Tensor.Factories
     {
         private Dictionary<int, FloatTensor> tensors;
         private ComputeShader shader;
+        public SyftController ctrl;
 
-        public FloatTensorFactory(ComputeShader _shader)
+        public FloatTensorFactory(ComputeShader _shader, SyftController _ctrl)
         {
             shader = _shader;
+            ctrl = _ctrl;
             tensors = new Dictionary<int, FloatTensor>();
         }
         
