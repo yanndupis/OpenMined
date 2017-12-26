@@ -12,7 +12,7 @@ namespace OpenMined.Syft.Layer.Loss
 		{
 			init("crossentropyloss");
 
-#pragma warning disable 420
+			#pragma warning disable 420
 			id = System.Threading.Interlocked.Increment(ref nCreated);
 			controller.addModel(this);
 
@@ -24,7 +24,6 @@ namespace OpenMined.Syft.Layer.Loss
 
             FloatTensor softmax = Functional.Softmax(prediction);
             FloatTensor output = ((target.Mul(softmax.Log1p())).Sum()).Mul(-1);
-
 			return output;
 		}
 

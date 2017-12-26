@@ -3,8 +3,6 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Schema;
-using UnityEditor.Experimental.Build.AssetBundle;
 
 namespace OpenMined.Syft.Tensor
 {
@@ -12,11 +10,47 @@ namespace OpenMined.Syft.Tensor
     {
         internal FloatTensor emptyTensorCopy()
         {
-//			FloatTensor result = new FloatTensor(ctrl, _shape:shape, _data:data, _dataBuffer:dataBuffer, _shader:this.shader);
-//			return new FloatTensor(ctrl, _shape:shape, _dataOnGpu:dataOnGpu, _shader:shader);
-            return Copy();
+
+            FloatTensor result = factory.Create(
+                _shape: this.shape,
+                _data: data,
+                _dataBuffer: dataBuffer,
+                _shapeBuffer: shapeBuffer,
+                _shader: shader,
+                _copyData: true,
+                _dataOnGpu: dataOnGpu,
+                _autograd: autograd,
+                _keepgrads: keepgrads,
+                _creation_op: "emptyTensorCopy");
+            
+            result.Zero_();
+
+            return result;
+        }
+        
+        // parameters are overrides
+        public FloatTensor Copy(FloatTensor result = null)
+        {
+            result = HookAutograd(ref result, "copy", false);
+            result.Zero_();
+            result.Add(this, inline: true);
+            
+            return result;
         }
 
+        public FloatTensor createZerosTensorLike() {
+            FloatTensor new_tensor = this.emptyTensorCopy ();
+            new_tensor.Zero_ ();
+            return new_tensor;
+        }
+
+        public FloatTensor createOnesTensorLike() {
+            FloatTensor new_tensor = this.emptyTensorCopy();
+            new_tensor.Zero_ ();
+            new_tensor.Add ((float)1,true);
+            return new_tensor;
+        }
+        
 		public FloatTensor Abs(bool inline = false)
 		// Returns a new Tensor with the smallest integer greater than or equal to each element
 		{
@@ -37,7 +71,7 @@ namespace OpenMined.Syft.Tensor
 			}
 			return result;
 		}
-
+        
 		public FloatTensor Add(FloatTensor x, bool inline = false, FloatTensor result = null)
 		{
 		    
@@ -80,6 +114,27 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
+        
+        public FloatTensor Add(float value, bool inline = false, FloatTensor result = null)
+        {
+            result = HookAutograd (ref result, value, "add_scalar", inline);
+
+            if (dataOnGpu) {
+                result.Gpu (shader);
+                if (inline) { AddScalarGPU_ (value); return this; }
+                else { return AddScalarGPU (value, result); }
+            }
+            else {
+                var nCpu = SystemInfo.processorCount;
+                Parallel.For (0, nCpu, workerId => {
+                    var max = size * (workerId + 1) / nCpu;
+                    for (var i = size * workerId / nCpu; i < max; i++) {
+                        result.Data [i] = value + Data [i];
+                    }
+                });
+            }
+            return result;
+        }
 
 		public FloatTensor Acos (bool inline = false)
 		{
@@ -138,27 +193,6 @@ namespace OpenMined.Syft.Tensor
 
 				return result;
 			}
-		}
-
-		public FloatTensor Add(float value, bool inline = false)
-		{
-			FloatTensor result = inline ? this : this.emptyTensorCopy();
-
-			if (dataOnGpu) {
-				result.Gpu (shader);
-				if (inline) { AddScalarGPU_ (value); return this; }
-				else { return AddScalarGPU (value, result); }
-			}
-			else {
-				var nCpu = SystemInfo.processorCount;
-				Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++) {
-					        result.Data [i] = value + Data [i];
-					}
-				});
-			}
-			return result;
 		}
 
 		public FloatTensor AddMatrixMultiply(FloatTensor tensor1, FloatTensor tensor2)
@@ -230,6 +264,58 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+        public int DimIndices2DataIndex(ref int[] dim_indices)
+        {
+            int index = 0;
+            for (int i = 0; i < dim_indices.Length; i++)
+            {
+                index += dim_indices[i] * strides[i];
+            }
+            return index;
+        }
+
+        public int[] DataIndex2DimIndices(int index, ref int[] dim_indices)
+        {
+            if (dim_indices == null)
+            {
+                dim_indices = new int[strides.Length];
+            }
+
+            for (int i = 0; i < strides.Length; i++)
+            {
+                if (strides[i] != 0)
+                {
+                    dim_indices[i] = index / strides[i];
+                    index %= strides[i];
+                }
+                else
+                {
+                    dim_indices[i] = 0;
+                }
+            }
+
+            return dim_indices;
+        }
+
+        public FloatTensor Contiguous(FloatTensor result = null)
+        {
+
+            if (DataOnGpu)
+                throw new NotSupportedException();
+         
+            result = HookAutograd(ref result, "contiguous", false, shape);
+
+            int[] dim_indices = new int[strides.Length];
+            
+            for (int i = 0; i < result.Data.Length; i++)
+            {    
+                result.DataIndex2DimIndices(i, ref dim_indices);
+                result.data[i] = this.data[this.DimIndices2DataIndex(ref dim_indices)];
+            }   
+            
+            return result;
+        }
+        
         public FloatTensor Cos(bool inline = false)
         {
             if (dataOnGpu)
@@ -285,8 +371,6 @@ namespace OpenMined.Syft.Tensor
                 result.Data = data.AsParallel().Zip(x.Data.AsParallel(), (a, b) => a / b).ToArray();
             }
 
-                
-
             return result;
         }
 
@@ -340,9 +424,10 @@ namespace OpenMined.Syft.Tensor
             return this;
         }
 
-        public FloatTensor Div(float value, bool inline = false)
+        public FloatTensor Div(float value, bool inline = false, FloatTensor result = null)
         {
-            var result = inline ? this : this.emptyTensorCopy();
+            result = HookAutograd (ref result, value, "div_scalar", inline);
+            
             if (dataOnGpu)
             {
                 result.Gpu(shader);
@@ -397,6 +482,7 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+
         public bool IsContiguous()
         {
             long z = 1;
@@ -414,6 +500,7 @@ namespace OpenMined.Syft.Tensor
             }
             return true;
         }
+
 
         public FloatTensor Log1p(bool inline = false)
         {	
@@ -481,9 +568,9 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-        public FloatTensor Mul(float value, bool inline = false)
+        public FloatTensor Mul(float value, bool inline = false, FloatTensor result = null)
         {
-            var result = inline ? this : this.emptyTensorCopy();
+            result = HookAutograd (ref result, value, "mul_scalar", inline);
 
             if (dataOnGpu)
             {
@@ -575,9 +662,9 @@ namespace OpenMined.Syft.Tensor
         }
 
 
-        public FloatTensor Neg(bool inline = false)
+        public FloatTensor Neg(bool inline = false, FloatTensor result = null)
         {
-            var result = inline ? this : this.emptyTensorCopy();
+            result = HookAutograd(ref result, "neg", inline);
 
             if (dataOnGpu)
             {
@@ -597,9 +684,8 @@ namespace OpenMined.Syft.Tensor
             if (dataOnGpu)
             {
                 if (!inline) return ReciprocalGPU();
-                //TODO impolemnt inline for GPU
-                //ReciprocalGPU_();
-                //return this;
+                ReciprocalGPU_();
+                return this;
             }
             result.Data = data.AsParallel().Select(x => (float) 1/x).ToArray();
             return result;
@@ -629,6 +715,30 @@ namespace OpenMined.Syft.Tensor
                 return this;
             }
             result.Data = data.AsParallel().Select(x => 1 / (float) Math.Sqrt(x)).ToArray();
+            return result;
+        }
+
+        public IntTensor Sample()
+        {
+            var result = factory.ctrl.intTensorFactory.Create(shape);
+
+            if (dataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+
+            for (int i = 0; i < size; i++)
+            {
+                if (UnityEngine.Random.value < data[i])
+                {
+                    result.Data[i] = 1;
+                }
+                else
+                {
+                    result.Data[i] = 0;
+                }
+                 
+            }
             return result;
         }
 
@@ -672,7 +782,7 @@ namespace OpenMined.Syft.Tensor
                 data[dim] = shape[dim];
             }
 
-            var result = new FloatTensor(_controller: controller, _data: data, _shape: ndims);
+            var result = factory.Create(_data: data, _shape: ndims);
 
             return result;
         }
@@ -692,9 +802,9 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-        public FloatTensor Sub(float value, bool inline = false)
+        public FloatTensor Sub(float value, bool inline = false, FloatTensor result = null)
         {
-            var result = inline ? this : this.emptyTensorCopy();
+            result = HookAutograd (ref result, value, "sub_scalar", inline);
 
             if (dataOnGpu)
             {
@@ -748,12 +858,12 @@ namespace OpenMined.Syft.Tensor
             {
                 return TruncGPU();
             }
-            var result = new FloatTensor(_controller: controller, _shape: shape, _shader: this.shader);
+            var result = factory.Create(_shape: shape, _shader: this.shader);
             result.Data = data.AsParallel().Select(x => (float) Math.Truncate((double) x)).ToArray();
             return result;
         }
 
-        public FloatTensor Transpose(int dimension1, int dimension2)
+        public FloatTensor Transpose(int dimension1, int dimension2, FloatTensor result = null)
         {
             if (!IsContiguous()) {
                 throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
@@ -775,7 +885,9 @@ namespace OpenMined.Syft.Tensor
             newShape[dimension1] = newShape[dimension2];
             newShape[dimension2] = tmpDim;
 
-            var result = new FloatTensor(_controller: controller, _shape: newShape, _shader: this.shader);
+            //var result = new FloatTensor(_controller: controller, _shape: newShape, _shader: this.shader);
+            result = HookAutograd(ref result, "transpose", false, newShape);
+  
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
             {
@@ -884,7 +996,6 @@ namespace OpenMined.Syft.Tensor
                 }
             });
 
-
             return result;
         }
 
@@ -916,7 +1027,7 @@ namespace OpenMined.Syft.Tensor
                 }
                 else
                 {
-                    result = new FloatTensor(_controller: controller, _shape: new_shape, _shader: this.shader, _copyData: false);
+                    result = factory.Create(_shape: new_shape, _shader: this.shader, _copyData: false);
                 }
             }
             else if (inline)
@@ -926,8 +1037,11 @@ namespace OpenMined.Syft.Tensor
             }
             else
             {
-                result = new FloatTensor(_controller: controller, _data: data, _shape: new_shape, _shader: shader, _copyData: false);
+                result = factory.Create(_data: data, _shape: new_shape, _shader: shader, _copyData: false);
             }
+
+            result = HookAutograd(ref result, "view", inline);
+            
             return result;
         }
 
@@ -1008,21 +1122,6 @@ namespace OpenMined.Syft.Tensor
             return this.View(x.shape, inline);
         }
 
-        public void Zero_()
-        {
-            if (!IsContiguous()) {
-                throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
-            }
-
-            if (dataOnGpu)
-            {
-                ZeroGPU_();
-                return;
-            }
-
-            Array.Clear(data, 0, size);
-        }
-
         public FloatTensor Squeeze(int dim = -1, bool inline = false)
         {
             if (!IsContiguous()) {
@@ -1064,7 +1163,7 @@ namespace OpenMined.Syft.Tensor
             {
                 if (!inline)
                 {
-                    result = new FloatTensor(_controller: controller, _data: data, _shape: shape, _shader: shader, _copyData: false);
+                    result = factory.Create(_data: data, _shape: shape, _shader: shader, _copyData: false);
                 }
             }
             else
@@ -1082,9 +1181,13 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-		private FloatTensor expand(int[] sizes) {
-			FloatTensor result = new FloatTensor(_controller: controller, _data: data, _shape: shape, _shader: shader, _copyData: false);
+		private FloatTensor expand(int[] sizes, FloatTensor result = null)
+		{
 
+            // TODO: make more complicated version which does not copy data
+		    result = HookAutograd(ref result, "expand", false, shape);
+		    result.Add(this, inline: true);
+		    
 			for (int i = 0; i < shape.Length; i++) {
 				if (sizes[i] != -1 && sizes[i] != shape[i]) {
 					if (shape[i] == 1 || strides[i] == 0) {
@@ -1100,7 +1203,7 @@ namespace OpenMined.Syft.Tensor
 		}
 
 		private FloatTensor expandNewDimensions(int[] sizes) {
-			FloatTensor result = new FloatTensor(_controller: controller, _data: data, _shape: shape, _shader: shader, _copyData: false);
+			FloatTensor result = factory.Create(_data: data, _shape: shape, _shader: shader, _copyData: false);
 
 			int diffLength = sizes.Length - shape.Length;
 			
@@ -1151,7 +1254,7 @@ namespace OpenMined.Syft.Tensor
 			}
 		}
 
-/*** Reduce Functions ***/
+        /*** Reduce Functions ***/
 
         public FloatTensor Reduce(
             Func<float, float, int, float[], float> reducer,
@@ -1162,7 +1265,7 @@ namespace OpenMined.Syft.Tensor
             var output = new float[1];
             output[0] = mapper(MultiThread.Reduce(data, reducer), Size);
 
-            return new FloatTensor(controller, outDims, output);
+            return factory.Create(_shape:outDims, _data:output);
         }
 
         internal void ForEach(
@@ -1191,7 +1294,9 @@ namespace OpenMined.Syft.Tensor
             int dim,
             bool keepdim,
             Func<float, float, int, float[], float> reducer,
-            Func<float, int, float> mapper
+            Func<float, int, float> mapper,
+            string creation_op = null,
+            FloatTensor result = null
         )
         {
             int len = shape.Length;
@@ -1236,8 +1341,8 @@ namespace OpenMined.Syft.Tensor
 
                 outSize *= shape[i];
             }
-
-            var output = new float[outSize];
+            
+            result = HookAutograd(ref result, creation_op, false, outDims);
 
             _dimForEach(outSize, values, stride, (vals, index, length) =>
             {
@@ -1248,10 +1353,10 @@ namespace OpenMined.Syft.Tensor
                     acc = reducer(acc, vals[i], i, vals);
                 }
 
-                output[index] = mapper(acc, length);
+                result.data[index] = mapper(acc, length);
             });
 
-            return new FloatTensor(controller, outDims, output);
+            return result;
         }
 
         public FloatTensor Min(int dim = -1, bool keepdim = false)
@@ -1261,7 +1366,7 @@ namespace OpenMined.Syft.Tensor
             }
 
             // TODO: Implement GPU op. with GPU tests.
-            return Reduce(dim, keepdim, (acc, val, index, arr) => acc < val ? acc : val, (val, len) => val);
+            return Reduce(dim, keepdim, (acc, val, index, arr) => acc < val ? acc : val, (val, len) => val, creation_op:"min_"+dim);
         }
 
         public FloatTensor Max(int dim = -1, bool keepdim = false)
@@ -1271,17 +1376,20 @@ namespace OpenMined.Syft.Tensor
             }
 
             // TODO: Implement GPU op. with GPU tests.
-            return Reduce(dim, keepdim, (acc, val, index, arr) => acc > val ? acc : val, (val, len) => val);
+            return Reduce(dim, keepdim, (acc, val, index, arr) => acc > val ? acc : val, (val, len) => val, creation_op:"max_"+dim);
         }
 
         public FloatTensor Sum(int dim = -1, bool keepdim = false)
         {
-            if (!IsContiguous()) {
-                throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
+            if (!IsContiguous())
+            {
+                throw new InvalidOperationException("Tensor must be contiguous, call Contiguous() to convert");
             }
 
             // TODO: Implement GPU op. with GPU tests.
-            return Reduce(dim, keepdim, (acc, val, index, arr) => acc + val, (val, len) => val);
+
+            return Reduce(dim, keepdim, (acc, val, index, arr) => acc + val, (val, len) => val, creation_op:"sum_"+dim);
+
         }
 
         public FloatTensor Prod(int dim = -1, bool keepdim = false)
@@ -1291,7 +1399,7 @@ namespace OpenMined.Syft.Tensor
             }
             
             // TODO: Implement GPU op. with GPU tests.
-            return Reduce(dim, keepdim, (acc, val, index, arr) => acc * val, (val, len) => val);
+            return Reduce(dim, keepdim, (acc, val, index, arr) => acc * val, (val, len) => val, creation_op:"prod_"+dim);
         }
 
         public FloatTensor Mean(int dim = -1, bool keepdim = false)
@@ -1299,9 +1407,9 @@ namespace OpenMined.Syft.Tensor
             if (!IsContiguous()) {
                 throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
             }
-
+            
             // TODO: Implement GPU op. with GPU tests.
-            return Reduce(dim, keepdim, (acc, val, index, arr) => acc + val, (val, len) => val / (float) len);
+            return Reduce(dim, keepdim, (acc, val, index, arr) => acc + val, (val, len) => val / (float) len, creation_op:"mean_"+dim);
         }
 
 
