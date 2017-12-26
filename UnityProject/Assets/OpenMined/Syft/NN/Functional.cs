@@ -135,37 +135,48 @@ namespace OpenMined.Syft.NN
             return gradInput;
         }
 
-        public static FloatTensor ReLUGradient(FloatTensor output, FloatTensor gradOutput, int dim)
+        public static FloatTensor ReLUGradient(FloatTensor output)
         {
+            var innerSize = 1;
 
-            //var dimSize = output.Shape[dim];
+            for (var i = 0 ; i < output.Shape.Length; ++i)
+                innerSize *= output.Shape[i];
+
+            //var dimSize = output.Shape[-1];
+            var dimSize = innerSize;
 
             var gradInput = output.emptyTensorCopy();
 
-            var outerSize = 1;
-            var innerSize = 1;
-            var dimSize = output.Shape[dim];
+            //var outerSize = 1;
+            //var innerSize = 1;
+            //var dimSize = output.Shape[dim];
 
-            for (var i = 0; i < dim; ++i)
-                outerSize *= output.Shape[i];
+            //for (var i = 0; i < dim; ++i)
+            //    outerSize *= output.Shape[i];
 
-            for (var i = dim + 1; i < output.Shape.Length; ++i)
-                innerSize *= output.Shape[i];
+            //for (var i = dim + 1; i < output.Shape.Length; ++i)
+            //    innerSize *= output.Shape[i];
 
-            var dimStride = innerSize;
-            var outerStride = dimSize * dimStride;
+            //var dimStride = innerSize;
+            //var outerStride = dimSize * dimStride;
 
 
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
             {
-                //var max = dimSize * (workerId + 1) / nCpu;
-                var max = (outerSize * innerSize) * (workerId + 1) / nCpu;
-                        //for (var i = size * workerId / nCpu; i < max; i++)
-                        for (var i = (outerSize * innerSize) * workerId / nCpu; i < max; i++)
+                var max = dimSize * (workerId + 1) / nCpu;
+                //var max = (outerSize * innerSize) * (workerId + 1) / nCpu;
+                        for (var i = dimSize * workerId / nCpu; i < max; i++)
+                        //for (var i = (outerSize * innerSize) * workerId / nCpu; i < max; i++)
                         {
                                 //gradInput.Data[i] = (float)(Math.Floor(this.Data[i]));
-                                gradInput.Data[i] = 0;
+                                if (output.Data[i] > 0)
+                                {
+                                    gradInput.Data[i] = 1;
+                                }else
+                                {
+                                    gradInput.Data[i] = 0;
+                                }                
                         }
                     });
 
