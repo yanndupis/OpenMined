@@ -71,7 +71,7 @@ namespace OpenMined.Syft.Tensor
 			}
 			return result;
 		}
-
+        
 		public FloatTensor Add(FloatTensor x, bool inline = false, FloatTensor result = null)
 		{
 		    
@@ -264,6 +264,58 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+        public int DimIndices2DataIndex(ref int[] dim_indices)
+        {
+            int index = 0;
+            for (int i = 0; i < dim_indices.Length; i++)
+            {
+                index += dim_indices[i] * strides[i];
+            }
+            return index;
+        }
+
+        public int[] DataIndex2DimIndices(int index, ref int[] dim_indices)
+        {
+            if (dim_indices == null)
+            {
+                dim_indices = new int[strides.Length];
+            }
+
+            for (int i = 0; i < strides.Length; i++)
+            {
+                if (strides[i] != 0)
+                {
+                    dim_indices[i] = index / strides[i];
+                    index %= strides[i];
+                }
+                else
+                {
+                    dim_indices[i] = 0;
+                }
+            }
+
+            return dim_indices;
+        }
+
+        public FloatTensor Contiguous(FloatTensor result = null)
+        {
+
+            if (DataOnGpu)
+                throw new NotSupportedException();
+         
+            result = HookAutograd(ref result, "contiguous", false, shape);
+
+            int[] dim_indices = new int[strides.Length];
+            
+            for (int i = 0; i < result.Data.Length; i++)
+            {
+                result.DataIndex2DimIndices(i, ref dim_indices);
+                result.data[i] = this.data[this.DimIndices2DataIndex(ref dim_indices)];
+            }   
+            
+            return result;
+        }
+        
         public FloatTensor Cos(bool inline = false)
         {
             if (dataOnGpu)
@@ -1182,7 +1234,7 @@ namespace OpenMined.Syft.Tensor
 			}
 		}
 
-/*** Reduce Functions ***/
+        /*** Reduce Functions ***/
 
         public FloatTensor Reduce(
             Func<float, float, int, float[], float> reducer,
@@ -1330,7 +1382,7 @@ namespace OpenMined.Syft.Tensor
             if (!IsContiguous()) {
                 throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
             }
-
+            
             // TODO: Implement GPU op. with GPU tests.
             return Reduce(dim, keepdim, (acc, val, index, arr) => acc + val, (val, len) => val / (float) len);
         }
