@@ -182,6 +182,7 @@ namespace OpenMined.Syft.Tensor
 					    
 					    factory.Get(creators[0]).Backward(self_nograd.Neg().Add((float) 1).Mul(self_nograd).Mul(grad), this);
 				    }
+
  				    else if (creation_op.Contains("sum"))
  				    {
  						// TOOD: sum backprop logic   
@@ -192,27 +193,27 @@ namespace OpenMined.Syft.Tensor
 
  					   	parent.Backward(grad.View(view_shape).expand(parent.shape).Contiguous());
  				    }
-					/*else if (creation_op.Contains("sum-"))
-					{
-						FloatTensor input = factory.Get(creators[0]).Copy();
-						input.autograd = false;
+// 					else if (creation_op.Contains("sum-"))
+// 					{
+// 						FloatTensor input = factory.Get(creators[0]).Copy();
+// 						input.autograd = false;
 		
-						var dim = input.Shape.Length - 1;
-						var split = creation_op.Split('-');
-						if (split.Length > 1)
-						{
-							dim = int.Parse(split[1]);
-						}
+// 						var dim = input.Shape.Length - 1;
+// 						var split = creation_op.Split('-');
+// 						if (split.Length > 1)
+// 						{
+// 							dim = int.Parse(split[1]);
+// 						}
 		
-						// right now this function only supports grads the same size as the output
-						// and the grad must be contiguous
-						if(grad.Shape.SequenceEqual(this.Shape) && grad.Strides.SequenceEqual(this.Strides)) {
-							var res = SumGradient(input, grad, dim);
-							factory.Get(creators[0]).Backward(res, this);
-						} else {
-							throw new InvalidOperationException("Unable to calculate grad on output of different shape or stride");
-						}
-					}  */          
+// 						// right now this function only supports grads the same size as the output
+// 						// and the grad must be contiguous
+// 						if(grad.Shape.SequenceEqual(this.Shape) && grad.Strides.SequenceEqual(this.Strides)) {
+// 							var res = SumGradient(input, grad, dim);
+// 							factory.Get(creators[0]).Backward(res, this);
+// 						} else {
+// 							throw new InvalidOperationException("Unable to calculate grad on output of different shape or stride");
+// 						}
+// 					}
 				    else if (creation_op == "transpose")
 				    {
 					    factory.Get(creators[0]).Backward(grad.Transpose());
