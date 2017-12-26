@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using OpenMined.Syft.NN;
 using System.Linq;
 using UnityEngine;
+using Vuforia;
 
 namespace OpenMined.Syft.Tensor
 {
@@ -191,27 +192,27 @@ namespace OpenMined.Syft.Tensor
 
 // 					   	parent.Backward(grad.View(view_shape).expand(parent.shape));
 // 				    }
-            else if (creation_op.Contains("sum-"))
-            {
-                FloatTensor input = controller.getTensor(creators[0]).Copy();
-                input.autograd = false;
-
-                var dim = input.Shape.Length - 1;
-                var split = creation_op.Split('-');
-                if (split.Length > 1)
-                {
-                    dim = int.Parse(split[1]);
-                }
-
-                // right now this function only supports grads the same size as the output
-                // and the grad must be contiguous
-                if(grad.Shape.SequenceEqual(this.Shape) && grad.Strides.SequenceEqual(this.Strides)) {
-                    var res = SumGradient(input, grad, dim);
-                    controller.getTensor(creators[0]).Backward(res, this);
-                } else {
-                    throw new InvalidOperationException("Unable to calculate grad on output of different shape or stride");
-                }
-            }            
+					else if (creation_op.Contains("sum-"))
+					{
+						FloatTensor input = factory.Get(creators[0]).Copy();
+						input.autograd = false;
+		
+						var dim = input.Shape.Length - 1;
+						var split = creation_op.Split('-');
+						if (split.Length > 1)
+						{
+							dim = int.Parse(split[1]);
+						}
+		
+						// right now this function only supports grads the same size as the output
+						// and the grad must be contiguous
+						if(grad.Shape.SequenceEqual(this.Shape) && grad.Strides.SequenceEqual(this.Strides)) {
+							var res = SumGradient(input, grad, dim);
+							factory.Get(creators[0]).Backward(res, this);
+						} else {
+							throw new InvalidOperationException("Unable to calculate grad on output of different shape or stride");
+						}
+					}            
 				    else if (creation_op == "transpose")
 				    {
 					    factory.Get(creators[0]).Backward(grad.Transpose());
@@ -296,7 +297,7 @@ namespace OpenMined.Syft.Tensor
                 }
             }
 
-            return new FloatTensor(_controller: controller, _shape: inputShape, _data: newData.ToArray());
+            return factory.Create( _shape: inputShape, _data: newData.ToArray());
         }
     }
 }
