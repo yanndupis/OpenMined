@@ -182,17 +182,17 @@ namespace OpenMined.Syft.Tensor
 					    
 					    factory.Get(creators[0]).Backward(self_nograd.Neg().Add((float) 1).Mul(self_nograd).Mul(grad), this);
 				    }
-// 				    else if (creation_op.Contains("sum"))
-// 				    {
-// 						// TOOD: sum backprop logic   
-// 					    FloatTensor parent = factory.Get(creators[0]);
+ 				    else if (creation_op.Contains("sum"))
+ 				    {
+ 						// TOOD: sum backprop logic   
+ 					    FloatTensor parent = factory.Get(creators[0]);
 					    
-// 					    int[] view_shape = (int[])parent.shape.Clone();
-// 					    view_shape[int.Parse(creation_op.Split('_')[1])] = 1;
+ 					    int[] view_shape = (int[])parent.shape.Clone();
+ 					    view_shape[int.Parse(creation_op.Split('_')[1])] = 1;
 
-// 					   	parent.Backward(grad.View(view_shape).expand(parent.shape));
-// 				    }
-					else if (creation_op.Contains("sum-"))
+ 					   	parent.Backward(grad.View(view_shape).expand(parent.shape).Contiguous());
+ 				    }
+					/*else if (creation_op.Contains("sum-"))
 					{
 						FloatTensor input = factory.Get(creators[0]).Copy();
 						input.autograd = false;
@@ -212,7 +212,7 @@ namespace OpenMined.Syft.Tensor
 						} else {
 							throw new InvalidOperationException("Unable to calculate grad on output of different shape or stride");
 						}
-					}            
+					}  */          
 				    else if (creation_op == "transpose")
 				    {
 					    factory.Get(creators[0]).Backward(grad.Transpose());
