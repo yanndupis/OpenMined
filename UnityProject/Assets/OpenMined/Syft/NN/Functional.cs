@@ -135,41 +135,21 @@ namespace OpenMined.Syft.NN
             return gradInput;
         }
 
-        public static FloatTensor ReLUGradient(FloatTensor output)
+        public static FloatTensor ReLUDeriv(FloatTensor output)
         {
-            var innerSize = 1;
+            var dimSize = 1;
 
             for (var i = 0 ; i < output.Shape.Length; ++i)
-                innerSize *= output.Shape[i];
-
-            //var dimSize = output.Shape[-1];
-            var dimSize = innerSize;
+                dimSize *= output.Shape[i];
 
             var gradInput = output.emptyTensorCopy();
-
-            //var outerSize = 1;
-            //var innerSize = 1;
-            //var dimSize = output.Shape[dim];
-
-            //for (var i = 0; i < dim; ++i)
-            //    outerSize *= output.Shape[i];
-
-            //for (var i = dim + 1; i < output.Shape.Length; ++i)
-            //    innerSize *= output.Shape[i];
-
-            //var dimStride = innerSize;
-            //var outerStride = dimSize * dimStride;
-
 
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
             {
                 var max = dimSize * (workerId + 1) / nCpu;
-                //var max = (outerSize * innerSize) * (workerId + 1) / nCpu;
                         for (var i = dimSize * workerId / nCpu; i < max; i++)
-                        //for (var i = (outerSize * innerSize) * workerId / nCpu; i < max; i++)
                         {
-                                //gradInput.Data[i] = (float)(Math.Floor(this.Data[i]));
                                 if (output.Data[i] > 0)
                                 {
                                     gradInput.Data[i] = 1;
