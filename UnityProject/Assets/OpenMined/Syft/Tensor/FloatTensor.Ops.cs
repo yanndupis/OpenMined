@@ -1353,7 +1353,7 @@ namespace OpenMined.Syft.Tensor
             }
 
             // TODO: Implement GPU op. with GPU tests.
-            return Reduce(dim, keepdim, (acc, val, index, arr) => acc < val ? acc : val, (val, len) => val);
+            return Reduce(dim, keepdim, (acc, val, index, arr) => acc < val ? acc : val, (val, len) => val, creation_op:"min_"+dim);
         }
 
         public FloatTensor Max(int dim = -1, bool keepdim = false)
@@ -1363,7 +1363,7 @@ namespace OpenMined.Syft.Tensor
             }
 
             // TODO: Implement GPU op. with GPU tests.
-            return Reduce(dim, keepdim, (acc, val, index, arr) => acc > val ? acc : val, (val, len) => val);
+            return Reduce(dim, keepdim, (acc, val, index, arr) => acc > val ? acc : val, (val, len) => val, creation_op:"max_"+dim);
         }
 
         public FloatTensor Sum(int dim = -1, bool keepdim = false)
@@ -1386,7 +1386,7 @@ namespace OpenMined.Syft.Tensor
             }
             
             // TODO: Implement GPU op. with GPU tests.
-            return Reduce(dim, keepdim, (acc, val, index, arr) => acc * val, (val, len) => val);
+            return Reduce(dim, keepdim, (acc, val, index, arr) => acc * val, (val, len) => val, creation_op:"prod_"+dim);
         }
 
         public FloatTensor Mean(int dim = -1, bool keepdim = false)
@@ -1396,7 +1396,7 @@ namespace OpenMined.Syft.Tensor
             }
             
             // TODO: Implement GPU op. with GPU tests.
-            return Reduce(dim, keepdim, (acc, val, index, arr) => acc + val, (val, len) => val / (float) len);
+            return Reduce(dim, keepdim, (acc, val, index, arr) => acc + val, (val, len) => val / (float) len, creation_op:"mean_"+dim);
         }
 
 
