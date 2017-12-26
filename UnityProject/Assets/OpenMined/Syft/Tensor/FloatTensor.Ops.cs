@@ -71,7 +71,7 @@ namespace OpenMined.Syft.Tensor
 			}
 			return result;
 		}
-
+        
 		public FloatTensor Add(FloatTensor x, bool inline = false, FloatTensor result = null)
 		{
 		    
@@ -264,6 +264,58 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+        public int DimIndices2DataIndex(ref int[] dim_indices)
+        {
+            int index = 0;
+            for (int i = 0; i < dim_indices.Length; i++)
+            {
+                index += dim_indices[i] * strides[i];
+            }
+            return index;
+        }
+
+        public int[] DataIndex2DimIndices(int index, ref int[] dim_indices)
+        {
+            if (dim_indices == null)
+            {
+                dim_indices = new int[strides.Length];
+            }
+
+            for (int i = 0; i < strides.Length; i++)
+            {
+                if (strides[i] != 0)
+                {
+                    dim_indices[i] = index / strides[i];
+                    index %= strides[i];
+                }
+                else
+                {
+                    dim_indices[i] = 0;
+                }
+            }
+
+            return dim_indices;
+        }
+
+        public FloatTensor Contiguous(FloatTensor result = null)
+        {
+
+            if (DataOnGpu)
+                throw new NotSupportedException();
+         
+            result = HookAutograd(ref result, "contiguous", false, shape);
+
+            int[] dim_indices = new int[strides.Length];
+            
+            for (int i = 0; i < result.Data.Length; i++)
+            {    
+                result.DataIndex2DimIndices(i, ref dim_indices);
+                result.data[i] = this.data[this.DimIndices2DataIndex(ref dim_indices)];
+            }   
+            
+            return result;
+        }
+        
         public FloatTensor Cos(bool inline = false)
         {
             if (dataOnGpu)
@@ -974,6 +1026,9 @@ namespace OpenMined.Syft.Tensor
             {
                 result = factory.Create(_data: data, _shape: new_shape, _shader: shader, _copyData: false);
             }
+
+            result = HookAutograd(ref result, "view", inline);
+            
             return result;
         }
 
@@ -1113,9 +1168,13 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-		private FloatTensor expand(int[] sizes) {
-			FloatTensor result = factory.Create(_data: data, _shape: shape, _shader: shader, _copyData: false);
+		private FloatTensor expand(int[] sizes, FloatTensor result = null)
+		{
 
+            // TODO: make more complicated version which does not copy data
+		    result = HookAutograd(ref result, "expand", false, shape);
+		    result.Add(this, inline: true);
+		    
 			for (int i = 0; i < shape.Length; i++) {
 				if (sizes[i] != -1 && sizes[i] != shape[i]) {
 					if (shape[i] == 1 || strides[i] == 0) {
@@ -1182,7 +1241,7 @@ namespace OpenMined.Syft.Tensor
 			}
 		}
 
-/*** Reduce Functions ***/
+        /*** Reduce Functions ***/
 
         public FloatTensor Reduce(
             Func<float, float, int, float[], float> reducer,
@@ -1222,7 +1281,9 @@ namespace OpenMined.Syft.Tensor
             int dim,
             bool keepdim,
             Func<float, float, int, float[], float> reducer,
-            Func<float, int, float> mapper
+            Func<float, int, float> mapper,
+            string creation_op = null,
+            FloatTensor result = null
         )
         {
             int len = shape.Length;
@@ -1267,8 +1328,8 @@ namespace OpenMined.Syft.Tensor
 
                 outSize *= shape[i];
             }
-
-            var output = new float[outSize];
+            
+            result = HookAutograd(ref result, creation_op, false, outDims);
 
             _dimForEach(outSize, values, stride, (vals, index, length) =>
             {
@@ -1279,10 +1340,10 @@ namespace OpenMined.Syft.Tensor
                     acc = reducer(acc, vals[i], i, vals);
                 }
 
-                output[index] = mapper(acc, length);
+                result.data[index] = mapper(acc, length);
             });
 
-            return factory.Create(_shape:outDims, _data:output);
+            return result;
         }
 
         public FloatTensor Min(int dim = -1, bool keepdim = false)
@@ -1313,14 +1374,9 @@ namespace OpenMined.Syft.Tensor
             }
 
             // TODO: Implement GPU op. with GPU tests.
-            var result = Reduce(dim, keepdim, (acc, val, index, arr) => acc + val, (val, len) => val);
 
-            result = HookAutograd(ref result, "sum-" + dim.ToString(), false);
-            
-            // is there a better way autograd should be being turned on here????
-            result.autograd = true;
+            return Reduce(dim, keepdim, (acc, val, index, arr) => acc + val, (val, len) => val, creation_op:"sum_"+dim);
 
-            return result;
         }
 
         public FloatTensor Prod(int dim = -1, bool keepdim = false)
@@ -1338,7 +1394,7 @@ namespace OpenMined.Syft.Tensor
             if (!IsContiguous()) {
                 throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
             }
-
+            
             // TODO: Implement GPU op. with GPU tests.
             return Reduce(dim, keepdim, (acc, val, index, arr) => acc + val, (val, len) => val / (float) len);
         }

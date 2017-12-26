@@ -32,6 +32,7 @@ namespace OpenMined.Syft.Tensor
 		  
 		    if (autograd)
 		    {
+			    
 			    if (grad == null)
 			    {
 				    Debug.Log("Grad not Found... Creating Gradient of 1s");
@@ -180,6 +181,37 @@ namespace OpenMined.Syft.Tensor
 					    
 					    factory.Get(creators[0]).Backward(self_nograd.Neg().Add((float) 1).Mul(self_nograd).Mul(grad), this);
 				    }
+// 				    else if (creation_op.Contains("sum"))
+// 				    {
+// 						// TOOD: sum backprop logic   
+// 					    FloatTensor parent = factory.Get(creators[0]);
+					    
+// 					    int[] view_shape = (int[])parent.shape.Clone();
+// 					    view_shape[int.Parse(creation_op.Split('_')[1])] = 1;
+
+// 					   	parent.Backward(grad.View(view_shape).expand(parent.shape));
+// 				    }
+            else if (creation_op.Contains("sum-"))
+            {
+                FloatTensor input = controller.getTensor(creators[0]).Copy();
+                input.autograd = false;
+
+                var dim = input.Shape.Length - 1;
+                var split = creation_op.Split('-');
+                if (split.Length > 1)
+                {
+                    dim = int.Parse(split[1]);
+                }
+
+                // right now this function only supports grads the same size as the output
+                // and the grad must be contiguous
+                if(grad.Shape.SequenceEqual(this.Shape) && grad.Strides.SequenceEqual(this.Strides)) {
+                    var res = SumGradient(input, grad, dim);
+                    controller.getTensor(creators[0]).Backward(res, this);
+                } else {
+                    throw new InvalidOperationException("Unable to calculate grad on output of different shape or stride");
+                }
+            }            
 				    else if (creation_op == "transpose")
 				    {
 					    factory.Get(creators[0]).Backward(grad.Transpose());
@@ -200,27 +232,12 @@ namespace OpenMined.Syft.Tensor
 					    factory.Get(creators[0]).Backward(Functional.SoftmaxGradient(this, grad, dim), this);
 
 				    }
-                    else if (creation_op.Contains("sum-"))
-                    {
-                        FloatTensor input = controller.getTensor(creators[0]).Copy();
-                        input.autograd = false;
 
-                        var dim = input.Shape.Length - 1;
-                        var split = creation_op.Split('-');
-                        if (split.Length > 1)
-                        {
-                            dim = int.Parse(split[1]);
-                        }
-
-                        // right now this function only supports grads the same size as the output
-                        // and the grad must be contiguous
-                        if(grad.Shape.SequenceEqual(this.Shape) && grad.Strides.SequenceEqual(this.Strides)) {
-                            var res = SumGradient(input, grad, dim);
-                            controller.getTensor(creators[0]).Backward(res, this);
-                        } else {
-                            throw new InvalidOperationException("Unable to calculate grad on output of different shape or stride");
-                        }
-                    }
+				    else if (creation_op == "view")
+				    {
+					    FloatTensor parent = factory.Get(creators[0]);
+					    parent.Backward(this.Grad.View(parent.shape));
+				    }
 				    else
 				    {
 					    Debug.Log("Autograd couldn't find matching operation for:" + creation_op);   
