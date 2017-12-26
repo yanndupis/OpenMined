@@ -786,6 +786,42 @@ namespace OpenMined.Tests.Editor.FloatTensor
         }
 
         [Test]
+        public void ReLUAutograd()
+        {
+
+            int[] ash = new int[] {2, 5};
+            float[] a_data = new float[] {-1, -2, -3, -4, -5, 2, 3, 4, 5, 6};
+            var a = ctrl.floatTensorFactory.Create(_data: a_data, _shape: ash);
+
+            a.Autograd = true;
+
+            int[] ces = ash;
+            float[] c_data = new float[] {0f , 0f ,  0f ,  0f ,  0f , 2f,  3f,  4f,  5f,  6f};
+
+            var c_expected = ctrl.floatTensorFactory.Create(_data: c_data,_shape: ces);
+            var c_grad = ctrl.floatTensorFactory.Create(_data: new float[]{1,1,1,1,1,1,1,1,1,1}, _shape: ces);
+
+            float[] a_grad_data = new float[] {0f,  0f,  0f,  0f,  0f, 1f,  1f,  1f,  1f,  1f};
+            var a_grad = ctrl.floatTensorFactory.Create(_data: a_grad_data, _shape: ash);
+
+            var c = a.ReLU();
+            c.Backward(c_grad);
+
+            for (int i = 0; i < c.Size; i++)
+            {
+                // multiplication is correct
+                Assert.True(Math.Abs(c_expected.Data[i] - c.Data[i]) < 0.000001);
+            }
+
+            for (int i = 0; i < a_grad.Size; i++)
+            {
+                // a gradients are correct
+                Assert.True(Math.Abs(a_grad.Data[i] - a.Grad.Data[i]) < 0.0001);    
+            }
+              
+        }
+
+        [Test]
         public void SigmoidAutograd()
         {
 

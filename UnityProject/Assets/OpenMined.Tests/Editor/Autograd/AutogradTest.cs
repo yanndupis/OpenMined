@@ -74,6 +74,27 @@ namespace OpenMined.Tests.Editor.Autograd
         }
 
         [Test]
+        public void ReLUAutograd()
+        {
+            float[] data1 = { -1, -2, 3, 4 };
+            int[] shape1 = { 2, 2 };
+            var tensor1 = ctrl.floatTensorFactory.Create(_data: data1, _shape: shape1, _autograd: true);
+
+            float[] data2 = { 0f, 0f, 1f, 1f };
+            int[] shape2 = { 2, 2 };
+
+            var expectedGradTensor = ctrl.floatTensorFactory.Create(_data: data2, _shape: shape2);
+
+            var sigmoidTensor = tensor1.ReLU();
+
+            sigmoidTensor.Backward();
+
+            for (var i = 0; i < tensor1.Size; i++) {
+                Assert.AreEqual(expectedGradTensor.Data[i], tensor1.Grad.Data[i], 1e-4);
+            }
+        }
+
+        [Test]
         public void SigmoidAutograd()
         {
             float[] data1 = { 1, 2, 3, 4 };
