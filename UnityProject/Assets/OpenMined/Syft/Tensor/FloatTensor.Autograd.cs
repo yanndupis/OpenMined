@@ -31,6 +31,7 @@ namespace OpenMined.Syft.Tensor
 		  
 		    if (autograd)
 		    {
+			    
 			    if (grad == null)
 			    {
 				    Debug.Log("Grad not Found... Creating Gradient of 1s");
@@ -179,6 +180,16 @@ namespace OpenMined.Syft.Tensor
 					    
 					    factory.Get(creators[0]).Backward(self_nograd.Neg().Add((float) 1).Mul(self_nograd).Mul(grad), this);
 				    }
+				    else if (creation_op.Contains("sum"))
+				    {
+						// TOOD: sum backprop logic   
+					    FloatTensor parent = factory.Get(creators[0]);
+					    
+					    int[] view_shape = (int[])parent.shape.Clone();
+					    view_shape[int.Parse(creation_op.Split('_')[1])] = 1;
+
+					   	parent.Backward(grad.View(view_shape).expand(parent.shape));
+				    }
 				    else if (creation_op == "transpose")
 				    {
 					    factory.Get(creators[0]).Backward(grad.Transpose());
@@ -198,6 +209,11 @@ namespace OpenMined.Syft.Tensor
 					    var dim = int.Parse(creation_op.Split('-')[1]);
 					    factory.Get(creators[0]).Backward(Functional.SoftmaxGradient(this, grad, dim), this);
 
+				    }
+				    else if (creation_op == "view")
+				    {
+					    FloatTensor parent = factory.Get(creators[0]);
+					    parent.Backward(this.Grad.View(parent.shape));
 				    }
 				    else
 				    {
