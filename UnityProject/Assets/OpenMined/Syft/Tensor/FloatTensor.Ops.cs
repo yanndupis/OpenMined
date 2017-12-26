@@ -1368,12 +1368,15 @@ namespace OpenMined.Syft.Tensor
 
         public FloatTensor Sum(int dim = -1, bool keepdim = false)
         {
-            if (!IsContiguous()) {
-                throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
+            if (!IsContiguous())
+            {
+                throw new InvalidOperationException("Tensor must be contiguous, call Contiguous() to convert");
             }
 
             // TODO: Implement GPU op. with GPU tests.
+
             return Reduce(dim, keepdim, (acc, val, index, arr) => acc + val, (val, len) => val, creation_op:"sum_"+dim);
+
         }
 
         public FloatTensor Prod(int dim = -1, bool keepdim = false)
