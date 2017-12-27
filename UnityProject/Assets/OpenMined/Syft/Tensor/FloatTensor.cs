@@ -285,6 +285,11 @@ namespace OpenMined.Syft.Tensor
                     this.Ceil(inline: true);
                     return this.id + "";
                 }
+                case "contiguous":
+                {
+                    var result = Contiguous();
+                    return result.Id.ToString();
+                }
                 case "copy":
                 {
                     var result = Copy();
@@ -347,6 +352,16 @@ namespace OpenMined.Syft.Tensor
                 {
                     Exp(inline: true);
                     return Id.ToString();
+                }
+                case "expand":
+                {
+                    int[] new_dims = new int[msgObj.tensorIndexParams.Length];
+                    for (int i = 0; i < msgObj.tensorIndexParams.Length; i++)
+                    {
+                        new_dims[i] = int.Parse(msgObj.tensorIndexParams[i]);
+                    }
+                    var result = Expand(new_dims);
+                    return result.Id.ToString();
                 }
                 case "mul_scalar":
                 {
@@ -681,6 +696,11 @@ namespace OpenMined.Syft.Tensor
                         Gpu(ctrl.GetShader());
                     }
                     return data;
+                }
+                case "sample":
+                {
+                    var result = this.Sample();
+                    return result.Id + "";
                 }
                 case "sign":
                 {

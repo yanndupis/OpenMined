@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using OpenMined.Syft.NN;
+using System.Linq;
 using UnityEngine;
+using Vuforia;
 
 namespace OpenMined.Syft.Tensor
 {
@@ -31,6 +33,7 @@ namespace OpenMined.Syft.Tensor
 		  
 		    if (autograd)
 		    {
+			    
 			    if (grad == null)
 			    {
 				    Debug.Log("Grad not Found... Creating Gradient of 1s");
@@ -188,6 +191,38 @@ namespace OpenMined.Syft.Tensor
 					    
 					    factory.Get(creators[0]).Backward(self_nograd.Neg().Add((float) 1).Mul(self_nograd).Mul(grad), this);
 				    }
+
+ 				    else if (creation_op.Contains("sum"))
+ 				    {
+ 						// TOOD: sum backprop logic   
+ 					    FloatTensor parent = factory.Get(creators[0]);
+					    
+ 					    int[] view_shape = (int[])parent.shape.Clone();
+ 					    view_shape[int.Parse(creation_op.Split('_')[1])] = 1;
+
+ 					   	parent.Backward(grad.View(view_shape).expand(parent.shape).Contiguous());
+ 				    }
+// 					else if (creation_op.Contains("sum-"))
+// 					{
+// 						FloatTensor input = factory.Get(creators[0]).Copy();
+// 						input.autograd = false;
+		
+// 						var dim = input.Shape.Length - 1;
+// 						var split = creation_op.Split('-');
+// 						if (split.Length > 1)
+// 						{
+// 							dim = int.Parse(split[1]);
+// 						}
+		
+// 						// right now this function only supports grads the same size as the output
+// 						// and the grad must be contiguous
+// 						if(grad.Shape.SequenceEqual(this.Shape) && grad.Strides.SequenceEqual(this.Strides)) {
+// 							var res = SumGradient(input, grad, dim);
+// 							factory.Get(creators[0]).Backward(res, this);
+// 						} else {
+// 							throw new InvalidOperationException("Unable to calculate grad on output of different shape or stride");
+// 						}
+// 					}
 				    else if (creation_op == "transpose")
 				    {
 					    factory.Get(creators[0]).Backward(grad.Transpose());
@@ -208,6 +243,12 @@ namespace OpenMined.Syft.Tensor
 					    factory.Get(creators[0]).Backward(Functional.SoftmaxGradient(this, grad, dim), this);
 
 				    }
+
+				    else if (creation_op == "view")
+				    {
+					    FloatTensor parent = factory.Get(creators[0]);
+					    parent.Backward(this.Grad.View(parent.shape));
+				    }
 				    else
 				    {
 					    Debug.Log("Autograd couldn't find matching operation for:" + creation_op);   
@@ -219,6 +260,54 @@ namespace OpenMined.Syft.Tensor
 			    Debug.Log("Autograd off - skipping backprop...");
 		    }
 	    }
+        
+        private FloatTensor SumGradient(FloatTensor input, FloatTensor grad, int dim)
+        {
+            // want to make grad look like this
+            var inputShape = input.Shape;
+            var stride = input.Strides;
 
+            var gradData = grad.Data;
+            var newData = new List<float>();
+            
+            // once we have proper support for non-contiguous tensors
+            // most of this code can be replaced with a view and an expand
+            // view the grad to add a singleton dimension in the dimension
+            // of the sum and then expand it to the size of the input
+
+            if (dim == 0)
+            {
+                var st = stride[dim];
+                var sh = inputShape[dim];
+
+                for (var i = 0; i < sh; i++)
+                {
+                    newData.AddRange(gradData);
+                }
+            }
+            else
+            {
+                var index = 0;
+
+                var totalSize = 1;
+                for (var i = 0; i < inputShape.Length; i++)
+                {
+                    totalSize *= inputShape[i];
+                }
+
+                for (var i = 0; i < totalSize / (inputShape[dim] * stride[dim]); i++)
+                {
+                    for (var j = 0; j < inputShape[dim]; j++)
+                    {
+                        var segment = new ArraySegment<float>(gradData, index, stride[dim]);
+                        newData.AddRange(segment);
+                    }
+
+                    index += stride[dim];
+                }
+            }
+
+            return factory.Create( _shape: inputShape, _data: newData.ToArray());
+        }
     }
 }

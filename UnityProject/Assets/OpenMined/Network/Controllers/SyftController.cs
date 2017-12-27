@@ -28,7 +28,7 @@ namespace OpenMined.Network.Controllers
 		{
 			shader = _shader;
 
-			floatTensorFactory = new FloatTensorFactory(_shader);
+			floatTensorFactory = new FloatTensorFactory(_shader, this);
 			intTensorFactory = new IntTensorFactory(_shader);
 			
 			models = new Dictionary<int, Model> ();
@@ -136,6 +136,12 @@ namespace OpenMined.Network.Controllers
 							{
 								Debug.LogFormat("<color=magenta>createModel:</color> {0}", model_type);
 								Sequential model = new Sequential(this);
+								return model.Id.ToString();
+							}
+							else if (model_type == "policy")
+							{
+								Debug.LogFormat("<color=magenta>createModel:</color> {0}", model_type);
+								Policy model = new Policy(this,(Layer)getModel(int.Parse(msgObj.tensorIndexParams[1])));
 								return model.Id.ToString();
 							}
                             else if (model_type == "tanh")
