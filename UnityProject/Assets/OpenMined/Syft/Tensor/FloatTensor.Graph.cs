@@ -255,7 +255,7 @@ namespace OpenMined.Syft.Tensor
 		}
 
 		// hook autograd single parent
-		public FloatTensor HookAutograd(ref FloatTensor result, string creation_op, bool inline=false, int[] resultShape = null) {
+		public FloatTensor HookAutograd(ref FloatTensor result, string creation_op, bool inline=false, int[] resultShape = null, float[] resultData = null) {
 
 			if (inline)
 				return this;
@@ -293,6 +293,7 @@ namespace OpenMined.Syft.Tensor
 					{
 						result = factory.Create(
 							_shape: resultShape,
+							_data:resultData,
 							_dataOnGpu: dataOnGpu,
 							_autograd: autograd,
 							_keepgrads: keepgrads,

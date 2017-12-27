@@ -1081,7 +1081,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
             for (int i = 0; i < a.Size; i++)
             {
                 // grad is correct
-                Assert.True(Math.Abs(a_grad.Data[i] - a.Grad.Data[i]) < 0.000001);
+                Assert.AreEqual(a_grad.Data[i],a.Grad.Data[i]);
             }
             
             Assert.True(a.Grad.Shape[0] == a.Shape[0]);
