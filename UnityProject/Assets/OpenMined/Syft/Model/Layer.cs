@@ -13,8 +13,15 @@ namespace OpenMined.Syft.Layer
         protected override string ProcessForwardMessage(Command msgObj, SyftController ctrl)
         {
             var input = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[0]));
-            var result = this.Forward(input);
-            return result.Id + "";
+            if (input.Autograd)
+            {
+                var result = this.Forward(input);
+                return result.Id + "";
+            }
+            else
+            {
+                throw new Exception("Input to Model object must have autograd == true but autograd == false!!!");
+            }
         }
     }
 }
