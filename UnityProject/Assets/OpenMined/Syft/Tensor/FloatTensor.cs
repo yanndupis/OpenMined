@@ -741,7 +741,7 @@ namespace OpenMined.Syft.Tensor
                 }
                 case "shape":
                 {
-                    var result = ShapeTensor();
+                    var result = ShapeAsTensor();
                     return result.id.ToString();
                 }
 

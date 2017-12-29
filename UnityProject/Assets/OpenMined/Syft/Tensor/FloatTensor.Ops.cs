@@ -162,328 +162,55 @@ namespace OpenMined.Syft.Tensor
 				return result;
 			}
 		}
-
-		public FloatTensor Asin ( bool inline = false)
-		{
-			if (dataOnGpu) {
-				if (inline) { AsinGPU_(); return this;}
-				else { return AsinGPU (); }
-			} else {
-				var result = inline ? this : this.emptyTensorCopy();
-				var nCpu = SystemInfo.processorCount;
-				Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++) {
-					        var d = (double)Data [i];
-					        result.Data [i] = (float)System.Math.Asin (d);
-					}
-				});
-
-				return result;
-			}
-		}
-
-		public FloatTensor Atan (bool inline = false)
-		{
-			if (dataOnGpu) {
-				if (inline) { AtanGPU_(); return this;}
-				else { return AtanGPU (); }
-			} else {
-				var result = inline ? this : this.emptyTensorCopy();
-				var nCpu = SystemInfo.processorCount;
-				Parallel.For (0, nCpu, workerId => {
-					var max = size * (workerId + 1) / nCpu;
-					for (var i = size * workerId / nCpu; i < max; i++) {
-					        var d = (double)Data [i];
-					        result.Data [i] = (float)System.Math.Atan (d);
-					}
-				});
-
-				return result;
-			}
-		}
-
-		public FloatTensor AddMatrixMultiply(FloatTensor tensor1, FloatTensor tensor2)
-		{
-		    if (!IsContiguous() || !tensor1.IsContiguous() || !tensor2.IsContiguous()) {
-		        throw new InvalidOperationException("All tensors must be contiguous, call Contiguous() to convert");
-		    }
-
-		    bool gpu = dataOnGpu & tensor1.DataOnGpu & tensor2.DataOnGpu;
-			bool cpu = !(dataOnGpu | tensor1.DataOnGpu | tensor2.DataOnGpu);
-
-			int[] res_shape = this.Shape;
-			int[] shape1 = tensor1.Shape;
-			int[] shape2 = tensor2.Shape;
-
-			if (shape1[1] != shape2[0])
-				throw new InvalidOperationException(String.Format("Matrix multiply not possible: {0} & {1}.", shape1[1], shape2[0]));
-			if (res_shape[0] != shape1[0])
-				throw new InvalidOperationException(String.Format("First dimension doesn't match: {0} vs {1}.", res_shape[0], shape1[0]));
-			if (res_shape[1] != shape2[1])
-				throw new InvalidOperationException(String.Format("Last dimension doesn't match: {0} vs {1}.", res_shape[res_shape.Length - 1],shape2[shape2.Length - 1]));
-
-			if (gpu)
-			{
-				AddMatrixMultiplyGPU(tensor1, tensor2);
-			}
-			else if (cpu)
-			{
-				var nCpu = SystemInfo.processorCount;
-				Parallel.For(0, nCpu, workerId =>
-				{
-					var max = size * (workerId + 1) / nCpu;
-					for (var idx = size * workerId / nCpu; idx < max; idx++)
-					{
-					        int col = idx % res_shape[1];
-					        int row = (idx - col) / res_shape[1];
-					        int row_offset = row * shape1[1];
-					        for (var j = 0; j < shape1[1]; j++)
-					        {
-					                Data[idx] += tensor1.Data[j + row_offset] * tensor2.Data[j * shape2[1] + col];
-						}
-					}
-				});
-				return this;
-			}
-			else
-			{
-				Debug.Log("Data for all Tensors needs to be colocated on the same device. - CPU != GPU");
-			}
-			return this;
-		}
-
-		public FloatTensor Ceil(bool inline = false)
-
-        // Returns a new Tensor with the smallest integer greater than or equal to each element
-        {
-            var result = inline ? this : this.emptyTensorCopy();
-
-            if (dataOnGpu)
-            {
-                //TODO: Fix GPU operations. https://github.com/OpenMined/OpenMined/issues/126
-                result.Gpu(shader);
-                if (!inline) return CeilGPU(result);
-                CeilGPU_();
-                return this;
-            }
-
-            result.Data = data.AsParallel().Select(x => (float) Math.Ceiling(x)).ToArray();
-            return result;
-        }
-
-        public FloatTensor CumSum(int dim, bool inline = false , FloatTensor result = null)
-        {
-            if (dataOnGpu)
-            {
-                throw new NotImplementedException();
-            }
-            
-            result = HookAutograd(ref result, "cumsum_"+dim, inline);
-            result.Zero_();
-            result.Add(this, inline: true);
-
-            int[] temp_shape = new int[] {1, shape[dim], 1};
-
         
-            for (int i = 0; i < dim; i++)
-            {
-                temp_shape[0] *= shape[i];
+        public FloatTensor AddMatrixMultiply(FloatTensor tensor1, FloatTensor tensor2)
+        {
+            if (!IsContiguous() || !tensor1.IsContiguous() || !tensor2.IsContiguous()) {
+                throw new InvalidOperationException("All tensors must be contiguous, call Contiguous() to convert");
             }
-        
-            for (int i = dim+1; i < shape.Length; i++)
+
+            bool gpu = dataOnGpu & tensor1.DataOnGpu & tensor2.DataOnGpu;
+            bool cpu = !(dataOnGpu | tensor1.DataOnGpu | tensor2.DataOnGpu);
+
+            int[] res_shape = this.Shape;
+            int[] shape1 = tensor1.Shape;
+            int[] shape2 = tensor2.Shape;
+
+            if (shape1[1] != shape2[0])
+                throw new InvalidOperationException(String.Format("Matrix multiply not possible: {0} & {1}.", shape1[1], shape2[0]));
+            if (res_shape[0] != shape1[0])
+                throw new InvalidOperationException(String.Format("First dimension doesn't match: {0} vs {1}.", res_shape[0], shape1[0]));
+            if (res_shape[1] != shape2[1])
+                throw new InvalidOperationException(String.Format("Last dimension doesn't match: {0} vs {1}.", res_shape[res_shape.Length - 1],shape2[shape2.Length - 1]));
+
+            if (gpu)
             {
-                temp_shape[2] *= shape[i];
+                AddMatrixMultiplyGPU(tensor1, tensor2);
             }
-            
-            var result_3d = result.View(temp_shape);
-
-            int[] temp_index = new int[] {0, 0, 0};
-            float cumsum = 0;
-            
-            for (int i = 0; i < result_3d.shape[0]; i++)
+            else if (cpu)
             {
-                temp_index[0] = i;
-
-                for (int j = 0; j < result_3d.shape[2]; j++)
+                var nCpu = SystemInfo.processorCount;
+                Parallel.For(0, nCpu, workerId =>
                 {
-                    temp_index[2] = j;
-                    
-                    cumsum = 0;
-                    for (var k = 0; k < result_3d.Shape[1]; k++)
+                    var max = size * (workerId + 1) / nCpu;
+                    for (var idx = size * workerId / nCpu; idx < max; idx++)
                     {
-                        temp_index[1] = k;
-                        int result_data_index = result_3d.DimIndices2DataIndex(ref temp_index);
-
-                        cumsum += result_3d.Data[result_data_index];
-                        result_3d.Data[result_data_index] = cumsum;
+                        int col = idx % res_shape[1];
+                        int row = (idx - col) / res_shape[1];
+                        int row_offset = row * shape1[1];
+                        for (var j = 0; j < shape1[1]; j++)
+                        {
+                            Data[idx] += tensor1.Data[j + row_offset] * tensor2.Data[j * shape2[1] + col];
+                        }
                     }
-                }
-            }
-
-            return result_3d.View(shape);
-        }
-        
-        public FloatTensor CumProd(int dim, bool inline = false , FloatTensor result = null)
-        {
-            if (dataOnGpu)
-            {
-                throw new NotImplementedException();
-            }
-            
-            result = HookAutograd(ref result, "cumprod_"+dim, inline);
-            result.Zero_();
-            result.Add(this, inline: true);
-
-            int[] temp_shape = new int[] {1, shape[dim], 1};
-
-        
-            for (int i = 0; i < dim; i++)
-            {
-                temp_shape[0] *= shape[i];
-            }
-        
-            for (int i = dim+1; i < shape.Length; i++)
-            {
-                temp_shape[2] *= shape[i];
-            }
-            
-            var result_3d = result.View(temp_shape);
-
-            int[] temp_index = new int[] {0, 0, 0};
-            float cumprod = 1;
-            
-            for (int i = 0; i < result_3d.shape[0]; i++)
-            {
-                temp_index[0] = i;
-
-                for (int j = 0; j < result_3d.shape[2]; j++)
-                {
-                    temp_index[2] = j;
-                    
-                    cumprod = 1;
-                    for (var k = 0; k < result_3d.Shape[1]; k++)
-                    {
-                        temp_index[1] = k;
-                        int result_data_index = result_3d.DimIndices2DataIndex(ref temp_index);
-
-                        cumprod *= result_3d.Data[result_data_index];
-                        result_3d.Data[result_data_index] = cumprod;
-                    }
-                }
-            }
-
-            return result_3d.View(shape);
-        }
-
-        public int DimIndices2DataIndex(ref int[] dim_indices)
-        {
-            int index = 0;
-            for (int i = 0; i < dim_indices.Length; i++)
-            {
-                index += dim_indices[i] * strides[i];
-            }
-            return index;
-        }
-
-        public int[] DataIndex2DimIndices(int index, ref int[] dim_indices)
-        {
-            if (dim_indices == null)
-            {
-                dim_indices = new int[strides.Length];
-            }
-
-            for (int i = 0; i < strides.Length; i++)
-            {
-                if (strides[i] != 0)
-                {
-                    dim_indices[i] = index / strides[i];
-                    index %= strides[i];
-                }
-                else
-                {
-                    dim_indices[i] = 0;
-                }
-            }
-
-            return dim_indices;
-        }
-
-        public FloatTensor Contiguous(FloatTensor result = null)
-        {
-
-            if (DataOnGpu)
-                throw new NotSupportedException();
-         
-            result = HookAutograd(ref result, "contiguous", false, shape);
-
-            int[] dim_indices = new int[strides.Length];
-            
-            for (int i = 0; i < result.Data.Length; i++)
-            {    
-                result.DataIndex2DimIndices(i, ref dim_indices);
-                result.data[i] = this.data[this.DimIndices2DataIndex(ref dim_indices)];
-            }   
-            
-            return result;
-        }
-        
-        public FloatTensor Cos(bool inline = false)
-        {
-            if (dataOnGpu)
-            {
-                if (!inline) return CosGPU();
-                CosGPU_();
+                });
                 return this;
-            }
-            var result = inline ? this : this.emptyTensorCopy();
-            result.Data = data.AsParallel().Select(x => (float) Math.Cos((double) x)).ToArray();
-            return result;
-        }
-
-        public FloatTensor Cosh(bool inline = false)
-        {
-            if (dataOnGpu)
-            {
-                if (!inline) return CoshGPU();
-                CoshGPU_();
-                return this;
-            }
-            var result = inline ? this : this.emptyTensorCopy();
-            result.Data = data.AsParallel().Select(x => (float) Math.Cosh((double) x)).ToArray();
-            return result;
-        }
-
-        public FloatTensor Div(FloatTensor x, bool inline = false, FloatTensor result = null)
-        {
-            if (!IsContiguous() || !x.IsContiguous()) {
-                throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
-            }
-
-            // Check if both tensors are compatible for sum
-            SameSizeDimensionsShapeAndLocation(ref x);
-
-            result = HookAutograd(ref result, ref x, "div_elem", inline);
-            
-            if (dataOnGpu & x.dataOnGpu)
-            {
-                result.Gpu(shader);
-                if (inline)
-                {
-                    if (autograd)
-                        throw new InvalidOperationException(
-                            "Cannot call inline functions if you intend to run backprop.");
-                    DivElemGPU_(x);
-                    return this;
-                }
-                result = DivElemGPU(x, result);
             }
             else
             {
-                result.Data = data.AsParallel().Zip(x.Data.AsParallel(), (a, b) => a / b).ToArray();
+                Debug.Log("Data for all Tensors needs to be colocated on the same device. - CPU != GPU");
             }
-
-            return result;
+            return this;
         }
 
         public FloatTensor AddMatrixVectorProduct(FloatTensor matrix, FloatTensor vector)
@@ -535,6 +262,245 @@ namespace OpenMined.Syft.Tensor
 
             return this;
         }
+     
+		public FloatTensor Asin ( bool inline = false)
+		{
+			if (dataOnGpu) {
+				if (inline) { AsinGPU_(); return this;}
+				else { return AsinGPU (); }
+			} else {
+				var result = inline ? this : this.emptyTensorCopy();
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
+					var max = size * (workerId + 1) / nCpu;
+					for (var i = size * workerId / nCpu; i < max; i++) {
+					        var d = (double)Data [i];
+					        result.Data [i] = (float)System.Math.Asin (d);
+					}
+				});
+
+				return result;
+			}
+		}
+
+		public FloatTensor Atan (bool inline = false)
+		{
+			if (dataOnGpu) {
+				if (inline) { AtanGPU_(); return this;}
+				else { return AtanGPU (); }
+			} else {
+				var result = inline ? this : this.emptyTensorCopy();
+				var nCpu = SystemInfo.processorCount;
+				Parallel.For (0, nCpu, workerId => {
+					var max = size * (workerId + 1) / nCpu;
+					for (var i = size * workerId / nCpu; i < max; i++) {
+					        var d = (double)Data [i];
+					        result.Data [i] = (float)System.Math.Atan (d);
+					}
+				});
+
+				return result;
+			}
+		}
+
+		public FloatTensor Ceil(bool inline = false)
+        {
+            // Returns a new Tensor with the smallest integer greater than or equal to each element
+            var result = inline ? this : this.emptyTensorCopy();
+
+            if (dataOnGpu)
+            {
+                //TODO: Fix GPU operations. https://github.com/OpenMined/OpenMined/issues/126
+                result.Gpu(shader);
+                if (!inline) return CeilGPU(result);
+                CeilGPU_();
+                return this;
+            }
+
+            result.Data = data.AsParallel().Select(x => (float) Math.Ceiling(x)).ToArray();
+            return result;
+        }
+
+        public FloatTensor Contiguous(FloatTensor result = null)
+        {
+
+            if (DataOnGpu)
+                throw new NotSupportedException();
+         
+            result = HookAutograd(ref result, "contiguous", false, shape);
+
+            int[] dim_indices = new int[strides.Length];
+            
+            for (int i = 0; i < result.Data.Length; i++)
+            {    
+                result.DataIndex2DimIndices(i, ref dim_indices);
+                result.data[i] = this.data[this.DimIndices2DataIndex(ref dim_indices)];
+            }   
+            
+            return result;
+        }
+        
+        public FloatTensor Cos(bool inline = false)
+        {
+            if (dataOnGpu)
+            {
+                if (!inline) return CosGPU();
+                CosGPU_();
+                return this;
+            }
+            var result = inline ? this : this.emptyTensorCopy();
+            result.Data = data.AsParallel().Select(x => (float) Math.Cos((double) x)).ToArray();
+            return result;
+        }
+
+        public FloatTensor Cosh(bool inline = false)
+        {
+            if (dataOnGpu)
+            {
+                if (!inline) return CoshGPU();
+                CoshGPU_();
+                return this;
+            }
+            var result = inline ? this : this.emptyTensorCopy();
+            result.Data = data.AsParallel().Select(x => (float) Math.Cosh((double) x)).ToArray();
+            return result;
+        }
+
+        public FloatTensor CumProd(int dim, bool inline = false , FloatTensor result = null)
+        {
+            if (dataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+            
+            result = HookAutograd(ref result, "cumprod_"+dim, inline);
+            result.Zero_();
+            result.Add(this, inline: true);
+
+            int[] temp_shape = new int[] {1, shape[dim], 1};
+
+        
+            for (int i = 0; i < dim; i++)
+            {
+                temp_shape[0] *= shape[i];
+            }
+        
+            for (int i = dim+1; i < shape.Length; i++)
+            {
+                temp_shape[2] *= shape[i];
+            }
+            
+            var result_3d = result.View(temp_shape);
+
+            int[] temp_index = new int[] {0, 0, 0};
+            float cumprod = 1;
+            
+            for (int i = 0; i < result_3d.shape[0]; i++)
+            {
+                temp_index[0] = i;
+
+                for (int j = 0; j < result_3d.shape[2]; j++)
+                {
+                    temp_index[2] = j;
+                    
+                    cumprod = 1;
+                    for (var k = 0; k < result_3d.Shape[1]; k++)
+                    {
+                        temp_index[1] = k;
+                        int result_data_index = result_3d.DimIndices2DataIndex(ref temp_index);
+
+                        cumprod *= result_3d.Data[result_data_index];
+                        result_3d.Data[result_data_index] = cumprod;
+                    }
+                }
+            }
+
+            return result_3d.View(shape);
+        }      
+        
+        public FloatTensor CumSum(int dim, bool inline = false , FloatTensor result = null)
+        {
+            if (dataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+            
+            result = HookAutograd(ref result, "cumsum_"+dim, inline);
+            result.Zero_();
+            result.Add(this, inline: true);
+
+            int[] temp_shape = new int[] {1, shape[dim], 1};
+
+        
+            for (int i = 0; i < dim; i++)
+            {
+                temp_shape[0] *= shape[i];
+            }
+        
+            for (int i = dim+1; i < shape.Length; i++)
+            {
+                temp_shape[2] *= shape[i];
+            }
+            
+            var result_3d = result.View(temp_shape);
+
+            int[] temp_index = new int[] {0, 0, 0};
+            float cumsum = 0;
+            
+            for (int i = 0; i < result_3d.shape[0]; i++)
+            {
+                temp_index[0] = i;
+
+                for (int j = 0; j < result_3d.shape[2]; j++)
+                {
+                    temp_index[2] = j;
+                    
+                    cumsum = 0;
+                    for (var k = 0; k < result_3d.Shape[1]; k++)
+                    {
+                        temp_index[1] = k;
+                        int result_data_index = result_3d.DimIndices2DataIndex(ref temp_index);
+
+                        cumsum += result_3d.Data[result_data_index];
+                        result_3d.Data[result_data_index] = cumsum;
+                    }
+                }
+            }
+
+            return result_3d.View(shape);
+        }
+
+        public FloatTensor Div(FloatTensor x, bool inline = false, FloatTensor result = null)
+        {
+            if (!IsContiguous() || !x.IsContiguous()) {
+                throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
+            }
+
+            // Check if both tensors are compatible for sum
+            SameSizeDimensionsShapeAndLocation(ref x);
+
+            result = HookAutograd(ref result, ref x, "div_elem", inline);
+            
+            if (dataOnGpu & x.dataOnGpu)
+            {
+                result.Gpu(shader);
+                if (inline)
+                {
+                    if (autograd)
+                        throw new InvalidOperationException(
+                            "Cannot call inline functions if you intend to run backprop.");
+                    DivElemGPU_(x);
+                    return this;
+                }
+                result = DivElemGPU(x, result);
+            }
+            else
+            {
+                result.Data = data.AsParallel().Zip(x.Data.AsParallel(), (a, b) => a / b).ToArray();
+            }
+
+            return result;
+        }
 
         public FloatTensor Div(float value, bool inline = false, FloatTensor result = null)
         {
@@ -565,7 +531,100 @@ namespace OpenMined.Syft.Tensor
             result.Data = data.AsParallel().Select(x => (float) Math.Exp((double) x)).ToArray();
             return result;
         }
+        
+        public FloatTensor Expand(int[] sizes) {
+			if (sizes.Length == Shape.Length) {
+				return expand(sizes);
+			} else if (sizes.Length > Shape.Length) {
+				return expandNewDimensions(sizes);
+			} else {
+			    throw new InvalidOperationException(String.Format("Number of sizes provided must be greater than or equal to the number of dimensions in tensor"));
+			}
+		}
 
+        private FloatTensor expand(int[] sizes, FloatTensor result = null)
+        {
+
+            // TODO: make more complicated version which does not copy data
+            result = HookAutograd(ref result, "expand", false, shape);
+            result.Add(this, inline: true,override_checks:true);
+		    
+            for (int i = 0; i < shape.Length; i++) {
+                if (sizes[i] != -1 && sizes[i] != shape[i]) {
+                    if (shape[i] == 1 || strides[i] == 0) {
+                        result.strides[i] = 0;
+                        result.shape[i] = sizes[i];
+                    } else {
+                        throw new InvalidOperationException (String.Format ("Cannot expand dimension {0}, not a singleton ({1})", i, shape[i]));
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private FloatTensor expandNewDimensions(int[] sizes) {
+            FloatTensor result = factory.Create(_data: data, _shape: shape, _shader: shader, _copyData: false);
+
+            int diffLength = sizes.Length - shape.Length;
+			
+            // sets new strides to zero on initialization
+            int[] newStrides = new int[sizes.Length];
+            int[] newShape = new int[sizes.Length];
+
+            for (int i = 0; i < diffLength; i++) {
+                // sets new shape
+                if (sizes[i] != -1) {
+                    newShape[i] = sizes[i];
+                } else {
+                    throw new InvalidOperationException (String.Format ("Cannot set new dimension {0} to -1", i));
+                }
+            }
+			
+            for (int i = diffLength; i < sizes.Length; i++) {
+                var oldIndex = i - diffLength;
+				
+                // fill in old strides/shape
+                newStrides[i] = strides[oldIndex];
+                newShape[i] = shape[oldIndex];
+				
+                // modify any old strides/shapes
+                if (sizes[i] != -1 && sizes[i] != shape[oldIndex]) {
+                    if (shape[oldIndex] == 1 || strides[oldIndex] == 0) {
+                        newStrides[i] = 0;
+                        newShape[i] = sizes[i];
+                    } else {
+                        throw new InvalidOperationException (String.Format ("Cannot expand dimension {0}, not a singleton ({1})", i, shape[i]));
+                    }
+                }
+            }
+
+            result.shape = newShape;
+            result.strides = newStrides;
+			
+            return result;
+        }        
+
+        internal void ForEach(int dim, Action<float[], int, int> iterator)
+        
+        {
+            int interations = size / shape[dim];
+            int values = shape[dim];
+            var stride = strides[dim];
+            MultiThread.For(interations, (i, len) =>
+            {
+                var temp = new float[values];
+                var offset = GetDimReduceOffset(i, values, stride);
+
+                for (int v = 0; v < values; v++)
+                {
+                    temp[v] = this[offset + v * stride];
+                }
+
+                iterator(temp, offset, stride);
+            });
+        }        
+        
         public FloatTensor Floor(bool inline = false)
         {
             var result = inline ? this : this.emptyTensorCopy();
@@ -579,21 +638,6 @@ namespace OpenMined.Syft.Tensor
             result.Data = data.AsParallel().Select(x => (float) Math.Floor(x)).ToArray();
             return result;
         }
-
-        public FloatTensor Round(bool inline = false)
-        {
-            var result = inline ? this : this.emptyTensorCopy();
-
-            if (dataOnGpu)
-            {
-            	if (!inline) return RoundGPU();
-                RoundGPU_();
-                return this;
-            }
-            result.Data = data.AsParallel().Select(x => (float) Math.Round(x)).ToArray();
-            return result;
-        }
-
 
         public bool IsContiguous()
         {
@@ -613,7 +657,6 @@ namespace OpenMined.Syft.Tensor
             return true;
         }
 
-
         public FloatTensor Log1p(bool inline = false)
         {	
         	var result = inline ? this : this.emptyTensorCopy();
@@ -628,6 +671,37 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+        public FloatTensor Max(int dim = -1, bool keepdim = false)
+        {
+            if (!IsContiguous()) {
+                throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
+            }
+
+            // TODO: Implement GPU op. with GPU tests.
+            return Reduce(dim, keepdim, (acc, val, index, arr) => acc > val ? acc : val, (val, len) => val, creation_op:"max_"+dim);
+        }        
+
+        public FloatTensor Mean(int dim = -1, bool keepdim = false)
+        {
+            if (!IsContiguous()) {
+                throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
+            }
+            
+            // TODO: Implement GPU op. with GPU tests.
+            return Reduce(dim, keepdim, (acc, val, index, arr) => acc + val, (val, len) => val / (float) len, creation_op:"mean_"+dim);
+        }        
+        
+        public FloatTensor Min(int dim = -1, bool keepdim = false)
+        {
+            if (!IsContiguous()) {
+                throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
+            }
+
+            // TODO: Implement GPU op. with GPU tests.
+            return Reduce(dim, keepdim, (acc, val, index, arr) => acc < val ? acc : val, (val, len) => val, creation_op:"min_"+dim);
+        }
+
+        
         public FloatTensor MM(FloatTensor x, FloatTensor result = null)
         {
             if (!IsContiguous() || !x.IsContiguous()) {
@@ -695,39 +769,21 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-
-        public FloatTensor Sub(FloatTensor x, bool inline = false, FloatTensor result = null)
+        public FloatTensor Neg(bool inline = false, FloatTensor result = null)
         {
-            if (!IsContiguous() || !x.IsContiguous()) {
-                throw new InvalidOperationException ("All tensors must be contiguous, call Contiguous() to convert");
-            }
+            result = HookAutograd(ref result, "neg", inline);
 
-            // Check if both tensors are compatible for sum
-            SameSizeDimensionsShapeAndLocation(ref x);
-            
-            result = HookAutograd(ref result, ref x, "sub_elem", inline);
-            
-            if (dataOnGpu & x.dataOnGpu)
+            if (dataOnGpu)
             {
-                if (inline)
-                {
-                    if (autograd)
-                        throw new InvalidOperationException(
-                            "Cannot call inline functions if you intend to run backprop.");
-                    SubElemGPU_(x);
-                    return this;
-                }
-                result = SubElemGPU(x, result);
+                result.Gpu(shader);
+                if (!inline) return NegateGPU();
+                NegateGPU_();
+                return this;
             }
-            else
-            {
-                result.Data = data.AsParallel().Zip(x.Data.AsParallel(), (a, b) => a - b).ToArray();
-
-            }
-
+            result.Data = data.AsParallel().Select(x => -x).ToArray();
             return result;
         }
-
+        
         public FloatTensor Pow(FloatTensor x, bool inline = false, FloatTensor result = null)
         {
             if (!IsContiguous() || !x.IsContiguous()) {
@@ -773,22 +829,16 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-
-        public FloatTensor Neg(bool inline = false, FloatTensor result = null)
+        public FloatTensor Prod(int dim = -1, bool keepdim = false)
         {
-            result = HookAutograd(ref result, "neg", inline);
-
-            if (dataOnGpu)
-            {
-                result.Gpu(shader);
-                if (!inline) return NegateGPU();
-                NegateGPU_();
-                return this;
+            if (!IsContiguous()) {
+                throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
             }
-            result.Data = data.AsParallel().Select(x => -x).ToArray();
-            return result;
-        }
-
+            
+            // TODO: Implement GPU op. with GPU tests.
+            return Reduce(dim, keepdim, (acc, val, index, arr) => acc * val, (val, len) => val, creation_op:"prod_"+dim);
+        }        
+        
         public FloatTensor Reciprocal(bool inline = false)
         {
             var result = inline ? this : this.emptyTensorCopy();
@@ -802,7 +852,89 @@ namespace OpenMined.Syft.Tensor
             result.Data = data.AsParallel().Select(x => (float) 1/x).ToArray();
             return result;
         }
+   
+        /*** Reduce Functions ***/
+ public FloatTensor Reduce(
+            Func<float, float, int, float[], float> reducer,
+            Func<float, int, float> mapper
+        )
+        {
+            int[] outDims = {1};
+            var output = new float[1];
+            output[0] = mapper(MultiThread.Reduce(data, reducer), Size);
 
+            return factory.Create(_shape:outDims, _data:output);
+        }
+
+        public FloatTensor Reduce(
+            int dim,
+            bool keepdim,
+            Func<float, float, int, float[], float> reducer,
+            Func<float, int, float> mapper,
+            string creation_op = null,
+            FloatTensor result = null
+        )
+        {
+            int len = shape.Length;
+
+            if (dim < 0)
+            {
+                return Reduce(reducer, mapper);
+            }
+
+            AssertDim(dim, len);
+
+            if (len == 1)
+            {
+                keepdim = true;
+            }
+
+            var stride = strides[dim];
+            int values = shape[dim];
+
+            int outSize = 1;
+            var outDims = keepdim ? new int[len] : new int[len - 1];
+
+            for (int i = 0; i < len; i++)
+            {
+                if (i < dim)
+                {
+                    outDims[i] = shape[i];
+                }
+                else if (i > dim)
+                {
+                    outDims[keepdim ? i : i - 1] = shape[i];
+                }
+                else if (i == dim)
+                {
+                    if (keepdim)
+                    {
+                        outDims[i] = 1;
+                    }
+
+                    continue;
+                }
+
+                outSize *= shape[i];
+            }
+            
+            result = HookAutograd(ref result, creation_op, false, outDims);
+
+            _dimForEach(outSize, values, stride, (vals, index, length) =>
+            {
+                var acc = vals[0];
+
+                for (int i = 1; i < length; i++)
+                {
+                    acc = reducer(acc, vals[i], i, vals);
+                }
+
+                result.data[index] = mapper(acc, length);
+            });
+
+            return result;
+        }        
+        
         public FloatTensor ReLU(bool inline = false, FloatTensor result = null)
         {
 
@@ -813,6 +945,92 @@ namespace OpenMined.Syft.Tensor
                 
             }
             result.Data = data.AsParallel().Select(x => (float) Math.Max((double) x,0)).ToArray();
+            return result;
+        }
+      
+        public FloatTensor Remainder(float divisor, bool inline = false)
+        {
+            if (inline & autograd)
+                throw new InvalidOperationException("Cannot call inline functions if you intend to run backprop.");
+            if (autograd)
+                throw new InvalidOperationException("Autograd not available for Remainder.");
+
+            var result = inline ? this : this.emptyTensorCopy();
+
+            if (dataOnGpu)
+            {
+                result.Gpu(shader);
+                if (inline) { RemainderScalarGPU_(divisor); return this; }
+                else { result = RemainderScalarGPU(result, divisor); }
+            }
+            else
+            {
+                var nCpu = SystemInfo.processorCount;
+                Parallel.For(0, nCpu, workerId => {
+                    var max = size * (workerId + 1) / nCpu;
+                    for (var i = size * workerId / nCpu; i < max; i++)
+                    {
+                        result[i] = this[i] % divisor;
+                    };
+                });
+            }
+
+            return result;
+        }
+
+        public FloatTensor Remainder(FloatTensor divisor, bool inline = false)
+        {
+            if (!IsContiguous() || !divisor.IsContiguous()) {
+                throw new InvalidOperationException ("All tensor must be contiguous, call Contiguous() to convert");
+            }
+
+            SameSizeDimensionsShapeAndLocation(ref divisor);
+            if (inline & autograd)
+                throw new InvalidOperationException("Cannot call inline functions if you intend to run backprop.");
+            if (autograd)
+                throw new InvalidOperationException("Autograd not available for Remainder.");
+
+            var result = inline ? this : this.emptyTensorCopy();
+
+            if (dataOnGpu)
+            {
+                result.Gpu(shader);
+                if (inline)
+                {
+                    RemainderElemGPU_(divisor);
+                    return this;
+                }
+                else
+                {
+                    result = RemainderElemGPU(divisor,result);
+                }
+            }
+            else
+            {
+                var nCpu = SystemInfo.processorCount;
+                Parallel.For(0, nCpu, workerId => {
+                    var max = size * (workerId + 1) / nCpu;
+                    for (var i = size * workerId / nCpu; i < max; i++)
+                    {
+                        result[i] = this[i] % divisor[i];
+                    };
+                });
+            }
+
+            return result;
+        }   
+        
+        public FloatTensor Round(bool inline = false)
+        {
+            var result = inline ? this : this.emptyTensorCopy();
+
+            if (dataOnGpu)
+            {
+                if (!inline) return RoundGPU();
+                RoundGPU_();
+                return this;
+            }
+            result.Data = data.AsParallel().Select(x => (float) Math.Round(x)).ToArray();
             return result;
         }
 
@@ -927,6 +1145,59 @@ namespace OpenMined.Syft.Tensor
             
         }
 
+        public FloatTensor ShapeAsTensor()
+        {
+            var data = new float[shape.Length];
+            var ndims = new int[1];
+            ndims[0] = shape.Length;
+	        
+            for (var dim = 0; dim < shape.Length; dim++)
+            {
+                data[dim] = shape[dim];
+            }
+
+            var result = factory.Create(_data: data, _shape: ndims);
+
+            return result;
+        }  
+        
+        public FloatTensor Sigmoid(bool inline = false, FloatTensor result = null)
+        {
+            if (dataOnGpu)
+            {
+                if (!inline) return SigmoidGPU(this.emptyTensorCopy());
+                if (autograd)
+                    throw new InvalidOperationException(
+                        "Cannot call inline functions if you intend to run backprop.");
+
+                SigmoidGPU_();
+                return this;
+            }
+            
+            result = HookAutograd(ref result, "sigmoid", inline);
+
+            var nCpu = SystemInfo.processorCount;
+            Parallel.For(0, nCpu, workerId =>
+            {
+                var max = size * (workerId + 1) / nCpu;
+                for (var i = size * workerId / nCpu; i < max; i++)
+                {
+                    if (this[i] >= 0)
+                    {
+                        var s = Math.Exp(-(double) this[i]);
+                        result[i] = (float) (1 / (1.0f + s));
+                    }
+                    else
+                    {
+                        var s = Math.Exp((double) this[i]);
+                        result[i] = (float) (s / (1.0f + s));
+                    }
+                }
+            });
+
+            return result;
+        }
+        
         public FloatTensor Sign(bool inline = false)
         {
             var result = inline ? this : this.emptyTensorCopy();
@@ -955,23 +1226,20 @@ namespace OpenMined.Syft.Tensor
             result.Data = data.AsParallel().Select(x => (float) Math.Sin((double) x)).ToArray();
             return result;
         }
-
-        public FloatTensor ShapeTensor()
+        
+        public FloatTensor Sinh(bool inline = false)
         {
-            var data = new float[shape.Length];
-            var ndims = new int[1];
-	        ndims[0] = shape.Length;
-	        
-            for (var dim = 0; dim < shape.Length; dim++)
+            if (dataOnGpu)
             {
-                data[dim] = shape[dim];
+                if (!inline) return SinhGPU();
+                SinhGPU_();
+                return this;
             }
-
-            var result = factory.Create(_data: data, _shape: ndims);
-
+            var result = inline ? this : this.emptyTensorCopy();
+            result.Data = data.AsParallel().Select(x => (float) Math.Sinh((double) x)).ToArray();
             return result;
         }
-
+        
         public FloatTensor Sqrt(bool inline = false)
         {
             var result = inline ? this : this.emptyTensorCopy();
@@ -986,7 +1254,99 @@ namespace OpenMined.Syft.Tensor
             result.Data = data.AsParallel().Select(x => (float) Math.Sqrt((double) x)).ToArray();
             return result;
         }
+        
+        public FloatTensor Squeeze(int dim = -1, bool inline = false)
+        {
+            if (!IsContiguous()) {
+                throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
+            }
 
+            var list = new List<int>();
+
+            if (dim >= 0)
+            {
+                for (int i = 0; i < shape.Length; i++)
+                {
+                    if (i != dim)
+                    {
+                        list.Add(shape[i]);
+                    }
+                    else
+                    {
+                        if (shape[i] != 1)
+                        {
+                            list.Add(shape[i]);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < shape.Length; i++)
+                {
+                    if (shape[i] > 1)
+                    {
+                        list.Add(shape[i]);
+                    }
+                }
+            }
+
+            FloatTensor result = this;
+            
+            if (list.Count == 0)
+            {
+                if (!inline)
+                {
+                    result = factory.Create(_data: data, _shape: shape, _shader: shader, _copyData: false);
+                }
+            }
+            else
+            {
+                if (inline)
+                {
+                    View(list.ToArray(), inline: true);
+                }
+                else
+                {
+                    result = View(list.ToArray());
+                }
+            }
+
+            return result;
+        }        
+
+        public FloatTensor Sub(FloatTensor x, bool inline = false, FloatTensor result = null)
+        {
+            if (!IsContiguous() || !x.IsContiguous()) {
+                throw new InvalidOperationException ("All tensors must be contiguous, call Contiguous() to convert");
+            }
+
+            // Check if both tensors are compatible for sum
+            SameSizeDimensionsShapeAndLocation(ref x);
+            
+            result = HookAutograd(ref result, ref x, "sub_elem", inline);
+            
+            if (dataOnGpu & x.dataOnGpu)
+            {
+                if (inline)
+                {
+                    if (autograd)
+                        throw new InvalidOperationException(
+                            "Cannot call inline functions if you intend to run backprop.");
+                    SubElemGPU_(x);
+                    return this;
+                }
+                result = SubElemGPU(x, result);
+            }
+            else
+            {
+                result.Data = data.AsParallel().Zip(x.Data.AsParallel(), (a, b) => a - b).ToArray();
+
+            }
+
+            return result;
+        }  
+        
         public FloatTensor Sub(float value, bool inline = false, FloatTensor result = null)
         {
             result = HookAutograd (ref result, value, "sub_scalar", inline);
@@ -1003,6 +1363,19 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+        public FloatTensor Sum(int dim = -1, bool keepdim = false)
+        {
+            if (!IsContiguous())
+            {
+                throw new InvalidOperationException("Tensor must be contiguous, call Contiguous() to convert");
+            }
+
+            // TODO: Implement GPU op. with GPU tests.
+
+            return Reduce(dim, keepdim, (acc, val, index, arr) => acc + val, (val, len) => val, creation_op:"sum_"+dim);
+
+        }        
+        
         public FloatTensor Tan(bool inline = false)
         {
             if (dataOnGpu)
@@ -1035,17 +1408,6 @@ namespace OpenMined.Syft.Tensor
                 throw new InvalidOperationException("Need to specify parameters for tensors with more than 2 dims.");
 
             return Transpose(0, 1);
-        }
-
-        public FloatTensor Trunc(bool inline = false)
-        {
-            if (dataOnGpu)
-            {
-                return TruncGPU();
-            }
-            var result = factory.Create(_shape: shape, _shader: this.shader);
-            result.Data = data.AsParallel().Select(x => (float) Math.Truncate((double) x)).ToArray();
-            return result;
         }
 
         public FloatTensor Transpose(int dimension1, int dimension2, FloatTensor result = null)
@@ -1089,7 +1451,7 @@ namespace OpenMined.Syft.Tensor
 
             return result;
         }
-
+        
         public void Triu_(int k)
         {
             if (!IsContiguous()) {
@@ -1123,16 +1485,14 @@ namespace OpenMined.Syft.Tensor
             });
         }
 
-        public FloatTensor Sinh(bool inline = false)
+        public FloatTensor Trunc(bool inline = false)
         {
             if (dataOnGpu)
             {
-                if (!inline) return SinhGPU();
-                SinhGPU_();
-                return this;
+                return TruncGPU();
             }
-            var result = inline ? this : this.emptyTensorCopy();
-            result.Data = data.AsParallel().Select(x => (float) Math.Sinh((double) x)).ToArray();
+            var result = factory.Create(_shape: shape, _shader: this.shader);
+            result.Data = data.AsParallel().Select(x => (float) Math.Truncate((double) x)).ToArray();
             return result;
         }
 
@@ -1147,43 +1507,26 @@ namespace OpenMined.Syft.Tensor
                 : Enumerable.Range(0, shape.Min()).AsParallel().Select(i => this[i * stride]).Sum();
         }
 
-        public FloatTensor Sigmoid(bool inline = false, FloatTensor result = null)
+        public FloatTensor Unsqueeze(int dim, bool inline = false)
         {
-            if (dataOnGpu)
+            int[] new_shape = new int[shape.Length + 1];
+            int j = 0;
+            for (int i = 0; i < new_shape.Length; i++)
             {
-                if (!inline) return SigmoidGPU(this.emptyTensorCopy());
-                if (autograd)
-                    throw new InvalidOperationException(
-                        "Cannot call inline functions if you intend to run backprop.");
-
-                SigmoidGPU_();
-                return this;
-            }
-            
-            result = HookAutograd(ref result, "sigmoid", inline);
-
-            var nCpu = SystemInfo.processorCount;
-            Parallel.For(0, nCpu, workerId =>
-            {
-                var max = size * (workerId + 1) / nCpu;
-                for (var i = size * workerId / nCpu; i < max; i++)
+                if (i == dim)
                 {
-                    if (this[i] >= 0)
-                    {
-                        var s = Math.Exp(-(double) this[i]);
-                        result[i] = (float) (1 / (1.0f + s));
-                    }
-                    else
-                    {
-                        var s = Math.Exp((double) this[i]);
-                        result[i] = (float) (s / (1.0f + s));
-                    }
+                    new_shape[i] = 1;
                 }
-            });
+                else
+                {
+                    new_shape[i] = shape[j];
+                    j += 1;
+                }
+            }
 
-            return result;
-        }
-
+            return View(new_shape, inline:inline);
+        }        
+        
         public FloatTensor View(int[] new_shape, bool inline = false, FloatTensor result = null)
         {
             if (!IsContiguous()) {
@@ -1221,381 +1564,10 @@ namespace OpenMined.Syft.Tensor
             
         }
 
-        public FloatTensor Remainder(float divisor, bool inline = false)
-        {
-            if (inline & autograd)
-                throw new InvalidOperationException("Cannot call inline functions if you intend to run backprop.");
-            if (autograd)
-                throw new InvalidOperationException("Autograd not available for Remainder.");
-
-            var result = inline ? this : this.emptyTensorCopy();
-
-            if (dataOnGpu)
-            {
-                result.Gpu(shader);
-                if (inline) { RemainderScalarGPU_(divisor); return this; }
-                else { result = RemainderScalarGPU(result, divisor); }
-            }
-            else
-            {
-                var nCpu = SystemInfo.processorCount;
-                Parallel.For(0, nCpu, workerId => {
-                    var max = size * (workerId + 1) / nCpu;
-                    for (var i = size * workerId / nCpu; i < max; i++)
-                    {
-                        result[i] = this[i] % divisor;
-                    };
-                });
-            }
-
-            return result;
-        }
-
-        public FloatTensor Remainder(FloatTensor divisor, bool inline = false)
-        {
-            if (!IsContiguous() || !divisor.IsContiguous()) {
-                throw new InvalidOperationException ("All tensor must be contiguous, call Contiguous() to convert");
-            }
-
-            SameSizeDimensionsShapeAndLocation(ref divisor);
-            if (inline & autograd)
-                throw new InvalidOperationException("Cannot call inline functions if you intend to run backprop.");
-            if (autograd)
-                throw new InvalidOperationException("Autograd not available for Remainder.");
-
-            var result = inline ? this : this.emptyTensorCopy();
-
-            if (dataOnGpu)
-            {
-                result.Gpu(shader);
-                if (inline)
-                {
-                    RemainderElemGPU_(divisor);
-                    return this;
-                }
-                else
-                {
-                    result = RemainderElemGPU(divisor,result);
-                }
-            }
-            else
-            {
-                var nCpu = SystemInfo.processorCount;
-                Parallel.For(0, nCpu, workerId => {
-                    var max = size * (workerId + 1) / nCpu;
-                    for (var i = size * workerId / nCpu; i < max; i++)
-                    {
-                        result[i] = this[i] % divisor[i];
-                    };
-                });
-            }
-
-            return result;
-        }
-
         public FloatTensor ViewAs(FloatTensor x, bool inline = false)
         {
             return this.View(x.shape, inline);
         }
-
-        public FloatTensor Squeeze(int dim = -1, bool inline = false, FloatTensor result = null)
-        {
-            if (!IsContiguous()) {
-                throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
-            }
-
-            var list = new List<int>();
-
-            if (dim >= 0)
-            {
-                for (int i = 0; i < shape.Length; i++)
-                {
-                    if (i != dim)
-                    {
-                        list.Add(shape[i]);
-                    }
-                    else
-                    {
-                        if (shape[i] != 1)
-                        {
-                            list.Add(shape[i]);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                for (int i = 0; i < shape.Length; i++)
-                {
-                    if (shape[i] > 1)
-                    {
-                        list.Add(shape[i]);
-                    }
-                }
-            }
-
-            if (list.Count > 0)
-            {
-                return View(list.ToArray(), inline: inline);
-            }
-            
-            // if shape doesn't change just call through to view to hook into autograd if need be
-            return View(Shape, inline: inline);
-        }
-
-		private FloatTensor expand(int[] sizes, FloatTensor result = null)
-		{
-
-            // TODO: make more complicated version which does not copy data
-		    result = HookAutograd(ref result, "expand", false, shape);
-		    result.Add(this, inline: true,override_checks:true);
-		    
-			for (int i = 0; i < shape.Length; i++) {
-				if (sizes[i] != -1 && sizes[i] != shape[i]) {
-					if (shape[i] == 1 || strides[i] == 0) {
-						result.strides[i] = 0;
-						result.shape[i] = sizes[i];
-					} else {
-						throw new InvalidOperationException (String.Format ("Cannot expand dimension {0}, not a singleton ({1})", i, shape[i]));
-					}
-				}
-			}
-
-			return result;
-		}
-
-		private FloatTensor expandNewDimensions(int[] sizes) {
-			FloatTensor result = factory.Create(_data: data, _shape: shape, _shader: shader, _copyData: false);
-
-			int diffLength = sizes.Length - shape.Length;
-			
-			// sets new strides to zero on initialization
-			int[] newStrides = new int[sizes.Length];
-			int[] newShape = new int[sizes.Length];
-
-			for (int i = 0; i < diffLength; i++) {
-			    // sets new shape
-				if (sizes[i] != -1) {
-					newShape[i] = sizes[i];
-				} else {
-					throw new InvalidOperationException (String.Format ("Cannot set new dimension {0} to -1", i));
-				}
-			}
-			
-			for (int i = diffLength; i < sizes.Length; i++) {
-				var oldIndex = i - diffLength;
-				
-				// fill in old strides/shape
-				newStrides[i] = strides[oldIndex];
-				newShape[i] = shape[oldIndex];
-				
-				// modify any old strides/shapes
-				if (sizes[i] != -1 && sizes[i] != shape[oldIndex]) {
-					if (shape[oldIndex] == 1 || strides[oldIndex] == 0) {
-						newStrides[i] = 0;
-						newShape[i] = sizes[i];
-					} else {
-						throw new InvalidOperationException (String.Format ("Cannot expand dimension {0}, not a singleton ({1})", i, shape[i]));
-					}
-				}
-			}
-
-			result.shape = newShape;
-			result.strides = newStrides;
-			
-			return result;
-		}
-
-		public FloatTensor Expand(int[] sizes) {
-			if (sizes.Length == Shape.Length) {
-				return expand(sizes);
-			} else if (sizes.Length > Shape.Length) {
-				return expandNewDimensions(sizes);
-			} else {
-			    throw new InvalidOperationException(String.Format("Number of sizes provided must be greater than or equal to the number of dimensions in tensor"));
-			}
-		}
-
-        /*** Reduce Functions ***/
-
-        public FloatTensor Reduce(
-            Func<float, float, int, float[], float> reducer,
-            Func<float, int, float> mapper
-        )
-        {
-            int[] outDims = {1};
-            var output = new float[1];
-            output[0] = mapper(MultiThread.Reduce(data, reducer), Size);
-
-            return factory.Create(_shape:outDims, _data:output);
-        }
-
-        internal void ForEach(
-            int dim,
-            Action<float[], int, int> iterator
-        )
-        {
-            int interations = size / shape[dim];
-            int values = shape[dim];
-            var stride = strides[dim];
-            MultiThread.For(interations, (i, len) =>
-            {
-                var temp = new float[values];
-                var offset = GetDimReduceOffset(i, values, stride);
-
-                for (int v = 0; v < values; v++)
-                {
-                    temp[v] = this[offset + v * stride];
-                }
-
-                iterator(temp, offset, stride);
-            });
-        }
-
-        public FloatTensor Reduce(
-            int dim,
-            bool keepdim,
-            Func<float, float, int, float[], float> reducer,
-            Func<float, int, float> mapper,
-            string creation_op = null,
-            FloatTensor result = null
-        )
-        {
-            int len = shape.Length;
-
-            if (dim < 0)
-            {
-                return Reduce(reducer, mapper);
-            }
-
-            AssertDim(dim, len);
-
-            if (len == 1)
-            {
-                keepdim = true;
-            }
-
-            var stride = strides[dim];
-            int values = shape[dim];
-
-            int outSize = 1;
-            var outDims = keepdim ? new int[len] : new int[len - 1];
-
-            for (int i = 0; i < len; i++)
-            {
-                if (i < dim)
-                {
-                    outDims[i] = shape[i];
-                }
-                else if (i > dim)
-                {
-                    outDims[keepdim ? i : i - 1] = shape[i];
-                }
-                else if (i == dim)
-                {
-                    if (keepdim)
-                    {
-                        outDims[i] = 1;
-                    }
-
-                    continue;
-                }
-
-                outSize *= shape[i];
-            }
-            
-            result = HookAutograd(ref result, creation_op, false, outDims);
-
-            _dimForEach(outSize, values, stride, (vals, index, length) =>
-            {
-                var acc = vals[0];
-
-                for (int i = 1; i < length; i++)
-                {
-                    acc = reducer(acc, vals[i], i, vals);
-                }
-
-                result.data[index] = mapper(acc, length);
-            });
-
-            return result;
-        }
-
-        public FloatTensor Unsqueeze(int dim, bool inline = false, FloatTensor result = null)
-        {        
-            int[] new_shape = new int[shape.Length + 1];
-            int j = 0;
-            for (int i = 0; i < new_shape.Length; i++)
-            {
-                if (i == dim)
-                {
-                    new_shape[i] = 1;
-                }
-                else
-                {
-                    new_shape[i] = shape[j];
-                    j += 1;
-                }
-            }
-
-            return View(new_shape, inline:inline);
-        }
-        
-        public FloatTensor Min(int dim = -1, bool keepdim = false)
-        {
-            if (!IsContiguous()) {
-                throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
-            }
-
-            // TODO: Implement GPU op. with GPU tests.
-            return Reduce(dim, keepdim, (acc, val, index, arr) => acc < val ? acc : val, (val, len) => val, creation_op:"min_"+dim);
-        }
-
-        public FloatTensor Max(int dim = -1, bool keepdim = false)
-        {
-            if (!IsContiguous()) {
-                throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
-            }
-
-            // TODO: Implement GPU op. with GPU tests.
-            return Reduce(dim, keepdim, (acc, val, index, arr) => acc > val ? acc : val, (val, len) => val, creation_op:"max_"+dim);
-        }
-
-        public FloatTensor Sum(int dim = -1, bool keepdim = false)
-        {
-            if (!IsContiguous())
-            {
-                throw new InvalidOperationException("Tensor must be contiguous, call Contiguous() to convert");
-            }
-
-            // TODO: Implement GPU op. with GPU tests.
-
-            return Reduce(dim, keepdim, (acc, val, index, arr) => acc + val, (val, len) => val, creation_op:"sum_"+dim);
-
-        }
-
-        public FloatTensor Prod(int dim = -1, bool keepdim = false)
-        {
-            if (!IsContiguous()) {
-                throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
-            }
-            
-            // TODO: Implement GPU op. with GPU tests.
-            return Reduce(dim, keepdim, (acc, val, index, arr) => acc * val, (val, len) => val, creation_op:"prod_"+dim);
-        }
-
-        public FloatTensor Mean(int dim = -1, bool keepdim = false)
-        {
-            if (!IsContiguous()) {
-                throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
-            }
-            
-            // TODO: Implement GPU op. with GPU tests.
-            return Reduce(dim, keepdim, (acc, val, index, arr) => acc + val, (val, len) => val / (float) len, creation_op:"mean_"+dim);
-        }
-
-
-/*** Reduce Functions End ***/
 
 // closes class and namespace
     }

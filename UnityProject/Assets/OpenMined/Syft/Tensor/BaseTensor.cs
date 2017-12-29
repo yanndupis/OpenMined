@@ -196,6 +196,39 @@ namespace OpenMined.Syft.Tensor
         }
 
 
+        public int DimIndices2DataIndex(ref int[] dim_indices)
+        {
+            int index = 0;
+            for (int i = 0; i < dim_indices.Length; i++)
+            {
+                index += dim_indices[i] * strides[i];
+            }
+            return index;
+        }
+
+        public int[] DataIndex2DimIndices(int index, ref int[] dim_indices)
+        {
+            if (dim_indices == null)
+            {
+                dim_indices = new int[strides.Length];
+            }
+
+            for (int i = 0; i < strides.Length; i++)
+            {
+                if (strides[i] != 0)
+                {
+                    dim_indices[i] = index / strides[i];
+                    index %= strides[i];
+                }
+                else
+                {
+                    dim_indices[i] = 0;
+                }
+            }
+
+            return dim_indices;
+        }
+        
         public abstract string ProcessMessage(Command msgObj, SyftController ctrl);
 
         public void setStridesAndCheckShape()
