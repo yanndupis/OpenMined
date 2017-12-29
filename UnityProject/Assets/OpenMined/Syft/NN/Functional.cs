@@ -134,5 +134,36 @@ namespace OpenMined.Syft.NN
 
             return gradInput;
         }
+
+        public static FloatTensor ReLUDeriv(FloatTensor output)
+        {
+            var dimSize = 1;
+
+            for (var i = 0 ; i < output.Shape.Length; ++i)
+                dimSize *= output.Shape[i];
+
+            var gradInput = output.emptyTensorCopy();
+
+            var nCpu = SystemInfo.processorCount;
+            Parallel.For(0, nCpu, workerId =>
+            {
+                var max = dimSize * (workerId + 1) / nCpu;
+                        for (var i = dimSize * workerId / nCpu; i < max; i++)
+                        {
+                                if (output.Data[i] > 0)
+                                {
+                                    gradInput.Data[i] = 1;
+                                }else
+                                {
+                                    gradInput.Data[i] = 0;
+                                }                
+                        }
+                    });
+
+            gradInput.Autograd = false;
+
+            return gradInput;
+        }
+
     }
 }
