@@ -201,6 +201,15 @@ namespace OpenMined.Syft.Tensor
 					    
 					    factory.Get(creators[0]).Backward(x.Mul(grad).Mul(factory.Get(creators[1]).Data[0]), this);
 				    }
+				    else if (creation_op == "relu")
+                    {
+
+                        FloatTensor c = this.Copy();
+                        c.autograd = false;
+       
+                        factory.Get(creators[0]).Backward((Functional.ReLUDeriv(c)).Mul(grad), this);
+
+                    }
 				    else if (creation_op == "sub_elem")
 				    {
 					    factory.Get(creators[0]).Backward(grad, this);
