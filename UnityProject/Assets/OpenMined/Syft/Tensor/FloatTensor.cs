@@ -368,6 +368,22 @@ namespace OpenMined.Syft.Tensor
                     var result = Expand(new_dims);
                     return result.Id.ToString();
                 }
+                case "index_select":
+                {
+                    IntTensor indices = ctrl.intTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[0]));
+                    int dim = int.Parse(msgObj.tensorIndexParams[1]);
+
+                    var result = IndexSelect(indices: indices, dim:dim);
+                    return result.Id.ToString();
+                }
+                case "index_add":
+                {
+                    IntTensor indices = ctrl.intTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[0]));
+                    int dim = int.Parse(msgObj.tensorIndexParams[1]);
+                    FloatTensor x = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[2]));
+                    var result = IndexAdd(indices, dim, x);
+                    return result.Id.ToString();
+                }
                 case "mul_scalar":
                 {
                     FloatTensor result = Mul(float.Parse(msgObj.tensorIndexParams[0]));
