@@ -142,7 +142,8 @@ namespace OpenMined.Syft.NN
             for (var i = 0 ; i < output.Shape.Length; ++i)
                 dimSize *= output.Shape[i];
 
-            var gradInput = output.emptyTensorCopy();
+            var gradInput = output.Copy();
+            gradInput.Zero_();
 
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
