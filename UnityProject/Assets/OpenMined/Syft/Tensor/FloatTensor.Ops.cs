@@ -1196,28 +1196,13 @@ namespace OpenMined.Syft.Tensor
             }
             else
             {
-<<<<<<< HEAD
-                result = factory.Create(
-                    _shape: new_shape,
-                    _data: data,
-                    _dataOnGpu: dataOnGpu,
-                    _autograd: autograd,
-                    _keepgrads: keepgrads,
-                    _creation_op: creation_op,
-                    _copyData:false);
-                
-                string shape_str = "";
-                for (int i = 0; i < new_shape.Length; i++) shape_str += "_" + new_shape[i];
-                return HookAutograd(ref result, creation_op:"view"+shape_str, inline:inline, resultShape:new_shape);    
-=======
-                
                 
                 string shape_str = "";
                 for (int i = 0; i < new_shape.Length; i++) shape_str += "_" + new_shape[i];
                 result =  HookAutograd(ref result, creation_op:"view"+shape_str, inline:inline, resultShape:new_shape);
                 result.Add(this, inline: true, override_checks:true);
                 return result;
->>>>>>> reinforce
+
             }
             
         }

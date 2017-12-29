@@ -1034,7 +1034,6 @@ namespace OpenMined.Tests.Editor.FloatTensor
         }
         
         [Test]
-<<<<<<< HEAD
         public void TanhAutograd()
         {
             float[] data1 = { 1, 2, 3, 4 };
@@ -1146,8 +1145,6 @@ namespace OpenMined.Tests.Editor.FloatTensor
             ctrl.allow_new_tensors = true;
         }
 
-=======
->>>>>>> reinforce
         public void ViewAutograd()
         {
 
@@ -1250,11 +1247,7 @@ namespace OpenMined.Tests.Editor.FloatTensor
             for (int i = 0; i < a.Size; i++)
             {
                 // grad is correct
-<<<<<<< HEAD
                 Assert.True(Math.Abs(a_grad.Data[i] - a.Grad.Data[i]) < 0.000001);
-=======
-                Assert.AreEqual(a_grad.Data[i],a.Grad.Data[i]);
->>>>>>> reinforce
             }
             
             Assert.True(a.Grad.Shape[0] == a.Shape[0]);
@@ -1285,10 +1278,6 @@ namespace OpenMined.Tests.Editor.FloatTensor
 
             ctrl.allow_new_tensors = true;
               
-<<<<<<< HEAD
-
-=======
->>>>>>> reinforce
         }
     }
 }
