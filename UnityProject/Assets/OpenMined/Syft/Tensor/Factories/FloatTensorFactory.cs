@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using OpenMined.Network.Controllers;
 using UnityEngine;
 
@@ -53,24 +54,33 @@ namespace OpenMined.Syft.Tensor.Factories
             bool _keepgrads = false,
             string _creation_op = null)
         {
-            
-            FloatTensor tensor = new FloatTensor();
-            
-            tensor.init(this,
-                _shape,
-                _data,
-                _dataBuffer,
-                _shapeBuffer,
-                _shader,
-                _copyData,
-                _dataOnGpu,
-                _autograd, 
-                _keepgrads,
-                _creation_op);
-            
-            tensors.Add(tensor.Id,tensor);
 
-            return tensor;
+            if (ctrl.allow_new_tensors)
+            {
+
+                FloatTensor tensor = new FloatTensor();
+
+                tensor.init(this,
+                    _shape,
+                    _data,
+                    _dataBuffer,
+                    _shapeBuffer,
+                    _shader,
+                    _copyData,
+                    _dataOnGpu,
+                    _autograd,
+                    _keepgrads,
+                    _creation_op);
+
+                tensors.Add(tensor.Id, tensor);
+
+                return tensor;
+            }
+            else
+            {
+                throw new Exception("Attempted to Create a new FloatTensor");
+            }
+
         }
        
         public ComputeShader GetShader()

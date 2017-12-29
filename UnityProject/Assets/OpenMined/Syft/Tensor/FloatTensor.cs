@@ -320,6 +320,11 @@ namespace OpenMined.Syft.Tensor
                     Cpu();
                     return msgObj.functionCall + ": OK";
                 }
+                case "cumsum":
+                {
+                    int dim = int.Parse(msgObj.tensorIndexParams[0]);
+                    return CumSum(dim: dim).Id.ToString();
+                }
                 case "div_elem":
                 {
                     var tensor_1 = factory.Get(int.Parse(msgObj.tensorIndexParams[0]));
@@ -694,7 +699,7 @@ namespace OpenMined.Syft.Tensor
                 }
                 case "sample":
                 {
-                    var result = this.Sample();
+                    var result = this.Sample(int.Parse(msgObj.tensorIndexParams[0]));
                     return result.Id + "";
                 }
                 case "sign":
@@ -818,6 +823,16 @@ namespace OpenMined.Syft.Tensor
                     return result.Id.ToString();
                 }
 
+                case "unsqueeze":
+                {
+                    var result = Unsqueeze(int.Parse(msgObj.tensorIndexParams[0]), inline:false);
+                    return result.Id.ToString();
+                }
+                case "unsqueeze_":
+                {
+                    var result = Unsqueeze(int.Parse(msgObj.tensorIndexParams[0]),inline:true);
+                    return result.Id.ToString();
+                }
                 case "view":
                 {
                     int[] new_dims = new int[msgObj.tensorIndexParams.Length];

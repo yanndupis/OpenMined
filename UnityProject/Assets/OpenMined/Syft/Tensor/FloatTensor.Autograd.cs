@@ -222,8 +222,11 @@ namespace OpenMined.Syft.Tensor
  				    {
  						// TOOD: sum backprop logic   
  					    FloatTensor parent = factory.Get(creators[0]);
+<<<<<<< HEAD
 
                         parent.Grad = null;
+=======
+>>>>>>> reinforce
 					    
  					    int[] view_shape = (int[])parent.shape.Clone();
  					    view_shape[int.Parse(creation_op.Split('_')[1])] = 1;

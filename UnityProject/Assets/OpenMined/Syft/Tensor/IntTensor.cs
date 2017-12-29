@@ -151,6 +151,36 @@ namespace OpenMined.Syft.Tensor
             throw new NotImplementedException();
         }
 
+        public IntTensor View(int[] new_shape, bool inline = true, FloatTensor result = null)
+        {
+            if (!IsContiguous()) {
+                throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
+            }
+            if (inline == true)
+            {
+                
+                this.Shape = new_shape;
+
+                if (dataOnGpu)
+                {
+                    shapeBuffer.Release();
+                    shapeBuffer = new ComputeBuffer(shape.Length, sizeof(int));
+                    shapeBuffer.SetData(shape);
+                    
+                }
+                
+                setStridesAndCheckShape();
+
+                return this;
+
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+            
+        }
+        
         public override string ProcessMessage(Command msgObj, SyftController ctrl)
         {
             switch (msgObj.functionCall)
@@ -235,6 +265,16 @@ namespace OpenMined.Syft.Tensor
 
             }
             return "IntTensor.processMessage: Command not found:" + msgObj.functionCall;
+        }
+
+        public int DimIndices2DataIndex(ref int[] dim_indices)
+        {
+            int index = 0;
+            for (int i = 0; i < dim_indices.Length; i++)
+            {
+                index += dim_indices[i] * strides[i];
+            }
+            return index;
         }
     }
 }

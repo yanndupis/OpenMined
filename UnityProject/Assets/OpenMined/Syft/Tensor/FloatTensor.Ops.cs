@@ -272,6 +272,110 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+        public FloatTensor CumSum(int dim, bool inline = false , FloatTensor result = null)
+        {
+            if (dataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+            
+            result = HookAutograd(ref result, "cumsum_"+dim, inline);
+            result.Zero_();
+            result.Add(this, inline: true);
+
+            int[] temp_shape = new int[] {1, shape[dim], 1};
+
+        
+            for (int i = 0; i < dim; i++)
+            {
+                temp_shape[0] *= shape[i];
+            }
+        
+            for (int i = dim+1; i < shape.Length; i++)
+            {
+                temp_shape[2] *= shape[i];
+            }
+            
+            var result_3d = result.View(temp_shape);
+
+            int[] temp_index = new int[] {0, 0, 0};
+            float cumsum = 0;
+            
+            for (int i = 0; i < result_3d.shape[0]; i++)
+            {
+                temp_index[0] = i;
+
+                for (int j = 0; j < result_3d.shape[2]; j++)
+                {
+                    temp_index[2] = j;
+                    
+                    cumsum = 0;
+                    for (var k = 0; k < result_3d.Shape[1]; k++)
+                    {
+                        temp_index[1] = k;
+                        int result_data_index = result_3d.DimIndices2DataIndex(ref temp_index);
+
+                        cumsum += result_3d.Data[result_data_index];
+                        result_3d.Data[result_data_index] = cumsum;
+                    }
+                }
+            }
+
+            return result_3d.View(shape);
+        }
+        
+        public FloatTensor CumProd(int dim, bool inline = false , FloatTensor result = null)
+        {
+            if (dataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+            
+            result = HookAutograd(ref result, "cumprod_"+dim, inline);
+            result.Zero_();
+            result.Add(this, inline: true);
+
+            int[] temp_shape = new int[] {1, shape[dim], 1};
+
+        
+            for (int i = 0; i < dim; i++)
+            {
+                temp_shape[0] *= shape[i];
+            }
+        
+            for (int i = dim+1; i < shape.Length; i++)
+            {
+                temp_shape[2] *= shape[i];
+            }
+            
+            var result_3d = result.View(temp_shape);
+
+            int[] temp_index = new int[] {0, 0, 0};
+            float cumprod = 1;
+            
+            for (int i = 0; i < result_3d.shape[0]; i++)
+            {
+                temp_index[0] = i;
+
+                for (int j = 0; j < result_3d.shape[2]; j++)
+                {
+                    temp_index[2] = j;
+                    
+                    cumprod = 1;
+                    for (var k = 0; k < result_3d.Shape[1]; k++)
+                    {
+                        temp_index[1] = k;
+                        int result_data_index = result_3d.DimIndices2DataIndex(ref temp_index);
+
+                        cumprod *= result_3d.Data[result_data_index];
+                        result_3d.Data[result_data_index] = cumprod;
+                    }
+                }
+            }
+
+            return result_3d.View(shape);
+        }
+
         public int DimIndices2DataIndex(ref int[] dim_indices)
         {
             int index = 0;
@@ -713,28 +817,101 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-        public IntTensor Sample()
+        public IntTensor Sample(int dim, IntTensor result = null)
         {
-            var result = factory.ctrl.intTensorFactory.Create(shape);
-
+            
             if (dataOnGpu)
             {
                 throw new NotImplementedException();
             }
 
-            for (int i = 0; i < size; i++)
+            if (dim == -1)
             {
-                if (UnityEngine.Random.value < data[i])
+                
+                result = factory.ctrl.intTensorFactory.Create(shape);
+                
+                for (int i = 0; i < size; i++)
                 {
-                    result.Data[i] = 1;
+                    if (UnityEngine.Random.value < data[i])
+                    {
+                        result.Data[i] = 1;
+                    }
+                    else
+                    {
+                        result.Data[i] = 0;
+                    }
+
                 }
-                else
-                {
-                    result.Data[i] = 0;
-                }
-                 
+
+                return result;
             }
-            return result;
+            else
+            { 
+
+                int[] temp_shape = new int[] {1, shape[dim], 1};
+
+    
+                for (int i = 0; i < dim; i++)
+                {
+                    temp_shape[0] *= shape[i];
+                }
+    
+                for (int i = dim+1; i < shape.Length; i++)
+                {
+                    temp_shape[2] *= shape[i];
+                }
+        
+                result = factory.ctrl.intTensorFactory.Create(new int[] {temp_shape[0], 1, temp_shape[2]});
+                
+                var result_3d = this.View(temp_shape);
+
+                int[] temp_index = new int[] {0, 0, 0};
+                float cumsum = 0;
+                float random = 0;
+        
+                for (int i = 0; i < result_3d.shape[0]; i++)
+                {
+                    temp_index[0] = i;
+
+                    for (int j = 0; j < result_3d.shape[2]; j++)
+                    {
+                        temp_index[2] = j;
+                
+                        cumsum = 0;
+                        random = UnityEngine.Random.value;
+                        for (var k = 0; k < result_3d.Shape[1]; k++)
+                        {
+                            temp_index[1] = k;
+                            int result_data_index = result_3d.DimIndices2DataIndex(ref temp_index);
+
+                            cumsum += result_3d.Data[result_data_index];
+                            if (random > (1 - cumsum))
+                            {
+                                temp_index[1] = 0;
+                                result[result.DimIndices2DataIndex(ref temp_index)] = k;
+                                break;
+                            }
+                        }
+                        
+                    }
+                    
+                }
+
+                int[] final_shape = new int[shape.Length - 1];
+                int h = 0;
+                for (int i = 0; i < shape.Length; i++)
+                {
+                    if (i != dim)
+                    {
+                        final_shape[h] = shape[i];
+                        h += 1;
+                    }
+
+                }
+                
+                return result.View(final_shape, inline:true);
+            }
+            
         }
 
         public FloatTensor Sign(bool inline = false)
@@ -1019,6 +1196,7 @@ namespace OpenMined.Syft.Tensor
             }
             else
             {
+<<<<<<< HEAD
                 result = factory.Create(
                     _shape: new_shape,
                     _data: data,
@@ -1031,6 +1209,15 @@ namespace OpenMined.Syft.Tensor
                 string shape_str = "";
                 for (int i = 0; i < new_shape.Length; i++) shape_str += "_" + new_shape[i];
                 return HookAutograd(ref result, creation_op:"view"+shape_str, inline:inline, resultShape:new_shape);    
+=======
+                
+                
+                string shape_str = "";
+                for (int i = 0; i < new_shape.Length; i++) shape_str += "_" + new_shape[i];
+                result =  HookAutograd(ref result, creation_op:"view"+shape_str, inline:inline, resultShape:new_shape);
+                result.Add(this, inline: true, override_checks:true);
+                return result;
+>>>>>>> reinforce
             }
             
         }
@@ -1350,6 +1537,26 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+        public FloatTensor Unsqueeze(int dim, bool inline = false)
+        {
+            int[] new_shape = new int[shape.Length + 1];
+            int j = 0;
+            for (int i = 0; i < new_shape.Length; i++)
+            {
+                if (i == dim)
+                {
+                    new_shape[i] = 1;
+                }
+                else
+                {
+                    new_shape[i] = shape[j];
+                    j += 1;
+                }
+            }
+
+            return View(new_shape, inline:inline);
+        }
+        
         public FloatTensor Min(int dim = -1, bool keepdim = false)
         {
             if (!IsContiguous()) {

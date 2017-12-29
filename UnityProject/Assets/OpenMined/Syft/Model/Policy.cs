@@ -26,9 +26,9 @@ namespace OpenMined.Syft.Layer
             return model.Forward(input);
         }
 
-        public IntTensor Sample(FloatTensor input)
+        public IntTensor Sample(FloatTensor input, int dim=1)
         {
-            return Forward(input).Sample();
+            return Forward(input).Sample(dim);
         }
         
         protected override string ProcessMessageLocal(Command msgObj, SyftController ctrl)
