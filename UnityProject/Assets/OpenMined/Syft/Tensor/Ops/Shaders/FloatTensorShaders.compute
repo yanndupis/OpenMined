@@ -202,7 +202,7 @@ void Cos (uint3 id: SV_DispatchThreadID) {
 }
 
 #pragma kernel Cos_
-StructuredBuffer<float> CosData_;
+RWStructuredBuffer<float> CosData_;
 
 [numthreads(4,1,1)]
 void Cos_ (uint3 id: SV_DispatchThreadID) {
@@ -231,7 +231,7 @@ void Cosh_ (uint3 id: SV_DispatchThreadID) {
 
 StructuredBuffer<int> DiagonalNumcolumns;
 RWStructuredBuffer<float> DiagonalData;
-StructuredBuffer<float> DiagonalResult;
+RWStructuredBuffer<float> DiagonalResult;
 
 [numthreads(8,1,1)]
 void Diagonal (uint3 id: SV_DispatchThreadID) {
