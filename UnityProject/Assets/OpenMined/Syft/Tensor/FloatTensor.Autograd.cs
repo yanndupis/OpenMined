@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using OpenMined.Syft.NN;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace OpenMined.Syft.Tensor
@@ -226,11 +226,39 @@ namespace OpenMined.Syft.Tensor
                     }
                     else if (creation_op == "relu")
                     {
-
+						// TOOD: replace with simple comparison and mulitplication (should be 2 liner)
                         FloatTensor c = this.Copy();
                         c.autograd = false;
 
-                        factory.Get(creators[0]).Backward((Functional.ReLUDeriv(c)).Mul(grad), this);
+	                    FloatTensor output = c;
+	                    
+						var dimSize = 1;
+
+						for (var i = 0 ; i < output.Shape.Length; ++i)
+							dimSize *= output.Shape[i];
+
+						var gradInput = output.Copy();
+						gradInput.Zero_();
+
+						var nCpu = SystemInfo.processorCount;
+						Parallel.For(0, nCpu, workerId =>
+						{
+							var max = dimSize * (workerId + 1) / nCpu;
+							for (var i = dimSize * workerId / nCpu; i < max; i++)
+							{
+								if (output.Data[i] > 0)
+								{
+									gradInput.Data[i] = 1;
+								}else
+								{
+									gradInput.Data[i] = 0;
+								}                
+							}
+						});
+
+						gradInput.Autograd = false;
+
+                        factory.Get(creators[0]).Backward((gradInput).Mul(grad), this);
 
                     }
                     else if (creation_op == "sub_elem")
@@ -255,7 +283,53 @@ namespace OpenMined.Syft.Tensor
                         FloatTensor c = this.Copy();
                         c.autograd = false;
                         var dim = int.Parse(creation_op.Split('-')[1]);
-                        factory.Get(creators[0]).Backward(Functional.SoftmaxGradient(this, grad, dim), this);
+
+	                    FloatTensor output = this;
+	                    FloatTensor gradOutput = grad;
+
+						if (!output.IsContiguous() || !gradOutput.IsContiguous())
+							throw new NotImplementedException(
+								"Softmax Gradient does not support non-contiguous tensors at the moment!");
+						var outerSize = 1;
+						var innerSize = 1;
+						var dimSize = output.Shape[dim];
+
+						for (var i = 0; i < dim; ++i)
+							outerSize *= output.Shape[i];
+
+						for (var i = dim + 1; i < output.Shape.Length; ++i)
+							innerSize *= output.Shape[i];
+
+						var dimStride = innerSize;
+						var outerStride = dimSize * dimStride;
+
+						var gradInput = output.emptyTensorCopy();
+
+						var nCpu = SystemInfo.processorCount;
+						Parallel.For(0, nCpu, workerId =>
+						{
+							var max = (outerSize * innerSize) * (workerId + 1) / nCpu;
+							for (var i = (outerSize * innerSize) * workerId / nCpu; i < max; i++)
+							{
+								int outerIdx = i / innerSize;
+								int innerIdx = i % innerSize;
+
+								// works for contiguous!!
+								var index = outerIdx * outerStride + innerIdx;
+
+								float sum = 0;
+								for (var d = 0; d < dimSize; d++)
+									sum += output.Data[index + d * dimStride] * gradOutput.Data[index + d * dimStride];
+
+								for (var d = 0; d < dimSize; d++)
+									gradInput.Data[index + d * dimStride] =
+										output.Data[index + d * dimStride] * (gradOutput.Data[index + d * dimStride] - sum);
+							}
+						});
+
+						gradInput.Autograd = false;
+
+                        factory.Get(creators[0]).Backward(gradInput, this);
 
                     }
                     else if (creation_op.Contains("sum"))
