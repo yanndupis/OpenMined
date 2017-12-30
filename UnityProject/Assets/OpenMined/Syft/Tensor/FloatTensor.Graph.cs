@@ -11,7 +11,9 @@ namespace OpenMined.Syft.Tensor
         private string creation_op;
         private List<int> children_indices; // children -> counts
 	    private List<int> children_counts; // children -> counts
-	    private int sibling;
+
+	    private List<int> children_int_indices; // when integer indices are used as a child
+	    private List<int> int_creators; // when integer indices are used to create this tensor
 
         public void InitAutograd()
         {
@@ -40,7 +42,7 @@ namespace OpenMined.Syft.Tensor
 
 
         // hook autograd one parents - one scalar
-        public FloatTensor HookAutograd(ref FloatTensor result, float x, string creation_op, bool inline)
+        public FloatTensor HookGraph(ref FloatTensor result, float x, string creation_op, bool inline)
         {
 
 	        if (inline)
@@ -142,7 +144,8 @@ namespace OpenMined.Syft.Tensor
         }
 
 		// hook autograd two parents
-		public FloatTensor HookAutograd(ref FloatTensor result, ref FloatTensor x, string creation_op, bool inline=false, int[] resultShape= null)
+		public FloatTensor HookGraph(ref FloatTensor result, ref FloatTensor x, string creation_op, 
+			bool inline=false, int[] resultShape= null, IntTensor indices = null)
 		{
 
 			if (inline)
@@ -238,6 +241,7 @@ namespace OpenMined.Syft.Tensor
 				result.InitGraph();
 				result.creators.Add(this.id);
 				result.creators.Add(x.id);
+				
 				result.creation_op = creation_op;
 
 				children_indices.Add(result.Id);
@@ -246,16 +250,26 @@ namespace OpenMined.Syft.Tensor
 				x.children_indices.Add(result.Id);
 				x.children_counts.Add(0);
 
-				this.sibling = x.id;
+				if (indices != null)
+				{
+					// special storage for the graph so that we can know which indices of the parent to 
+					// backprop into. note that int_creators are expected to be non-differentiable and so we do
+					// not backprop into them directly
+					result.int_creators.Add(this.id);
+					
+					// this is just used so that eventually if any inline operation was run on "indices" to change it
+					// (before backpropagating), we could trigger a warning that backprop will be broken.
+					indices.children_indices.Add(result.id);
+				}
+
 			}
-		
 
 			return result;
 
 		}
 
 		// hook autograd single parent
-		public FloatTensor HookAutograd(ref FloatTensor result, string creation_op, bool inline=false, int[] resultShape = null, float[] resultData = null) {
+		public FloatTensor HookGraph(ref FloatTensor result, string creation_op, bool inline=false, int[] resultShape = null, float[] resultData = null) {
 
 			if (inline)
 				return this;

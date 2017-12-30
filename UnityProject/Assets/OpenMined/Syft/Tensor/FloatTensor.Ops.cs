@@ -31,7 +31,7 @@ namespace OpenMined.Syft.Tensor
         // parameters are overrides
         public FloatTensor Copy(FloatTensor result = null)
         {
-            result = HookAutograd(ref result, "copy", false);
+            result = HookGraph(ref result, "copy", false);
             result.Zero_();
             result.Add(this, inline: true);
             
@@ -54,7 +54,7 @@ namespace OpenMined.Syft.Tensor
 		public FloatTensor Abs(bool inline = false, FloatTensor result = null)
 		// Returns a new Tensor with the smallest integer greater than or equal to each element
 		{
-            result = HookAutograd(ref result, "abs", inline);		
+            result = HookGraph(ref result, "abs", inline);		
 
 			if (dataOnGpu) {
 				if (inline) { AbsGPU_ (); return this; }
@@ -90,7 +90,7 @@ namespace OpenMined.Syft.Tensor
 		        }
 		    }
 
-		    result = HookAutograd (ref result, ref x, "add_elem", inline);
+		    result = HookGraph (ref result, ref x, "add_elem", inline);
 
 
 		    if (dataOnGpu)
@@ -124,7 +124,7 @@ namespace OpenMined.Syft.Tensor
 
         public FloatTensor Add(float value, bool inline = false, FloatTensor result = null)
         {
-            result = HookAutograd (ref result, value, "add_scalar", inline);
+            result = HookGraph (ref result, value, "add_scalar", inline);
 
             if (dataOnGpu) {
                 result.Gpu (shader);
@@ -326,7 +326,7 @@ namespace OpenMined.Syft.Tensor
             if (DataOnGpu)
                 throw new NotSupportedException();
          
-            result = HookAutograd(ref result, "contiguous", false, shape);
+            result = HookGraph(ref result, "contiguous", false, shape);
 
             int[] dim_indices = new int[strides.Length];
             
@@ -372,7 +372,7 @@ namespace OpenMined.Syft.Tensor
                 throw new NotImplementedException();
             }
             
-            result = HookAutograd(ref result, "cumprod_"+dim, inline);
+            result = HookGraph(ref result, "cumprod_"+dim, inline);
             result.Zero_();
             result.Add(this, inline: true);
 
@@ -424,7 +424,7 @@ namespace OpenMined.Syft.Tensor
                 throw new NotImplementedException();
             }
             
-            result = HookAutograd(ref result, "cumsum_"+dim, inline);
+            result = HookGraph(ref result, "cumsum_"+dim, inline);
             result.Zero_();
             result.Add(this, inline: true);
 
@@ -478,7 +478,7 @@ namespace OpenMined.Syft.Tensor
             // Check if both tensors are compatible for sum
             SameSizeDimensionsShapeAndLocation(ref x);
 
-            result = HookAutograd(ref result, ref x, "div_elem", inline);
+            result = HookGraph(ref result, ref x, "div_elem", inline);
             
             if (dataOnGpu & x.dataOnGpu)
             {
@@ -503,7 +503,7 @@ namespace OpenMined.Syft.Tensor
 
         public FloatTensor Div(float value, bool inline = false, FloatTensor result = null)
         {
-            result = HookAutograd (ref result, value, "div_scalar", inline);
+            result = HookGraph (ref result, value, "div_scalar", inline);
             
             if (dataOnGpu)
             {
@@ -545,7 +545,7 @@ namespace OpenMined.Syft.Tensor
         {
 
             // TODO: make more complicated version which does not copy data
-            result = HookAutograd(ref result, "expand", false, shape);
+            result = HookGraph(ref result, "expand", false, shape);
             result.Add(this, inline: true,override_checks:true);
 		    
             for (int i = 0; i < shape.Length; i++) {
@@ -667,7 +667,7 @@ namespace OpenMined.Syft.Tensor
 
             int[] result_3d_shape = new int[] {temp_shape[0], indices.Shape[0], temp_shape[2]};
 
-            result = HookAutograd(ref result, "index_select_dim:" + dim + "_int-id:" + indices.Id, false, result_3d_shape);
+            result = HookGraph(ref result, "index_select_dim:" + dim + "_int-id:" + indices.Id, false, result_3d_shape);
             
             int[] temp_index = new int[] {0, 0, 0};
         
@@ -741,8 +741,7 @@ namespace OpenMined.Syft.Tensor
             var self_3d = this.View(temp_shape);
             var x_3d = x.View(new int[] {temp_shape[0], indices.Shape[0], temp_shape[2]});
 
-            // TODO: Hook Autograd should support this
-            result = HookAutograd(ref result, "index_add_dim:" + dim + "_" + indices.Id + "_" + x.Id, false, temp_shape);
+            result = HookGraph(ref result, ref x, "index_add_dim:" + dim + "_" + indices.Id + "_" + x.Id, false, temp_shape, indices);
             result.Zero_();
             result.Add(this, inline: true, override_checks: true);
             
@@ -848,7 +847,7 @@ namespace OpenMined.Syft.Tensor
                     "Cannot do MM on tensors that aren't 2 dimentional. Try calling view() to reshape");
             }
             
-            result = HookAutograd(ref result, ref x,  "mm", false, new int[]{shape[0],x.shape[1]});
+            result = HookGraph(ref result, ref x,  "mm", false, new int[]{shape[0],x.shape[1]});
             
             result.AddMatrixMultiply(this, x);
 
@@ -864,7 +863,7 @@ namespace OpenMined.Syft.Tensor
             // Check if both tensors are compatible for sum
             SameSizeDimensionsShapeAndLocation(ref x);
 
-            result = HookAutograd(ref result, ref x, "mul_elem", inline);
+            result = HookGraph(ref result, ref x, "mul_elem", inline);
 
             if (dataOnGpu && x.dataOnGpu)
             {
@@ -890,7 +889,7 @@ namespace OpenMined.Syft.Tensor
 
         public FloatTensor Mul(float value, bool inline = false, FloatTensor result = null)
         {
-            result = HookAutograd (ref result, value, "mul_scalar", inline);
+            result = HookGraph (ref result, value, "mul_scalar", inline);
 
             if (dataOnGpu)
             {
@@ -905,7 +904,7 @@ namespace OpenMined.Syft.Tensor
 
         public FloatTensor Neg(bool inline = false, FloatTensor result = null)
         {
-            result = HookAutograd(ref result, "neg", inline);
+            result = HookGraph(ref result, "neg", inline);
 
             if (dataOnGpu)
             {
@@ -927,7 +926,7 @@ namespace OpenMined.Syft.Tensor
             // Check if both tensors are compatible for sum
             SameSizeDimensionsShapeAndLocation(ref x);
 
-            result = HookAutograd(ref result, ref x, "pow_elem", inline);
+            result = HookGraph(ref result, ref x, "pow_elem", inline);
 
             if (dataOnGpu)
             {
@@ -948,7 +947,7 @@ namespace OpenMined.Syft.Tensor
             if (inline & autograd)
                 throw new InvalidOperationException("Cannot call inline functions if you intend to run backprop.");
             
-            result = HookAutograd(ref result, value, "pow_scalar", inline);
+            result = HookGraph(ref result, value, "pow_scalar", inline);
             
             if (dataOnGpu)
             {
@@ -1052,7 +1051,7 @@ namespace OpenMined.Syft.Tensor
                 outSize *= shape[i];
             }
             
-            result = HookAutograd(ref result, creation_op, false, outDims);
+            result = HookGraph(ref result, creation_op, false, outDims);
 
             _dimForEach(outSize, values, stride, (vals, index, length) =>
             {
@@ -1072,7 +1071,7 @@ namespace OpenMined.Syft.Tensor
         public FloatTensor ReLU(bool inline = false, FloatTensor result = null)
         {
 
-            result = HookAutograd(ref result, "relu", inline);
+            result = HookGraph(ref result, "relu", inline);
 
             if (dataOnGpu)
             {
@@ -1308,7 +1307,7 @@ namespace OpenMined.Syft.Tensor
                 return this;
             }
             
-            result = HookAutograd(ref result, "sigmoid", inline);
+            result = HookGraph(ref result, "sigmoid", inline);
 
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
@@ -1458,7 +1457,7 @@ namespace OpenMined.Syft.Tensor
             // Check if both tensors are compatible for sum
             SameSizeDimensionsShapeAndLocation(ref x);
             
-            result = HookAutograd(ref result, ref x, "sub_elem", inline);
+            result = HookGraph(ref result, ref x, "sub_elem", inline);
             
             if (dataOnGpu & x.dataOnGpu)
             {
@@ -1483,7 +1482,7 @@ namespace OpenMined.Syft.Tensor
         
         public FloatTensor Sub(float value, bool inline = false, FloatTensor result = null)
         {
-            result = HookAutograd (ref result, value, "sub_scalar", inline);
+            result = HookGraph (ref result, value, "sub_scalar", inline);
 
             if (dataOnGpu)
             {
@@ -1530,7 +1529,7 @@ namespace OpenMined.Syft.Tensor
                 return TanhGPU();
             }
 
-            result = HookAutograd(ref result, "tanh", inline);
+            result = HookGraph(ref result, "tanh", inline);
 
             result.Data = data.AsParallel().Select(x => (float) Math.Tanh((double) x)).ToArray();
             return result;
@@ -1567,7 +1566,7 @@ namespace OpenMined.Syft.Tensor
             newShape[dimension2] = tmpDim;
 
             //var result = new FloatTensor(_controller: controller, _shape: newShape, _shader: this.shader);
-            result = HookAutograd(ref result, "transpose", false, newShape);
+            result = HookGraph(ref result, "transpose", false, newShape);
   
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
@@ -1689,7 +1688,7 @@ namespace OpenMined.Syft.Tensor
                 
                 string shape_str = "";
                 for (int i = 0; i < new_shape.Length; i++) shape_str += "_" + new_shape[i];
-                result = HookAutograd(ref result, creation_op:"view"+shape_str, inline:inline, resultShape:new_shape);
+                result = HookGraph(ref result, creation_op:"view"+shape_str, inline:inline, resultShape:new_shape);
                 result.Add(this, inline: true, override_checks:true);
 
                 return result;

@@ -11,8 +11,8 @@ namespace OpenMined.Syft.Tensor
     {
         private List<int> creators;
         private string creation_op;
-        private List<int> children_indices; // children -> counts
-        private List<int> children_counts; // children -> counts
+        public List<int> children_indices; // children -> counts
+        public List<int> children_counts; // children -> counts
         private int sibling;
 
         private IntTensorFactory factory;
