@@ -1,4 +1,4 @@
-﻿using OpenMined.Syft.Tensor;
+using OpenMined.Syft.Tensor;
 using OpenMined.Network.Controllers;
 
 namespace OpenMined.Syft.Layer.Loss

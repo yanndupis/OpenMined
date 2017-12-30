@@ -1,4 +1,4 @@
-﻿using OpenMined.Network.Controllers;
+using OpenMined.Network.Controllers;
 using OpenMined.Network.Utils;
 using OpenMined.Syft.Tensor;
 

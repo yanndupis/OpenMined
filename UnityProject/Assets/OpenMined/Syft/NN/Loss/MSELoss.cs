@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using OpenMined.Syft.Tensor;
 using UnityEngine;
 using OpenMined.Network.Controllers;
