@@ -83,7 +83,7 @@ namespace OpenMined.Syft.NN
                 output.Gpu(input.Shader);
             }
 
-            output = input.HookAutograd(ref output, "softmax-" + _dim.ToString(), false);
+            output = input.HookGraph(ref output, "softmax-" + _dim.ToString(), false);
 
             return output;
         }
