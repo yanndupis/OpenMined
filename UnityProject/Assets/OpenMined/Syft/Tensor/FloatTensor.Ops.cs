@@ -8,24 +8,35 @@ namespace OpenMined.Syft.Tensor
 {
     public partial class FloatTensor
     {
-        internal FloatTensor emptyTensorCopy()
+        internal FloatTensor emptyTensorCopy(bool hook_graph = false, FloatTensor result = null)
         {
 
-            FloatTensor result = factory.Create(
-                _shape: this.shape,
-                _data: data,
-                _dataBuffer: dataBuffer,
-                _shapeBuffer: shapeBuffer,
-                _shader: shader,
-                _copyData: true,
-                _dataOnGpu: dataOnGpu,
-                _autograd: autograd,
-                _keepgrads: keepgrads,
-                _creation_op: "emptyTensorCopy");
+            if (hook_graph)
+            {
+                result = HookGraph(ref result, "emptyTensorCopy_Hooked", false);
+                result.Zero_();
+                return result;
+            }
+            else
+            {
+                
+                result = factory.Create(
+                    _shape: this.shape,
+                    _data: data,
+                    _dataBuffer: dataBuffer,
+                    _shapeBuffer: shapeBuffer,
+                    _shader: shader,
+                    _copyData: true,
+                    _dataOnGpu: dataOnGpu,
+                    _autograd: autograd,
+                    _keepgrads: keepgrads,
+                    _creation_op: "emptyTensorCopy");
             
-            result.Zero_();
+                result.Zero_();
 
-            return result;
+                return result;
+            }
+            
         }
         
         // parameters are overrides
@@ -668,7 +679,7 @@ namespace OpenMined.Syft.Tensor
 
             int[] result_3d_shape = new int[] {temp_shape[0], indices.Shape[0], temp_shape[2]};
 
-            result = HookGraph(ref result, "index_select_dim:" + dim + "_int-id:" + indices.Id, false, result_3d_shape);
+            result = HookGraph(ref result, "index_select_" + dim + "_" + indices.Id, false, result_3d_shape, indices:indices);
             
             int[] temp_index = new int[] {0, 0, 0};
         
@@ -722,10 +733,10 @@ namespace OpenMined.Syft.Tensor
                 throw new NotImplementedException("Indices must be a list");
             }
 
-            if (indices.Shape[0] != x.Shape[dim])
+            /*if (indices.Shape[dim] != x.Shape[dim])
             {
                 throw new IndexOutOfRangeException("Indices and Input Sum must have same number of rows");
-            }
+            }*/
             
             int[] temp_shape = new int[] {1, shape[dim], 1};
 
