@@ -6,23 +6,21 @@ namespace OpenMined.Syft.Tensor
 {
     public partial class FloatTensor
     {
-        public byte[] Serialize()
+        public static byte[] Serialize(FloatTensor x)
         {
-            Cpu();
+            x.Cpu();
             
-            if(shape.Length > 10)
+            if(x.shape.Length > 10)
                 throw new Exception("cannot serialize tensors with greater than 10 dimensions");
             
-            var byteArray = new byte[10 * sizeof(int) + data.Length * sizeof(float)];
-            Buffer.BlockCopy(shape, 0, byteArray, 0, shape.Length * sizeof(int));
-            Buffer.BlockCopy(data, 0, byteArray, 10 * sizeof(int), data.Length * sizeof(float));
+            var byteArray = new byte[10 * sizeof(int) + x.data.Length * sizeof(float)];
+            Buffer.BlockCopy(x.shape, 0, byteArray, 0, x.shape.Length * sizeof(int));
+            Buffer.BlockCopy(x.data, 0, byteArray, 10 * sizeof(int), x.data.Length * sizeof(float));
             return byteArray;
         }
 
-        public static Tuple<int[], float[]> ReadFromFile(string filename)
+        public static Tuple<int[], float[]> Deserialize(byte[] serialied_byte_array)
         {
-            byte[] serialied_byte_array = FileToByteArray(filename);
-            
             var padded_shape = new int[10];
             var data = new float[(serialied_byte_array.Length - (10 * sizeof(int))) / sizeof(float)];
             Buffer.BlockCopy(serialied_byte_array, 0, padded_shape, 0, padded_shape.Length * sizeof(int));
@@ -45,11 +43,20 @@ namespace OpenMined.Syft.Tensor
             }
             
             return new Tuple<int[], float[]>(shape,data);
+            
+        }
+
+        public static Tuple<int[], float[]> ReadFromFile(string filename)
+        {
+            byte[] serialied_byte_array = FileToByteArray(filename);
+
+            return Deserialize(serialied_byte_array);
+
         }
 
         public bool WriteToFile(string filename)
         {
-            return ByteArrayToFile(filename, Serialize());
+            return ByteArrayToFile(filename, Serialize(this));
         }
 
         public static bool ByteArrayToFile(string fileName, byte[] byteArray)
