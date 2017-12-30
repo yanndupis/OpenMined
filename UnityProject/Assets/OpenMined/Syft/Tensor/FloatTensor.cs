@@ -2,7 +2,6 @@ using System;
 using UnityEngine;
 using OpenMined.Network.Utils;
 using OpenMined.Network.Controllers;
-using OpenMined.Syft.NN;
 using OpenMined.Syft.Tensor.Factories;
 
 namespace OpenMined.Syft.Tensor
@@ -653,7 +652,7 @@ namespace OpenMined.Syft.Tensor
                     {
                         dim = int.Parse(msgObj.tensorIndexParams[0]);
                     }
-                    var result = Functional.Softmax(this, dim);
+                    var result = Softmax(dim);
                     return result.id + "";
                 }
                 case "sub_elem":
