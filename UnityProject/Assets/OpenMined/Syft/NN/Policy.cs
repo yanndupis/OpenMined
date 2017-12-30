@@ -1,4 +1,4 @@
-﻿using OpenMined.Network.Controllers;
+using OpenMined.Network.Controllers;
 using OpenMined.Network.Utils;
 using OpenMined.Syft.Tensor;
 
@@ -31,7 +31,7 @@ namespace OpenMined.Syft.Layer
             return Forward(input).Sample(dim);
         }
         
-        protected override string ProcessMessageLocal(Command msgObj, SyftController ctrl)
+        protected override string ProcessMessageAsLayerObject(Command msgObj, SyftController ctrl)
         {
             switch (msgObj.functionCall)
             {

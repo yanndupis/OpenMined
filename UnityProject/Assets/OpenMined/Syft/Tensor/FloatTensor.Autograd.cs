@@ -338,10 +338,20 @@ namespace OpenMined.Syft.Tensor
                         FloatTensor parent = factory.Get(creators[0]);
                         parent.Grad = null;
 
-                        int[] view_shape = (int[])parent.shape.Clone();
-                        view_shape[int.Parse(creation_op.Split('_')[1])] = 1;
+	                    int dim = int.Parse(creation_op.Split('_')[1]);
 
-                        parent.Backward(grad.View(view_shape).Expand(parent.shape).Contiguous());
+	                    if (dim >= 0)
+	                    {
+		                    int[] view_shape = (int[]) parent.shape.Clone();
+		                    view_shape[dim] = 1;
+		                    parent.Backward(grad.View(view_shape).Expand(parent.shape).Contiguous());
+	                    }
+	                    else
+	                    {
+		                    int[] view_shape = (int[]) parent.shape.Clone();
+		                    for (int i = 0; i < parent.shape.Length; i++) view_shape[i] = 1;
+		                    parent.Backward(grad.View(view_shape).Expand(parent.shape).Contiguous());
+	                    }
                     }
                     //else if (creation_op.Contains("sum-"))
                     //{

@@ -1,4 +1,4 @@
-﻿using OpenMined.Syft.Tensor;
+using OpenMined.Syft.Tensor;
 using OpenMined.Network.Controllers;
 
 namespace OpenMined.Syft.Layer.Loss
@@ -14,7 +14,7 @@ namespace OpenMined.Syft.Layer.Loss
 			controller.addModel(this);
 
 		}
-        protected override FloatTensor Forward(FloatTensor prediction, FloatTensor target)
+        public override FloatTensor Forward(FloatTensor prediction, FloatTensor target)
 		{
 			// Note: prediction should be logits, basically pre-softmax. This method applies softmax first. 
 			// TODO check shapes 
