@@ -1,4 +1,4 @@
-﻿using OpenMined.Network.Controllers;
+using OpenMined.Network.Controllers;
 using OpenMined.Network.Utils;
 using OpenMined.Syft.Tensor;
 
@@ -26,12 +26,12 @@ namespace OpenMined.Syft.Layer
             return model.Forward(input);
         }
 
-        public IntTensor Sample(FloatTensor input)
+        public IntTensor Sample(FloatTensor input, int dim=1)
         {
-            return Forward(input).Sample();
+            return Forward(input).Sample(dim);
         }
         
-        protected override string ProcessMessageLocal(Command msgObj, SyftController ctrl)
+        protected override string ProcessMessageAsLayerObject(Command msgObj, SyftController ctrl)
         {
             switch (msgObj.functionCall)
             {

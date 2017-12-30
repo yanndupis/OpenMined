@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using OpenMined.Network.Controllers;
 using OpenMined.Network.Utils;
 using OpenMined.Syft.Tensor;
@@ -27,12 +27,11 @@ namespace OpenMined.Syft.Layer
 			var weights = controller.RandomWeights(input * output);
 			_weights = controller.floatTensorFactory.Create(_shape: weightShape, _data: weights, _autograd: true, _keepgrads: true);
 
-			// TODO: add bias when broadcast is available
-			int[] biasShape = {output};
+			int[] biasShape = {1,output};
 			_bias = controller.floatTensorFactory.Create(_shape:biasShape, _autograd: true);
 
 			parameters.Add(_weights.Id);
-			//parameters.Add(_bias.Id);
+			parameters.Add(_bias.Id);
 			
 			#pragma warning disable 420
 			id = System.Threading.Interlocked.Increment(ref nCreated);
@@ -43,13 +42,14 @@ namespace OpenMined.Syft.Layer
         public override FloatTensor Forward(FloatTensor input)
 		{
 			
-			FloatTensor output = input.MM(_weights);
+			FloatTensor unbiased_output = input.MM(_weights);
+			FloatTensor output = unbiased_output.Add(_bias.Expand(unbiased_output.Shape).Contiguous());
+			
 			activation = output.Id;
 		
-			
 			return output;
 		}
-
+		
 	}
 }
 

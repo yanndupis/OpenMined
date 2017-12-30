@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
@@ -70,7 +70,7 @@ namespace OpenMined.Syft.Layer
                 }
             }
 
-            return ProcessMessageLocal(msgObj, ctrl);
+            return ProcessMessageAsLayerOrLoss(msgObj, ctrl);
 
         }
 
@@ -79,7 +79,7 @@ namespace OpenMined.Syft.Layer
             return parameters.ToArray();
         }
 
-        protected virtual string ProcessMessageLocal (Command msgObj, SyftController ctrl) 
+        protected virtual string ProcessMessageAsLayerOrLoss (Command msgObj, SyftController ctrl) 
         {   
             return "Model.processMessage not Implemented:" + msgObj.functionCall;
         }

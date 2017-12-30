@@ -7,6 +7,7 @@ using OpenMined.Syft.Tensor;
 using OpenMined.Network.Utils;
 using OpenMined.Syft.Layer;
 using OpenMined.Syft.Layer.Loss;
+using OpenMined.Syft.Optim;
 using OpenMined.Syft.Tensor.Factories;
 using Random = UnityEngine.Random;
 
@@ -21,6 +22,7 @@ namespace OpenMined.Network.Controllers
 		public IntTensorFactory intTensorFactory;
 		
 		private Dictionary<int, Model> models;
+		private Dictionary<int, SGD> optimizers;
 		
 		public bool allow_new_tensors = true;
 
@@ -32,6 +34,7 @@ namespace OpenMined.Network.Controllers
 			intTensorFactory = new IntTensorFactory(_shader);
 			
 			models = new Dictionary<int, Model> ();
+			optimizers = new Dictionary<int, SGD>();
 		}
 
 		public ComputeShader Shader {
@@ -53,6 +56,16 @@ namespace OpenMined.Network.Controllers
 			return models[index];
 		}
 
+		public Loss getLoss(int index)
+		{
+			return (Loss)models[index];
+		}
+
+		public SGD getOptimizer(int index)
+		{
+			return optimizers[index];
+		}
+		
 		public ComputeShader GetShader ()
 		{
 			return shader;
@@ -63,7 +76,18 @@ namespace OpenMined.Network.Controllers
 			models.Add (model.Id, model);
 			return (model.Id);
 		}
+		
+		public int addOptimizer (SGD optim)
+		{
+			optimizers.Add (optim.Id, optim);
+			return (optim.Id);
+		}
 
+		public void Log(string message)
+		{
+			Debug.LogFormat(message);
+		}
+		
 		public string processMessage (string json_message)
 		{
 			//Debug.LogFormat("<color=green>SyftController.processMessage {0}</color>", json_message);
@@ -74,6 +98,26 @@ namespace OpenMined.Network.Controllers
 
 				switch (msgObj.objectType)
 				{
+					case "Optimizer":
+					{
+						if (msgObj.functionCall == "create")
+						{
+							List<int> p = new List<int>();
+							for (int i = 1; i < msgObj.tensorIndexParams.Length; i++)
+							{
+								p.Add(int.Parse(msgObj.tensorIndexParams[i]));
+							}
+							
+							SGD optim = new SGD(this,p,float.Parse(msgObj.tensorIndexParams[0]));
+							return optim.Id.ToString();
+
+						}
+						else
+						{
+							SGD optim = this.getOptimizer(msgObj.objectIndex);
+							return optim.ProcessMessage(msgObj, this);
+						}
+					}
 					case "FloatTensor":
 					{
 						if (msgObj.objectIndex == 0 && msgObj.functionCall == "create")
@@ -118,6 +162,12 @@ namespace OpenMined.Network.Controllers
 								Debug.LogFormat("<color=magenta>createModel:</color> {0} : {1} {2}", model_type,
 									msgObj.tensorIndexParams[1], msgObj.tensorIndexParams[2]);
 								Linear model = new Linear(this, int.Parse(msgObj.tensorIndexParams[1]), int.Parse(msgObj.tensorIndexParams[2]));
+								return model.Id.ToString();
+							}
+							else if (model_type == "relu")
+							{
+								Debug.LogFormat("<color=magenta>createModel:</color> {0}", model_type);
+								ReLU model = new ReLU(this);
 								return model.Id.ToString();
 							}
 							else if (model_type == "sigmoid")

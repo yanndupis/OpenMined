@@ -1,8 +1,5 @@
-﻿using System;
-using OpenMined.Syft.NN;
 using OpenMined.Syft.Tensor;
 using OpenMined.Network.Controllers;
-using UnityEngine;
 
 namespace OpenMined.Syft.Layer.Loss
 {
@@ -17,12 +14,12 @@ namespace OpenMined.Syft.Layer.Loss
 			controller.addModel(this);
 
 		}
-        protected override FloatTensor Forward(FloatTensor prediction, FloatTensor target)
+        public override FloatTensor Forward(FloatTensor prediction, FloatTensor target)
 		{
 			// Note: prediction should be logits, basically pre-softmax. This method applies softmax first. 
 			// TODO check shapes 
 
-            FloatTensor softmax = Functional.Softmax(prediction);
+			FloatTensor softmax = prediction.Softmax();
             FloatTensor output = ((target.Mul(softmax.Log1p())).Sum()).Mul(-1);
 			return output;
 		}
