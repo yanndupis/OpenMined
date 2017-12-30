@@ -816,6 +816,19 @@ namespace OpenMined.Syft.Tensor
             result.Data = data.AsParallel().Select(x => (float) (Math.Log(1 + x))).ToArray();
             return result;
         }
+        
+        public FloatTensor Log(bool inline = false, FloatTensor result = null)
+        {	
+            result = HookGraph(ref result, "log", inline);
+
+            if (dataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+            result.Data = data.AsParallel().Select(x => (float) (Math.Log(x))).ToArray();
+            
+            return result;
+        }
 
         public FloatTensor Max(int dim = -1, bool keepdim = false)
         {
