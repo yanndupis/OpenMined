@@ -740,8 +740,7 @@ namespace OpenMined.Syft.Tensor
                 }
                 case "sqrt":
                 {
-                    var result = Sqrt();
-                    return result.id.ToString();
+                    return Sqrt().id.ToString();
                 }
                 case "sqrt_":
                 {
@@ -750,20 +749,18 @@ namespace OpenMined.Syft.Tensor
                 }
                 case "shape":
                 {
-                    var result = ShapeAsTensor();
-                    return result.id.ToString();
+                    return ShapeAsTensor().id.ToString();
                 }
-
+                case "std":
+                {
+                    return Std(int.Parse(msgObj.tensorIndexParams[0])).Id + "";
+                }
                 case "sub_scalar":
                 {
-                    Debug.LogFormat("sub_scalar");
-                    FloatTensor result = Sub(float.Parse(msgObj.tensorIndexParams[0]));
-
-                    return result.Id + "";
+                    return Sub(float.Parse(msgObj.tensorIndexParams[0])).Id + "";
                 }
                 case "sub_scalar_":
                 {
-                    Debug.LogFormat("sub_scalar_");
                     this.Sub(float.Parse(msgObj.tensorIndexParams[0]), inline: true);
                     return this.id + "";
                 }
