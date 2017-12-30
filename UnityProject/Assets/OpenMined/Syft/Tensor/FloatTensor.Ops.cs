@@ -89,15 +89,28 @@ namespace OpenMined.Syft.Tensor
 		    if ((!IsContiguous() || !x.IsContiguous()) && override_checks == false) 
 		        throw new InvalidOperationException ("All tensors must be contiguous, call Contiguous() to convert");
 
-		    if (override_checks == false)
+		    if (!override_checks)
 		    {
-		        SameSizeDimensionsShapeAndLocation(ref x); // Check if both tensors are compatible for sum
-		    }
-		    else
-		    {
-		        if (x.size != this.size)
+		        // Check if both tensors are compatible for sub - fallback to scalar version if either tensor's size == 1
+		        if (SameSizeDimensionsShapeAndLocation(ref x))
 		        {
-		            throw new IndexOutOfRangeException();
+		            if (x.Size == 1)
+		            {
+		                return this.Add(x.Expand(shape).Contiguous(), inline);
+		            }
+		            else if (this.Size == 1)
+		            {
+		                if (inline)
+		                {
+		                    throw new InvalidOperationException("Tensor sizes don't match");
+		                }
+
+		                return x.Add(this.Expand(x.shape).Contiguous());
+		            }
+		            else
+		            {
+		                throw new InvalidOperationException();
+		            }
 		        }
 		    }
 
@@ -487,9 +500,27 @@ namespace OpenMined.Syft.Tensor
                 throw new InvalidOperationException ("Tensor must be contiguous, call Contiguous() to convert");
             }
 
-            // Check if both tensors are compatible for sum
-            SameSizeDimensionsShapeAndLocation(ref x);
+            // Check if both tensors are compatible for sub - fallback to scalar version if either tensor's size == 1
+            if (SameSizeDimensionsShapeAndLocation(ref x))
+            {
+                if (x.Size == 1)
+                {
+                    return this.Div(x.Expand(shape).Contiguous(), inline);
+                }
+                else if (this.Size == 1)
+                {
+                    if (inline)
+                    {
+                        throw new InvalidOperationException("Tensor sizes don't match");
+                    }
 
+                    return x.Div(this.Expand(x.shape).Contiguous()).Pow(-1);
+                }
+                else
+                {
+                    throw new InvalidOperationException();
+                }
+            }
             result = HookGraph(ref result, ref x, "div_elem", inline);
             
             if (dataOnGpu & x.dataOnGpu)
@@ -816,6 +847,19 @@ namespace OpenMined.Syft.Tensor
             result.Data = data.AsParallel().Select(x => (float) (Math.Log(1 + x))).ToArray();
             return result;
         }
+        
+        public FloatTensor Log(bool inline = false, FloatTensor result = null)
+        {	
+            result = HookGraph(ref result, "log", inline);
+
+            if (dataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+            result.Data = data.AsParallel().Select(x => (float) (Math.Log(x))).ToArray();
+            
+            return result;
+        }
 
         public FloatTensor Max(int dim = -1, bool keepdim = false)
         {
@@ -873,8 +917,27 @@ namespace OpenMined.Syft.Tensor
                 throw new InvalidOperationException ("All tensors must be contiguous, call Contiguous() to convert");
             }
 
-            // Check if both tensors are compatible for sum
-            SameSizeDimensionsShapeAndLocation(ref x);
+            // Check if both tensors are compatible for sub - fallback to scalar version if either tensor's size == 1
+            if (SameSizeDimensionsShapeAndLocation(ref x))
+            {
+                if (x.Size == 1)
+                {
+                    return this.Mul(x.Expand(shape).Contiguous(), inline);
+                }
+                else if (this.Size == 1)
+                {
+                    if (inline)
+                    {
+                        throw new InvalidOperationException("Tensor sizes don't match");
+                    }
+
+                    return x.Mul(this.Expand(x.shape).Contiguous());
+                }
+                else
+                {
+                    throw new InvalidOperationException();
+                }
+            }
 
             result = HookGraph(ref result, ref x, "mul_elem", inline);
 
@@ -1385,6 +1448,46 @@ namespace OpenMined.Syft.Tensor
             result.Data = data.AsParallel().Select(x => (float) Math.Sinh((double) x)).ToArray();
             return result;
         }
+
+        public FloatTensor Std(int dim = -1, bool unbiased=true)
+        {
+            FloatTensor avg;
+            
+            if (dim == -1)
+            {
+                var mean = Mean(dim: dim);
+                var diff = this.Sub(mean);
+                var sqdiff = diff.Pow(2);
+                if (unbiased)
+                {
+                    avg = sqdiff.Sum().Div(shape[0] - 1); // Bessel's correction
+                }
+                else
+                {
+                    avg = sqdiff.Mean(); 
+                }
+                var result = avg.Sqrt();
+                return result;
+            }
+            else
+            {
+                var mean = Mean(dim:dim, keepdim:true);
+                var diff = this.Sub(mean);
+                var sqdiff = diff.Pow(2);
+                
+                if(unbiased)
+                {
+                    avg = sqdiff.Sum(dim).Div(shape[0] - 1); // Bessel's correction
+                }
+                else
+                {
+                    avg = sqdiff.Mean(dim); 
+                }
+                var result = avg.Sqrt();
+                return result;
+            }
+            
+        }
         
         public FloatTensor Sqrt(bool inline = false)
         {
@@ -1467,8 +1570,27 @@ namespace OpenMined.Syft.Tensor
                 throw new InvalidOperationException ("All tensors must be contiguous, call Contiguous() to convert");
             }
 
-            // Check if both tensors are compatible for sum
-            SameSizeDimensionsShapeAndLocation(ref x);
+            // Check if both tensors are compatible for sub - fallback to scalar version if either tensor's size == 1
+            if (SameSizeDimensionsShapeAndLocation(ref x))
+            {
+                if (x.Size == 1)
+                {
+                    return this.Sub(x.Expand(shape).Contiguous(), inline);
+                }
+                else if (this.Size == 1)
+                {
+                    if (inline)
+                    {
+                        throw new InvalidOperationException("Tensor sizes don't match");
+                    }
+
+                    return x.Sub(this.Expand(x.shape).Contiguous()).Neg();
+                }
+                else
+                {
+                    throw new InvalidOperationException();
+                }
+            }
             
             result = HookGraph(ref result, ref x, "sub_elem", inline);
             

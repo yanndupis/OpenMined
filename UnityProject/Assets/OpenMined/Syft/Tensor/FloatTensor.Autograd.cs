@@ -184,6 +184,14 @@ namespace OpenMined.Syft.Tensor
 	                    parent.Backward(out_grad);
 
                     }
+                    else if (creation_op == "log")
+                    {
+	                    // TOOD: sum backprop logic   
+	                    FloatTensor x = factory.Get(creators[0]).Copy();
+	                    x.autograd = false;
+
+	                    factory.Get(creators[0]).Backward(grad.Mul(x.Pow(-1)), this);
+                    }
                     else if (creation_op == "mul_elem")
                     {
                         factory.Get(creators[0]).Backward(grad.Mul(factory.Get(creators[1])), this);
