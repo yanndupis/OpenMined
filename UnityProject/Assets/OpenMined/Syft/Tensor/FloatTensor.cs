@@ -792,6 +792,10 @@ namespace OpenMined.Syft.Tensor
                     var result = Tanh();
                     return result.Id.ToString();
                 }
+                case "save":
+                {
+                    return WriteToFile(msgObj.tensorIndexParams[0]) + "";
+                }
                 case "sinh":
                 {
                     var result = Sinh();
