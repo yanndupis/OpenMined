@@ -1065,14 +1065,17 @@ namespace OpenMined.Syft.Tensor
         /*** Reduce Functions ***/
  public FloatTensor Reduce(
             Func<float, float, int, float[], float> reducer,
-            Func<float, int, float> mapper
+            Func<float, int, float> mapper, string creation_op, FloatTensor result = null
         )
         {
             int[] outDims = {1};
             var output = new float[1];
-            output[0] = mapper(MultiThread.Reduce(data, reducer), Size);
+            
+            result = HookGraph(ref result, creation_op, false, outDims);
+            
+            result.data[0] = mapper(MultiThread.Reduce(data, reducer), Size);
 
-            return factory.Create(_shape:outDims, _data:output);
+            return result;
         }
 
         public FloatTensor Reduce(
@@ -1088,7 +1091,7 @@ namespace OpenMined.Syft.Tensor
 
             if (dim < 0)
             {
-                return Reduce(reducer, mapper);
+                return Reduce(reducer, mapper, creation_op:creation_op);
             }
 
             AssertDim(dim, len);

@@ -16,9 +16,9 @@ namespace OpenMined.Syft.Layer.Loss
             controller.addModel(this);
 
         }
-        protected override FloatTensor Forward(FloatTensor prediction, FloatTensor target)
+        public override FloatTensor Forward(FloatTensor prediction, FloatTensor target)
         {
-            FloatTensor output = ((prediction.Sub(target)).Pow(2)).Sum();
+            FloatTensor output = ((prediction.Sub(target)).Pow(2)).Sum(1).Div(prediction.Shape[1]).Sum(0).Div(prediction.Shape[0]);
             return output;
         }
     }

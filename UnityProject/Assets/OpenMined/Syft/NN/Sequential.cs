@@ -77,7 +77,7 @@ namespace OpenMined.Syft.Layer
             return out_str;
         }
 
-        protected override string ProcessMessageLocal(Command msgObj, SyftController ctrl)
+        protected override string ProcessMessageAsLayerObject(Command msgObj, SyftController ctrl)
         {
             switch (msgObj.functionCall)
             {

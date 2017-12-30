@@ -8,7 +8,7 @@ namespace OpenMined.Syft.Layer.Loss
     public abstract class Loss: Model
     {
 
-        protected abstract FloatTensor Forward (FloatTensor predicted, FloatTensor target);
+        public abstract FloatTensor Forward (FloatTensor predicted, FloatTensor target);
 
         protected override string ProcessForwardMessage(Command msgObj, SyftController ctrl)
         {
@@ -16,6 +16,16 @@ namespace OpenMined.Syft.Layer.Loss
             var target = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[1]));
             var result = this.Forward(pred, target);
             return result.Id + "";
+        }
+        
+        protected virtual string ProcessMessageAsLayerOrLoss (Command msgObj, SyftController ctrl)
+        {
+            return ProcessMessageAsLoss(msgObj, ctrl);
+        }
+		
+        protected string ProcessMessageAsLoss(Command msgObj, SyftController ctrl) 
+        {   
+            return "Model.processMessage not Implemented:" + msgObj.functionCall;
         }
     }
 }
