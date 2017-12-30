@@ -245,6 +245,16 @@ namespace OpenMined.Network.Controllers
 						{
 							FloatTensor tensor = floatTensorFactory.Create(filepath: msgObj.tensorIndexParams[0], _shader:this.Shader);
 							return tensor.Id.ToString();
+						} 
+						else if (msgObj.functionCall == "concatenate")
+						{
+							List<int> tensor_ids = new List<int>();
+							for (int i = 1; i < msgObj.tensorIndexParams.Length; i++)
+							{
+								tensor_ids.Add(int.Parse(msgObj.tensorIndexParams[i]));
+							}
+							FloatTensor result = Functional.Concatenate(floatTensorFactory, tensor_ids, int.Parse(msgObj.tensorIndexParams[0]));
+							return result.Id.ToString();
 						}
 						return "Unity Error: SyftController.processMessage: Command not found:" + msgObj.objectType + ":" + msgObj.functionCall;
 					}

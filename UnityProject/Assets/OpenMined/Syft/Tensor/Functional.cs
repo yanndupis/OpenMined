@@ -6,22 +6,22 @@ namespace OpenMined.Syft.Tensor
 {
     public class Functional
     {
-        /*public static FloatTensor Concatenate(FloatTensorFactory factory, List<int> tensor_ids, int axis, FloatTensor result = null)
+        public static FloatTensor Concatenate(FloatTensorFactory factory, List<int> tensor_ids, int axis, FloatTensor result = null)
         {
             if (axis == 0)
             {
-                List<FloatTensor> tensors = new List<FloatTensor>();
-                foreach (int id in tensor_ids)
+                FloatTensor[] tensors = new FloatTensor[tensor_ids.Count-1];
+                for(int i=0; i<tensor_ids.Count-1; i++)
                 {
-                    tensors.Add(factory.Get(id));
+                    tensors[i] = factory.Get(tensor_ids[i+1]);
                 }
 
-                FloatTensor first = tensors[0];
+                FloatTensor first = factory.Get(tensor_ids[0]);
 
                 if(first.DataOnGpu)
                     throw new NotImplementedException("Can't concatenate GPU tensors yet");
                 
-                int num_new_rows = 0;
+                int num_new_rows = first.Shape[axis];
                 
                 foreach (FloatTensor tensor in tensors)
                 {
@@ -63,14 +63,32 @@ namespace OpenMined.Syft.Tensor
                     }
                 }
 
-                first.HookGraph(result,)
-                                
+                result = first.HookGraph(ref result, tensor_inputs: tensors, creation_op: "concatenate", inline: false, resultShape:concat_shape);
+                
+                int result_i = 0;
 
+                for (int i = 0; i < first.Data.Length; i++)
+                {
+                    result.Data[result_i] = first.Data[i];
+                    result_i += 1;
+                }
+                
+                foreach (FloatTensor tensor in tensors)
+                {
+                    for (int i = 0; i < tensor.Data.Length; i++)
+                    {
+                        result.Data[result_i] = tensor.Data[i];
+                        result_i += 1;
+                    }
+                }
+                
+
+                return result;
             }
             else
             {
-                throw new NotImplementedException();
+                throw new NotImplementedException("Can't concatenate for any axis other than 0. Do some transposes.");
             }
-        }*/
+        }
     }
 }
