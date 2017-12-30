@@ -638,6 +638,141 @@ namespace OpenMined.Syft.Tensor
             result.Data = data.AsParallel().Select(x => (float) Math.Floor(x)).ToArray();
             return result;
         }
+        
+        public FloatTensor IndexSelect(IntTensor indices, int dim, FloatTensor result = null)
+        {
+            if (DataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+
+            if (indices.Shape.Length != 1)
+            {
+                throw new NotImplementedException("Indices must be a list");
+            }
+
+            
+            int[] temp_shape = new int[] {1, shape[dim], 1};
+
+            for (int i = 0; i < dim; i++)
+            {
+                temp_shape[0] *= shape[i];
+            }
+    
+            for (int i = dim+1; i < shape.Length; i++)
+            {
+                temp_shape[2] *= shape[i];
+            }
+                
+            var self_3d = this.View(temp_shape);
+
+            int[] result_3d_shape = new int[] {temp_shape[0], indices.Shape[0], temp_shape[2]};
+
+            result = HookGraph(ref result, "index_select_dim:" + dim + "_int-id:" + indices.Id, false, result_3d_shape);
+            
+            int[] temp_index = new int[] {0, 0, 0};
+        
+            for (int i = 0; i < self_3d.shape[0]; i++)
+            {
+                temp_index[0] = i;
+
+                for (int j = 0; j < self_3d.shape[2]; j++)
+                {
+                    temp_index[2] = j;
+                
+                    for (var k = 0; k < indices.Shape[0]; k++)
+                    {
+                        temp_index[1] = indices.Data[k];
+                        int result_data_index = self_3d.DimIndices2DataIndex(ref temp_index);
+
+                        temp_index[1] = k;
+                        result.Data[result.DimIndices2DataIndex(ref temp_index)] = self_3d.Data[result_data_index];
+                        
+                    }
+                        
+                }
+                    
+            }
+
+            int[] result_dim = new int[shape.Length];
+            for (int i = 0; i < shape.Length; i++)
+            {
+                if (i != dim)
+                {
+                    result_dim[i] = shape[i];
+                }
+                else
+                {
+                    result_dim[i] = indices.Shape[0];
+                }
+            }
+            
+            return result.View(result_dim);
+        }
+
+        public FloatTensor IndexAdd(IntTensor indices, int dim, FloatTensor x, FloatTensor result = null)
+        {
+            if (DataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+            
+            if (indices.Shape.Length != 1)
+            {
+                throw new NotImplementedException("Indices must be a list");
+            }
+
+            if (indices.Shape[0] != x.Shape[dim])
+            {
+                throw new IndexOutOfRangeException("Indices and Input Sum must have same number of rows");
+            }
+            
+            int[] temp_shape = new int[] {1, shape[dim], 1};
+
+            for (int i = 0; i < dim; i++)
+            {
+                temp_shape[0] *= shape[i];
+            }
+    
+            for (int i = dim+1; i < shape.Length; i++)
+            {
+                temp_shape[2] *= shape[i];
+            }
+                
+            var self_3d = this.View(temp_shape);
+            var x_3d = x.View(new int[] {temp_shape[0], indices.Shape[0], temp_shape[2]});
+
+            // TODO: Hook Autograd should support this
+            result = HookGraph(ref result, "index_add_dim:" + dim + "_" + indices.Id + "_" + x.Id, false, temp_shape);
+            result.Zero_();
+            result.Add(this, inline: true, override_checks: true);
+            
+            int[] temp_index = new int[] {0, 0, 0};
+            
+            for (int i = 0; i < self_3d.shape[0]; i++)
+            {
+                temp_index[0] = i;
+
+                for (int j = 0; j < self_3d.shape[2]; j++)
+                {
+                    temp_index[2] = j;
+                
+                    for (var k = 0; k < indices.Shape[0]; k++)
+                    {
+                        temp_index[1] = k;
+                        int x_dataindex = x_3d.DimIndices2DataIndex(ref temp_index);
+                        
+                        temp_index[1] = indices.Data[k];
+                        result.Data[result.DimIndices2DataIndex(ref temp_index)] += x_3d.Data[x_dataindex];
+
+                    }
+                        
+                }
+                    
+            }
+
+            return result.View(shape);
+        }
 
         public bool IsContiguous()
         {
