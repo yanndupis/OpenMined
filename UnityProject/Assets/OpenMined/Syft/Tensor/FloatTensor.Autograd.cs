@@ -169,6 +169,21 @@ namespace OpenMined.Syft.Tensor
 
                         parent.Backward(grad, this);
                     }
+                    else if (creation_op.Contains("index_select"))
+                    {
+	                    FloatTensor parent = factory.Get(creators[0]);
+	                    
+	                    IntTensor indices = factory.ctrl.intTensorFactory.Get(int_creators[0]);
+
+	                    int dim = int.Parse(creation_op.Split('_')[2]);
+	                    
+	                    FloatTensor back_grad = parent.emptyTensorCopy(hook_graph: true);
+	                    back_grad.autograd = false;
+	                    
+	                    FloatTensor out_grad = back_grad.IndexAdd(indices, dim, grad);
+	                    parent.Backward(out_grad);
+
+                    }
                     else if (creation_op == "mul_elem")
                     {
                         factory.Get(creators[0]).Backward(grad.Mul(factory.Get(creators[1])), this);

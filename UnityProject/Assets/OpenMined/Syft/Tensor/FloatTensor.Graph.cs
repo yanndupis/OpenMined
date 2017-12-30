@@ -28,6 +28,9 @@ namespace OpenMined.Syft.Tensor
 		    creators = new List<int>();
 		    children_indices = new List<int>();
 		    children_counts = new List<int>();
+
+		    children_int_indices = new List<int>();
+		    int_creators = new List<int>();
 	    }
 
 	    public void ResetAutogradCounts()
@@ -255,11 +258,11 @@ namespace OpenMined.Syft.Tensor
 					// special storage for the graph so that we can know which indices of the parent to 
 					// backprop into. note that int_creators are expected to be non-differentiable and so we do
 					// not backprop into them directly
-					result.int_creators.Add(this.id);
+					result.int_creators.Add(indices.Id);
 					
 					// this is just used so that eventually if any inline operation was run on "indices" to change it
 					// (before backpropagating), we could trigger a warning that backprop will be broken.
-					indices.children_indices.Add(result.id);
+					//indices.children_indices.Add(result.id);
 				}
 
 			}
@@ -269,7 +272,7 @@ namespace OpenMined.Syft.Tensor
 		}
 
 		// hook autograd single parent
-		public FloatTensor HookGraph(ref FloatTensor result, string creation_op, bool inline=false, int[] resultShape = null, float[] resultData = null) {
+		public FloatTensor HookGraph(ref FloatTensor result, string creation_op, bool inline=false, int[] resultShape = null, float[] resultData = null, IntTensor indices = null) {
 
 			if (inline)
 				return this;
@@ -347,6 +350,18 @@ namespace OpenMined.Syft.Tensor
 
 				children_indices.Add(result.Id);
 				children_counts.Add(0);
+				
+				if (indices != null)
+				{
+					// special storage for the graph so that we can know which indices of the parent to 
+					// backprop into. note that int_creators are expected to be non-differentiable and so we do
+					// not backprop into them directly
+					result.int_creators.Add(indices.Id);
+					
+					// this is just used so that eventually if any inline operation was run on "indices" to change it
+					// (before backpropagating), we could trigger a warning that backprop will be broken.
+					//indices.children_indices.Add(result.id);
+				}
 			}
 
 			return result;
