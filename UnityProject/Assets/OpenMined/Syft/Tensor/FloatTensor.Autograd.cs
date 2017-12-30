@@ -244,7 +244,7 @@ namespace OpenMined.Syft.Tensor
                         int[] view_shape = (int[])parent.shape.Clone();
                         view_shape[int.Parse(creation_op.Split('_')[1])] = 1;
 
-                        parent.Backward(grad.View(view_shape).expand(parent.shape).Contiguous());
+                        parent.Backward(grad.View(view_shape).Expand(parent.shape).Contiguous());
                     }
                     //else if (creation_op.Contains("sum-"))
                     //{
