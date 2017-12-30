@@ -11,7 +11,7 @@ namespace OpenMined.Syft.Layer
         {
             init("tanh");
 
-#pragma warning disable 420
+            #pragma warning disable 420
             id = System.Threading.Interlocked.Increment(ref nCreated);
             controller.addModel(this);
         }

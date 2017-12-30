@@ -1572,7 +1572,7 @@ namespace OpenMined.Syft.Tensor
 
             return output;
         }
-        
+
         public FloatTensor Sqrt(bool inline = false)
         {
             var result = inline ? this : this.emptyTensorCopy();

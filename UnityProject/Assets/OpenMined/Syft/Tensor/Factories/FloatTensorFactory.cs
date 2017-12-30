@@ -42,7 +42,25 @@ namespace OpenMined.Syft.Tensor.Factories
             tensor.Dispose();
 
         }
-
+        
+        // create from file
+        public FloatTensor Create(string filepath,
+            ComputeShader _shader = null,
+            bool _dataOnGpu = false,
+            bool _autograd = false,
+            bool _keepgrads = false,
+            string _creation_op = null)
+        {
+            Tuple<int[],float[]> shape_data = FloatTensor.ReadFromFile(filepath);
+            return Create(_shape: shape_data.Item1,
+                _data: shape_data.Item2,
+                _copyData: false,
+                _dataOnGpu: false,
+                _autograd: _autograd,
+                _keepgrads: _keepgrads,
+                _creation_op: "readl_from_file");
+        }
+        
         public FloatTensor Create(int[] _shape,
             float[] _data = null,
             ComputeBuffer _dataBuffer = null,
