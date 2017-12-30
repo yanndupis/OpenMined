@@ -241,6 +241,10 @@ namespace OpenMined.Network.Controllers
 								}
 							
 							return allow_new_tensors + "";
+						}else if (msgObj.functionCall == "load_floattensor")
+						{
+							FloatTensor tensor = floatTensorFactory.Create(filepath: msgObj.tensorIndexParams[0], _shader:this.Shader);
+							return tensor.Id.ToString();
 						}
 						return "Unity Error: SyftController.processMessage: Command not found:" + msgObj.objectType + ":" + msgObj.functionCall;
 					}
