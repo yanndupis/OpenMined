@@ -374,7 +374,15 @@ namespace OpenMined.Syft.Tensor
                     IntTensor indices = ctrl.intTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[0]));
                     int dim = int.Parse(msgObj.tensorIndexParams[1]);
                     FloatTensor x = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[2]));
-                    var result = IndexAdd(indices, dim, x);
+                    var result = IndexAdd(indices, dim, x,inline:false);
+                    return result.Id.ToString();
+                }
+                case "index_add_":
+                {
+                    IntTensor indices = ctrl.intTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[0]));
+                    int dim = int.Parse(msgObj.tensorIndexParams[1]);
+                    FloatTensor x = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[2]));
+                    var result = IndexAdd(indices, dim, x,inline:true);
                     return result.Id.ToString();
                 }
                 case "log":
@@ -957,7 +965,8 @@ namespace OpenMined.Syft.Tensor
                         keepdim = bool.Parse(msgObj.tensorIndexParams[1]);
                     }
 
-                    return Sum(dim: dim, keepdim: keepdim).Id.ToString();
+            
+                    return  Sum(dim: dim, keepdim: keepdim).Id.ToString();
                 }
                 case "prod":
                 {

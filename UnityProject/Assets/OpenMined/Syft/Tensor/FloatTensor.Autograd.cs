@@ -122,9 +122,23 @@ namespace OpenMined.Syft.Tensor
                     {
                         factory.Get(creators[0]).Backward(grad, this);
                     }
+                    else if (creation_op.Contains("concatenate_"))
+                    {
+	                    int dim = int.Parse(creation_op.Split('_')[1]);
+	                    
+	                    for (int i = 0; i < creators.Count; i++)
+	                    {
+		                    FloatTensor slice = grad.IndexSelect(factory.ctrl.intTensorFactory.Get(int_creators[i]),dim);
+		                    
+		                    factory.Get(creators[i]).Backward(slice);
+	                    }
+	                    
+                    }
                     else if (creation_op == "contiguous")
                     {
-                        factory.Get(creators[0]).Backward(grad, this);
+	                    //Debug.Log("Contiguous Backpropping Grad:" + grad.Id);
+	                    //Debug.Log("Contiguous Storing Grad:" + this.Grad.Id);
+                        factory.Get(creators[0]).Backward(this.Grad.Copy(), this);
                     }
                     else if (creation_op == "copy")
                     {
@@ -151,6 +165,9 @@ namespace OpenMined.Syft.Tensor
                     {
                         var parent = factory.Get(creators[0]);
                         parent.Grad = null;
+
+	                    FloatTensor local_grad = grad.Copy();
+	                    
                         var grad_shape = new int[shape.Length];
 
                         for (int i = 0; i < grad.shape.Length; i++)
@@ -163,11 +180,11 @@ namespace OpenMined.Syft.Tensor
                             grad_shape[i] = parent.shape[i];
                             if (parent.shape[i] == 1 && shape[i] > 1)
                             {
-                                grad = grad.Sum(i).View(grad_shape);
+	                            local_grad = local_grad.Sum(i).View(grad_shape);
                             }
                         }
 
-                        parent.Backward(grad, this);
+                        parent.Backward(local_grad, this);
                     }
                     else if (creation_op.Contains("index_select"))
                     {
