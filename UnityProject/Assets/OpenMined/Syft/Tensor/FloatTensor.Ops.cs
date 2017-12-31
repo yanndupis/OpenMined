@@ -345,6 +345,38 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+        public FloatTensor Clamp(double? min_value = null, double ? max_value = null, bool inline = false)
+        {
+
+            var result = inline ? this : this.emptyTensorCopy();
+
+            if (dataOnGpu)
+            {
+            // TODO implement GPU   
+            }
+
+            var nCpu = SystemInfo.processorCount;
+                Parallel.For(0, nCpu, workerId => {
+                    var max = size * (workerId + 1) / nCpu;
+                   for (var i = size * workerId / nCpu; i < max; i++)        
+                    {   
+                        if ((this[i] < min_value) & min_value.HasValue)
+                        {
+                          result[i] =  (float) min_value;   
+                        }
+                       else if ((this[i] > max_value) & max_value.HasValue)
+                        {
+                          result[i] = (float) max_value ;   
+                        }
+                        else 
+                        { 
+                          result[i] = this[i] ;  
+                        }
+                    };
+                });   
+            return result;
+        }
+
         public FloatTensor Contiguous(FloatTensor result = null)
         {
 
