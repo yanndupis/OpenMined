@@ -113,6 +113,11 @@ namespace OpenMined.Syft.Tensor
 		            }
 		        }
 		    }
+		    else
+		    {
+		        if(x.size != this.size)
+		            throw new InvalidOperationException("Even when overriding checks - sizes must still match.");
+		    }
 
 		    result = HookGraph (ref result, tensor_inputs:new FloatTensor[]{x}, creation_op:"add_elem", inline:inline);
 
@@ -692,7 +697,6 @@ namespace OpenMined.Syft.Tensor
             {
                 throw new NotImplementedException("Indices must be a list");
             }
-
             
             int[] temp_shape = new int[] {1, shape[dim], 1};
 
@@ -729,11 +733,9 @@ namespace OpenMined.Syft.Tensor
 
                         temp_index[1] = k;
                         result.Data[result.DimIndices2DataIndex(ref temp_index)] = self_3d.Data[result_data_index];
-                        
-                    }
-                        
-                }
-                    
+   
+                    }       
+                }                    
             }
 
             int[] result_dim = new int[shape.Length];
@@ -752,7 +754,7 @@ namespace OpenMined.Syft.Tensor
             return result.View(result_dim);
         }
 
-        public FloatTensor IndexAdd(IntTensor indices, int dim, FloatTensor x, FloatTensor result = null)
+        public FloatTensor IndexAdd(IntTensor indices, int dim, FloatTensor x, FloatTensor result = null, bool inline = false)
         {
             if (DataOnGpu)
             {
@@ -768,6 +770,9 @@ namespace OpenMined.Syft.Tensor
             {
                 throw new IndexOutOfRangeException("Indices and Input Sum must have same number of rows");
             }*/
+
+            int[] original_shape = new int[shape.Length];
+            for (int i = 0; i < shape.Length; i++) original_shape[i] = shape[i];
             
             int[] temp_shape = new int[] {1, shape[dim], 1};
 
@@ -781,14 +786,18 @@ namespace OpenMined.Syft.Tensor
                 temp_shape[2] *= shape[i];
             }
                 
-            var self_3d = this.View(temp_shape);
+            var self_3d = this.View(temp_shape,inline:inline);
             var x_3d = x.View(new int[] {temp_shape[0], indices.Shape[0], temp_shape[2]});
-
-            // TODO: Hook Autograd should support this
-            result = HookGraph(ref result, "index_add_dim:" + dim + "_" + indices.Id + "_" + x.Id, false, resultShape:temp_shape);
-            result.Zero_();
-            result.Add(this, inline: true, override_checks: true);
             
+            // TODO: Hook Autograd should support this
+            result = HookGraph(ref result, "index_add_dim:" + dim + "_" + indices.Id + "_" + x.Id, inline, resultShape:temp_shape);
+
+            if (!inline)
+            {
+                result.Zero_();
+                result.Add(this, inline: true, override_checks: true);
+            }
+
             int[] temp_index = new int[] {0, 0, 0};
             
             for (int i = 0; i < self_3d.shape[0]; i++)
@@ -813,7 +822,7 @@ namespace OpenMined.Syft.Tensor
                     
             }
 
-            return result.View(shape);
+            return result.View(original_shape, inline:inline);
         }
 
         public bool IsContiguous()

@@ -8,62 +8,68 @@ namespace OpenMined.Syft.Tensor
     {
         public static FloatTensor Concatenate(FloatTensorFactory factory, List<int> tensor_ids, int axis, FloatTensor result = null)
         {
-            if (axis == 0)
+            FloatTensor[] tensors = new FloatTensor[tensor_ids.Count-1];
+            for(int i=0; i<tensor_ids.Count-1; i++)
             {
-                FloatTensor[] tensors = new FloatTensor[tensor_ids.Count-1];
-                for(int i=0; i<tensor_ids.Count-1; i++)
+                tensors[i] = factory.Get(tensor_ids[i+1]);
+            }
+
+            FloatTensor first = factory.Get(tensor_ids[0]);
+
+            if(first.DataOnGpu)
+                throw new NotImplementedException("Can't concatenate GPU tensors yet");
+                
+            int num_new_rows = first.Shape[axis];
+                
+            foreach (FloatTensor tensor in tensors)
+            {
+                if (tensor.Shape.Length != first.Shape.Length)
                 {
-                    tensors[i] = factory.Get(tensor_ids[i+1]);
+                    throw new InvalidOperationException("Tensors do not have the same number of dimensions.");
                 }
 
-                FloatTensor first = factory.Get(tensor_ids[0]);
-
-                if(first.DataOnGpu)
-                    throw new NotImplementedException("Can't concatenate GPU tensors yet");
-                
-                int num_new_rows = first.Shape[axis];
-                
-                foreach (FloatTensor tensor in tensors)
+                for (int i = 0; i < tensor.Shape.Length; i++)
                 {
-                    if (tensor.Shape.Length != first.Shape.Length)
+                    if (i != axis)
                     {
-                        throw new InvalidOperationException("Tensors do not have the same number of dimensions.");
-                    }
-
-                    for (int i = 0; i < tensor.Shape.Length; i++)
-                    {
-                        if (i != axis)
+                        if (tensor.Shape[i] != first.Shape[i])
                         {
-                            if (tensor.Shape[i] != first.Shape[i])
-                            {
-                                throw new InvalidOperationException("Tensors do not have the same shape.");
-                            }
+                            throw new InvalidOperationException("Tensors do not have the same shape.");
                         }
                     }
-
-                    if (tensor.DataOnGpu != first.DataOnGpu)
-                    {
-                        throw new InvalidOperationException("All tensors must be on the same device...");
-                    }
-
-                    num_new_rows += tensor.Shape[axis];
                 }
 
-                int[] concat_shape = new int[first.Shape.Length];
-
-                for (int i = 0; i < first.Shape.Length; i++)
+                if (tensor.DataOnGpu != first.DataOnGpu)
                 {
-                    if (i == axis)
-                    {
-                        concat_shape[i] = num_new_rows;
-                    }
-                    else
-                    {
-                        concat_shape[i] = first.Shape[i];
-                    }
+                    throw new InvalidOperationException("All tensors must be on the same device...");
                 }
 
-                result = first.HookGraph(ref result, tensor_inputs: tensors, creation_op: "concatenate", inline: false, resultShape:concat_shape);
+                num_new_rows += tensor.Shape[axis];
+            }
+
+            int[] concat_shape = new int[first.Shape.Length];
+
+            for (int i = 0; i < first.Shape.Length; i++)
+            {
+                if (i == axis)
+                {
+                    concat_shape[i] = num_new_rows;
+                }
+                else
+                {
+                    concat_shape[i] = first.Shape[i];
+                }
+            }
+            
+                result = first.HookGraph(ref result, tensor_inputs: tensors, creation_op: "concatenate_"+axis, inline: false, resultShape:concat_shape);
+            
+            if (axis != 0)
+            {
+                
+
+            } 
+            else 
+            {
                 
                 int result_i = 0;
 
@@ -81,14 +87,9 @@ namespace OpenMined.Syft.Tensor
                         result_i += 1;
                     }
                 }
-                
 
-                return result;
             }
-            else
-            {
-                throw new NotImplementedException("Can't concatenate for any axis other than 0. Do some transposes.");
-            }
+            return result;            
         }
     }
 }

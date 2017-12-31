@@ -122,6 +122,11 @@ namespace OpenMined.Syft.Tensor
                     {
                         factory.Get(creators[0]).Backward(grad, this);
                     }
+                    else if (creation_op == "concatenate")
+                    {
+	                    
+	                    
+                    }
                     else if (creation_op == "contiguous")
                     {
                         factory.Get(creators[0]).Backward(grad, this);
