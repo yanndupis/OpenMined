@@ -345,7 +345,7 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-        public FloatTensor Clamp(double? min_value = null, double ? max_value = null, bool inline = false)
+        public FloatTensor Clamp(float ? min_value = null, float ? max_value = null, bool inline = false)
         {
 
             var result = inline ? this : this.emptyTensorCopy();
