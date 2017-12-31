@@ -18,9 +18,17 @@ namespace OpenMined.Syft.Tensor
 
             if(first.DataOnGpu)
                 throw new NotImplementedException("Can't concatenate GPU tensors yet");
-                
-            int num_new_rows = first.Shape[axis];
-                
+
+            int num_new_rows = 0;
+
+            List<IntTensor> int_tensors_for_index_add = new List<IntTensor>();
+            
+            int[] first_indices = new int[first.Shape[axis]];
+            for (int i = 0; i < first.Shape[axis]; i++) first_indices[i] = i + num_new_rows;
+            int_tensors_for_index_add.Add(factory.ctrl.intTensorFactory.Create(_shape: new int[1] {first.Shape[axis]},_data:first_indices));
+            
+            num_new_rows += first.Shape[axis];
+            
             foreach (FloatTensor tensor in tensors)
             {
                 if (tensor.Shape.Length != first.Shape.Length)
@@ -44,11 +52,15 @@ namespace OpenMined.Syft.Tensor
                     throw new InvalidOperationException("All tensors must be on the same device...");
                 }
 
+                int[] indices = new int[tensor.Shape[axis]];
+                for (int i = 0; i < tensor.Shape[axis]; i++) indices[i] = i + num_new_rows;
+                int_tensors_for_index_add.Add(factory.ctrl.intTensorFactory.Create(_shape: new int[1] {tensor.Shape[axis]},_data:indices));
+                
                 num_new_rows += tensor.Shape[axis];
             }
 
             int[] concat_shape = new int[first.Shape.Length];
-
+            
             for (int i = 0; i < first.Shape.Length; i++)
             {
                 if (i == axis)
@@ -61,12 +73,16 @@ namespace OpenMined.Syft.Tensor
                 }
             }
             
-                result = first.HookGraph(ref result, tensor_inputs: tensors, creation_op: "concatenate_"+axis, inline: false, resultShape:concat_shape);
+            result = first.HookGraph(ref result, tensor_inputs: tensors, creation_op: "concatenate_"+axis, inline: false, resultShape:concat_shape, indices:int_tensors_for_index_add.ToArray());
             
             if (axis != 0)
             {
-                
+                result.IndexAdd(int_tensors_for_index_add[0], axis, first, inline: true);
 
+                for (int i = 0; i < tensors.Length; i++)
+                {
+                    result.IndexAdd(int_tensors_for_index_add[i+1],axis,tensors[i],inline:true);
+                }
             } 
             else 
             {

@@ -44,7 +44,7 @@ namespace OpenMined.Syft.Tensor
 		    						FloatTensor[] tensor_inputs = null, 
 		    						int[] resultShape = null,
 		    						float[] resultData = null, 
-		    						IntTensor indices = null)
+		    						IntTensor[] indices = null)
 	    {
 		    
 		    // no dynamic graph for inline operations
@@ -94,6 +94,7 @@ namespace OpenMined.Syft.Tensor
 							foreach(FloatTensor tensor in tensor_inputs)
 								if (!child.creators.Contains(tensor.id))
 									keep_looking = true;
+						
 
 						if (keep_looking)
 							continue;
@@ -200,10 +201,25 @@ namespace OpenMined.Syft.Tensor
 				// special storage for the graph so that we can know which indices of the parent to 
 				// backprop into. note that int_creators are expected to be non-differentiable and so we do
 				// not backprop into them directly
-				if (indices != null)
-					result.int_creators.Add(indices.Id);
-				
-			    	
+				if (indices != null && indices.Length > 0)
+				{
+					if (result.int_creators.Count == 0)
+					{
+						foreach (IntTensor ind in indices)
+							result.int_creators.Add(ind.Id);
+					}
+					else if (result.int_creators.Count == indices.Length)
+					{
+						// TODO: after dynamic graph works for IntTensor you should be able to simply check to see if
+						// the ids are the same - but at the time of writing we always creating new IntTensors so that 
+						// wouldn't work yet.
+					}
+					else
+					{
+						throw new Exception("Something is wrong... int_creators already existed but had the wrong length");
+					}
+				}
+
 				// TODO: this is just used so that eventually if any inline operation was run on "indices" to change it
 				// (before backpropagating), we could trigger a warning that backprop will be broken.
 				//indices.children_indices.Add(result.id);

@@ -714,7 +714,7 @@ namespace OpenMined.Syft.Tensor
 
             int[] result_3d_shape = new int[] {temp_shape[0], indices.Shape[0], temp_shape[2]};
 
-            result = HookGraph(ref result, "index_select_" + dim + "_" + indices.Id, inline:false, resultShape:result_3d_shape, indices:indices);
+            result = HookGraph(ref result, "index_select_" + dim + "_" + indices.Id, inline:false, resultShape:result_3d_shape, indices:new IntTensor[1]{indices});
             
             int[] temp_index = new int[] {0, 0, 0};
         
@@ -733,7 +733,6 @@ namespace OpenMined.Syft.Tensor
 
                         temp_index[1] = k;
                         result.Data[result.DimIndices2DataIndex(ref temp_index)] = self_3d.Data[result_data_index];
-   
                     }       
                 }                    
             }

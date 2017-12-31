@@ -122,9 +122,16 @@ namespace OpenMined.Syft.Tensor
                     {
                         factory.Get(creators[0]).Backward(grad, this);
                     }
-                    else if (creation_op == "concatenate")
+                    else if (creation_op.Contains("concatenate_"))
                     {
+	                    int dim = int.Parse(creation_op.Split('_')[1]);
 	                    
+	                    for (int i = 0; i < creators.Count; i++)
+	                    {
+		                    FloatTensor slice = grad.IndexSelect(factory.ctrl.intTensorFactory.Get(int_creators[i]),dim);
+		                    
+		                    factory.Get(creators[i]).Backward(slice);
+	                    }
 	                    
                     }
                     else if (creation_op == "contiguous")
