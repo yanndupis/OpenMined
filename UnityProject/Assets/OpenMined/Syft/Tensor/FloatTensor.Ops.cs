@@ -1075,7 +1075,7 @@ namespace OpenMined.Syft.Tensor
         }
    
         /*** Reduce Functions ***/
- public FloatTensor Reduce(
+         public FloatTensor Reduce(
             Func<float, float, int, float[], float> reducer,
             Func<float, int, float> mapper, string creation_op, FloatTensor result = null
         )
@@ -1086,7 +1086,7 @@ namespace OpenMined.Syft.Tensor
             result = HookGraph(ref result, creation_op, false, resultShape:outDims);
             
             result.data[0] = mapper(MultiThread.Reduce(data, reducer), Size);
-
+            
             return result;
         }
 
@@ -1506,7 +1506,7 @@ namespace OpenMined.Syft.Tensor
         
         // TODO: Softmax will run on GPU, when below OPS have a GPU implementation!
         // TODO: Improve the implementation!!!
-        public FloatTensor Softmax(int dim = -1)
+        public FloatTensor Softmax(int dim = -1, FloatTensor result = null)
         {
             FloatTensor input = this;
             
@@ -1537,8 +1537,9 @@ namespace OpenMined.Syft.Tensor
             var dimStride = innerSize;
             var outerStride = dimSize * dimStride;
 
-            var output = input.Copy();
-
+            //var output = input.Copy();
+            
+            result = input.HookGraph(ref result, creation_op:"softmax-" + _dim.ToString(), inline:false);
 
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
@@ -1555,34 +1556,34 @@ namespace OpenMined.Syft.Tensor
                     var inputMax = float.MinValue;
                     for (var d = 0; d < dimSize; d++)
                     {
-                        if (output.Data[d * dimStride] >= inputMax)
-                            inputMax = output.Data[d * dimStride];
+                        if (result.Data[d * dimStride] >= inputMax)
+                            inputMax = result.Data[d * dimStride];
                     }
 
                     float sum = 0;
                     for (var d = 0; d < dimSize; d++)
                     {
-                        var z = (float) Math.Exp(output.Data[index + d * dimStride] - inputMax);
-                        output.Data[index + d * dimStride] = z;
+                        var z = (float) Math.Exp(result.Data[index + d * dimStride] - inputMax);
+                        result.Data[index + d * dimStride] = z;
                         sum += z;
                     }
 
                     float invSum = 1 / sum;
                     for (var d = 0; d < dimSize; d++)
                     {
-                        output.Data[index + d * dimStride] = output.Data[index + d * dimStride] * invSum;
+                        result.Data[index + d * dimStride] = result.Data[index + d * dimStride] * invSum;
                     }
                 }
             });
 
             if (gpu)
             {
-                output.Gpu(input.Shader);
+                result.Gpu(input.Shader);
             }
 
-            output = input.HookGraph(ref output, creation_op:"softmax-" + _dim.ToString(), inline:false);
+            
 
-            return output;
+            return result;
         }
 
         public FloatTensor Sqrt(bool inline = false)

@@ -17,8 +17,11 @@ namespace OpenMined.Syft.Tensor
 
         public void InitAutograd()
         {
-            autograd = true;
-	        InitGraph();
+	        if (!autograd)
+	        {
+		        autograd = true;
+		        InitGraph();
+	        }
         }
 
 	    public void InitGraph()
@@ -154,7 +157,8 @@ namespace OpenMined.Syft.Tensor
 			    }
 		    }
 		    if (autograd_pre_initialized)
-			{
+		    {
+			    
 				this.ResetAutogradCounts();
 				result.ResetAutogradCounts();
 				
@@ -223,7 +227,7 @@ namespace OpenMined.Syft.Tensor
 				// TODO: this is just used so that eventually if any inline operation was run on "indices" to change it
 				// (before backpropagating), we could trigger a warning that backprop will be broken.
 				//indices.children_indices.Add(result.id);
-
+				
 		    }
 		    return result;
 	    }

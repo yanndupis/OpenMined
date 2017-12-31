@@ -965,7 +965,8 @@ namespace OpenMined.Syft.Tensor
                         keepdim = bool.Parse(msgObj.tensorIndexParams[1]);
                     }
 
-                    return Sum(dim: dim, keepdim: keepdim).Id.ToString();
+            
+                    return  Sum(dim: dim, keepdim: keepdim).Id.ToString();
                 }
                 case "prod":
                 {
