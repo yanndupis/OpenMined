@@ -181,6 +181,29 @@ void Ceil_ (uint3 id: SV_DispatchThreadID) {
 		CeilData_[id.x] = ceil(CeilData_[id.x]);
 }
 
+#pragma kernel Clamp
+
+StructuredBuffer<float> ClampData;
+StructuredBuffer<float> MinScalar;
+StructuredBuffer<float> MaxScalar;
+RWStructuredBuffer<float> ClampResult;
+
+[numthreads(4,1,1)]
+void Clamp (uint3 id: SV_DispatchThreadID) {
+	if (ClampData[id.x] < MinScalar) 
+	{
+		ClampResult[id.x] = ClampData[id.x];
+	}
+	else if (ClampData[id.x] > MaxScalar)
+	{
+		ClampResult[id.x] = MaxScalar;
+	}
+	else
+	{
+		ClampResult[id.x] = ClampResult[id.x] ;
+	}
+}
+
 #pragma kernel CopyBuffer
 StructuredBuffer<float> buffer1;
 RWStructuredBuffer<float> buffer2;

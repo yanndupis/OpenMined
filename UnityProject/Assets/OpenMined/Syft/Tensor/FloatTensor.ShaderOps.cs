@@ -20,6 +20,7 @@ namespace OpenMined.Syft.Tensor
         [SerializeField] private static int AddMVKernel_;
         [SerializeField] private static int CeilKernel;
         [SerializeField] private static int CeilKernel_;
+        [SerializeField] private static int ClampKernel;
         [SerializeField] private static int CopyBufferKernel;
         [SerializeField] private static int CosKernel;
         [SerializeField] private static int CosKernel_;
@@ -99,6 +100,7 @@ namespace OpenMined.Syft.Tensor
             AddMVKernel_ = shader.FindKernel("AddMV_");
             CeilKernel = shader.FindKernel("Ceil");
             CeilKernel_ = shader.FindKernel("Ceil_");
+            ClampKernel = shader.FindKernel("Clamp");
             CopyBufferKernel = shader.FindKernel("CopyBuffer");
             CosKernel = shader.FindKernel("Cos");
             CosKernel_ = shader.FindKernel("Cos_");
@@ -298,6 +300,25 @@ namespace OpenMined.Syft.Tensor
                     Debug.LogFormat("addition with itself should be multiplication instead", dataOnGpu);
                     return this.MulScalarGPU(2, result);
                 }
+            }
+            return result;
+        }
+
+        public FloatTensor ClampGPU(float min_value, float max_value, FloatTensor result)
+        {
+            Debug.LogFormat("<color=blue>FloatTensor.MulScalarGPU dataOnGpu: {0}</color>", dataOnGpu);
+
+            if (dataOnGpu)
+            {
+                var min_valueBuffer = SendFloatToGpu(ClampKernel , min_value, "MinScalar");
+                var max_valueBuffer = SendFloatToGpu(ClampKernel, max_value, "MaxScalar");
+
+                shader.SetBuffer(ClampKernel, "ClampData", dataBuffer);
+                shader.SetBuffer(ClampKernel, "ClampResult", result.dataBuffer);
+                shader.Dispatch(ClampKernel, this.size, 1, 1);
+
+                min_valueBuffer.Release();
+                max_valueBuffer.Release();
             }
             return result;
         }
