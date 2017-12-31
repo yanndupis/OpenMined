@@ -35,7 +35,8 @@ namespace OpenMined.Syft.Optim
         public void ZeroGrad()
         {
             foreach (int param_index in parameters)
-                ctrl.floatTensorFactory.Get(param_index).Grad.Zero_();
+                if(ctrl.floatTensorFactory.Get(param_index).Grad != null)
+                    ctrl.floatTensorFactory.Get(param_index).Grad.Zero_();
         }
 
         public void Step()
