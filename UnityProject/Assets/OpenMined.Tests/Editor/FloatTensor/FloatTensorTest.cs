@@ -473,6 +473,28 @@ namespace OpenMined.Tests.Editor.FloatTensor
         }
 
         [Test]
+        public void Clamp()
+        {
+            float[] data1 = {0, 1, 2, 3, 4, 5,6};
+            int[] shape1 = {1, 7};
+            var tensor1 = ctrl.floatTensorFactory.Create(_data: data1, _shape: shape1);
+
+            float[] data2 = {2, 2, 2, 3, 4, 5, 5, 5};
+            int[] shape2 = {1, 7};
+            var tensor2 = ctrl.floatTensorFactory.Create(_data: data2, _shape: shape2);
+
+            float min_value = 2;
+            float max_value = 5;
+
+            var tensorClampMin = tensor1.Clamp(min_value, max_value);
+
+            for (int i = 0; i < tensorClampMin.Size; i++)
+            {
+                Assert.AreEqual(tensor2[i], tensorClampMin[i]);
+            }
+        }
+
+        [Test]
         public void Copy()
         {
             float[] array = {1, 2, 3, 4, 5};
