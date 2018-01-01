@@ -526,6 +526,33 @@ namespace OpenMined.Tests
         }
 
         [Test]
+        public void Clamp()
+        {
+            float[] data1 = {0, 1, 2, 3, 4, 5,6};
+            int[] shape1 = {1, 7};
+            var tensor1 = ctrl.floatTensorFactory.Create(_data: data1, _shape: shape1);
+            tensor1.Gpu(shader);
+
+            float[] data2 = {2, 2, 2, 3, 4, 5, 5};
+            int[] shape2 = {1, 7};
+            var expectedTensor = ctrl.floatTensorFactory.Create(_data: data2, _shape: shape2);
+            expectedTensor.Gpu(shader);
+
+            //float[] data3 = {4, 4, 9, 13, 15, 7, 11, 16, 14, 17};
+            //int[] shape3 = {2, 5};
+            //var expectedTensor = ctrl.floatTensorFactory.Create(_data: data3, _shape: shape3);
+            //expectedTensor.Gpu(shader);
+
+            float min_value = 2;
+            float max_value = 5;
+
+            var tensorClamp = tensor1.Clamp(min_value, max_value);
+            tensorClamp.Gpu(shader);
+
+            AssertEqualTensorsData(expectedTensor, tensorClamp);
+        }
+
+        [Test]
         public void Copy()
         {
             float[] array = {1, 2, 3, 4, 5};

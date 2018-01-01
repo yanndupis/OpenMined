@@ -309,7 +309,7 @@ namespace OpenMined.Syft.Tensor
 
             if (dataOnGpu)
             {
-                var min_valueBuffer = SendNullFloatToGpu(ClampKernel , min_value, "MinScalar");
+                var min_valueBuffer = SendNullFloatToGpu(ClampKernel ,min_value, "MinScalar");
                 var max_valueBuffer = SendNullFloatToGpu(ClampKernel, max_value, "MaxScalar");
 
                 shader.SetBuffer(ClampKernel, "ClampData", dataBuffer);

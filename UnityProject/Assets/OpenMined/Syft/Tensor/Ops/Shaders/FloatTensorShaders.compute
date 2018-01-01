@@ -200,7 +200,7 @@ void Clamp (uint3 id: SV_DispatchThreadID) {
 	}
 	else
 	{
-		ClampResult[id.x] = ClampResult[id.x] ;
+		ClampResult[id.x] = ClampData[id.x] ;
 	}
 }
 
