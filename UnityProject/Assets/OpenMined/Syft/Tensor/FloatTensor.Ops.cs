@@ -353,7 +353,8 @@ namespace OpenMined.Syft.Tensor
             if (dataOnGpu)
             {
             // TODO implement GPU  
-                //return ClampGPU(min_value, max_value) ; 
+                result.Gpu(shader);
+                return ClampGPU(min_value, max_value, result) ; 
             }
 
             var nCpu = SystemInfo.processorCount;

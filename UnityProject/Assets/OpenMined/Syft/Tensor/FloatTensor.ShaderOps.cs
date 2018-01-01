@@ -304,14 +304,13 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-        public FloatTensor ClampGPU(float min_value, float max_value, FloatTensor result)
+        public FloatTensor ClampGPU(float ? min_value, float ? max_value, FloatTensor result)
         {
-            Debug.LogFormat("<color=blue>FloatTensor.MulScalarGPU dataOnGpu: {0}</color>", dataOnGpu);
 
             if (dataOnGpu)
             {
-                var min_valueBuffer = SendFloatToGpu(ClampKernel , min_value, "MinScalar");
-                var max_valueBuffer = SendFloatToGpu(ClampKernel, max_value, "MaxScalar");
+                var min_valueBuffer = SendNullFloatToGpu(ClampKernel , min_value, "MinScalar");
+                var max_valueBuffer = SendNullFloatToGpu(ClampKernel, max_value, "MaxScalar");
 
                 shader.SetBuffer(ClampKernel, "ClampData", dataBuffer);
                 shader.SetBuffer(ClampKernel, "ClampResult", result.dataBuffer);
@@ -1123,6 +1122,18 @@ namespace OpenMined.Syft.Tensor
         private ComputeBuffer SendFloatToGpu(int kernel, float value, string name)
         {
             float[] scalarArray = new float[1];
+            scalarArray[0] = value;
+
+            var scalarBuffer = new ComputeBuffer(1, sizeof(float));
+            scalarBuffer.SetData(scalarArray);
+            shader.SetBuffer(kernel, name, scalarBuffer);
+
+            return scalarBuffer;
+        }
+
+        private ComputeBuffer SendNullFloatToGpu(int kernel, float? value, string name)
+        {
+            float?[] scalarArray = new float?[1];
             scalarArray[0] = value;
 
             var scalarBuffer = new ComputeBuffer(1, sizeof(float));
