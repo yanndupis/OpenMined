@@ -287,25 +287,32 @@ namespace OpenMined.Syft.Tensor
                 case "clamp":
                 {
 
-                    float ? min_val = null;
-                    float ? max_val = null; 
+                    float ? min = null;
+                    float ? max = null; 
 
-                    if (msgObj.tensorIndexParams[0]=="None"){
-                        min_val = null;  
-                    }else{
-                        min_val = float.Parse(msgObj.tensorIndexParams[0]);
+                    if (msgObj.tensorIndexParams[0]=="None")
+                    {
+                        min = null;  
+                    }
+                    else
+                    {
+                        min = float.Parse(msgObj.tensorIndexParams[0]);
                     }
 
-                    if (msgObj.tensorIndexParams[1]=="None"){
-                        max_val = null;  
-                    }else{
-                        max_val = float.Parse(msgObj.tensorIndexParams[1]);
+                    if (msgObj.tensorIndexParams[1]=="None")
+                    {
+                        max = null;  
+                    }
+                    else
+                    {
+                        max = float.Parse(msgObj.tensorIndexParams[1]);
                     }
 
-                    FloatTensor result = (FloatTensor) Clamp(min_val, max_val);
+                    FloatTensor result = (FloatTensor) Clamp(min, max);
 
                     return result.Id.ToString();
                 }
+
                 case "contiguous":
                 {
                     var result = Contiguous();

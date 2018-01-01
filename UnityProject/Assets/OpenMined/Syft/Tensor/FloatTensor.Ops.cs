@@ -345,7 +345,7 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
-        public FloatTensor Clamp(float ? min_value = null, float ? max_value = null, bool inline = false)
+        public FloatTensor Clamp(float ? min = null, float ? max = null, bool inline = false)
         {
 
             var result = inline ? this : this.emptyTensorCopy();
@@ -357,16 +357,16 @@ namespace OpenMined.Syft.Tensor
 
             var nCpu = SystemInfo.processorCount;
                 Parallel.For(0, nCpu, workerId => {
-                    var max = size * (workerId + 1) / nCpu;
-                   for (var i = size * workerId / nCpu; i < max; i++)        
+                    var max_p = size * (workerId + 1) / nCpu;
+                    for (var i = size * workerId / nCpu; i < max_p; i++)        
                     {   
-                        if ((this[i] < min_value) & min_value.HasValue)
+                        if ((this[i] < min) & min.HasValue)
                         {
-                          result[i] =  (float) min_value;   
+                          result[i] =  (float) min;   
                         }
-                       else if ((this[i] > max_value) & max_value.HasValue)
+                        else if ((this[i] > max) & max.HasValue)
                         {
-                          result[i] = (float) max_value ;   
+                          result[i] = (float) max ;   
                         }
                         else 
                         { 
