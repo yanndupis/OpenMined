@@ -190,13 +190,13 @@ RWStructuredBuffer<float> ClampResult;
 
 [numthreads(4,1,1)]
 void Clamp (uint3 id: SV_DispatchThreadID) {
-	if (ClampData[id.x] < MinScalar) 
+	if (ClampData[id.x] < MinScalar[0]) 
 	{
-		ClampResult[id.x] = ClampData[id.x];
+		ClampResult[id.x] = MinScalar[0];
 	}
-	else if (ClampData[id.x] > MaxScalar)
+	else if (ClampData[id.x] > MaxScalar[0])
 	{
-		ClampResult[id.x] = MaxScalar;
+		ClampResult[id.x] = MaxScalar[0];
 	}
 	else
 	{
