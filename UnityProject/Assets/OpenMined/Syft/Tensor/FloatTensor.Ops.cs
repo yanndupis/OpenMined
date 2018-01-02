@@ -342,6 +342,11 @@ namespace OpenMined.Syft.Tensor
 			}
 		}
 
+        public List<int> Batchify(int dim, int batch_size)
+        {
+            return Functional.Batchify(this, dim, batch_size);
+        }
+        
 		public FloatTensor Ceil(bool inline = false)
         {
             // Returns a new Tensor with the smallest integer greater than or equal to each element
@@ -673,7 +678,23 @@ namespace OpenMined.Syft.Tensor
                 for (int i = 0; i < Size; i++) data[i] = value;
                 return this;
             }
+        }
+        
+        public FloatTensor Fill(FloatTensor value, int starting_offset, int length_to_fill, bool inline = true)
+        {
             
+            if(length_to_fill > this.Size)
+                throw new InvalidOperationException("Tensor not big enough. this.size == " + this.Size + " whereas length_to_fill == " + length_to_fill);
+            
+            if (!inline || dataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                for (int i = 0; i < length_to_fill; i++) data[i] = value.Data[starting_offset + i];
+                return this;
+            }
         }
 
         internal void ForEach(int dim, Action<float[], int, int> iterator)
@@ -708,6 +729,14 @@ namespace OpenMined.Syft.Tensor
             }
             result.Data = data.AsParallel().Select(x => (float) Math.Floor(x)).ToArray();
             return result;
+        }
+
+        public FloatTensor IndexSelect(List<int> indices, int dim, FloatTensor result = null)
+        {
+            IntTensor i = factory.ctrl.intTensorFactory.Create(_shape: new int[] {indices.Count}, _data: indices.ToArray());
+            FloatTensor subset = IndexSelect(i, dim, result);
+            factory.ctrl.intTensorFactory.Delete(i.Id);
+            return subset;
         }
         
         public FloatTensor IndexSelect(IntTensor indices, int dim, FloatTensor result = null)
@@ -1300,10 +1329,13 @@ namespace OpenMined.Syft.Tensor
         {
             if (dim != -1 || dataOnGpu)
                 throw new NotImplementedException();
-            
-            if(result == null)
-                result = this.Copy(autograd:this.Autograd);
-                
+
+            if (result == null)
+            {
+                result = this.emptyTensorCopy(hook_graph: true);
+                result.Autograd = true;
+            }
+
             for (int i = 0; i < size; i++)
             {
                 if (UnityEngine.Random.value < data[i])
@@ -1604,14 +1636,14 @@ namespace OpenMined.Syft.Tensor
                     var inputMax = float.MinValue;
                     for (var d = 0; d < dimSize; d++)
                     {
-                        if (result.Data[d * dimStride] >= inputMax)
-                            inputMax = result.Data[d * dimStride];
+                        if (input.Data[d * dimStride] >= inputMax)
+                            inputMax = input.Data[d * dimStride];
                     }
 
                     float sum = 0;
                     for (var d = 0; d < dimSize; d++)
                     {
-                        var z = (float) Math.Exp(result.Data[index + d * dimStride] - inputMax);
+                        var z = (float) Math.Exp(input.Data[index + d * dimStride] - inputMax);
                         result.Data[index + d * dimStride] = z;
                         sum += z;
                     }

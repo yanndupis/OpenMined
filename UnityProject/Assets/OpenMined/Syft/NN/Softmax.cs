@@ -4,22 +4,25 @@ using OpenMined.Syft.Tensor;
 
 namespace OpenMined.Syft.Layer
 {
-    public class Sigmoid: Layer
+    public class Softmax : Layer
     {
-		
-        public Sigmoid (SyftController controller)
+
+        private int dim = 0;
+        
+        public Softmax(SyftController controller, int dim)
         {
-            init("sigmoid");
+            init("softmax");
+
+            this.dim = dim;
             
             #pragma warning disable 420
             id = System.Threading.Interlocked.Increment(ref nCreated);
             controller.addModel(this);
         }
-        
+
         public override FloatTensor Forward(FloatTensor input)
         {
-			
-            FloatTensor output = input.Sigmoid();
+            FloatTensor output = input.Softmax(this.dim);
             activation = output.Id;
 
             return output;

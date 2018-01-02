@@ -4,22 +4,21 @@ using OpenMined.Syft.Tensor;
 
 namespace OpenMined.Syft.Layer
 {
-    public class Sigmoid: Layer
+    public class Log : Layer
     {
-		
-        public Sigmoid (SyftController controller)
+
+        public Log(SyftController controller)
         {
-            init("sigmoid");
-            
-            #pragma warning disable 420
+            init("log");
+
+#pragma warning disable 420
             id = System.Threading.Interlocked.Increment(ref nCreated);
             controller.addModel(this);
         }
-        
+
         public override FloatTensor Forward(FloatTensor input)
         {
-			
-            FloatTensor output = input.Sigmoid();
+            FloatTensor output = input.Log();
             activation = output.Id;
 
             return output;
