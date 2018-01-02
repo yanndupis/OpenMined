@@ -587,6 +587,11 @@ namespace OpenMined.Syft.Tensor
                     this.Pow(float.Parse(msgObj.tensorIndexParams[0]), inline: true);
                     return this.id + "";
                 }
+                case "random_":
+                {
+                    var result = Random(shape, inline: true);
+                    return result.Id.ToString();
+                }
                 case "reciprocal":
                 {
                     var result = Reciprocal();
