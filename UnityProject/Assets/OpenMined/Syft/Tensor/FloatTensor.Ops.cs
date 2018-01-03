@@ -40,9 +40,19 @@ namespace OpenMined.Syft.Tensor
         }
         
         // parameters are overrides
-        public FloatTensor Copy(FloatTensor result = null)
+        public FloatTensor Copy(bool autograd, FloatTensor result = null)
         {
-            result = HookGraph(ref result, "copy", false);
+            if (autograd != this.Autograd)
+            {
+                result = HookGraph(ref result, "copy_autograd_flip", inline: false);
+            }
+            else
+            {
+                result = HookGraph(ref result, "copy", inline: false);
+            }
+
+            result.autograd = autograd;
+            
             result.Zero_();
             result.Add(this, inline: true);
             
@@ -113,8 +123,13 @@ namespace OpenMined.Syft.Tensor
 		            }
 		        }
 		    }
+		    else
+		    {
+		        if(x.size != this.size)
+		            throw new InvalidOperationException("Even when overriding checks - sizes must still match.");
+		    }
 
-		    result = HookGraph (ref result, ref x, "add_elem", inline);
+		    result = HookGraph (ref result, tensor_inputs:new FloatTensor[]{x}, creation_op:"add_elem", inline:inline);
 
 
 		    if (dataOnGpu)
@@ -149,7 +164,7 @@ namespace OpenMined.Syft.Tensor
         
         public FloatTensor Add(float value, bool inline = false, FloatTensor result = null)
         {
-            result = HookGraph (ref result, value, "add_scalar", inline);
+            result = HookGraph (ref result, scalar_input:value, creation_op:"add_scalar", inline:inline);
 
             if (dataOnGpu) {
                 result.Gpu (shader);
@@ -327,6 +342,11 @@ namespace OpenMined.Syft.Tensor
 			}
 		}
 
+        public List<int> Batchify(int dim, int batch_size)
+        {
+            return Functional.Batchify(this, dim, batch_size);
+        }
+        
 		public FloatTensor Ceil(bool inline = false)
         {
             // Returns a new Tensor with the smallest integer greater than or equal to each element
@@ -345,13 +365,45 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+        public FloatTensor Clamp(float ? min = null, float ? max = null, bool inline = false)
+        {
+
+            var result = inline ? this : this.emptyTensorCopy();
+
+            if (dataOnGpu)
+            {
+            // TODO implement GPU   
+            }
+
+            var nCpu = SystemInfo.processorCount;
+                Parallel.For(0, nCpu, workerId => {
+                    var max_p = size * (workerId + 1) / nCpu;
+                    for (var i = size * workerId / nCpu; i < max_p; i++)        
+                    {   
+                        if ((this[i] < min) & min.HasValue)
+                        {
+                          result[i] =  (float) min;   
+                        }
+                        else if ((this[i] > max) & max.HasValue)
+                        {
+                          result[i] = (float) max ;   
+                        }
+                        else 
+                        { 
+                          result[i] = this[i] ;  
+                        }
+                    };
+                });   
+            return result;
+        }
+
         public FloatTensor Contiguous(FloatTensor result = null)
         {
 
             if (DataOnGpu)
                 throw new NotSupportedException();
          
-            result = HookGraph(ref result, "contiguous", false, shape);
+            result = HookGraph(ref result, creation_op:"contiguous", inline:false, resultShape:shape);
 
             int[] dim_indices = new int[strides.Length];
             
@@ -521,7 +573,7 @@ namespace OpenMined.Syft.Tensor
                     throw new InvalidOperationException();
                 }
             }
-            result = HookGraph(ref result, ref x, "div_elem", inline);
+            result = HookGraph(ref result, tensor_inputs:new FloatTensor[]{x}, creation_op:"div_elem", inline:inline);
             
             if (dataOnGpu & x.dataOnGpu)
             {
@@ -546,7 +598,7 @@ namespace OpenMined.Syft.Tensor
 
         public FloatTensor Div(float value, bool inline = false, FloatTensor result = null)
         {
-            result = HookGraph (ref result, value, "div_scalar", inline);
+            result = HookGraph (ref result, scalar_input:value, creation_op:"div_scalar", inline:inline);
             
             if (dataOnGpu)
             {
@@ -588,7 +640,7 @@ namespace OpenMined.Syft.Tensor
         {
 
             // TODO: make more complicated version which does not copy data
-            result = HookGraph(ref result, "expand", false, shape);
+            result = HookGraph(ref result, "expand", inline:false, resultShape:shape);
             result.Add(this, inline: true,override_checks:true);
 		    
             for (int i = 0; i < shape.Length; i++) {
@@ -645,7 +697,37 @@ namespace OpenMined.Syft.Tensor
             result.strides = newStrides;
 			
             return result;
-        }        
+        }
+
+        public FloatTensor Fill(float value, bool inline = true)
+        {
+            if (!inline || dataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                for (int i = 0; i < Size; i++) data[i] = value;
+                return this;
+            }
+        }
+        
+        public FloatTensor Fill(FloatTensor value, int starting_offset, int length_to_fill, bool inline = true)
+        {
+            
+            if(length_to_fill > this.Size)
+                throw new InvalidOperationException("Tensor not big enough. this.size == " + this.Size + " whereas length_to_fill == " + length_to_fill);
+            
+            if (!inline || dataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                for (int i = 0; i < length_to_fill; i++) data[i] = value.Data[starting_offset + i];
+                return this;
+            }
+        }
 
         internal void ForEach(int dim, Action<float[], int, int> iterator)
         
@@ -680,6 +762,14 @@ namespace OpenMined.Syft.Tensor
             result.Data = data.AsParallel().Select(x => (float) Math.Floor(x)).ToArray();
             return result;
         }
+
+        public FloatTensor IndexSelect(List<int> indices, int dim, FloatTensor result = null)
+        {
+            IntTensor i = factory.ctrl.intTensorFactory.Create(_shape: new int[] {indices.Count}, _data: indices.ToArray());
+            FloatTensor subset = IndexSelect(i, dim, result);
+            factory.ctrl.intTensorFactory.Delete(i.Id);
+            return subset;
+        }
         
         public FloatTensor IndexSelect(IntTensor indices, int dim, FloatTensor result = null)
         {
@@ -692,7 +782,6 @@ namespace OpenMined.Syft.Tensor
             {
                 throw new NotImplementedException("Indices must be a list");
             }
-
             
             int[] temp_shape = new int[] {1, shape[dim], 1};
 
@@ -710,7 +799,7 @@ namespace OpenMined.Syft.Tensor
 
             int[] result_3d_shape = new int[] {temp_shape[0], indices.Shape[0], temp_shape[2]};
 
-            result = HookGraph(ref result, "index_select_" + dim + "_" + indices.Id, false, result_3d_shape, indices:indices);
+            result = HookGraph(ref result, "index_select_" + dim + "_" + indices.Id, inline:false, resultShape:result_3d_shape, indices:new IntTensor[1]{indices});
             
             int[] temp_index = new int[] {0, 0, 0};
         
@@ -729,11 +818,8 @@ namespace OpenMined.Syft.Tensor
 
                         temp_index[1] = k;
                         result.Data[result.DimIndices2DataIndex(ref temp_index)] = self_3d.Data[result_data_index];
-                        
-                    }
-                        
-                }
-                    
+                    }       
+                }                    
             }
 
             int[] result_dim = new int[shape.Length];
@@ -752,7 +838,7 @@ namespace OpenMined.Syft.Tensor
             return result.View(result_dim);
         }
 
-        public FloatTensor IndexAdd(IntTensor indices, int dim, FloatTensor x, FloatTensor result = null)
+        public FloatTensor IndexAdd(IntTensor indices, int dim, FloatTensor x, FloatTensor result = null, bool inline = false)
         {
             if (DataOnGpu)
             {
@@ -768,6 +854,9 @@ namespace OpenMined.Syft.Tensor
             {
                 throw new IndexOutOfRangeException("Indices and Input Sum must have same number of rows");
             }*/
+
+            int[] original_shape = new int[shape.Length];
+            for (int i = 0; i < shape.Length; i++) original_shape[i] = shape[i];
             
             int[] temp_shape = new int[] {1, shape[dim], 1};
 
@@ -781,14 +870,18 @@ namespace OpenMined.Syft.Tensor
                 temp_shape[2] *= shape[i];
             }
                 
-            var self_3d = this.View(temp_shape);
+            var self_3d = this.View(temp_shape,inline:inline);
             var x_3d = x.View(new int[] {temp_shape[0], indices.Shape[0], temp_shape[2]});
-
-            // TODO: Hook Autograd should support this
-            result = HookGraph(ref result, "index_add_dim:" + dim + "_" + indices.Id + "_" + x.Id, false, temp_shape);
-            result.Zero_();
-            result.Add(this, inline: true, override_checks: true);
             
+            // TODO: Hook Autograd should support this
+            result = HookGraph(ref result, "index_add_dim:" + dim + "_" + indices.Id + "_" + x.Id, inline, resultShape:temp_shape);
+
+            if (!inline)
+            {
+                result.Zero_();
+                result.Add(this, inline: true, override_checks: true);
+            }
+
             int[] temp_index = new int[] {0, 0, 0};
             
             for (int i = 0; i < self_3d.shape[0]; i++)
@@ -813,26 +906,9 @@ namespace OpenMined.Syft.Tensor
                     
             }
 
-            return result.View(shape);
+            return result.View(original_shape, inline:inline);
         }
 
-        public bool IsContiguous()
-        {
-            long z = 1;
-            int d;
-            for(d = shape.Length-1; d >= 0; d--)
-            {
-                if(shape[d] != 1)
-                {
-                    if (strides[d] == z) {
-                        z *= shape[d];
-                    } else {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
 
         public FloatTensor Log1p(bool inline = false)
         {	
@@ -904,7 +980,11 @@ namespace OpenMined.Syft.Tensor
                     "Cannot do MM on tensors that aren't 2 dimentional. Try calling view() to reshape");
             }
             
-            result = HookGraph(ref result, ref x,  "mm", false, new int[]{shape[0],x.shape[1]});
+            result = HookGraph( result:ref result, 
+                                tensor_inputs:new FloatTensor[]{x},  
+                                creation_op:"mm", 
+                                inline:false, 
+                                resultShape:new int[]{shape[0],x.shape[1]});
             
             result.AddMatrixMultiply(this, x);
 
@@ -939,7 +1019,7 @@ namespace OpenMined.Syft.Tensor
                 }
             }
 
-            result = HookGraph(ref result, ref x, "mul_elem", inline);
+            result = HookGraph(ref result, tensor_inputs: new FloatTensor[]{x}, creation_op:"mul_elem", inline:inline);
 
             if (dataOnGpu && x.dataOnGpu)
             {
@@ -965,7 +1045,7 @@ namespace OpenMined.Syft.Tensor
 
         public FloatTensor Mul(float value, bool inline = false, FloatTensor result = null)
         {
-            result = HookGraph (ref result, value, "mul_scalar", inline);
+            result = HookGraph (ref result,  creation_op: "mul_scalar", inline:inline, scalar_input:value);
 
             if (dataOnGpu)
             {
@@ -1002,7 +1082,7 @@ namespace OpenMined.Syft.Tensor
             // Check if both tensors are compatible for sum
             SameSizeDimensionsShapeAndLocation(ref x);
 
-            result = HookGraph(ref result, ref x, "pow_elem", inline);
+            result = HookGraph(ref result, tensor_inputs: new FloatTensor[] {x}, creation_op:"pow_elem", inline:inline);
 
             if (dataOnGpu)
             {
@@ -1023,7 +1103,7 @@ namespace OpenMined.Syft.Tensor
             if (inline & autograd)
                 throw new InvalidOperationException("Cannot call inline functions if you intend to run backprop.");
             
-            result = HookGraph(ref result, value, "pow_scalar", inline);
+            result = HookGraph(ref result, scalar_input:value, creation_op:"pow_scalar", inline:inline);
             
             if (dataOnGpu)
             {
@@ -1046,8 +1126,27 @@ namespace OpenMined.Syft.Tensor
             
             // TODO: Implement GPU op. with GPU tests.
             return Reduce(dim, keepdim, (acc, val, index, arr) => acc * val, (val, len) => val, creation_op:"prod_"+dim);
-        }        
-        
+        }
+
+        public FloatTensor Random(int[] dims, bool inline = true)
+        {
+            int[] dims_prod = {1};
+            foreach (int dim in dims)
+            {
+                dims_prod[0] *= dim;
+            }
+
+            if (dataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+            FloatTensor result = inline ? this : factory.ctrl.floatTensorFactory.Create(dims);
+            for (int i = 0; i < dims_prod[0]; i++)
+            {
+                result.Data[i] = UnityEngine.Random.value;
+            }
+            return result;
+        }
         public FloatTensor Reciprocal(bool inline = false)
         {
             var result = inline ? this : this.emptyTensorCopy();
@@ -1063,7 +1162,7 @@ namespace OpenMined.Syft.Tensor
         }
    
         /*** Reduce Functions ***/
- public FloatTensor Reduce(
+         public FloatTensor Reduce(
             Func<float, float, int, float[], float> reducer,
             Func<float, int, float> mapper, string creation_op, FloatTensor result = null
         )
@@ -1071,10 +1170,10 @@ namespace OpenMined.Syft.Tensor
             int[] outDims = {1};
             var output = new float[1];
             
-            result = HookGraph(ref result, creation_op, false, outDims);
+            result = HookGraph(ref result, creation_op, false, resultShape:outDims);
             
             result.data[0] = mapper(MultiThread.Reduce(data, reducer), Size);
-
+            
             return result;
         }
 
@@ -1130,7 +1229,7 @@ namespace OpenMined.Syft.Tensor
                 outSize *= shape[i];
             }
             
-            result = HookGraph(ref result, creation_op, false, outDims);
+            result = HookGraph(ref result, creation_op, false, resultShape:outDims);
 
             _dimForEach(outSize, values, stride, (vals, index, length) =>
             {
@@ -1260,6 +1359,33 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+        public FloatTensor SampleMask(int dim = -1, FloatTensor result = null)
+        {
+            if (dim != -1 || dataOnGpu)
+                throw new NotImplementedException();
+
+            if (result == null)
+            {
+                result = this.emptyTensorCopy(hook_graph: true);
+                result.Autograd = true;
+            }
+
+            for (int i = 0; i < size; i++)
+            {
+                if (UnityEngine.Random.value < data[i])
+                {
+                    result.Data[i] = 1;
+                }
+                else
+                {
+                    result.Data[i] = 0;
+                }
+
+            }
+            
+            return result;
+        }
+        
         public IntTensor Sample(int dim, IntTensor result = null)
         {
             
@@ -1494,7 +1620,7 @@ namespace OpenMined.Syft.Tensor
         
         // TODO: Softmax will run on GPU, when below OPS have a GPU implementation!
         // TODO: Improve the implementation!!!
-        public FloatTensor Softmax(int dim = -1)
+        public FloatTensor Softmax(int dim = -1, FloatTensor result = null)
         {
             FloatTensor input = this;
             
@@ -1525,8 +1651,9 @@ namespace OpenMined.Syft.Tensor
             var dimStride = innerSize;
             var outerStride = dimSize * dimStride;
 
-            var output = input.Copy();
-
+            //var output = input.Copy();
+            
+            result = input.HookGraph(ref result, creation_op:"softmax-" + _dim.ToString(), inline:false);
 
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>
@@ -1543,34 +1670,34 @@ namespace OpenMined.Syft.Tensor
                     var inputMax = float.MinValue;
                     for (var d = 0; d < dimSize; d++)
                     {
-                        if (output.Data[d * dimStride] >= inputMax)
-                            inputMax = output.Data[d * dimStride];
+                        if (input.Data[d * dimStride] >= inputMax)
+                            inputMax = input.Data[d * dimStride];
                     }
 
                     float sum = 0;
                     for (var d = 0; d < dimSize; d++)
                     {
-                        var z = (float) Math.Exp(output.Data[index + d * dimStride] - inputMax);
-                        output.Data[index + d * dimStride] = z;
+                        var z = (float) Math.Exp(input.Data[index + d * dimStride] - inputMax);
+                        result.Data[index + d * dimStride] = z;
                         sum += z;
                     }
 
                     float invSum = 1 / sum;
                     for (var d = 0; d < dimSize; d++)
                     {
-                        output.Data[index + d * dimStride] = output.Data[index + d * dimStride] * invSum;
+                        result.Data[index + d * dimStride] = result.Data[index + d * dimStride] * invSum;
                     }
                 }
             });
 
             if (gpu)
             {
-                output.Gpu(input.Shader);
+                result.Gpu(input.Shader);
             }
 
-            output = input.HookGraph(ref output, "softmax-" + _dim.ToString(), false);
+            
 
-            return output;
+            return result;
         }
 
         public FloatTensor Sqrt(bool inline = false)
@@ -1676,7 +1803,7 @@ namespace OpenMined.Syft.Tensor
                 }
             }
             
-            result = HookGraph(ref result, ref x, "sub_elem", inline);
+            result = HookGraph(ref result, tensor_inputs: new FloatTensor[1]{x}, creation_op:"sub_elem", inline:inline);
             
             if (dataOnGpu & x.dataOnGpu)
             {
@@ -1701,7 +1828,7 @@ namespace OpenMined.Syft.Tensor
         
         public FloatTensor Sub(float value, bool inline = false, FloatTensor result = null)
         {
-            result = HookGraph (ref result, value, "sub_scalar", inline);
+            result = HookGraph (ref result, scalar_input:value, creation_op:"sub_scalar", inline:inline);
 
             if (dataOnGpu)
             {
@@ -1785,7 +1912,7 @@ namespace OpenMined.Syft.Tensor
             newShape[dimension2] = tmpDim;
 
             //var result = new FloatTensor(_controller: controller, _shape: newShape, _shader: this.shader);
-            result = HookGraph(ref result, "transpose", false, newShape);
+            result = HookGraph(ref result, creation_op:"transpose", inline:false, resultShape:newShape);
   
             var nCpu = SystemInfo.processorCount;
             Parallel.For(0, nCpu, workerId =>

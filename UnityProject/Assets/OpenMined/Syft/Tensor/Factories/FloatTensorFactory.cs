@@ -31,7 +31,7 @@ namespace OpenMined.Syft.Tensor.Factories
         
         public void Delete(int id)
         {
-            Debug.LogFormat("<color=purple>Removing Tensor {0}</color>", id);
+            //Debug.LogFormat("<color=purple>Removing Tensor {0}</color>", id);
 
             var tensor = tensors [id];
             
@@ -58,7 +58,7 @@ namespace OpenMined.Syft.Tensor.Factories
                 _dataOnGpu: false,
                 _autograd: _autograd,
                 _keepgrads: _keepgrads,
-                _creation_op: "readl_from_file");
+                _creation_op: "read_from_file");
         }
         
         public FloatTensor Create(int[] _shape,

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 using OpenMined.Network.Utils;
 using OpenMined.Network.Controllers;
@@ -274,6 +275,12 @@ namespace OpenMined.Syft.Tensor
                     }
                     return "";
                 }
+                case "batchify":
+                {
+                    var dim = int.Parse(msgObj.tensorIndexParams[0]);
+                    var batch_size = int.Parse(msgObj.tensorIndexParams[1]);
+                    return string.Join(",", Batchify(dim, batch_size).Select(x => x.ToString()).ToArray());;
+                }
                 case "ceil":
                 {
                     var result = this.Ceil();
@@ -284,6 +291,35 @@ namespace OpenMined.Syft.Tensor
                     this.Ceil(inline: true);
                     return this.id + "";
                 }
+                case "clamp":
+                {
+
+                    float ? min = null;
+                    float ? max = null; 
+
+                    if (msgObj.tensorIndexParams[0]=="None")
+                    {
+                        min = null;  
+                    }
+                    else
+                    {
+                        min = float.Parse(msgObj.tensorIndexParams[0]);
+                    }
+
+                    if (msgObj.tensorIndexParams[1]=="None")
+                    {
+                        max = null;  
+                    }
+                    else
+                    {
+                        max = float.Parse(msgObj.tensorIndexParams[1]);
+                    }
+
+                    FloatTensor result = (FloatTensor) Clamp(min, max);
+
+                    return result.Id.ToString();
+                }
+
                 case "contiguous":
                 {
                     var result = Contiguous();
@@ -291,7 +327,7 @@ namespace OpenMined.Syft.Tensor
                 }
                 case "copy":
                 {
-                    var result = Copy();
+                    var result = Copy(autograd:this.Autograd);
                     return result.Id.ToString();
                 }
                 case "cos":
@@ -374,7 +410,15 @@ namespace OpenMined.Syft.Tensor
                     IntTensor indices = ctrl.intTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[0]));
                     int dim = int.Parse(msgObj.tensorIndexParams[1]);
                     FloatTensor x = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[2]));
-                    var result = IndexAdd(indices, dim, x);
+                    var result = IndexAdd(indices, dim, x,inline:false);
+                    return result.Id.ToString();
+                }
+                case "index_add_":
+                {
+                    IntTensor indices = ctrl.intTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[0]));
+                    int dim = int.Parse(msgObj.tensorIndexParams[1]);
+                    FloatTensor x = ctrl.floatTensorFactory.Get(int.Parse(msgObj.tensorIndexParams[2]));
+                    var result = IndexAdd(indices, dim, x,inline:true);
                     return result.Id.ToString();
                 }
                 case "log":
@@ -571,6 +615,11 @@ namespace OpenMined.Syft.Tensor
                 {
                     this.Pow(float.Parse(msgObj.tensorIndexParams[0]), inline: true);
                     return this.id + "";
+                }
+                case "random_":
+                {
+                    var result = Random(shape, inline: true);
+                    return result.Id.ToString();
                 }
                 case "reciprocal":
                 {
@@ -820,7 +869,7 @@ namespace OpenMined.Syft.Tensor
                 case "triu":
                 {
                     var K = int.Parse(msgObj.tensorIndexParams[0]);
-                    var result = Copy();
+                    var result = Copy(autograd:this.Autograd);
                     result.Triu_(K);
                     return result.Id.ToString();
                 }
@@ -957,7 +1006,8 @@ namespace OpenMined.Syft.Tensor
                         keepdim = bool.Parse(msgObj.tensorIndexParams[1]);
                     }
 
-                    return Sum(dim: dim, keepdim: keepdim).Id.ToString();
+            
+                    return  Sum(dim: dim, keepdim: keepdim).Id.ToString();
                 }
                 case "prod":
                 {
