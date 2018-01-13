@@ -100,6 +100,25 @@ namespace OpenMined.Tests.Editor.IntTensorTests
         }
 
         [Test]
+        public void Sqrt()
+        {
+            int[] data1 = {1, 4, 9, 16};
+            int[] shape1 = {4};
+
+            var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
+            var result = tensor1.Sqrt();
+
+            int[] data2 = {1, 2, 3, 4};
+            int[] shape2 = {4};
+            var expectedTensor = ctrl.intTensorFactory.Create(_data: data2, _shape: shape2);
+
+            for (int i = 0; i < tensor1.Data.Length; i++)
+            {
+                Assert.AreEqual(expectedTensor[i], result[i], 1e-3);
+            }
+        }
+
+        [Test]
         public void Trace()
         {
             // test #1

@@ -222,6 +222,20 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+        public IntTensor Sqrt(bool inline = false)
+        {   
+
+            if (dataOnGpu)
+            {
+                return this;
+            }
+
+            IntTensor result = factory.Create(this.shape);
+            result.Data = data.AsParallel().Select(x => (int) Math.Sqrt(x)).ToArray();
+
+            return result;
+        }
+
         public int Trace()
         {
             if ((shape.Length != 2) || (shape[0] != shape[1]))
@@ -362,6 +376,12 @@ namespace OpenMined.Syft.Tensor
                         }
                     }
                     return "param not found or not configured with a getter";
+                }
+
+                case "Sqrt":
+                {
+                    var result = Sqrt();
+                    return result.Id + "";
                 }
                     
                 case "to_numpy":
