@@ -378,7 +378,7 @@ namespace OpenMined.Syft.Tensor
                     return "param not found or not configured with a getter";
                 }
 
-                case "Sqrt":
+                case "sqrt":
                 {
                     var result = Sqrt();
                     return result.Id + "";
