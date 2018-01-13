@@ -150,6 +150,17 @@ namespace OpenMined.Syft.Tensor
             throw new NotImplementedException();
         }
 
+        public IntTensor Abs()
+        {
+            if (dataOnGpu) {
+                throw new NotImplementedException();
+            }
+
+            IntTensor result = factory.Create(this.shape);
+            result.Data = data.AsParallel().Select(x => Math.Abs (x)).ToArray();
+            return result;
+        }
+
         public IntTensor Add(IntTensor x, bool inline = false)
         {
             IntTensor result = factory.Create(this.shape);
@@ -226,6 +237,11 @@ namespace OpenMined.Syft.Tensor
         {
             switch (msgObj.functionCall)
             {
+                case "abs":
+                {
+                    var result = this.Abs();
+                    return result.id + "";
+                }
                 case "add_elem":
                 {
                     Debug.LogFormat("add_elem");
