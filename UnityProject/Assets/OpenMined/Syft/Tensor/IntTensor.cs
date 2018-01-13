@@ -17,6 +17,10 @@ namespace OpenMined.Syft.Tensor
         private int sibling;
 
         private IntTensorFactory factory;
+        
+        // kernel pointers
+        [SerializeField] 
+        private static int AddElemIntKernel;
 
 
         public IntTensor()
@@ -37,11 +41,11 @@ namespace OpenMined.Syft.Tensor
             bool _keepgrads = false,
             string _creation_op = null)
         {
+            
             factory = _factory;
             dataOnGpu = _dataOnGpu;
             creation_op = _creation_op;
-
-
+            
             // First: check that shape is valid.
             if (_shape == null || _shape.Length == 0)
             {
@@ -64,7 +68,6 @@ namespace OpenMined.Syft.Tensor
                 // looks like we have GPU data being passed in... initialize a GPU tensor.
 
                 InitGpu(_shader, _dataBuffer, _shapeBuffer, _copyData);
-                initShaderKernels();
             }
             else
             {
@@ -131,33 +134,79 @@ namespace OpenMined.Syft.Tensor
             if (SystemInfo.supportsComputeShaders && shader == null)
             {
                 shader = factory.GetShader();
+                initShaderKernels();
             }
-
+            
+            
         }
 
         public void initShaderKernels()
         {
-            // TODO: move to IntegerTensor.ShaderOps.cs (doesn't exist yet)
-            throw new NotImplementedException();
+            //AddElemIntKernel = this.shader.FindKernel("AddElemInt");
         }
-
 
         public IntTensor Copy()
         {
             throw new NotImplementedException();
         }
 
-        public IntTensor Add(IntTensor x, bool inline = false)
+        public IntTensor Abs()
         {
-            if (dataOnGpu)
-            {
+            if (dataOnGpu) {
                 throw new NotImplementedException();
             }
 
             IntTensor result = factory.Create(this.shape);
-            result.Data = data.AsParallel().Zip(x.Data.AsParallel(), (a, b) => a + b).ToArray();
-
+            result.Data = data.AsParallel().Select(x => Math.Abs (x)).ToArray();
             return result;
+        }
+
+        public IntTensor Add(IntTensor x, bool inline = false)
+        {
+
+            IntTensor result;
+
+            if (dataOnGpu)
+            {
+                if (!inline)
+                {
+                    result = factory.Create(this.shape);
+
+                    result.Gpu(shader);
+
+                    int kernel_id = shader.FindKernel("AddElemInt");
+
+                    shader.SetBuffer(kernel_id, "AddElemIntDataA", this.DataBuffer);
+                    shader.SetBuffer(kernel_id, "AddElemIntDataB", x.DataBuffer);
+                    shader.SetBuffer(kernel_id, "AddElemIntDataResult", result.DataBuffer);
+
+                    shader.Dispatch(kernel_id, this.size, 1, 1);
+
+                    return result;
+                }
+                else
+                {
+                    result = this;
+                    
+                    int kernel_id = shader.FindKernel("AddElemInt_");
+
+                    shader.SetBuffer(kernel_id, "AddElemIntDataA_", this.DataBuffer);
+                    shader.SetBuffer(kernel_id, "AddElemIntDataB_", x.DataBuffer);
+
+                    shader.Dispatch(kernel_id, this.size, 1, 1);
+       
+                    return result;
+                }
+            }
+            else
+            {
+                result = factory.Create(this.shape);
+                // run Addition on the CPU
+                result.Data = data.AsParallel().Zip(x.Data.AsParallel(), (a, b) => a + b).ToArray();
+
+                return result;
+            }
+              
         }
 
         public IntTensor Add(int value, bool inline = false)
@@ -171,6 +220,20 @@ namespace OpenMined.Syft.Tensor
             result.Data = data.AsParallel().Select(x => x + value).ToArray();
 
             return result;
+        }
+
+        public int Trace()
+        {
+            if ((shape.Length != 2) || (shape[0] != shape[1]))
+                throw new InvalidOperationException("Trace is defined on square 2d matrices only.");
+
+            if (dataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+
+            var stride = strides[0] + strides[1];
+            return Enumerable.Range(0, shape.Min()).AsParallel().Select(i => this[i * stride]).Sum();
         }
 
         public IntTensor View(int[] new_shape, bool inline = true, FloatTensor result = null)
@@ -207,6 +270,11 @@ namespace OpenMined.Syft.Tensor
         {
             switch (msgObj.functionCall)
             {
+                case "abs":
+                {
+                    var result = this.Abs();
+                    return result.id + "";
+                }
                 case "add_elem":
                 {
                     Debug.LogFormat("add_elem");
@@ -309,6 +377,12 @@ namespace OpenMined.Syft.Tensor
                         return string.Join(" ", Data);
 
                     }
+                }
+
+                case "trace":
+                {
+                    var result = this.Trace();
+                    return result.ToString();
                 }
 
             }
