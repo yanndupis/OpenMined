@@ -21,6 +21,7 @@ namespace OpenMined.Syft.Tensor
         // kernel pointers
         [SerializeField] 
         private static int AddElemIntKernel;
+        private static int NegateKernel;
 
 
         public IntTensor()
@@ -143,6 +144,7 @@ namespace OpenMined.Syft.Tensor
         public void initShaderKernels()
         {
             //AddElemIntKernel = this.shader.FindKernel("AddElemInt");
+//            NegateKernel = this.shader.FindKernel("NegateInt");
         }
 
         public IntTensor Copy()
@@ -152,11 +154,21 @@ namespace OpenMined.Syft.Tensor
 
         public IntTensor Abs()
         {
+            IntTensor result = factory.Create(this.shape);
+
             if (dataOnGpu) {
-                throw new NotImplementedException();
+                // move result tensor to GPU - TODO: init on gpu instead
+                result.Gpu(shader);
+             
+                int kernel_id = shader.FindKernel("AbsInt");
+                shader.SetBuffer(kernel_id, "AbsIntData", this.DataBuffer);
+                shader.SetBuffer(kernel_id, "AbsIntResult", result.DataBuffer);
+                
+                shader.Dispatch(kernel_id, this.size, 1, 1);
+                
+                return result;
             }
 
-            IntTensor result = factory.Create(this.shape);
             result.Data = data.AsParallel().Select(x => Math.Abs (x)).ToArray();
             return result;
         }
@@ -221,7 +233,7 @@ namespace OpenMined.Syft.Tensor
 
             return result;
         }
-
+        
         public IntTensor Sqrt(bool inline = false)
         {   
 
@@ -236,6 +248,52 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+		public IntTensor Neg(bool inline = false, IntTensor result = null)
+		{
+			if (dataOnGpu)
+			{
+
+				if (!inline) {
+					result = factory.Create(this.shape);
+
+					result.Gpu(shader);
+
+					int kernel_id = shader.FindKernel("NegateInt");
+
+					shader.SetBuffer(kernel_id, "NegateIntData", this.DataBuffer);
+					shader.SetBuffer(kernel_id, "NegateIntResult", result.DataBuffer);
+
+					shader.Dispatch(kernel_id, this.size, 1, 1);
+
+					return result;
+				} else {
+					result = this;
+
+					int kernel_id = shader.FindKernel("NegateInt_");
+
+					shader.SetBuffer(kernel_id, "NegateIntData_", result.DataBuffer);
+
+					shader.Dispatch(kernel_id, this.size, 1, 1);
+
+					return result;
+				}
+			}
+			result = this;
+			if (!inline) result = factory.Create(this.shape);
+			result.Data = data.AsParallel().Select(x => -x).ToArray();
+			return result;
+		}
+
+        public bool Equal(IntTensor x, bool inline = false)
+        {
+            if (dataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+
+            return this.Shape.SequenceEqual(x.Shape) && data.AsParallel().SequenceEqual(x.Data.AsParallel());
+        }
+        
         public int Trace()
         {
             if ((shape.Length != 2) || (shape[0] != shape[1]))
@@ -245,7 +303,7 @@ namespace OpenMined.Syft.Tensor
             {
                 throw new NotImplementedException();
             }
-
+            
             var stride = strides[0] + strides[1];
             return Enumerable.Range(0, shape.Min()).AsParallel().Select(i => this[i * stride]).Sum();
         }
@@ -315,6 +373,12 @@ namespace OpenMined.Syft.Tensor
                     this.Add(int.Parse(msgObj.tensorIndexParams[0]), inline: true);
                     return this.id + "";
                 }
+                case "equal":
+                {
+                    var tensor_1 = factory.Get(int.Parse(msgObj.tensorIndexParams[0]));
+                    var tensor_2 = factory.Get(int.Parse(msgObj.tensorIndexParams[1]));
+                    return Convert.ToString(tensor_1.Equal(tensor_2));
+                }
                 case "get":
                 {
                     var param_to_get = msgObj.tensorIndexParams[0];
@@ -377,13 +441,24 @@ namespace OpenMined.Syft.Tensor
                     }
                     return "param not found or not configured with a getter";
                 }
-
                 case "sqrt":
                 {
                     var result = Sqrt();
                     return result.Id + "";
                 }
-                    
+				case "neg":
+				{
+					Debug.LogFormat("neg");
+					var result = Neg();
+					return result.Id.ToString();
+				}
+
+				case "neg_":
+				{
+					Debug.LogFormat("neg_");
+					Neg(inline: true);
+					return Id.ToString();
+				}    
                 case "to_numpy":
                 {
                     if (DataOnGpu)

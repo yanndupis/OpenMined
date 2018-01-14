@@ -72,6 +72,24 @@ namespace OpenMined.Tests.Editor.IntTensorTests
         /********************/
 
         [Test]
+        public void Abs()
+        {
+            int[] data1 = {-1, -2, -3, -4, 5, 6, 7, 8, -999, 10};
+            int[] shape1 = {2, 5};
+            var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
+            tensor1.Gpu(shader);
+
+            int[] data2 = {1, 2, 3, 4, 5, 6, 7, 8, 999, 10};
+            int[] shape2 = {2, 5};
+            var expectedTensor = ctrl.intTensorFactory.Create(_data: data2, _shape: shape2);
+            expectedTensor.Gpu(shader);
+
+            var tensorAbs = tensor1.Abs();
+
+            AssertEqualTensorsData(expectedTensor, tensorAbs);
+        }
+
+        [Test]
         public void Add()
         {
             int[] data1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
@@ -116,6 +134,42 @@ namespace OpenMined.Tests.Editor.IntTensorTests
 
             AssertEqualTensorsData(expectedTensor, tensor1);
         }
+
+		[Test]
+		public void Neg()
+		{
+			int[] shape1 = { 2, 5 };
+			int[] data1 = { -1, -2, -3, -4, 5, 6, 7, 8, -999, 10 };
+			var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
+			tensor1.Gpu(shader);
+
+			int[] expectedData1 = { 1, 2, 3, 4, -5, -6, -7, -8, 999, -10 };
+			int[] shape2 = { 2, 5 };
+			var expectedTensor1 = ctrl.intTensorFactory.Create(_data: expectedData1, _shape: shape2);
+			expectedTensor1.Gpu(shader);
+
+			var actualTensorNeg1 = tensor1.Neg();
+
+			AssertEqualTensorsData(expectedTensor1, actualTensorNeg1);
+		}
+
+		[Test]
+		public void Neg_()
+		{
+			int[] shape1 = { 2, 5 };
+			int[] data1 = { -1, -2, -3, -4, 5, 6, 7, 8, -999, 10 };
+			var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
+			tensor1.Gpu(shader);
+
+			int[] expectedData1 = { 1, 2, 3, 4, -5, -6, -7, -8, 999, -10 };
+			int[] shape2 = { 2, 5 };
+			var expectedTensor1 = ctrl.intTensorFactory.Create(_data: expectedData1, _shape: shape2);
+			expectedTensor1.Gpu(shader);
+
+			tensor1.Neg(inline: true);
+
+			AssertEqualTensorsData(expectedTensor1, tensor1);
+		}
 
 /* closes class and namespace */
     }

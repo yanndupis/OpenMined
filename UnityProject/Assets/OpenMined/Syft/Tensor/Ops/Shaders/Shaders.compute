@@ -19,6 +19,20 @@ void Abs (uint3 id : SV_DispatchThreadID) {
 	}
 }
 
+#pragma kernel AbsInt
+
+StructuredBuffer<int> AbsIntData;
+RWStructuredBuffer<int> AbsIntResult;
+
+[numthreads(4,1,1)]
+void AbsInt (uint3 id : SV_DispatchThreadID) {
+	if(AbsIntData[id.x] < 0) {
+		AbsIntResult[id.x] = -AbsIntData[id.x];
+	} else {
+		AbsIntResult[id.x] = AbsIntData[id.x];
+	}
+}
+
 #pragma kernel Abs_
 
 RWStructuredBuffer<float> AbsData_;
@@ -481,6 +495,23 @@ RWStructuredBuffer<float> NegateData_;
 [numthreads(4,1,1)]
 void Negate_ (uint3 id: SV_DispatchThreadID) {
 	NegateData_[id.x] = -NegateData_[id.x];
+}
+
+#pragma kernel NegateInt
+
+StructuredBuffer<int> NegateIntData;
+RWStructuredBuffer<int> NegateIntResult;
+[numthreads(4,1,1)]
+void NegateInt (uint3 id: SV_DispatchThreadID) {
+	NegateIntResult[id.x] = -NegateIntData[id.x];
+}
+
+#pragma kernel NegateInt_
+
+RWStructuredBuffer<int> NegateIntData_;
+[numthreads(4,1,1)]
+void NegateInt_ (uint3 id: SV_DispatchThreadID) {
+	NegateIntData_[id.x] = -NegateIntData_[id.x];
 }
 
 #pragma kernel Reduce1DSum
