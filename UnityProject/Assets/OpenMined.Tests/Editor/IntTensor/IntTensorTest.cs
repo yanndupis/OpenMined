@@ -100,6 +100,28 @@ namespace OpenMined.Tests.Editor.IntTensorTests
         }
 
         [Test]
+        public void Equal()
+        {
+            int[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            int[] shape1 = { 2, 5 };
+            var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
+
+            int[] data2 = { 3, 2, 6, 9, 10, 1, 4, 8, 5, 7 };
+            int[] shape2 = { 2, 5 };
+            var tensor2 = ctrl.intTensorFactory.Create(_data: data2, _shape: shape2);
+
+            var tensor3 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
+
+            int[] differentShapedData = { 0, 0 };
+            int[] differentShape = { 1, 2 };
+            var differentShapedTensor = ctrl.intTensorFactory.Create(_data: differentShapedData, _shape: differentShape);
+
+            Assert.False(tensor1.Equal(differentShapedTensor));
+            Assert.False(tensor1.Equal(tensor2));
+            Assert.True(tensor1.Equal(tensor3));
+        }
+        
+        [Test]
         public void Trace()
         {
             // test #1
