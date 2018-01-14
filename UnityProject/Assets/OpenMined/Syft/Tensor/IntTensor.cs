@@ -21,6 +21,7 @@ namespace OpenMined.Syft.Tensor
         // kernel pointers
         [SerializeField] 
         private static int AddElemIntKernel;
+        private static int NegateKernel;
 
 
         public IntTensor()
@@ -143,6 +144,7 @@ namespace OpenMined.Syft.Tensor
         public void initShaderKernels()
         {
             //AddElemIntKernel = this.shader.FindKernel("AddElemInt");
+//            NegateKernel = this.shader.FindKernel("NegateInt");
         }
 
         public IntTensor Copy()
@@ -219,6 +221,28 @@ namespace OpenMined.Syft.Tensor
             IntTensor result = factory.Create(this.shape);
             result.Data = data.AsParallel().Select(x => x + value).ToArray();
 
+            return result;
+        }
+        
+        public IntTensor Negate()
+        {
+            IntTensor result = factory.Create(this.shape);
+            
+            if (dataOnGpu)
+            {
+                // move result tensor to GPU - TODO: init on gpu instead
+                result.Gpu(shader);
+                
+                int kernel_id = shader.FindKernel("NegateInt");
+             
+                // find kernel - TOOD: find all kernels in factory
+                shader.SetBuffer(kernel_id, "NegateIntData", dataBuffer);
+                shader.SetBuffer(kernel_id, "NegateIntResult", result.dataBuffer);
+                shader.Dispatch(kernel_id, size, 1, 1);
+                return result;
+            }
+                
+            throw new NotImplementedException();
             return result;
         }
 

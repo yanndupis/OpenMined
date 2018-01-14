@@ -483,6 +483,15 @@ void Negate_ (uint3 id: SV_DispatchThreadID) {
 	NegateData_[id.x] = -NegateData_[id.x];
 }
 
+#pragma kernel NegateInt
+
+StructuredBuffer<int> NegateIntData;
+RWStructuredBuffer<int> NegateIntResult;
+[numthreads(4,1,1)]
+void NegateInt (uint3 id: SV_DispatchThreadID) {
+    NegateIntResult[id.x] = -NegateIntData[id.x];
+}
+
 #pragma kernel Reduce1DSum
 #define REDUCE1D_NUMTHREADS 8
 
