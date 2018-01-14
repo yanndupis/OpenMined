@@ -137,8 +137,6 @@ namespace OpenMined.Syft.Tensor
                 shader = factory.GetShader();
                 initShaderKernels();
             }
-            
-            
         }
 
         public void initShaderKernels()
@@ -152,25 +150,50 @@ namespace OpenMined.Syft.Tensor
             throw new NotImplementedException();
         }
 
-        public IntTensor Abs()
+        public IntTensor Abs(bool inline = false)
         {
             IntTensor result = factory.Create(this.shape);
 
-            if (dataOnGpu) {
-                // move result tensor to GPU - TODO: init on gpu instead
-                result.Gpu(shader);
-             
-                int kernel_id = shader.FindKernel("AbsInt");
-                shader.SetBuffer(kernel_id, "AbsIntData", this.DataBuffer);
-                shader.SetBuffer(kernel_id, "AbsIntResult", result.DataBuffer);
-                
-                shader.Dispatch(kernel_id, this.size, 1, 1);
-                
-                return result;
-            }
+            if (dataOnGpu)
+            {
+                if (inline)
+                {
+                    int kernel_id = shader.FindKernel("AbsElemInt_");
 
-            result.Data = data.AsParallel().Select(x => Math.Abs (x)).ToArray();
-            return result;
+                    shader.SetBuffer(kernel_id, "AbsElemIntData_", this.DataBuffer);
+
+                    shader.Dispatch(kernel_id, this.size, 1, 1);
+
+                    return this;
+                }
+                else
+                {
+                    IntTensor result = factory.Create(this.shape);
+                    result.Gpu(shader);
+
+                    int kernel_id = shader.FindKernel("AbsElemInt");
+
+                    shader.SetBuffer(kernel_id, "AbsElemIntData", this.DataBuffer);
+                    shader.SetBuffer(kernel_id, "AbsElemIntDataResult", result.DataBuffer);
+
+                    shader.Dispatch(kernel_id, this.size, 1, 1);
+
+                    return result;
+                }
+            }
+            else
+            {
+              if (inline) {
+                  this.Data = data.AsParallel().Select(x => Math.Abs(x)).ToArray();
+                  return this;
+              }
+              else
+              {
+                  IntTensor result = factory.Create(this.shape);
+                  result.Data = data.AsParallel().Select(x => Math.Abs(x)).ToArray();
+                  return result;
+              }
+            }
         }
 
         public IntTensor Add(IntTensor x, bool inline = false)
@@ -356,6 +379,11 @@ namespace OpenMined.Syft.Tensor
                 case "abs":
                 {
                     var result = this.Abs();
+                    return result.id + "";
+                }
+                case "abs_":
+                {
+                    var result = this.Abs(inline:true);
                     return result.id + "";
                 }
                 case "add_elem":
