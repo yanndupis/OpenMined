@@ -138,6 +138,23 @@ namespace OpenMined.Tests.Editor.IntTensorTests
 		}
 
         [Test]
+        public void Reciprocal()
+        {
+            int[] data1 = {1, 2, 3, -1};
+            int[] shape1 = { 4 };
+            var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
+
+            int[] data2 = {1, 0, 0, -1};
+            int[] shape2 = { 4 };
+            var expectedTensor = ctrl.intTensorFactory.Create(_data: data2, _shape: shape2);
+
+            var actualTensor = tensor1.Reciprocal();
+
+            for (int i = 0; i < expectedTensor.Size; i++)
+            {
+                Assert.AreEqual(expectedTensor[i], actualTensor[i]);
+            }
+        }
         public void Equal()
         {
             int[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
@@ -197,7 +214,6 @@ namespace OpenMined.Tests.Editor.IntTensorTests
             Assert.That(() => non2DTensor.Trace(),
                 Throws.TypeOf<InvalidOperationException>());
         }
-
         /* closes class and namespace */
     }
 }

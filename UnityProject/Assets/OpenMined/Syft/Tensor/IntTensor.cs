@@ -308,6 +308,17 @@ namespace OpenMined.Syft.Tensor
             return Enumerable.Range(0, shape.Min()).AsParallel().Select(i => this[i * stride]).Sum();
         }
 
+        public IntTensor Reciprocal(bool inline = false)
+        {
+            if (dataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+            IntTensor result = factory.Create(this.shape);
+            result.Data = data.AsParallel().Select(x => (int)(1/x)).ToArray();
+            return result;
+        }
+
         public IntTensor View(int[] new_shape, bool inline = true, FloatTensor result = null)
         {
             if (!IsContiguous()) {
@@ -441,6 +452,11 @@ namespace OpenMined.Syft.Tensor
                     }
                     return "param not found or not configured with a getter";
                 }
+                case "reciprocal":
+                {
+                    var result = Reciprocal();
+                    return result.id.ToString();
+                }
                 case "sqrt":
                 {
                     var result = Sqrt();
@@ -473,13 +489,11 @@ namespace OpenMined.Syft.Tensor
 
                     }
                 }
-
                 case "trace":
                 {
                     var result = this.Trace();
                     return result.ToString();
                 }
-
             }
             return "IntTensor.processMessage: Command not found:" + msgObj.functionCall;
         }
