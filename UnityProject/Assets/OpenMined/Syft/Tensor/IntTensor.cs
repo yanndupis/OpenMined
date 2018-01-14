@@ -223,28 +223,42 @@ namespace OpenMined.Syft.Tensor
 
             return result;
         }
-        
-        public IntTensor Negate()
-        {
-            IntTensor result = factory.Create(this.shape);
-            
-            if (dataOnGpu)
-            {
-                // move result tensor to GPU - TODO: init on gpu instead
-                result.Gpu(shader);
-                
-                int kernel_id = shader.FindKernel("NegateInt");
-             
-                // find kernel - TOOD: find all kernels in factory
-                shader.SetBuffer(kernel_id, "NegateIntData", dataBuffer);
-                shader.SetBuffer(kernel_id, "NegateIntResult", result.dataBuffer);
-                shader.Dispatch(kernel_id, size, 1, 1);
-                return result;
-            }
-                
-            throw new NotImplementedException();
-            return result;
-        }
+
+		public IntTensor Neg(bool inline = false, IntTensor result = null)
+		{
+			if (dataOnGpu)
+			{
+
+				if (!inline) {
+					result = factory.Create(this.shape);
+
+					result.Gpu(shader);
+
+					int kernel_id = shader.FindKernel("NegateInt");
+
+					shader.SetBuffer(kernel_id, "NegateIntData", this.DataBuffer);
+					shader.SetBuffer(kernel_id, "NegateIntResult", result.DataBuffer);
+
+					shader.Dispatch(kernel_id, this.size, 1, 1);
+
+					return result;
+				} else {
+					result = this;
+
+					int kernel_id = shader.FindKernel("NegateInt_");
+
+					shader.SetBuffer(kernel_id, "NegateIntData_", result.DataBuffer);
+
+					shader.Dispatch(kernel_id, this.size, 1, 1);
+
+					return result;
+				}
+			}
+			result = this;
+			if (!inline) result = factory.Create(this.shape);
+			result.Data = data.AsParallel().Select(x => -x).ToArray();
+			return result;
+		}
 
         public bool Equal(IntTensor x, bool inline = false)
         {
@@ -403,6 +417,20 @@ namespace OpenMined.Syft.Tensor
                     }
                     return "param not found or not configured with a getter";
                 }
+
+				case "neg":
+				{
+					Debug.LogFormat("neg");
+					var result = Neg();
+					return result.Id.ToString();
+				}
+
+				case "neg_":
+				{
+					Debug.LogFormat("neg_");
+					Neg(inline: true);
+					return Id.ToString();
+				}
                     
                 case "to_numpy":
                 {
