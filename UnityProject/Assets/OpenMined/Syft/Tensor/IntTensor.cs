@@ -154,11 +154,21 @@ namespace OpenMined.Syft.Tensor
 
         public IntTensor Abs()
         {
+            IntTensor result = factory.Create(this.shape);
+
             if (dataOnGpu) {
-                throw new NotImplementedException();
+                // move result tensor to GPU - TODO: init on gpu instead
+                result.Gpu(shader);
+             
+                int kernel_id = shader.FindKernel("AbsInt");
+                shader.SetBuffer(kernel_id, "AbsIntData", this.DataBuffer);
+                shader.SetBuffer(kernel_id, "AbsIntResult", result.DataBuffer);
+                
+                shader.Dispatch(kernel_id, this.size, 1, 1);
+                
+                return result;
             }
 
-            IntTensor result = factory.Create(this.shape);
             result.Data = data.AsParallel().Select(x => Math.Abs (x)).ToArray();
             return result;
         }

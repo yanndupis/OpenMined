@@ -19,6 +19,20 @@ void Abs (uint3 id : SV_DispatchThreadID) {
 	}
 }
 
+#pragma kernel AbsInt
+
+StructuredBuffer<int> AbsIntData;
+RWStructuredBuffer<int> AbsIntResult;
+
+[numthreads(4,1,1)]
+void AbsInt (uint3 id : SV_DispatchThreadID) {
+	if(AbsIntData[id.x] < 0) {
+		AbsIntResult[id.x] = -AbsIntData[id.x];
+	} else {
+		AbsIntResult[id.x] = AbsIntData[id.x];
+	}
+}
+
 #pragma kernel Abs_
 
 RWStructuredBuffer<float> AbsData_;
