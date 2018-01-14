@@ -233,6 +233,20 @@ namespace OpenMined.Syft.Tensor
 
             return result;
         }
+        
+        public IntTensor Sqrt(bool inline = false)
+        {   
+
+            if (dataOnGpu)
+            {
+                return this;
+            }
+
+            IntTensor result = factory.Create(this.shape);
+            result.Data = data.AsParallel().Select(x => (int) Math.Sqrt(x)).ToArray();
+
+            return result;
+        }
 
 		public IntTensor Neg(bool inline = false, IntTensor result = null)
 		{
@@ -427,7 +441,11 @@ namespace OpenMined.Syft.Tensor
                     }
                     return "param not found or not configured with a getter";
                 }
-
+                case "sqrt":
+                {
+                    var result = Sqrt();
+                    return result.Id + "";
+                }
 				case "neg":
 				{
 					Debug.LogFormat("neg");
@@ -440,8 +458,7 @@ namespace OpenMined.Syft.Tensor
 					Debug.LogFormat("neg_");
 					Neg(inline: true);
 					return Id.ToString();
-				}
-                    
+				}    
                 case "to_numpy":
                 {
                     if (DataOnGpu)
