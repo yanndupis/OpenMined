@@ -185,17 +185,42 @@ namespace OpenMined.Syft.Tensor
                     return result;
                 }
             }
+            
+            if(inline) {
+                this.Data = data.AsParallel().Select(x => Math.Abs(x)).ToArray();
+                return this;
+            }
             else
             {
-              if (inline) {
-                  this.Data = data.AsParallel().Select(x => Math.Abs(x)).ToArray();
-                  return this;
-              }
-              else
-              {
-                  result.Data = data.AsParallel().Select(x => Math.Abs(x)).ToArray();
-                  return result;
-              }
+                result.Data = data.AsParallel().Select(x => Math.Abs(x)).ToArray();
+                return result;
+            }
+        }
+
+        public IntTensor Lt(IntTensor other, bool inline = false)
+        {
+            // Run argument checks on CPU anyway just to make sure
+            if (!this.shape.SequenceEqual(other.shape))
+                throw new ArgumentException("Tensor dimensions must match");
+
+            if (other == null)
+                throw new ArgumentNullException();
+            
+            if (dataOnGpu) {
+                throw new NotImplementedException();
+            }
+            else {
+                if (inline) {
+                    this.Data = data.AsParallel().Zip(other.Data.AsParallel(),
+                                                        (a, b) => a < b ? 1 : 0).ToArray();
+                    return this;
+                } 
+                else {
+                    IntTensor result = factory.Create(this.shape);
+                    result.Data = data.AsParallel().Zip( other.Data.AsParallel(), 
+                                                        (a, b) => a < b ? 1 : 0 ).ToArray();
+                    return result;
+                }
             }
         }
 
@@ -449,6 +474,18 @@ public IntTensor Sub(IntTensor x, bool inline = false)
                 {
                     var result = this.Abs(inline:true);
                     return result.id + "";
+                }
+                case "lt":
+                {
+                    var compareToTensor = factory.Get(int.Parse(msgObj.tensorIndexParams[0]));
+                    var result = this.Lt(compareToTensor);
+                    return result.id + "";
+                }
+                case "lt_":
+                {
+                    var compareToTensor = factory.Get(int.Parse(msgObj.tensorIndexParams[0]));
+                    this.Lt(compareToTensor, inline: true);
+                    return this.id + "";
                 }
                 case "add_elem":
                 {
