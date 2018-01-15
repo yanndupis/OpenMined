@@ -168,7 +168,6 @@ namespace OpenMined.Syft.Tensor
                 }
                 else
                 {
-                    IntTensor result = factory.Create(this.shape);
                     result.Gpu(shader);
 
                     int kernel_id = shader.FindKernel("AbsElemInt");
@@ -189,7 +188,6 @@ namespace OpenMined.Syft.Tensor
               }
               else
               {
-                  IntTensor result = factory.Create(this.shape);
                   result.Data = data.AsParallel().Select(x => Math.Abs(x)).ToArray();
                   return result;
               }
