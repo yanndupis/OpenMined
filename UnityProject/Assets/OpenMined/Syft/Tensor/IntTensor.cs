@@ -5,6 +5,7 @@ using OpenMined.Network.Controllers;
 using System.Collections.Generic;
 using OpenMined.Syft.Tensor.Factories;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace OpenMined.Syft.Tensor
 {
@@ -222,6 +223,20 @@ namespace OpenMined.Syft.Tensor
                     return result;
                 }
             }
+        }
+
+        public IntTensor Sign(bool inline = false)
+        {
+            IntTensor result = factory.Create(this.shape);
+            if(dataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+            if(!inline)
+            {
+           result.Data = data.AsParallel().Select(x => (int) Math.Abs(x)/x).ToArray();
+            }    
+           return result;
         }
 
         public IntTensor Add(IntTensor x, bool inline = false)
@@ -580,6 +595,11 @@ public IntTensor Sub(IntTensor x, bool inline = false)
                     }
                     return "param not found or not configured with a getter";
                 }
+                case "sign":
+                {
+                    var result = this.Sign();
+                    return result.id + "";
+                }    
                 case "sub_elem":
                 {
                     Debug.LogFormat("sub_elem");

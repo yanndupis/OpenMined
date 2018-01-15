@@ -294,6 +294,24 @@ namespace OpenMined.Tests.Editor.IntTensorTests
             }
         }
 
+        [Test]
+        public void Sign()
+        {
+            int[] data1 = {-1,2,3,-5,6,-10};
+            int[] shape1 = {2,3};
+            var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
+
+            int[] data2 = {-1,1,1,-1,1,-1};
+            int[] shape2 = {2,3};
+            var tensor2 = ctrl.intTensorFactory.Create(_data: data2, _shape: shape2);
+
+            var tensor3 = tensor1.Sign(inline: false);
+
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+                Assert.AreEqual(tensor2[i], tensor3[i]);
+            }
+        }
 
         [Test]
         public void Trace()
