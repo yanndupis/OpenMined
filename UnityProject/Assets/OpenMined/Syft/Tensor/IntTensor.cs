@@ -157,6 +157,8 @@ namespace OpenMined.Syft.Tensor
 
         public IntTensor Abs(bool inline = false)
         {
+            IntTensor result = factory.Create(this.shape);
+
             if (dataOnGpu)
             {
                 if (inline)
