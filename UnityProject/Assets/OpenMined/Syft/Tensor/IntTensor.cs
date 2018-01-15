@@ -157,8 +157,6 @@ namespace OpenMined.Syft.Tensor
 
         public IntTensor Abs(bool inline = false)
         {
-            IntTensor result = factory.Create(this.shape);
-
             if (dataOnGpu)
             {
                 if (inline)
@@ -516,8 +514,7 @@ public IntTensor Sub(IntTensor x, bool inline = false)
                 case "equal":
                 {
                     var tensor_1 = factory.Get(int.Parse(msgObj.tensorIndexParams[0]));
-                    var tensor_2 = factory.Get(int.Parse(msgObj.tensorIndexParams[1]));
-                    return Convert.ToString(tensor_1.Equal(tensor_2));
+                    return Convert.ToString(this.Equal(tensor_1));
                 }
                 case "get":
                 {
