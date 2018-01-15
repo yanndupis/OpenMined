@@ -279,7 +279,7 @@ namespace OpenMined.Syft.Tensor
                 {
                     var dim = int.Parse(msgObj.tensorIndexParams[0]);
                     var batch_size = int.Parse(msgObj.tensorIndexParams[1]);
-                    return string.Join(",", Batchify(dim, batch_size).Select(x => x.ToString()).ToArray());;
+                    return string.Join(",", Batchify(dim, batch_size).Select(x => x.ToString()).ToArray());
                 }
                 case "ceil":
                 {

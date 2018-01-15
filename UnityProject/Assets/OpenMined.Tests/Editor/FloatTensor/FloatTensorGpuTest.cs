@@ -15,7 +15,7 @@ namespace OpenMined.Tests.Editor.FloatTensorTests
         public SyftController ctrl;
         public ComputeShader shader;
 
-        public void AssertEqualTensorsData(FloatTensor t1, FloatTensor t2, double delta = 0.0d)
+        public void AssertEqualTensorsData(OpenMined.Syft.Tensor.FloatTensor t1, OpenMined.Syft.Tensor.FloatTensor t2, double delta = 0.0d)
         {
             float[] data1 = new float[t1.Size];
             t1.DataBuffer.GetData(data1);
@@ -32,7 +32,7 @@ namespace OpenMined.Tests.Editor.FloatTensorTests
             }
         }
 
-        public void AssertApproximatelyEqualTensorsData(FloatTensor t1, FloatTensor t2)
+        public void AssertApproximatelyEqualTensorsData(OpenMined.Syft.Tensor.FloatTensor t1, OpenMined.Syft.Tensor.FloatTensor t2)
         {
             AssertEqualTensorsData(t1, t2, .0001f);
         }
