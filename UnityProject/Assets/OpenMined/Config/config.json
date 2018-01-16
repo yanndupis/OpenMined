@@ -1,3 +1,4 @@
 {
-  "trainer": false
+  "trainer": false,
+  "identify": false
 }

@@ -35,8 +35,10 @@ namespace OpenMined.Network.Servers
             yield return request.GetModel(this);
             
             var ipfsAddress = request.modelResponse.configAddress;
+            var owner = request.modelResponse.owner;
 
             Debug.Log("IPFS address: " + ipfsAddress);
+            Debug.Log("owner: " + owner);
 
             IpfsModel model = Ipfs.GetModel(ipfsAddress);
             if (model != null)

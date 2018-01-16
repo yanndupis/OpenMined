@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Collections;
 using OpenMined.Network.Utils;
 using OpenMined.Network.Servers;
-using OpenMined.Syft.Tensor;
 using OpenMined.Syft.Layer;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -62,6 +61,28 @@ namespace OpenMined.Network.Controllers
 
             var request = new Request();
             owner.StartCoroutine(request.AddModel(owner, ipfsHash));
+
+            PollNext(owner, request);
+        }
+
+        void PollNext(MonoBehaviour owner, Request request)
+        {
+            owner.StartCoroutine(PollForGrads(owner, request));
+        }
+
+        IEnumerator PollForGrads(MonoBehaviour owner, Request request)
+        {
+            if (request.numModels > 0)
+            {
+                yield return request.GetNumModelGrads(owner, request.numModels);
+            }
+            else
+            {
+                yield return request.GetNumModels(owner);
+            }
+            
+            yield return new WaitForSeconds(20);
+            PollNext(owner, request);
         }
 
         public void TrainModel(IpfsModel model)
