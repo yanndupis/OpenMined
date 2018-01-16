@@ -28,6 +28,10 @@ namespace OpenMined.Syft.Tensor
         private static int SubElemIntKernel_;
         [SerializeField] 
         private static int NegateKernel;
+        [SerializeField]
+        private static int ReciprocalIntKernel;
+        [SerializeField]
+        private static int ReciprocalIntKernel_;
 
 
         public IntTensor()
@@ -437,11 +441,32 @@ public IntTensor Sub(IntTensor x, bool inline = false)
 
         public IntTensor Reciprocal(bool inline = false)
         {
+            IntTensor result = factory.Create(this.shape);
             if (dataOnGpu)
             {
-                throw new NotImplementedException();
+                if (inline)
+                {
+                    int kernel_id = shader.FindKernel("ReciprocalInt_");
+                    shader.SetBuffer(kernel_id, "ReciprocalIntData_", this.DataBuffer);
+                    shader.Dispatch(kernel_id, this.size, 1, 1);
+                    return this;
+                }
+                else
+                {
+                    result.Gpu(shader);
+                    int kernel_id = shader.FindKernel("ReciprocalInt");
+
+                    shader.SetBuffer(kernel_id, "ReciprocalIntData", this.DataBuffer);
+                    shader.SetBuffer(kernel_id, "ReciprocalIntDataResult", result.DataBuffer);
+                    shader.Dispatch(kernel_id, this.size, 1, 1);
+                    return result;
+                }
             }
-            IntTensor result = factory.Create(this.shape);
+            if (inline)
+            {
+                this.Data = data.AsParallel().Select(x => (int)(1 / x)).ToArray();
+                return this;
+            }
             result.Data = data.AsParallel().Select(x => (int)(1/x)).ToArray();
             return result;
         }
@@ -630,6 +655,11 @@ public IntTensor Sub(IntTensor x, bool inline = false)
                 {
                     var result = Reciprocal();
                     return result.id.ToString();
+                }
+                case "reciprocal_":
+                {
+                    Reciprocal(inline: true);
+                    return Id.ToString();
                 }
                 case "sqrt":
                 {

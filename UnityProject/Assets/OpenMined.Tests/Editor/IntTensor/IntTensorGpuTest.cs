@@ -235,6 +235,42 @@ namespace OpenMined.Tests.Editor.IntTensorTests
 			AssertEqualTensorsData(expectedTensor1, tensor1);
 		}
 
-/* closes class and namespace */
+        [Test]
+        public void Reciprocal()
+        {
+            int[] data1 = { 1, 2, 3, -1 };
+            int[] shape1 = { 4 };
+            var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
+            tensor1.Gpu(shader);
+
+            int[] data2 = { 1, 0, 0, -1 };
+            int[] shape2 = { 4 };
+            var expectedTensor = ctrl.intTensorFactory.Create(_data: data2, _shape: shape2);
+            expectedTensor.Gpu(shader);
+
+            var reciprocalTensor = tensor1.Reciprocal();
+
+            AssertEqualTensorsData(expectedTensor, reciprocalTensor);
+        }
+
+        [Test]
+        public void Reciprocal_()
+        {
+            int[] data1 = { 1, 2, 3, -1 };
+            int[] shape1 = { 4 };
+            var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
+            tensor1.Gpu(shader);
+
+            int[] data2 = { 1, 0, 0, -1 };
+            int[] shape2 = { 4 };
+            var expectedTensor = ctrl.intTensorFactory.Create(_data: data2, _shape: shape2);
+            expectedTensor.Gpu(shader);
+
+            tensor1.Reciprocal(inline: true);
+
+            AssertEqualTensorsData(expectedTensor, tensor1);
+        }
+
+        /* closes class and namespace */
     }
 }
