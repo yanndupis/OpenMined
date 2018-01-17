@@ -117,7 +117,7 @@ namespace OpenMined.Network.Controllers
             var layerIdxs = seq.getLayers();
             Linear lin = (Linear)controller.getModel(layerIdxs[0]);
 
-            Debug.Log(string.Join(",", loss.Data));*/
+            Debug.Log(string.Join(",", loss.Data));
 
 
             var req = new Request();
