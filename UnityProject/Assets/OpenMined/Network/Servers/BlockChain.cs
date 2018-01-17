@@ -45,12 +45,14 @@ namespace OpenMined.Network.Servers
             {
                 Debug.Log("Got the IpfsModel: " + model.input);
                 
+                // TODO do some training!!!
                 //var g = new Controllers.Grid(controller);
-                //g.TrainModel(model);
+                //g.TrainModel(model, numModels - 1);
             }
 
             Debug.Log("Blockchain polled");
 
+            // TODO should probably only poll again once above training is done
             yield return new WaitForSeconds(10);
             PollNext();
         }

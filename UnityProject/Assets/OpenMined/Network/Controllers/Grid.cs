@@ -7,6 +7,7 @@ using OpenMined.Network.Servers;
 using OpenMined.Syft.Layer;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OpenMined.UI;
 
 namespace OpenMined.Network.Controllers
 {
@@ -85,7 +86,7 @@ namespace OpenMined.Network.Controllers
             PollNext(owner, request);
         }
 
-        public void TrainModel(IpfsModel model)
+        public void TrainModel(MonoBehaviour owner, IpfsModel model, int modelId)
         {
             var seq = CreateSequential(model.Model);
 
@@ -116,7 +117,11 @@ namespace OpenMined.Network.Controllers
             var layerIdxs = seq.getLayers();
             Linear lin = (Linear)controller.getModel(layerIdxs[0]);
 
-            Debug.Log(string.Join(",", loss.Data));
+            Debug.Log(string.Join(",", loss.Data));*/
+
+
+            var req = new Request();
+            owner.StartCoroutine(req.AddWeights(owner, modelId, "QmNqVVej89i1xDGDgiHZzXbiX9RypoFGFEGHgWqeZBRaUk"));
         }
 
         private Sequential CreateSequential(List<String> model)
@@ -141,7 +146,7 @@ namespace OpenMined.Network.Controllers
                         layer = new ReLU(controller);
                         break;
                     case "log":
-                        layer = new Log(controller);
+                        layer = new OpenMined.Syft.Layer.Log(controller);
                         break;
                     case "dropout":
                         layer = new Dropout(controller, (float)config["rate"]);
