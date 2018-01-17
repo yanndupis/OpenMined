@@ -4,6 +4,9 @@ using System.Runtime.InteropServices;
 using OpenMined.Network.Controllers;
 using UnityEngine;
 using OpenMined.Network.Utils;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 
 namespace OpenMined.Syft.Tensor
 {
@@ -259,7 +262,34 @@ namespace OpenMined.Syft.Tensor
             size = acc;
         }
 
+        public JToken GetConfig()
+        {
+            var jData = new JArray();
+            for (var i = 0; i < data.Length; ++i)
+            {
+                jData.Add(data[i]);
+            }
 
+            var jStride = new JArray();
+            for (var i = 0; i < strides.Length; ++i)
+            {
+                jStride.Add(strides[i]);
+            }
+
+            var jShape = new JArray();
+            for (var i = 0; i < shape.Length; ++i)
+            {
+                jShape.Add(shape[i]);
+            }
+
+            return new JObject
+            {
+                { "data", jData },
+                { "strides", jStride },
+                { "shape", jShape },
+                { "size", size }
+            };
+        }
 
 
     }

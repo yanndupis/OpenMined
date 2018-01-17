@@ -40,10 +40,10 @@ namespace OpenMined.Network.Servers
             Debug.Log("IPFS address: " + ipfsAddress);
             Debug.Log("owner: " + owner);
 
-            IpfsModel model = Ipfs.GetModel(ipfsAddress);
+            IpfsExperiment model = Ipfs.Get<IpfsExperiment>(ipfsAddress);
             if (model != null)
             {
-                Debug.Log("Got the IpfsModel: " + model.input);
+                // Debug.Log("Got the IpfsModel: " + model.input);
                 
                 // TODO do some training!!!
                 //var g = new Controllers.Grid(controller);
