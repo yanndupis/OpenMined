@@ -32,6 +32,8 @@ namespace OpenMined.Syft.Tensor
         private static int ReciprocalIntKernel;
         [SerializeField]
         private static int ReciprocalIntKernel_;
+        [SerializeField]
+        private static int SinIntKernel_;
 
 
         public IntTensor()
@@ -471,6 +473,28 @@ public IntTensor Sub(IntTensor x, bool inline = false)
             return result;
         }
 
+        public FloatTensor Sin(bool inline = false)
+        {
+            
+            FloatTensor result = factory.ctrl.floatTensorFactory.Create(shape);
+            if (dataOnGpu)
+            {
+                result.Gpu(shader);
+                int kernel_id = shader.FindKernel("SinInt");
+
+                shader.SetBuffer(kernel_id, "SinIntData", this.DataBuffer);
+                shader.SetBuffer(kernel_id, "SinIntDataResult", result.DataBuffer);
+                shader.Dispatch(kernel_id, this.size, 1, 1);
+                return result;
+            }
+            if (inline)
+            {
+                throw new NotImplementedException();
+            }
+            result.Data = data.AsParallel().Select(x => (float)Math.Sin((double)x)).ToArray();
+            return result;
+        }
+
         public IntTensor View(int[] new_shape, bool inline = true, FloatTensor result = null)
         {
             if (!IsContiguous()) {
@@ -665,6 +689,11 @@ public IntTensor Sub(IntTensor x, bool inline = false)
                 {
                     var result = Sqrt();
                     return result.Id + "";
+                }
+                case "sin":
+                {
+                     var result = Sin();
+                     return result.Id.ToString();
                 }
 				case "neg":
 				{

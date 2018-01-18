@@ -36,7 +36,7 @@ namespace OpenMined.Network.Controllers
 			shader = _shader;
 
 			floatTensorFactory = new FloatTensorFactory(_shader, this);
-			intTensorFactory = new IntTensorFactory(_shader);
+			intTensorFactory = new IntTensorFactory(_shader, this);
 
 			models = new Dictionary<int, Model> ();
 			agents = new Dictionary<int, Syft.NN.RL.Agent>();
