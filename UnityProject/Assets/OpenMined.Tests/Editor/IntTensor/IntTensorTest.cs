@@ -334,6 +334,25 @@ namespace OpenMined.Tests.Editor.IntTensorTests
         }
 
         [Test]
+        public void Tan()
+        {
+            float[] data1 = {30, 20, 40, 50};
+            int[] shape1 = {4};
+            var tensor1 = ctrl.floatTensorFactory.Create(_data: data1, _shape: shape1);
+
+            float[] data2 = {-6.4053312f, 2.23716094f, -1.11721493f, -0.27190061f};
+            int[] shape2 = {4};
+            var expectedTanTensor = ctrl.floatTensorFactory.Create(_data: data2, _shape: shape2);
+
+            var actualTanTensor = tensor1.Tan();
+
+            for (int i = 0; i < actualTanTensor.Size; i++)
+            {
+                Assert.AreEqual(expectedTanTensor[i], actualTanTensor[i]);
+            }
+        }
+
+        [Test]
         public void Trace()
         {
             // test #1
