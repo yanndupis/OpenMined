@@ -214,7 +214,91 @@ namespace OpenMined.Tests.Editor.IntTensorTests
             Assert.False(tensor1.Equal(tensor2));
             Assert.True(tensor1.Equal(tensor3));
         }
-        
+
+        [Test]
+        public void PowElem()
+        {
+            int[] data1 = { 1, 2, 3, 4, 5, 1, 2, 3, 4, 5 };
+            int[] shape1 = { 2, 5 };
+            var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
+
+            int[] data2 = { 5, 4, 3, 2, 1, 1, 2, 3, 4, 5 };
+            int[] shape2 = { 2, 5 };
+            var tensor2 = ctrl.intTensorFactory.Create(_data: data2, _shape: shape2);
+
+            int[] data3 = { 1, 16, 27, 16, 5, 1, 4, 27, 256, 3125 };
+            int[] shape3 = { 2, 5 };
+            var tensor3 = ctrl.intTensorFactory.Create(_data: data3, _shape: shape3);
+
+            var result = tensor1.Pow(tensor2);
+
+            for (int i = 0; i < result.Size; i++)
+            {
+                Assert.AreEqual(tensor3[i], result[i]);
+            }
+        }
+
+        [Test]
+        public void PowElem_()
+        {
+            int[] data1 = { 1, 2, 3, 4, 5, 1, 2, 3, 4, 5 };
+            int[] shape1 = { 2, 5 };
+            var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
+
+            int[] data2 = { 5, 4, 3, 2, 1, 1, 2, 3, 4, 5 };
+            int[] shape2 = { 2, 5 };
+            var tensor2 = ctrl.intTensorFactory.Create(_data: data2, _shape: shape2);
+
+            int[] data3 = { 1, 16, 27, 16, 5, 1, 4, 27, 256, 3125 };
+            int[] shape3 = { 2, 5 };
+            var tensor3 = ctrl.intTensorFactory.Create(_data: data3, _shape: shape3);
+
+            tensor1.Pow(tensor2, inline: true);
+
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+                Assert.AreEqual(tensor3[i], tensor1[i]);
+            }
+        }
+
+        [Test]
+        public void PowScalar()
+        {
+            int[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            int[] shape1 = { 2, 5 };
+            var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
+
+            int[] data2 = { 1, 4, 9, 16, 25, 36, 49, 64, 81, 100 };
+            int[] shape2 = { 2, 5 };
+            var tensor2 = ctrl.intTensorFactory.Create(_data: data2, _shape: shape2);
+
+            var result = tensor1.Pow(2);
+
+            for (int i = 0; i < result.Size; i++)
+            {
+                Assert.AreEqual(tensor2[i], result[i]);
+            }
+        }
+
+        [Test]
+        public void PowScalar_()
+        {
+            int[] data1 = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            int[] shape1 = { 2, 5 };
+            var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
+
+            int[] data2 = { 1, 4, 9, 16, 25, 36, 49, 64, 81, 100 };
+            int[] shape2 = { 2, 5 };
+            var tensor2 = ctrl.intTensorFactory.Create(_data: data2, _shape: shape2);
+
+            tensor1.Pow(2, inline: true);
+
+            for (int i = 0; i < tensor1.Size; i++)
+            {
+                Assert.AreEqual(tensor2[i], tensor1[i]);
+            }
+        }
+
         [Test]
         public void Sqrt()
         {
