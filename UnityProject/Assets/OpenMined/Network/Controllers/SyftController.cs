@@ -513,7 +513,7 @@ namespace OpenMined.Network.Controllers
                             //         It is written to poll IPFS right now so it
                             //         appears to be working client side.
 
-                            var experiment = Ipfs.Get<IpfsExperiment>("QmVPQnsuks1cCbTMFGqpmHa4M45uUuKRomiqNvJEQAtcRS");
+                            var experiment = Ipfs.Get<IpfsExperiment>(msgObj.experimentId);
                             var jobs = experiment.jobs.Select(job => Ipfs.Get<IpfsJob>(job));
                             var jobResults = jobs.Select(job => this.grid.TrainModel(experiment.input, experiment.target, job, 1));
 
@@ -524,7 +524,8 @@ namespace OpenMined.Network.Controllers
                                 return model.Id;
                             });
 
-                            return modelIds.ToArray().ToString();
+                            var modelIdsString = JsonConvert.SerializeObject(modelIds.ToArray());
+                            return modelIdsString;
                         }
 
                         break;
