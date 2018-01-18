@@ -395,6 +395,25 @@ namespace OpenMined.Tests.Editor.IntTensorTests
             }
         }
 
+        [Test]
+        public void Sin()
+        {
+            int[] data1 = { 15, 60, 90, 180 };
+            int[] shape1 = { 4 };
+            var tensor1 = ctrl.intTensorFactory.Create(_data: data1, _shape: shape1);
+
+            float[] data2 = { 0.65028784f, -0.30481062f, 0.89399666f, -0.80115264f };
+            int[] shape2 = { 4 };
+            var expectedSinTensor = ctrl.floatTensorFactory.Create(_data: data2, _shape: shape2);
+
+            var actualSinTensor = tensor1.Sin();
+
+            for (int i = 0; i < actualSinTensor.Size; i++)
+            {
+                Assert.AreEqual(expectedSinTensor[i], actualSinTensor[i]);
+            }
+        }
+
         /* closes class and namespace */
     }
 }

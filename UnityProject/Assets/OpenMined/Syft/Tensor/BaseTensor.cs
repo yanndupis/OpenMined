@@ -45,7 +45,7 @@ namespace OpenMined.Syft.Tensor
         public T[] Data
         {
             get { return data; }
-            protected set { data = value; }
+            set { data = value; }
         }
 
         public int[] Shape
