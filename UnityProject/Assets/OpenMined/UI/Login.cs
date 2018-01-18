@@ -50,7 +50,7 @@ namespace OpenMined.UI
             
                 Request r = new Request();
 
-                Request req = new Request(this, r.GetIdentity(""));
+                Request req = new Request(this, r.IdentityRequest());
                 yield return req.Coroutine;
                 string URI = req.result as string;
                 Debug.LogFormat("\nURI: {0}", URI);
