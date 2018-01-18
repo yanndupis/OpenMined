@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using OpenMined.Network.Utils;
 using OpenMined.Network.Controllers;
@@ -356,6 +356,55 @@ namespace OpenMined.Syft.Tensor
 			return result;
 		}
 
+        public IntTensor Transpose(bool inline = false)
+        {
+            if(shape.Length != 2)
+            {
+                throw new InvalidOperationException("Need to specify parameters for tensors with more than 2 dims.");
+            }
+            return Transpose(0, 1, inline:inline);
+        }
+
+        public IntTensor Transpose(int dimension1, int dimension2, IntTensor result = null, bool inline = false)
+        {
+            if(!IsContiguous())
+            {
+                throw new InvalidOperationException("Tensor must be contiguous, call Contiguous() to convert");
+            }
+
+            if (dimension1 < 0 || dimension1 >= shape.Length)
+                throw new ArgumentOutOfRangeException("dimension1");
+            if (dimension2 < 0 || dimension2 >= shape.Length)
+                throw new ArgumentOutOfRangeException("dimension2");
+
+            if (dimension1 == dimension2)
+            {
+                return this;
+            }
+
+            var newShape = (int[])shape.Clone();
+            var tmpDimension = newShape[dimension1];
+            newShape[dimension1] = newShape[dimension2];
+            newShape[dimension2] = tmpDimension;
+
+            result = factory.Create(newShape);
+
+            var nCpu = SystemInfo.processorCount;
+            Parallel.For(0, nCpu, workerId =>
+            {
+                var max = size * (workerId + 1) / nCpu;
+                for (var i = size * workerId / nCpu; i < max; i++)
+                {
+                    var idxs = GetIndices(i);
+                    var tmp = idxs[dimension1];
+                    idxs[dimension1] = idxs[dimension2];
+                    idxs[dimension2] = tmp;
+                    result[idxs] = this[i];
+                }
+            });
+            return result;
+        }
+
         public bool Equal(IntTensor x, bool inline = false)
         {
             if (dataOnGpu)
@@ -690,6 +739,7 @@ public IntTensor Sub(IntTensor x, bool inline = false)
                     var result = Sqrt();
                     return result.Id + "";
                 }
+                
                 case "sin":
                 {
                      var result = Sin();
@@ -726,6 +776,19 @@ public IntTensor Sub(IntTensor x, bool inline = false)
                 {
                     var result = this.Trace();
                     return result.ToString();
+                }
+                case "transpose":
+                {
+                    if (msgObj.tensorIndexParams.Length != 0)
+                        {
+                            var dim1 = int.Parse(msgObj.tensorIndexParams[0]);
+                            var dim2 = int.Parse(msgObj.tensorIndexParams[1]);
+                            return Transpose(dim1, dim2).Id.ToString();
+                        }
+                    else
+                        {
+                            return Transpose().Id.ToString();
+                        }
                 }
             }
             return "IntTensor.processMessage: Command not found:" + msgObj.functionCall;
