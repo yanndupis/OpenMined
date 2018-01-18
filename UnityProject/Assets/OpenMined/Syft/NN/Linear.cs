@@ -13,33 +13,45 @@ namespace OpenMined.Syft.Layer
 		private int _output;
 
         [SerializeField] string name = "linear";
-        [SerializeField] public readonly FloatTensor _weights;
+        [SerializeField] public FloatTensor _weights;
         [SerializeField] FloatTensor _bias;
 		
 		public Linear (SyftController _controller, int input, int output, string initializer="Xavier")
 		{
+            initialize(_controller, input, output, initializer);
+		}
+
+        public Linear (SyftController _controller, int input, int output, FloatTensor weights, FloatTensor bias, string initializer="Xavier")
+        {
+            initialize(_controller, input, output, initializer);
+
+            _weights = weights;
+            _bias = bias;
+        }
+
+        private void initialize (SyftController _controller, int input, int output, string initializer = "Xavier")
+        {
             init(this.name);
 
-			this.controller = _controller;
-			
-			_input = input;
-			_output = output;
-			
-			int[] weightShape = { input, output };
+            this.controller = _controller;
+
+            _input = input;
+            _output = output;
+
+            int[] weightShape = { input, output };
             var weights = initializer == "Xavier" ? controller.RandomWeights(input * output, input) : controller.RandomWeights(input * output);
-			_weights = controller.floatTensorFactory.Create(_shape: weightShape, _data: weights, _autograd: true, _keepgrads: true);
+            _weights = controller.floatTensorFactory.Create(_shape: weightShape, _data: weights, _autograd: true, _keepgrads: true);
 
-			int[] biasShape = {1,output};
-			_bias = controller.floatTensorFactory.Create(_shape:biasShape, _autograd: true);
+            int[] biasShape = { 1, output };
+            _bias = controller.floatTensorFactory.Create(_shape: biasShape, _autograd: true);
 
-			parameters.Add(_weights.Id);
-			parameters.Add(_bias.Id);
-			
-			#pragma warning disable 420
-			id = System.Threading.Interlocked.Increment(ref nCreated);
-			controller.addModel(this);
+            parameters.Add(_weights.Id);
+            parameters.Add(_bias.Id);
 
-		}
+#pragma warning disable 420
+            id = System.Threading.Interlocked.Increment(ref nCreated);
+            controller.addModel(this);
+        }
 
         public override FloatTensor Forward(FloatTensor input)
 		{
@@ -68,6 +80,8 @@ namespace OpenMined.Syft.Layer
 				{ "dtype", "float32" }, 
 				{ "output", _output },
                 { "input", _input },
+                { "bias", _bias.GetConfig() },
+                { "weights", _weights.GetConfig() },
 				{ "activation", "linear" },
 				{ "use_bias", true },
 				{
