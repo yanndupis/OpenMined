@@ -731,6 +731,16 @@ void Sin_ (uint3 id: SV_DispatchThreadID) {
     SinData_[id.x] = sin(SinData_[id.x]);
 }
 
+#pragma kernel SinInt
+
+StructuredBuffer<int> SinIntData;
+RWStructuredBuffer<float> SinIntDataResult;
+
+[numthreads(4,1,1)]
+void SinInt(uint3 id: SV_DispatchThreadID) {
+	SinIntDataResult[id.x] = (float)sin(SinIntData[id.x]);
+}
+
 #pragma kernel Sqrt
 
 StructuredBuffer<float> SqrtData;
