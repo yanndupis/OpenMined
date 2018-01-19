@@ -33,7 +33,9 @@ namespace OpenMined.Syft.Tensor
         [SerializeField]
         private static int ReciprocalIntKernel_;
         [SerializeField]
-        private static int SinIntKernel_;
+        private static int SinIntKernel;
+        [SerializeField]
+        private static int CosIntKernel;
 
 
         public IntTensor()
@@ -202,6 +204,23 @@ namespace OpenMined.Syft.Tensor
                 result.Data = data.AsParallel().Select(x => Math.Abs(x)).ToArray();
                 return result;
             }
+        }
+
+        public FloatTensor Cos(bool inline = false)
+        {
+            FloatTensor result = factory.ctrl.floatTensorFactory.Create(shape);
+            if (dataOnGpu)
+            {
+                result.Gpu(shader);
+                int kernel_id = shader.FindKernel("CosInt");
+
+                shader.SetBuffer(kernel_id, "CosIntData", this.DataBuffer);
+                shader.SetBuffer(kernel_id, "CosIntDataResult", result.DataBuffer);
+                shader.Dispatch(kernel_id, this.size, 1, 1);
+                return result;
+            }
+            result.Data = data.AsParallel().Select(x => (float)Math.Cos((float)x)).ToArray();
+            return result;
         }
 
         public IntTensor Lt(IntTensor other, bool inline = false)
@@ -662,6 +681,11 @@ public IntTensor Sub(IntTensor x, bool inline = false)
                     this.Add(int.Parse(msgObj.tensorIndexParams[0]), inline: true);
                     return this.id + "";
                 }
+                case "cos":
+                {
+                    var result = Cos();
+                    return result.Id.ToString();
+                } 
                 case "equal":
                 {
                     var tensor_1 = factory.Get(int.Parse(msgObj.tensorIndexParams[0]));
