@@ -32,7 +32,7 @@ namespace OpenMined.Syft.Layer
 
         private int getLayer(int i)
         {
-            if(i > 0 && i < layers.Count)
+            if(i >= 0 && i < layers.Count)
                 return layers[i];
             throw new ArgumentOutOfRangeException("Sub-layer " + i + " does not exist.");
         }
