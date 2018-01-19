@@ -1,17 +1,16 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 using System;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
+using System.IO;
+using Newtonsoft.Json.Linq;
+
 
 namespace OpenMined.Network.Servers.BlockChain.Requests
 {
     public abstract class BaseRequest<T>
     {
-
-        // public static string URL = "http://localhost:3000/";
-
         public Method method;
         public string path;
 
@@ -25,9 +24,8 @@ namespace OpenMined.Network.Servers.BlockChain.Requests
 
         protected UnityWebRequest GetRequest (string subPath = "", WWWForm postBody = null)
         {
-
             var builder = new UriBuilder();
-            builder.Host = "192.168.2.14";
+            builder.Host = GetHost();
             builder.Port = 3000;
             builder.Scheme = "http";
             builder.Path = this.path + subPath;
@@ -81,6 +79,15 @@ namespace OpenMined.Network.Servers.BlockChain.Requests
         public T GetResponse ()
         {
             return JsonConvert.DeserializeObject<T>(this.response);
+        }
+
+        private string GetHost ()
+        {
+            using (StreamReader reader = File.OpenText("Assets/OpenMined/Config/config.json"))
+            {
+                var config = (JObject)JToken.ReadFrom(new JsonTextReader(reader));
+                return config["bygoneServer"].ToObject<string>();
+            }
         }
 
         abstract public UnityWebRequest GetWebRequest();
