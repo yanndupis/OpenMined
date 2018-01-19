@@ -67,26 +67,6 @@ namespace OpenMined.Network.Controllers
             return experimentResult.Hash;
         }
 
-        void PollNext(MonoBehaviour owner, Request request)
-        {
-            owner.StartCoroutine(PollForGrads(owner, request));
-        }
-
-        IEnumerator PollForGrads(MonoBehaviour owner, Request request)
-        {
-            if (request.numModels > 0)
-            {
-                yield return request.GetNumModelGrads(owner, request.numModels);
-            }
-            else
-            {
-                yield return request.GetNumModels(owner);
-            }
-            
-            yield return new WaitForSeconds(20);
-            PollNext(owner, request);
-        }
-
         public string TrainModel(IpfsJob job)
         {
             var tmpInput = Ipfs.Get<JToken>(job.input);

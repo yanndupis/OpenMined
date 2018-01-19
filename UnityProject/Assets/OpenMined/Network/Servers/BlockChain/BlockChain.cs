@@ -39,26 +39,26 @@ namespace OpenMined.Network.Servers.BlockChain
             if (jobId == null)
             {
                 yield return new WaitForSeconds(10);
+                PollNext();
+            } else {
+                var getJobRequest = new GetJobRequest(jobId);
+                yield return getJobRequest.RunRequest();
+                var jobHash = getJobRequest.GetResponse().jobAddress;
+
+                var job = Ipfs.Get<IpfsJob>(jobHash);
+                var controller = Camera.main.GetComponent<SyftServer>().controller;
+                var grid = new OpenMined.Network.Controllers.Grid(controller);
+
+                var result = grid.TrainModel(job);
+
+                var response = new AddResultRequest(jobHash, result);
+                yield return response.RunRequest();
+
+                Debug.Log("did a job");
+
+                yield return new WaitForSeconds(10);
                 PollNext();    
             }
-
-            var getJobRequest = new GetJobRequest(jobId);
-            yield return getJobRequest.RunRequest();
-            var jobHash = getJobRequest.GetResponse().jobAddress;
-
-            var job = Ipfs.Get<IpfsJob>(jobHash);
-            var controller = Camera.main.GetComponent<SyftServer>().controller;
-            var grid = new OpenMined.Network.Controllers.Grid(controller);
-
-            var result = grid.TrainModel(job);
-
-            var response = new AddResultRequest(jobHash, result);
-            yield return response.RunRequest();
-
-            Debug.Log("did a job");
-
-            // yield return new WaitForSeconds(10);
-            PollNext();
         }
 
 

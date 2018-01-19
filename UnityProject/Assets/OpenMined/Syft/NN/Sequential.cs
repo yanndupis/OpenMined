@@ -133,6 +133,21 @@ namespace OpenMined.Syft.Layer
             return cnt;
         }
 
+        public override List<int> getParameters()
+        {
+            var allParams = new List<int>();
+            foreach (int layer_idx in layers)
+            {
+                var model = controller.getModel(layer_idx);
+                foreach (int param in model.getParameters())
+                {
+                    allParams.Add(param);
+                }
+            }
+
+            return allParams;
+        }
+
         public JToken GetConfig()
         {
             var _this = this;
