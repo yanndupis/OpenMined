@@ -73,7 +73,7 @@ namespace OpenMined.Network.Controllers
 		    return syn0;
 		}
 
-		public Model getModel(int index)
+		public Model GetModel(int index)
 		{
 			if (models.ContainsKey(index))
 			{
@@ -85,12 +85,12 @@ namespace OpenMined.Network.Controllers
 			}
 		}
 
-		public Loss getLoss(int index)
+		public Loss GetLoss(int index)
 		{
 			return (Loss)models[index];
 		}
 
-		public Optimizer getOptimizer(int index)
+		public Optimizer GetOptimizer(int index)
 		{
 			return optimizers[index];
 		}
@@ -100,22 +100,22 @@ namespace OpenMined.Network.Controllers
 			return shader;
 		}
 
-		public int addAgent(Syft.NN.RL.Agent agent)
+		public int AddAgent(Syft.NN.RL.Agent agent)
 		{
 			agents.Add (agent.Id, agent);
 			return (agent.Id);
 		}
 
-		public Syft.NN.RL.Agent getAgent(int agent_id)
+		public Syft.NN.RL.Agent GetAgent(int agent_id)
 		{
 			if(agents.ContainsKey(agent_id))
 				return agents[agent_id];
 			return null;
 		}
 
-		public void setAgentId(int old_id, int new_id)
+		public void SetAgentId(int old_id, int new_id)
 		{
-			Syft.NN.RL.Agent old = getAgent(old_id);
+			Syft.NN.RL.Agent old = GetAgent(old_id);
 
 			if (agents.ContainsKey(new_id))
 			{
@@ -140,7 +140,7 @@ namespace OpenMined.Network.Controllers
 
 		public void setModelId(int old_id, int new_id)
 		{
-			Model old = getModel(old_id);
+			Model old = GetModel(old_id);
 
 			if (models.ContainsKey(new_id))
 			{
@@ -215,7 +215,7 @@ namespace OpenMined.Network.Controllers
 						}
 						else
 						{
-							Optimizer optim = this.getOptimizer(msgObj.objectIndex);
+							Optimizer optim = this.GetOptimizer(msgObj.objectIndex);
 							return optim.ProcessMessage(msgObj, this);
 						}
 					}
@@ -242,7 +242,7 @@ namespace OpenMined.Network.Controllers
 							{
 								data[i] = (int)msgObj.data[i];
 							}
-							IntTensor tensor = intTensorFactory.Create(_shape: msgObj.shape, _data: data, _shader: this.Shader);
+							IntTensor tensor = intTensorFactory.Create(_shape: msgObj.shape, _data: data);
 							return tensor.Id.ToString();
 						}
 						else
@@ -256,13 +256,13 @@ namespace OpenMined.Network.Controllers
 					{
 						if (msgObj.functionCall == "create")
 						{
-							Layer model = (Layer) getModel(int.Parse(msgObj.tensorIndexParams[0]));
+							Layer model = (Layer) GetModel(int.Parse(msgObj.tensorIndexParams[0]));
 							Optimizer optimizer = optimizers[int.Parse(msgObj.tensorIndexParams[1])];
 							return new Syft.NN.RL.Agent(this, model, optimizer).Id.ToString();
 						}
 
 						//Debug.Log("Getting Model:" + msgObj.objectIndex);
-						Syft.NN.RL.Agent agent = this.getAgent(msgObj.objectIndex);
+						Syft.NN.RL.Agent agent = this.GetAgent(msgObj.objectIndex);
 						return agent.ProcessMessageLocal(msgObj, this);
 
 
@@ -339,7 +339,7 @@ namespace OpenMined.Network.Controllers
 						else
 						{
 							//Debug.Log("Getting Model:" + msgObj.objectIndex);
-							Model model = this.getModel(msgObj.objectIndex);
+							Model model = this.GetModel(msgObj.objectIndex);
 							return model.ProcessMessage(msgObj, this);
 						}
                         return "Unity Error: SyftController.processMessage: Command not found:" + msgObj.objectType + ":" + msgObj.functionCall;
@@ -464,7 +464,7 @@ namespace OpenMined.Network.Controllers
 										previous_output_dim = (int) layer_config_desc["units"];
 									}
 
-									string[] parameters = new string[] {"linear", previous_output_dim.ToString(), layer_config_desc["units"].ToString(), "Xavier"};
+									string[] parameters = { "linear", previous_output_dim.ToString(), layer_config_desc["units"].ToString(), "Xavier"};
 									Layer layer = this.BuildLinear(parameters);
 									model.AddLayer(layer);
 

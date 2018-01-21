@@ -46,7 +46,7 @@ namespace OpenMined.Network.Controllers
             for (var i = 0; i < configurations.Count; ++i)
             {
                 var config = configurations[i];
-                var model = controller.getModel(config.model) as Sequential;
+                var model = controller.GetModel(config.model) as Sequential;
                 var serializedModel = model.GetConfig();
 
                 var configJob = new Ipfs();
