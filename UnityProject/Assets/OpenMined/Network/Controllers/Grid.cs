@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 using OpenMined.Network.Utils;
 using OpenMined.Network.Servers;
 using OpenMined.Syft.Layer;
@@ -9,6 +10,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OpenMined.UI;
 using OpenMined.Network.Servers.BlockChain;
+using System.Threading.Tasks;
+using OpenMined.Network.Servers.BlockChain.Requests;
 
 namespace OpenMined.Network.Controllers
 {
@@ -22,6 +25,46 @@ namespace OpenMined.Network.Controllers
         {
             this.controller = controller;
             experiments = new List<string>();
+        }
+
+
+        private async Task<int> LoadModelFromJob(string job)
+        {
+            var getResultRequest = new GetResultsRequest(job);
+            getResultRequest.RunRequestSync();
+            var responseHash = getResultRequest.GetResponse().resultAddress;
+
+            while (responseHash == "")
+            {
+                Debug.Log(string.Format("Could not load job {0}. Trying again in 5 seconds.", job));
+                await Task.Delay(5000);
+
+                // run the request again
+                getResultRequest = new GetResultsRequest(job);
+                getResultRequest.RunRequestSync();
+                responseHash = getResultRequest.GetResponse().resultAddress;
+            }
+
+            // load the model into memory
+
+            var response = Ipfs.Get<IpfsJob>(responseHash);
+            var modelDefinition = response.Model;
+            var model = this.CreateSequential(modelDefinition);
+
+            return model.Id;
+        }
+
+        public async void GetResults(string experimentId, Action<string> response)
+        {
+            var experiment = Ipfs.Get<IpfsExperiment>(experimentId);
+            var results = new int[experiment.jobs.Count()];
+            for (var i = 0; i < experiment.jobs.Count(); ++i)
+            {
+                results[i] = await LoadModelFromJob(experiment.jobs[i]);
+            }
+
+            response(JsonConvert.SerializeObject(results));
+            return;
         }
 
         public string Run(int inputId, int targetId, List<GridConfiguration> configurations, MonoBehaviour owner)
@@ -123,14 +166,27 @@ namespace OpenMined.Network.Controllers
                         var weightTensor = controller.floatTensorFactory.Create(_data: weightData, _shape: weightShape, _autograd: true);
 
                         // bias float tensor
-                        var biasData = layer.SelectToken("config.bias.data").ToObject<float[]>();
-                        var biasShape = layer.SelectToken("config.bias.shape").ToObject<int[]>();
-                        var biasTensor = controller.floatTensorFactory.Create(_data: biasData, _shape: biasShape, _autograd: true);
 
-                        var input = layer.SelectToken("config.input").ToObject<int>();
-                        var output = layer.SelectToken("config.output").ToObject<int>();
+                        Linear linear = null;
+                        if (layer.SelectToken("config.bias") == null)
+                        {
+                            var biasData = layer.SelectToken("config.bias.data").ToObject<float[]>();
+                            var biasShape = layer.SelectToken("config.bias.shape").ToObject<int[]>();
+                            var biasTensor = controller.floatTensorFactory.Create(_data: biasData, _shape: biasShape, _autograd: true);
 
-                        var linear = new Linear(controller, input: input, output: output, weights: weightTensor, bias: biasTensor);
+                            var input = layer.SelectToken("config.input").ToObject<int>();
+                            var output = layer.SelectToken("config.output").ToObject<int>();
+
+                            linear = new Linear(controller, input: input, output: output, weights: weightTensor, bias: biasTensor);
+                        }
+                        else
+                        {
+                            var input = layer.SelectToken("config.input").ToObject<int>();
+                            var output = layer.SelectToken("config.output").ToObject<int>();
+
+                            linear = new Linear(controller, input: input, output: output, weights: weightTensor);
+                        }
+
                         seq.AddLayer(linear);
                         break;
                     case "ReLU":
