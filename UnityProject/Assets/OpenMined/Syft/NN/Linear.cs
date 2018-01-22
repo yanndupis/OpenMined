@@ -30,7 +30,7 @@ namespace OpenMined.Syft.Layer
 
             _biased = biased || bias != null;
 
-            int[] weightShape = { output, input };
+            int[] weightShape = { input, output };
             if (weights == null)
             {
                 weights = initializer == "Xavier" ? controller.RandomWeights(input * output, input) : controller.RandomWeights(input * output);
