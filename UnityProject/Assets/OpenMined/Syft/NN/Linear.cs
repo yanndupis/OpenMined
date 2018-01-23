@@ -75,7 +75,7 @@ namespace OpenMined.Syft.Layer
         }
 
         public override FloatTensor Forward(FloatTensor input)
-		{
+        {
 			
 			FloatTensor output = input.MM(_weights);
             if (_biased)
