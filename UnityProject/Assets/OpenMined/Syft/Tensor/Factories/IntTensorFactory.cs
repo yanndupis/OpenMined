@@ -45,39 +45,33 @@ namespace OpenMined.Syft.Tensor.Factories
             int[] _data = null,
             ComputeBuffer _dataBuffer = null,
             ComputeBuffer _shapeBuffer = null,
-            ComputeShader _shader = null,
+            ComputeBuffer _stridesBuffer = null,
             bool _copyData = true,
             bool _dataOnGpu = false,
-            bool _autograd = false,
-            bool _keepgrads = false,
             string _creation_op = null)
         {
-            
+            // leave this IF statement - it is used for testing.
             if (ctrl.allow_new_tensors)
             {
                 IntTensor tensor = new IntTensor();
 
-                tensor.init(this,
+                tensor.Init(this,
                     _shape,
                     _data,
                     _dataBuffer,
                     _shapeBuffer,
+                    _stridesBuffer,
                     shader,
                     _copyData,
                     _dataOnGpu,
-                    _autograd,
-                    _keepgrads,
                     _creation_op);
 
                 tensors.Add(tensor.Id, tensor);
 
                 return tensor;
             }
-            else
-            {
-                throw new Exception("Attempted to Create a new IntTensor");
-            }
             
+            throw new Exception("Attempted to Create a new IntTensor"); 
         }
        
         public ComputeShader GetShader()
