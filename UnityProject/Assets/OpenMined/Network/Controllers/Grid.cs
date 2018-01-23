@@ -12,6 +12,7 @@ using OpenMined.UI;
 using OpenMined.Network.Servers.BlockChain;
 using System.Threading.Tasks;
 using OpenMined.Network.Servers.BlockChain.Requests;
+using OpenMined.Network.Servers.Ipfs;
 
 namespace OpenMined.Network.Controllers
 {
@@ -213,41 +214,5 @@ namespace OpenMined.Network.Controllers
 
     public interface LayerDefinition {
         string GetLayerDefinition();
-    }
-
-    public class IpfsExperiment
-    {
-        public string[] jobs;
-
-        public IpfsExperiment (string[] jobs)
-        {
-            this.jobs = jobs;
-        }
-    }
-
-    public class IpfsJob
-    {
-        public string input;
-        public string target;
-        public JToken Model;
-        public IpfsJobConfig config;
-
-        public IpfsJob (string input, string target, JToken model, IpfsJobConfig config)
-        {
-            this.input = input;
-            this.target = target;
-            this.Model = model;
-            this.config = config;
-        }
-    }
-
-    public class IpfsJobConfig
-    {
-        [SerializeField] public float lr;
-
-        public IpfsJobConfig(float lr)
-        {
-            this.lr = lr;
-        }
     }
 }
