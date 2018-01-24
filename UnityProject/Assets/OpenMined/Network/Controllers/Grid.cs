@@ -226,6 +226,9 @@ namespace OpenMined.Network.Controllers
                         var dim = layer.SelectToken("config.dim").ToObject<int>();
                         seq.AddLayer(new Softmax(controller, dim));
                         break;
+                    case "Sigmoid":
+                        seq.AddLayer(new Sigmoid(controller));
+                        break;
                 }
             }
 
