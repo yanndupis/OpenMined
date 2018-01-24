@@ -39,8 +39,8 @@ namespace OpenMined.Network.Controllers
 
             while (responseHash == "")
             {
-                Debug.Log(string.Format("Could not load job {0}. Trying again in 5 seconds.", job));
-                await Task.Delay(5000);
+                Debug.Log(string.Format("Could not load job {0}. Trying again in 1 seconds.", job));
+                await Task.Delay(1000);
 
                 // run the request again
                 getResultRequest = new GetResultsRequest(job);

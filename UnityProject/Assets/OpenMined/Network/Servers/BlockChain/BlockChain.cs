@@ -40,8 +40,8 @@ namespace OpenMined.Network.Servers.BlockChain
 
             while (jobId == null || jobId == "")
             {
-                Debug.Log("No available jobs.  Trying again in 10 seconds");
-                yield return new WaitForSeconds(10);
+                Debug.Log("No available jobs.  Trying again in 2 seconds");
+                yield return new WaitForSeconds(2);
                 getJobIdRequest = new GetAvailableJobIdRequest();
                 yield return getJobIdRequest.RunRequest();
                 jobId = getJobIdRequest.GetResponse().jobId;
