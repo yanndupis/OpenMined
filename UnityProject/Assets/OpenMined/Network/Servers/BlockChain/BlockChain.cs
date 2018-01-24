@@ -62,7 +62,6 @@ namespace OpenMined.Network.Servers.BlockChain
 
             Debug.Log("did a job");
             yield return PollNetwork();
-
         }
 
 
