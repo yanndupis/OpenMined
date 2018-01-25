@@ -554,6 +554,15 @@ namespace OpenMined.Network.Controllers
                             return;
                         }
 
+                        // like getResults but doesn't pause to wait for results
+                        // this function will return right away telling you if
+                        // it knows whether or not it is done
+                        if (msgObj.functionCall == "checkStatus")
+                        {
+                            this.grid.CheckStatus(msgObj.experimentId, response);
+                            return;
+                        }
+
                         break;
 				default:
 						break;

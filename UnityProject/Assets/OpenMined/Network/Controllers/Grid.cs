@@ -30,6 +30,14 @@ namespace OpenMined.Network.Controllers
             experiments = new List<string>();
         }
 
+        private async Task<bool> CheckModelFromJob(string job)
+        {
+            var getResultRequest = new GetResultsRequest(job);
+            getResultRequest.RunRequestSync();
+            var responseHash = getResultRequest.GetResponse().resultAddress;
+
+            return responseHash != "";
+        }
 
         private async Task<int> LoadModelFromJob(string job)
         {
@@ -67,6 +75,38 @@ namespace OpenMined.Network.Controllers
             }
 
             response(JsonConvert.SerializeObject(results));
+            return;
+        }
+
+        public async void CheckStatus(string experimentId, Action<string> response)
+        {
+            var experiment = Ipfs.Get<IpfsExperiment>(experimentId);
+            var results = new bool[experiment.jobs.Count()];
+            for (var i = 0; i < experiment.jobs.Count(); ++i)
+            {
+                results[i] = await CheckModelFromJob(experiment.jobs[i]);
+            }
+
+            var allLoaded = true;
+            for (var i = 0; i < results.Count(); ++i)
+            {
+                if (!results[i])
+                {
+                    allLoaded = false;
+                }
+            }
+
+            if (allLoaded)
+            {
+                response("Complete");    
+            }
+
+            else 
+            {
+                response("In progress");
+            }
+
+
             return;
         }
 
