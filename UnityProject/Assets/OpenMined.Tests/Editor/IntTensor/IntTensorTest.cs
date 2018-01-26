@@ -1,6 +1,10 @@
 using System;
 using NUnit.Framework;
 using OpenMined.Network.Controllers;
+using OpenMined.Protobuf;
+using UnityEngine;
+using Google.Protobuf;
+using OpenMined.Protobuf.Onnx;
 
 namespace OpenMined.Tests.Editor.IntTensorTests
 {
@@ -576,6 +580,21 @@ namespace OpenMined.Tests.Editor.IntTensorTests
             {
                 Assert.AreEqual(expectedCosTensor[i], actualCosTensor[i], 0.00001f);
             }
+
+        }
+
+        [Test]
+        public void GetProto()
+        {
+            int[] data = {-1, 0, 1, int.MaxValue, int.MinValue};
+            int[] shape = {5};
+            Syft.Tensor.IntTensor t = ctrl.intTensorFactory.Create(_data: data, _shape: shape);
+
+            TensorProto message = t.GetProto();
+            byte[] messageAsByte = message.ToByteArray();
+            TensorProto message2 = TensorProto.Parser.ParseFrom(messageAsByte);
+
+            Assert.AreEqual(message, message2);
         }
 
         /* closes class and namespace */
