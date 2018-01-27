@@ -410,6 +410,29 @@ namespace OpenMined.Syft.Tensor
                             return Transpose().Id.ToString();
                         }
                 }
+                
+                case "view":
+                {
+                    int[] new_dims = new int[msgObj.tensorIndexParams.Length];
+                    for (int i = 0; i < msgObj.tensorIndexParams.Length; i++)
+                    {
+                        new_dims[i] = int.Parse(msgObj.tensorIndexParams[i]);
+                    }
+                    var result = View(new_dims);
+                    return result.Id.ToString();
+                }
+
+                case "view_":
+                {
+                    int[] new_dims = new int[msgObj.tensorIndexParams.Length];
+                    for (int i = 0; i < msgObj.tensorIndexParams.Length; i++)
+                    {
+                        new_dims[i] = int.Parse(msgObj.tensorIndexParams[i]);
+                    }
+                    View(new_dims, inline: true);
+                    return Id.ToString();
+                }
+                
                 case "to_numpy_by_proto":
                 {
                     return this.GetProto().ToString();
