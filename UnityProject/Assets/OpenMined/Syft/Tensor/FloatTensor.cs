@@ -4,6 +4,7 @@ using UnityEngine;
 using OpenMined.Network.Utils;
 using OpenMined.Network.Controllers;
 using OpenMined.Syft.Tensor.Factories;
+using OpenMined.Protobuf.Onnx;
 
 namespace OpenMined.Syft.Tensor
 {
@@ -30,6 +31,7 @@ namespace OpenMined.Syft.Tensor
             float[] _data = null,
             ComputeBuffer _dataBuffer = null,
             ComputeBuffer _shapeBuffer = null,
+            ComputeBuffer _stridesBuffer = null,
             ComputeShader _shader = null,
             bool _copyData = true,
             bool _dataOnGpu = false,
@@ -63,15 +65,15 @@ namespace OpenMined.Syft.Tensor
 
             // Third: let's see what kind of data we've got. We should either have
             // a GPU ComputeBuffer or a data[] object.
-            if (_data != null && _shapeBuffer == null && _dataBuffer == null)
+            if (_data != null && _shapeBuffer == null && _stridesBuffer == null && _dataBuffer == null && _stridesBuffer == null)
             {
                 InitCpu(_data: _data, _copyData: _copyData);
             }
-            else if (_dataBuffer != null && _shapeBuffer != null && SystemInfo.supportsComputeShaders && _data == null)
+            else if (_dataBuffer != null && _shapeBuffer != null && _stridesBuffer  != null && SystemInfo.supportsComputeShaders && _data == null)
             {
                 // looks like we have GPU data being passed in... initialize a GPU tensor.
 
-                InitGpu(_shader, _dataBuffer, _shapeBuffer, _copyData);
+                InitGpu(_shader, _dataBuffer, _shapeBuffer, _stridesBuffer, _copyData);
                 initShaderKernels();
             }
             else
@@ -88,10 +90,19 @@ namespace OpenMined.Syft.Tensor
                     if (SystemInfo.supportsComputeShaders)
                     {
                         // seems i'm just missing a shape buffer - no biggie
-                        shapeBuffer = new ComputeBuffer(shape.Length, sizeof(int));
-                        shapeBuffer.SetData(shape);
+                        if (_shapeBuffer == null)
+                        {
+                            _shapeBuffer = new ComputeBuffer(shape.Length, sizeof(int));
+                            _shapeBuffer.SetData(shape);
+                        }
+                        // seems i'm just missing a strides buffer - no biggie
+                        if (_stridesBuffer == null)
+                        {
+                            _stridesBuffer = new ComputeBuffer(shape.Length, sizeof(int));
+                            _stridesBuffer.SetData(strides);
+                        }
 
-                        InitGpu(_shader, _dataBuffer, _shapeBuffer, _copyData);
+                        InitGpu(_shader, _dataBuffer, _shapeBuffer, _stridesBuffer, _copyData);
                         initShaderKernels();
                     }
                     else
@@ -103,27 +114,24 @@ namespace OpenMined.Syft.Tensor
                 else
                 {
                     // nothing else seems to work - i suppose i'm just supposed to initialize an empty tensor.
-                    long acc = 1;
-                    for (var i = shape.Length - 1; i >= 0; --i)
-                    {
-                        acc *= shape[i];
-                    }
+                    setStridesAndCheckShape();
 
                     if (_dataOnGpu)
                     {
                         _shapeBuffer = new ComputeBuffer(shape.Length, sizeof(int));
                         _shapeBuffer.SetData(shape);
-
+                        _stridesBuffer = new ComputeBuffer(shape.Length, sizeof(int));
+                        _stridesBuffer.SetData(strides);
                         _dataBuffer = new ComputeBuffer(size, sizeof(float));
 
-                        InitGpu(_shader: _shader, _dataBuffer: _dataBuffer, _shapeBuffer: _shapeBuffer,
+                        InitGpu(_shader: _shader, _dataBuffer: _dataBuffer, _shapeBuffer: _shapeBuffer, _stridesBuffer: _stridesBuffer,
                             _copyData: false);
                         initShaderKernels();
                         this.Zero_();
                     }
                     else
                     {
-                        _data = new float[acc];
+                        _data = new float[size];
 
                         InitCpu(_data, false);
                     }
@@ -930,6 +938,10 @@ namespace OpenMined.Syft.Tensor
 
                         }
                     }
+                case "to_numpy_by_proto":
+                {
+                    return this.GetProto().ToString();
+                }
                 case "tan":
                 {
                     var result = Tan();
@@ -1175,6 +1187,51 @@ namespace OpenMined.Syft.Tensor
                     break;
             }
             return "FloatTensor.processMessage: Command not found:" + msgObj.functionCall;
+        }
+
+        public TensorProto GetProto ()
+        {
+            float[] tmpData;
+            if (DataOnGpu)
+            {
+                tmpData = new float[size];
+                dataBuffer.GetData(tmpData);
+            }
+            else
+            {
+                tmpData = Data;
+            }
+            TensorProto t = new TensorProto
+            {   
+                Dims = { Array.ConvertAll(this.Shape, val => (long)val) },
+                DataType = TensorProto.Types.DataType.Float,
+                FloatData = { tmpData },
+                Name = this.Id.ToString(),
+                DocString = "",
+            };
+
+            return t;
+        }
+
+        public ValueInfoProto GetValueInfoProto ()
+        {
+            ValueInfoProto i = new ValueInfoProto
+            {
+                Name = this.Id.ToString(),
+                Type = new TypeProto
+                {
+                    TensorType = new TypeProto.Types.Tensor
+                    {
+                        ElemType = TensorProto.Types.DataType.Float,
+                        Shape = new TensorShapeProto
+                        {
+                            Dim = { Array.ConvertAll(this.Shape, val => new TensorShapeProto.Types.Dimension { DimValue = val }) }
+                        }
+                    }
+                }
+            };
+
+            return i;
         }
 
         public string Print()

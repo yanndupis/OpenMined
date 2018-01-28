@@ -6,16 +6,15 @@ using System.Collections.Generic;
 using OpenMined.Syft.Tensor.Factories;
 using System.Linq;
 using System.Threading.Tasks;
+using OpenMined.Protobuf.Onnx;
 
 namespace OpenMined.Syft.Tensor
 {
     public partial class IntTensor : BaseTensor<int>
     {
-        private List<int> creators;
         private string creation_op;
         public List<int> children_indices; // children -> counts
         public List<int> children_counts; // children -> counts
-        private int sibling;
 
         private IntTensorFactory factory;
 
@@ -25,16 +24,15 @@ namespace OpenMined.Syft.Tensor
             // factory.Create(all, my, params)
         }
 
-        public void init(IntTensorFactory _factory,
+        public void Init(IntTensorFactory _factory,
             int[] _shape,
             int[] _data = null,
             ComputeBuffer _dataBuffer = null,
             ComputeBuffer _shapeBuffer = null,
+            ComputeBuffer _stridesBuffer = null,
             ComputeShader _shader = null,
             bool _copyData = true,
             bool _dataOnGpu = false,
-            bool _autograd = false,
-            bool _keepgrads = false,
             string _creation_op = null)
         {
 
@@ -55,15 +53,15 @@ namespace OpenMined.Syft.Tensor
 
             // Third: let's see what kind of data we've got. We should either have
             // a GPU ComputeBuffer or a data[] object.
-            if (_data != null && _shapeBuffer == null && _dataBuffer == null)
+            if (_data != null && _shapeBuffer == null && _stridesBuffer == null && _dataBuffer == null)
             {
                 InitCpu(_data: _data, _copyData: _copyData);
             }
-            else if (_dataBuffer != null && _shapeBuffer != null && SystemInfo.supportsComputeShaders && _data == null)
+            else if (_dataBuffer != null && _shapeBuffer != null && _stridesBuffer != null && SystemInfo.supportsComputeShaders && _data == null)
             {
                 // looks like we have GPU data being passed in... initialize a GPU tensor.
 
-                InitGpu(_shader, _dataBuffer, _shapeBuffer, _copyData);
+                InitGpu(_shader, _dataBuffer, _shapeBuffer, _stridesBuffer, _copyData);
             }
             else
             {
@@ -82,8 +80,8 @@ namespace OpenMined.Syft.Tensor
                         shapeBuffer = new ComputeBuffer(shape.Length, sizeof(int));
                         shapeBuffer.SetData(shape);
 
-                        InitGpu(_shader, _dataBuffer, _shapeBuffer, _copyData);
-                        initShaderKernels();
+                        InitGpu(_shader, _dataBuffer, _shapeBuffer, _stridesBuffer, _copyData);
+                        InitShaderKernels();
                     }
                     else
                     {
@@ -104,12 +102,13 @@ namespace OpenMined.Syft.Tensor
                     {
                         _shapeBuffer = new ComputeBuffer(shape.Length, sizeof(int));
                         _shapeBuffer.SetData(shape);
-
+                        _stridesBuffer = new ComputeBuffer(shape.Length, sizeof(int));
+                        _stridesBuffer.SetData(strides);
                         _dataBuffer = new ComputeBuffer(size, sizeof(float));
 
-                        InitGpu(_shader: _shader, _dataBuffer: _dataBuffer, _shapeBuffer: _shapeBuffer,
+                        InitGpu(_shader: _shader, _dataBuffer: _dataBuffer, _shapeBuffer: _shapeBuffer, _stridesBuffer: _stridesBuffer,
                             _copyData: false);
-                        initShaderKernels();
+                        InitShaderKernels();
                         this.Zero_();
                     }
                     else
@@ -130,10 +129,21 @@ namespace OpenMined.Syft.Tensor
             if (SystemInfo.supportsComputeShaders && shader == null)
             {
                 shader = factory.GetShader();
-                initShaderKernels();
+                InitShaderKernels();
             }
         }
-        
+        public void InitShaderKernels()
+        {
+            //AddElemIntKernel = this.shader.FindKernel("AddElemInt");
+//            NegateKernel = this.shader.FindKernel("NegateInt");
+        }
+
+        public IntTensor Copy()
+        {
+            throw new NotImplementedException();
+        }
+
+ 
         public override string ProcessMessage(Command msgObj, SyftController ctrl)
         {
             switch (msgObj.functionCall)
@@ -185,6 +195,18 @@ namespace OpenMined.Syft.Tensor
                     Debug.LogFormat("add_scalar_");
                     this.Add(int.Parse(msgObj.tensorIndexParams[0]), inline: true);
                     return this.id + "";
+                }
+                case "eq":
+                {
+                  var other = factory.Get(int.Parse(msgObj.tensorIndexParams[0]));
+                  var result = this.Eq(other);
+                  return result.id + "";
+                }
+                case "eq_":
+                {
+                  var other = factory.Get(int.Parse(msgObj.tensorIndexParams[0]));
+                  this.Eq(other, inline: true);
+                  return this.id + "";
                 }
                 case "cos":
                 {
@@ -331,7 +353,7 @@ namespace OpenMined.Syft.Tensor
                     var result = Sqrt();
                     return result.Id + "";
                 }
-                
+
                 case "sin":
                 {
                      var result = Sin();
@@ -354,7 +376,7 @@ namespace OpenMined.Syft.Tensor
                 {
                     if (DataOnGpu)
                     {
-                        var tmpData = new float[size];
+                        var tmpData = new int[size];
                         dataBuffer.GetData(tmpData);
                         return string.Join(" ", tmpData);
 
@@ -388,8 +410,81 @@ namespace OpenMined.Syft.Tensor
                             return Transpose().Id.ToString();
                         }
                 }
+                
+                case "view":
+                {
+                    int[] new_dims = new int[msgObj.tensorIndexParams.Length];
+                    for (int i = 0; i < msgObj.tensorIndexParams.Length; i++)
+                    {
+                        new_dims[i] = int.Parse(msgObj.tensorIndexParams[i]);
+                    }
+                    var result = View(new_dims);
+                    return result.Id.ToString();
+                }
+
+                case "view_":
+                {
+                    int[] new_dims = new int[msgObj.tensorIndexParams.Length];
+                    for (int i = 0; i < msgObj.tensorIndexParams.Length; i++)
+                    {
+                        new_dims[i] = int.Parse(msgObj.tensorIndexParams[i]);
+                    }
+                    View(new_dims, inline: true);
+                    return Id.ToString();
+                }
+                
+                case "to_numpy_by_proto":
+                {
+                    return this.GetProto().ToString();
+                }
             }
             return "IntTensor.processMessage: Command not found:" + msgObj.functionCall;
+        }
+
+        public TensorProto GetProto()
+        {
+            // TensorProto t = base.ToProto();
+            int[] tmpData;
+            if (DataOnGpu)
+            {
+                tmpData = new int[size];
+                dataBuffer.GetData(tmpData);
+            }
+            else
+            {
+                tmpData = Data;
+            }
+            TensorProto t = new TensorProto
+            {   
+                Dims = { Array.ConvertAll(this.Shape, val => (long)val) },
+                DataType = TensorProto.Types.DataType.Int32,
+                Int32Data = { tmpData },
+                Name = this.Id.ToString(),
+                DocString = "",
+            };
+
+            return t;
+        }
+
+        public ValueInfoProto GetValueInfoProto ()
+        {
+            ValueInfoProto i = new ValueInfoProto
+            {
+                Name = this.Id.ToString(),
+                Type = new TypeProto
+                {
+                    TensorType = new TypeProto.Types.Tensor
+                    {
+                        ElemType = TensorProto.Types.DataType.Int32,
+                        Shape = new TensorShapeProto
+                        {
+                            Dim = { Array.ConvertAll(this.Shape, val => new TensorShapeProto.Types.Dimension { DimValue = val }) }
+                        }
+                    }
+                }
+            };
+
+            return i;
         }
 
     }

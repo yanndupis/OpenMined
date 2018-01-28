@@ -10,6 +10,7 @@ using OpenMined.Syft.Tensor.Factories;
 using UnityEngine;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OpenMined.Protobuf.Onnx;
 
 
 namespace OpenMined.Syft.Layer
@@ -52,7 +53,7 @@ namespace OpenMined.Syft.Layer
             for (int i = 0; i < this.layers.Count; i++)
             {
                 int layerIdx = this.layers [i];
-                Layer layer = (Layer)controller.getModel (layerIdx);
+                Layer layer = (Layer)controller.GetModel (layerIdx);
 
                 input = layer.Forward(input);
             }
@@ -66,7 +67,7 @@ namespace OpenMined.Syft.Layer
 
             for (int i = 0; i < this.layers.Count; i++)
             {
-                List<int> layer_params = controller.getModel(layers[i]).getParameters();
+                List<int> layer_params = controller.GetModel(layers[i]).getParameters();
                 for (int j = 0; j < layer_params.Count; j++)
                 {
                     out_str += layer_params[j].ToString() + ",";
@@ -89,7 +90,7 @@ namespace OpenMined.Syft.Layer
                 case "add":
                 {
                     // TODO: Handle adding layers better
-                    var input = (Layer)ctrl.getModel(int.Parse(msgObj.tensorIndexParams[0]));
+                    var input = (Layer)ctrl.GetModel(int.Parse(msgObj.tensorIndexParams[0]));
                     Debug.LogFormat("<color=magenta>Layer Added to Sequential:</color> {0}", input.Id);                    
                     this.AddLayer(input);
                     return input.Id + "";
@@ -128,7 +129,7 @@ namespace OpenMined.Syft.Layer
             int cnt = 0;
             foreach (int layer_idx in layers)
             {
-                cnt += controller.getModel(layer_idx).getParameterCount();
+                cnt += controller.GetModel(layer_idx).getParameterCount();
             }
             return cnt;
         }
@@ -138,7 +139,7 @@ namespace OpenMined.Syft.Layer
             var allParams = new List<int>();
             foreach (int layer_idx in layers)
             {
-                var model = controller.getModel(layer_idx);
+                var model = controller.GetModel(layer_idx);
                 foreach (int param in model.getParameters())
                 {
                     allParams.Add(param);
@@ -148,14 +149,14 @@ namespace OpenMined.Syft.Layer
             return allParams;
         }
 
-        public JToken GetConfig()
+        public override JToken GetConfig()
         {
             var _this = this;
             
             var layer_list = new JArray();
             for (int i = 0; i < this.layers.Count; i++)
             {   
-                var layer = controller.getModel(this.layers[i]);
+                var layer = controller.GetModel(this.layers[i]);
                 layer_list.Add(
                     new JObject
                     {
@@ -172,6 +173,30 @@ namespace OpenMined.Syft.Layer
             };
 
             return config;
+        }
+
+        public override GraphProto GetProto (int inputTensorId, SyftController ctrl)
+        {
+            GraphProto g = new GraphProto();
+            g.Name = Guid.NewGuid().ToString("N");
+            for (int i = 0; i < this.layers.Count; i++)
+            {   
+                GraphProto l = controller.GetModel(this.layers[i]).GetProto(inputTensorId, ctrl);
+                if (i != 0)
+                {
+                    l.Input.RemoveAt(0);
+                }
+                inputTensorId = int.Parse(l.Node[0].Output[0]);
+
+                if (i != this.layers.Count - 1)
+                {
+                    l.Output.Clear();
+                }
+
+                g.MergeFrom(l);
+            }
+            
+            return g;
         }
 
     }

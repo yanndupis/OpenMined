@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
@@ -15,12 +16,14 @@ using Agent = OpenMined.Syft.NN.RL.Agent;
 using OpenMined.Network.Servers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OpenMined.Protobuf.Onnx;
+using Google.Protobuf;
 using OpenMined.Network.Servers.BlockChain.Requests;
 using OpenMined.Network.Servers.BlockChain.Response;
 
 namespace OpenMined.Network.Controllers
 {
-	public class SyftController
+    public class SyftController: NetMqDelegate
 	{
 		[SerializeField] private ComputeShader shader;
 
@@ -73,7 +76,7 @@ namespace OpenMined.Network.Controllers
 		    return syn0;
 		}
 
-		public Model getModel(int index)
+		public Model GetModel(int index)
 		{
 			if (models.ContainsKey(index))
 			{
@@ -85,12 +88,12 @@ namespace OpenMined.Network.Controllers
 			}
 		}
 
-		public Loss getLoss(int index)
+		public Loss GetLoss(int index)
 		{
 			return (Loss)models[index];
 		}
 
-		public Optimizer getOptimizer(int index)
+		public Optimizer GetOptimizer(int index)
 		{
 			return optimizers[index];
 		}
@@ -100,22 +103,22 @@ namespace OpenMined.Network.Controllers
 			return shader;
 		}
 
-		public int addAgent(Syft.NN.RL.Agent agent)
+		public int AddAgent(Syft.NN.RL.Agent agent)
 		{
 			agents.Add (agent.Id, agent);
 			return (agent.Id);
 		}
 
-		public Syft.NN.RL.Agent getAgent(int agent_id)
+		public Syft.NN.RL.Agent GetAgent(int agent_id)
 		{
 			if(agents.ContainsKey(agent_id))
 				return agents[agent_id];
 			return null;
 		}
 
-		public void setAgentId(int old_id, int new_id)
+		public void SetAgentId(int old_id, int new_id)
 		{
-			Syft.NN.RL.Agent old = getAgent(old_id);
+			Syft.NN.RL.Agent old = GetAgent(old_id);
 
 			if (agents.ContainsKey(new_id))
 			{
@@ -127,7 +130,7 @@ namespace OpenMined.Network.Controllers
 			if (old_id != new_id)
 			{
 				agents.Remove(old_id);
-				agents.Add(old_id, null);
+                agents.Add(old_id, null);
 			}
 
 		}
@@ -140,7 +143,7 @@ namespace OpenMined.Network.Controllers
 
 		public void setModelId(int old_id, int new_id)
 		{
-			Model old = getModel(old_id);
+			Model old = GetModel(old_id);
 
 			if (models.ContainsKey(new_id))
 			{
@@ -168,10 +171,8 @@ namespace OpenMined.Network.Controllers
 			Debug.LogFormat(message);
 		}
 
-		public string processMessage (string json_message, MonoBehaviour owner)
+        public void ProcessMessage(string json_message, MonoBehaviour owner, Action<string> response)
 		{
-			//Debug.LogFormat("<color=green>SyftController.processMessage {0}</color>", json_message);
-
 			Command msgObj = JsonUtility.FromJson<Command> (json_message);
 			try
 			{
@@ -211,12 +212,15 @@ namespace OpenMined.Network.Controllers
 								optim = new Adam(this, p, hp[0], hp[1], hp[2], hp[3], hp[4]);
 							}
 
-							return optim.Id.ToString();
+                            response(optim.Id.ToString());
+                            return;
 						}
 						else
 						{
-							Optimizer optim = this.getOptimizer(msgObj.objectIndex);
-							return optim.ProcessMessage(msgObj, this);
+							Optimizer optim = this.GetOptimizer(msgObj.objectIndex);
+                            response(optim.ProcessMessage(msgObj, this));
+
+                            return;
 						}
 					}
 					case "FloatTensor":
@@ -224,13 +228,15 @@ namespace OpenMined.Network.Controllers
 						if (msgObj.objectIndex == 0 && msgObj.functionCall == "create")
 						{
 							FloatTensor tensor = floatTensorFactory.Create(_shape: msgObj.shape, _data: msgObj.data, _shader: this.Shader);
-							return tensor.Id.ToString();
+                            response(tensor.Id.ToString());
+                            return;
 						}
 						else
 						{
 							FloatTensor tensor = floatTensorFactory.Get(msgObj.objectIndex);
-							// Process message's function
-							return tensor.ProcessMessage(msgObj, this);
+                            // Process message's function
+                            response(tensor.ProcessMessage(msgObj, this));
+                            return;
 						}
 					}
 					case "IntTensor":
@@ -242,28 +248,32 @@ namespace OpenMined.Network.Controllers
 							{
 								data[i] = (int)msgObj.data[i];
 							}
-							IntTensor tensor = intTensorFactory.Create(_shape: msgObj.shape, _data: data, _shader: this.Shader);
-							return tensor.Id.ToString();
+							IntTensor tensor = intTensorFactory.Create(_shape: msgObj.shape, _data: data);
+                            response(tensor.Id.ToString());
+                            return;
 						}
 						else
 						{
 							IntTensor tensor = intTensorFactory.Get(msgObj.objectIndex);
-							// Process message's function
-							return tensor.ProcessMessage(msgObj, this);
+                                // Process message's function
+                                response(tensor.ProcessMessage(msgObj, this));
+                                return;
 						}
 					}
 					case "agent":
 					{
 						if (msgObj.functionCall == "create")
 						{
-							Layer model = (Layer) getModel(int.Parse(msgObj.tensorIndexParams[0]));
+							Layer model = (Layer) GetModel(int.Parse(msgObj.tensorIndexParams[0]));
 							Optimizer optimizer = optimizers[int.Parse(msgObj.tensorIndexParams[1])];
-							return new Syft.NN.RL.Agent(this, model, optimizer).Id.ToString();
+                                response(new Syft.NN.RL.Agent(this, model, optimizer).Id.ToString());
+                                return;
 						}
 
 						//Debug.Log("Getting Model:" + msgObj.objectIndex);
-						Syft.NN.RL.Agent agent = this.getAgent(msgObj.objectIndex);
-						return agent.ProcessMessageLocal(msgObj, this);
+						Syft.NN.RL.Agent agent = this.GetAgent(msgObj.objectIndex);
+                            response(agent.ProcessMessageLocal(msgObj, this));
+                            return;
 
 
 					}
@@ -277,59 +287,74 @@ namespace OpenMined.Network.Controllers
 
 							if (model_type == "linear")
 							{
-								return this.BuildLinear(msgObj.tensorIndexParams).Id.ToString();
+                                    response(this.BuildLinear(msgObj.tensorIndexParams).Id.ToString());
+                                    return;
 							}
 							else if (model_type == "relu")
 							{
-								return this.BuildReLU().Id.ToString();
+                                    response(this.BuildReLU().Id.ToString());
+                                    return;
 							}
 							else if (model_type == "log")
 							{
-								return this.BuildLog().Id.ToString();
+                                    response(this.BuildLog().Id.ToString());
+                                    return;
 							}
 							else if (model_type == "dropout")
 							{
-								return this.BuildDropout(msgObj.tensorIndexParams).Id.ToString();
+                                    response(this.BuildDropout(msgObj.tensorIndexParams).Id.ToString());
+                                    return;
 							}
 							else if (model_type == "sigmoid")
 							{
-								return this.BuildSigmoid().Id.ToString();
+                                    response(this.BuildSigmoid().Id.ToString());
+                                    return;
 							}
 							else if (model_type == "sequential")
 							{
-								return this.BuildSequential().Id.ToString();
+                                    response(this.BuildSequential().Id.ToString());
+                                    return;
 							}
 							else if (model_type == "softmax")
 							{
-								return this.BuildSoftmax(msgObj.tensorIndexParams).Id.ToString();
+                                    response(this.BuildSoftmax(msgObj.tensorIndexParams).Id.ToString());
+                                    return;
 							}
 							else if (model_type == "logsoftmax")
 							{
-								return this.BuildLogSoftmax(msgObj.tensorIndexParams).Id.ToString();
+                                    response(this.BuildLogSoftmax(msgObj.tensorIndexParams).Id.ToString());
+                                    return;
 							}
               else if (model_type == "tanh")
               {
-                  return new Tanh(this).Id.ToString();
+                                    response(new Tanh(this).Id.ToString());
+                                    return;
               }
               else if (model_type == "crossentropyloss")
               {
-                  return new CrossEntropyLoss(this, int.Parse(msgObj.tensorIndexParams[1])).Id.ToString();
+                                    response(new CrossEntropyLoss(this, int.Parse(msgObj.tensorIndexParams[1])).Id.ToString());
+                                    return;
               }
               else if (model_type == "categorical_crossentropy")
               {
-                  return new CategoricalCrossEntropyLoss(this).Id.ToString();
+                                    response(new CategoricalCrossEntropyLoss(this).Id.ToString());
+                                    return;
+
               }
 							else if (model_type == "nllloss")
 							{
-								return new NLLLoss(this).Id.ToString();
+                                    response(new NLLLoss(this).Id.ToString());
+                                    return;
 							}
                             else if (model_type == "mseloss")
 							{
-								return new MSELoss(this).Id.ToString();
+                                    response(new MSELoss(this).Id.ToString());
+                                    return;
 							}
                             else if (model_type == "embedding")
                             {
-                                return new Embedding(this, int.Parse(msgObj.tensorIndexParams[1]), int.Parse(msgObj.tensorIndexParams[2])).Id.ToString();
+                                    response(new Embedding(this, int.Parse(msgObj.tensorIndexParams[1]), int.Parse(msgObj.tensorIndexParams[2])).Id.ToString());
+                                    return;
                             }
 							else
 							{
@@ -339,19 +364,23 @@ namespace OpenMined.Network.Controllers
 						else
 						{
 							//Debug.Log("Getting Model:" + msgObj.objectIndex);
-							Model model = this.getModel(msgObj.objectIndex);
-							return model.ProcessMessage(msgObj, this);
+							Model model = this.GetModel(msgObj.objectIndex);
+                                response(model.ProcessMessage(msgObj, this));
+                                return;
 						}
-                        return "Unity Error: SyftController.processMessage: Command not found:" + msgObj.objectType + ":" + msgObj.functionCall;
+                            response("Unity Error: SyftController.processMessage: Command not found:" + msgObj.objectType + ":" + msgObj.functionCall);
+                            return;
 					}
 					case "controller":
 					{
 						if (msgObj.functionCall == "num_tensors")
 						{
-							return floatTensorFactory.Count() + "";
+                                response(floatTensorFactory.Count() + "");
+                                return;
 						} else if (msgObj.functionCall == "num_models")
 						{
-							return models.Count + "";
+                                response(models.Count + "");
+                                return;
 						} else if (msgObj.functionCall == "new_tensors_allowed")
 						{
 
@@ -369,16 +398,19 @@ namespace OpenMined.Network.Controllers
 									throw new Exception("Invalid parameter for new_tensors_allowed. Did you mean true or false?");
 								}
 
-							return allow_new_tensors + "";
+                                response(allow_new_tensors + "");
+                                return;
 						}else if (msgObj.functionCall == "load_floattensor")
 						{
 							FloatTensor tensor = floatTensorFactory.Create(filepath: msgObj.tensorIndexParams[0], _shader:this.Shader);
-							return tensor.Id.ToString();
+                                response(tensor.Id.ToString());
+                                return;
 						}
 						else if (msgObj.functionCall == "set_seed")
 						{
 							 Random.InitState (int.Parse(msgObj.tensorIndexParams[0]));
-                             return "Random seed set!";
+                                response("Random seed set!");
+                                return;
 						}
 						else if (msgObj.functionCall == "concatenate")
 						{
@@ -388,7 +420,8 @@ namespace OpenMined.Network.Controllers
 								tensor_ids.Add(int.Parse(msgObj.tensorIndexParams[i]));
 							}
 							FloatTensor result = Functional.Concatenate(floatTensorFactory, tensor_ids, int.Parse(msgObj.tensorIndexParams[0]));
-							return result.Id.ToString();
+                                response(result.Id.ToString());
+                                return;
 						}
 						else if (msgObj.functionCall == "ones")
 						{
@@ -398,7 +431,8 @@ namespace OpenMined.Network.Controllers
 								dims[i] = int.Parse(msgObj.tensorIndexParams[i]);
 							}
 							FloatTensor result = Functional.Ones(floatTensorFactory, dims);
-							return result.Id.ToString();
+                                response(result.Id.ToString());
+                                return;
 						}
 						else if (msgObj.functionCall == "randn")
 						{
@@ -408,7 +442,8 @@ namespace OpenMined.Network.Controllers
 								dims[i] = int.Parse(msgObj.tensorIndexParams[i]);
 							}
 							FloatTensor result = Functional.Randn(floatTensorFactory, dims);
-							return result.Id.ToString();
+                                response(result.Id.ToString());
+                                return;
 						}
 						else if (msgObj.functionCall == "random")
 						{
@@ -418,7 +453,8 @@ namespace OpenMined.Network.Controllers
 								dims[i] = int.Parse(msgObj.tensorIndexParams[i]);
 							}
 							FloatTensor result = Functional.Random(floatTensorFactory, dims);
-							return result.Id.ToString();
+                                response(result.Id.ToString());
+                                return;
 						}
 						else if (msgObj.functionCall == "zeros")
 						{
@@ -428,7 +464,8 @@ namespace OpenMined.Network.Controllers
 								dims[i] = int.Parse(msgObj.tensorIndexParams[i]);
 							}
 							FloatTensor result = Functional.Zeros(floatTensorFactory, dims);
-							return result.Id.ToString();
+                                response(result.Id.ToString());
+                                return;
 						}
 						else if (msgObj.functionCall == "model_from_json")
 						{
@@ -444,7 +481,8 @@ namespace OpenMined.Network.Controllers
 							}
 							else
 							{
-								return "Unity Error: SyftController.processMessage: while Loading model, Class :" + config["class_name"] + " is not implemented";
+                                    response("Unity Error: SyftController.processMessage: while Loading model, Class :" + config["class_name"] + " is not implemented");
+                                    return;
 							}
 
 							for (int i = 0; i < config["config"].ToList().Count; i++)
@@ -464,7 +502,7 @@ namespace OpenMined.Network.Controllers
 										previous_output_dim = (int) layer_config_desc["units"];
 									}
 
-									string[] parameters = new string[] {"linear", previous_output_dim.ToString(), layer_config_desc["units"].ToString(), "Xavier"};
+									string[] parameters = { "linear", previous_output_dim.ToString(), layer_config_desc["units"].ToString(), "Xavier"};
 									Layer layer = this.BuildLinear(parameters);
 									model.AddLayer(layer);
 
@@ -484,20 +522,85 @@ namespace OpenMined.Network.Controllers
 										}
 										else
 										{
-											return "Unity Error: SyftController.processMessage: while Loading activations, Activation :" + activation_name + " is not implemented";
+                                                response("Unity Error: SyftController.processMessage: while Loading activations, Activation :" + activation_name + " is not implemented");
+                                                return;
 										}
 										model.AddLayer(activation);
 									}
 								}
 								else
 								{
-									return "Unity Error: SyftController.processMessage: while Loading layers, Layer :" + layer_desc["class_name"] + " is not implemented";
+                                        response("Unity Error: SyftController.processMessage: while Loading layers, Layer :" + layer_desc["class_name"] + " is not implemented");
+                                        return;
 								}
 							}
 
-							return model.Id.ToString();
+                                response(model.Id.ToString());
+                                return;
 						}
-						return "Unity Error: SyftController.processMessage: Command not found:" + msgObj.objectType + ":" + msgObj.functionCall;
+						else if (msgObj.functionCall == "from_proto")
+						{
+							Debug.Log("Loading Model from ONNX:");
+							var filename = msgObj.tensorIndexParams[0];
+
+							var input = File.OpenRead(filename);
+							ModelProto modelProto = ModelProto.Parser.ParseFrom(input);
+
+							Sequential model = this.BuildSequential();
+
+							foreach (NodeProto node in modelProto.Graph.Node)
+							{
+								Layer layer;
+								GraphProto g = ONNXTools.GetSubGraphFromNodeAndMainGraph(node, modelProto.Graph);
+								if (node.OpType == "Gemm")
+								{
+									layer = new Linear(this, g);
+								}
+								else if (node.OpType == "Dropout")
+								{
+									layer = new Dropout(this, g);
+								}
+								else if (node.OpType == "Relu")
+								{
+									layer = new ReLU(this, g);
+								}
+								else if (node.OpType == "Softmax")
+								{
+									layer = new Softmax(this, g);
+								}
+								else
+								{
+									response("Unity Error: SyftController.processMessage: Layer not yet implemented for deserialization:");
+                  return;
+								}
+								model.AddLayer(layer);
+							}
+
+							response(model.Id.ToString());
+              return;
+						}
+						else if (msgObj.functionCall == "to_proto")
+						{
+							ModelProto model =  this.ToProto(msgObj.tensorIndexParams);
+							string filename = msgObj.tensorIndexParams[2];
+              string type = msgObj.tensorIndexParams[3];
+              if (type == "json")
+              {
+                response(model.ToString()); 
+              }
+              else
+              { 
+                using (var output = File.Create(filename))
+                {  
+                 model.WriteTo(output);
+                }
+                response(new FileInfo(filename).FullName);
+              }
+              return;
+						}
+
+						response("Unity Error: SyftController.processMessage: Command not found:" + msgObj.objectType + ":" + msgObj.functionCall);
+            return;
 					}
                     case "Grid":
                         if (msgObj.functionCall == "learn")
@@ -505,32 +608,23 @@ namespace OpenMined.Network.Controllers
                             var inputId = int.Parse(msgObj.tensorIndexParams[0]);
                             var targetId = int.Parse(msgObj.tensorIndexParams[1]);
 
-                            return this.grid.Run(inputId, targetId, msgObj.configurations, owner);
+                            response(this.grid.Run(inputId, targetId, msgObj.configurations, owner));
+                            return;
                         }
 
                         if (msgObj.functionCall == "getResults")
                         {
+                            this.grid.GetResults(msgObj.experimentId, response);
+                            return;
+                        }
 
-                            // TODO -- This will be converted to poll blockchain
-                            //         It is written to poll IPFS right now so it
-                            //         appears to be working client side.
-
-                            var experiment = Ipfs.Get<IpfsExperiment>(msgObj.experimentId);
-                            var results = experiment.jobs.Select((job) => 
-                            {
-                                var getResultRequest = new GetResultsRequest(job);
-                                getResultRequest.RunRequestSync();
-                                var responseHash = getResultRequest.GetResponse().resultAddress;
-
-                                // load the model into memory
-                                var modelDefinition = Ipfs.Get<IpfsJob>(responseHash).Model;
-                                var model = this.grid.CreateSequential(modelDefinition);
-
-                                return model.Id;
-                            });
-
-                            var modelIdsString = JsonConvert.SerializeObject(results.ToArray());
-                            return modelIdsString;
+                        // like getResults but doesn't pause to wait for results
+                        // this function will return right away telling you if
+                        // it knows whether or not it is done
+                        if (msgObj.functionCall == "checkStatus")
+                        {
+                            this.grid.CheckStatus(msgObj.experimentId, response);
+                            return;
                         }
 
                         break;
@@ -541,11 +635,40 @@ namespace OpenMined.Network.Controllers
 			catch (Exception e)
 			{
 				Debug.LogFormat("<color=red>{0}</color>",e.ToString());
-				return "Unity Error: " + e.ToString();
+                response("Unity Error: " + e.ToString());
+                return;
 			}
 
-			// If not executing createTensor or tensor function, return default error.
-			return "Unity Error: SyftController.processMessage: Command not found:" + msgObj.objectType + ":" + msgObj.functionCall;
+            // If not executing createTensor or tensor function, return default error.
+
+            response("Unity Error: SyftController.processMessage: Command not found:" + msgObj.objectType + ":" + msgObj.functionCall);
+            return;
+		}
+
+		private ModelProto ToProto (string[] parameters)
+		{
+			int modelId = int.Parse(parameters[0]);
+			int inputTensorId = int.Parse(parameters[1]);
+			Debug.Log("<color=yellow>Serialize to ONNX, modelId:" + modelId.ToString() + ", inputTensorId:" + inputTensorId.ToString() + "</color>");
+
+      Model model = this.GetModel(modelId);
+			ModelProto m = new ModelProto
+			{
+			    IrVersion = 2,
+			    OpsetImport = { new OperatorSetIdProto
+			    {
+			        Domain = "", // operator set that is defined as part of the ONNX specification
+			        Version = 2
+			    }},
+			    ProducerName = "openmined",
+			    ProducerVersion = "0.0.2",
+			    Domain = "org.openmined",
+			    ModelVersion = 0,
+			    DocString = "",
+			    Graph = model.GetProto(inputTensorId, this),
+			};
+
+			return m;
 		}
 
 		private Sequential BuildSequential()
@@ -553,18 +676,18 @@ namespace OpenMined.Network.Controllers
 			return new Sequential(this);
 		}
 
-		private Linear BuildLinear(string[] Params)
+		private Linear BuildLinear(string[] parameters)
 		{
-			int input = int.Parse(Params[1]);
-			int output = int.Parse(Params[2]);
-			string initializer =  Params[3];
+			int input = int.Parse(parameters[1]);
+			int output = int.Parse(parameters[2]);
+			string initializer =  parameters[3];
 
 			return new Linear(this, input, output, initializer);
 		}
 
-		private Dropout BuildDropout(string[] Params)
+		private Dropout BuildDropout(string[] parameters)
 		{
-			float rate = float.Parse(Params[1]);
+			float rate = float.Parse(parameters[1]);
 
 			return new Dropout(this, rate);
 		}
@@ -584,16 +707,16 @@ namespace OpenMined.Network.Controllers
 			return new Sigmoid(this);
 		}
 
-		private Softmax BuildSoftmax(string[] Params)
+		private Softmax BuildSoftmax(string[] parameters)
 		{
-			int reduction_dim = int.Parse(Params[1]);
+			int reduction_dim = int.Parse(parameters[1]);
 			return new Softmax(this, reduction_dim);
 		}
 
-		private LogSoftmax BuildLogSoftmax(string[] Params)
+		private LogSoftmax BuildLogSoftmax(string[] parameters)
 		{
-			int reduction_dim = int.Parse(Params[1]);
+			int reduction_dim = int.Parse(parameters[1]);
 			return new LogSoftmax(this, reduction_dim);
 		}
-	}
+    }
 }

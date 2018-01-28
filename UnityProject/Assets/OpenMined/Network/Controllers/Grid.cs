@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 using OpenMined.Network.Utils;
 using OpenMined.Network.Servers;
 using OpenMined.Syft.Layer;
@@ -9,6 +10,11 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OpenMined.UI;
 using OpenMined.Network.Servers.BlockChain;
+using System.Threading.Tasks;
+using OpenMined.Network.Servers.BlockChain.Requests;
+using OpenMined.Network.Servers.Ipfs;
+using OpenMined.Syft.Layer.Loss;
+using OpenMined.Syft.Optim;
 
 namespace OpenMined.Network.Controllers
 {
@@ -22,6 +28,93 @@ namespace OpenMined.Network.Controllers
         {
             this.controller = controller;
             experiments = new List<string>();
+        }
+
+        private async Task<bool> CheckModelFromJob(string job)
+        {
+            var getResultRequest = new GetResultsRequest(job);
+            getResultRequest.RunRequestSync();
+            var responseHash = getResultRequest.GetResponse().resultAddress;
+
+            return responseHash != "";
+        }
+
+        private async Task<int> LoadModelFromJob(string job)
+        {
+            var getResultRequest = new GetResultsRequest(job);
+            getResultRequest.RunRequestSync();
+            var responseHash = getResultRequest.GetResponse().resultAddress;
+
+            while (responseHash == "")
+            {
+                Debug.Log(string.Format("Could not load job {0}. Trying again in 1 seconds.", job));
+                await Task.Delay(1000);
+
+                // run the request again
+                getResultRequest = new GetResultsRequest(job);
+                getResultRequest.RunRequestSync();
+                responseHash = getResultRequest.GetResponse().resultAddress;
+            }
+
+            // load the model into memory
+
+            var response = Ipfs.Get<IpfsJob>(responseHash);
+            var modelDefinition = response.Model;
+            var model = this.CreateSequential(modelDefinition);
+
+            return model.Id;
+        }
+
+        public async void GetResults(string experimentId, Action<string> response)
+        {
+            var experiment = Ipfs.Get<IpfsExperiment>(experimentId);
+            var results = new int[experiment.jobs.Count()];
+            for (var i = 0; i < experiment.jobs.Count(); ++i)
+            {
+                results[i] = await LoadModelFromJob(experiment.jobs[i]);
+            }
+
+            response(JsonConvert.SerializeObject(results));
+            return;
+        }
+
+        public async void CheckStatus(string experimentId, Action<string> response)
+        {
+            var experiment = Ipfs.Get<IpfsExperiment>(experimentId);
+            var results = new bool[experiment.jobs.Count()];
+            for (var i = 0; i < experiment.jobs.Count(); ++i)
+            {
+                results[i] = await CheckModelFromJob(experiment.jobs[i]);
+            }
+
+            var allLoaded = true;
+            int not_loaded = 0;
+            int loaded = 0;
+            for (var i = 0; i < results.Count(); ++i)
+            {
+                if (!results[i])
+                {
+                    allLoaded = false;
+                    not_loaded = not_loaded+1;
+                }
+                else
+                {
+                    loaded = loaded+1;
+                }
+            }
+
+            if (allLoaded)
+            {
+                response("Complete");    
+            }
+
+            else 
+            {
+                response("In progress (" + loaded.ToString() + "/" + (loaded+not_loaded).ToString() + " models are done)");
+            }
+
+
+            return;
         }
 
         public string Run(int inputId, int targetId, List<GridConfiguration> configurations, MonoBehaviour owner)
@@ -46,11 +139,12 @@ namespace OpenMined.Network.Controllers
             for (var i = 0; i < configurations.Count; ++i)
             {
                 var config = configurations[i];
-                var model = controller.getModel(config.model) as Sequential;
+                var model = controller.GetModel(config.model) as Sequential;
                 var serializedModel = model.GetConfig();
 
                 var configJob = new Ipfs();
-                var ipfsJobConfig = new IpfsJobConfig(config.lr);
+                var ipfsJobConfig = new IpfsJobConfig(config.lr, config.criterion, config.iters);
+
                 var response = configJob.Write(new IpfsJob(inputIpfsResponse.Hash, targetIpfsResponse.Hash, serializedModel, ipfsJobConfig));
 
                 jobs[i] = response.Hash;
@@ -85,23 +179,41 @@ namespace OpenMined.Network.Controllers
             var grad = controller.floatTensorFactory.Create(_data: new float[] { 1, 1, 1, 1 }, 
                                                             _shape: new int[] { 4, 1 });
 
-            // 10 epochs .. make configurable
-            for (var i = 0; i < 10; ++i) {
+            Loss loss;
+
+            switch (job.config.criterion)
+            {
+                case "mseloss":
+                    loss = new MSELoss(this.controller);
+                    break;
+                case "categorical_crossentropy":
+                    loss = new CategoricalCrossEntropyLoss(this.controller);
+                    break;
+                case "cross_entropy_loss":
+                    loss = new CrossEntropyLoss(this.controller, 1); // TODO -- real value
+                    break;
+                case "nll_loss":
+                    loss = new NLLLoss(this.controller);
+                    break;
+                default:
+                    loss = new MSELoss(this.controller);
+                    break;
+            }
+
+            var optimizer = new SGD(this.controller, seq.getParameters(), job.config.lr, 0, 0);
+
+            for (var i = 0; i < job.config.iters; ++i) {
+
                 var pred = seq.Forward(inputTensor);
+                var l = loss.Forward(pred, targetTensor);
+                l.Backward();
 
-                var loss = pred.Sub(targetTensor).Pow(2);
-                loss.Backward(grad);
-
-                foreach (var p in seq.getParameters())
-                {
-                    var pTensor = controller.floatTensorFactory.Get(p);
-                    pTensor.Sub(pTensor.Grad, inline: true);
-                }
+                // TODO -- better batch size
+                optimizer.Step(100, i);
             }
 
             var resultJob = new Ipfs();
-            var config = new IpfsJobConfig(job.config.lr);
-            var response = resultJob.Write(new IpfsJob(job.input, job.target, seq.GetConfig(), config));
+            var response = resultJob.Write(new IpfsJob(job.input, job.target, seq.GetConfig(), job.config));
 
             return response.Hash;
         }
@@ -123,14 +235,27 @@ namespace OpenMined.Network.Controllers
                         var weightTensor = controller.floatTensorFactory.Create(_data: weightData, _shape: weightShape, _autograd: true);
 
                         // bias float tensor
-                        var biasData = layer.SelectToken("config.bias.data").ToObject<float[]>();
-                        var biasShape = layer.SelectToken("config.bias.shape").ToObject<int[]>();
-                        var biasTensor = controller.floatTensorFactory.Create(_data: biasData, _shape: biasShape, _autograd: true);
 
-                        var input = layer.SelectToken("config.input").ToObject<int>();
-                        var output = layer.SelectToken("config.output").ToObject<int>();
+                        Linear linear = null;
+                        if (layer.SelectToken("config.bias") == null)
+                        {
+                            var biasData = layer.SelectToken("config.bias.data").ToObject<float[]>();
+                            var biasShape = layer.SelectToken("config.bias.shape").ToObject<int[]>();
+                            var biasTensor = controller.floatTensorFactory.Create(_data: biasData, _shape: biasShape, _autograd: true);
 
-                        var linear = new Linear(controller, input: input, output: output, weights: weightTensor, bias: biasTensor);
+                            var input = layer.SelectToken("config.input").ToObject<int>();
+                            var output = layer.SelectToken("config.output").ToObject<int>();
+
+                            linear = new Linear(controller, input: input, output: output, weights: weightTensor, bias: biasTensor);
+                        }
+                        else
+                        {
+                            var input = layer.SelectToken("config.input").ToObject<int>();
+                            var output = layer.SelectToken("config.output").ToObject<int>();
+
+                            linear = new Linear(controller, input: input, output: output, weights: weightTensor);
+                        }
+
                         seq.AddLayer(linear);
                         break;
                     case "ReLU":
@@ -148,6 +273,9 @@ namespace OpenMined.Network.Controllers
                         var dim = layer.SelectToken("config.dim").ToObject<int>();
                         seq.AddLayer(new Softmax(controller, dim));
                         break;
+                    case "Sigmoid":
+                        seq.AddLayer(new Sigmoid(controller));
+                        break;
                 }
             }
 
@@ -157,41 +285,5 @@ namespace OpenMined.Network.Controllers
 
     public interface LayerDefinition {
         string GetLayerDefinition();
-    }
-
-    public class IpfsExperiment
-    {
-        public string[] jobs;
-
-        public IpfsExperiment (string[] jobs)
-        {
-            this.jobs = jobs;
-        }
-    }
-
-    public class IpfsJob
-    {
-        public string input;
-        public string target;
-        public JToken Model;
-        public IpfsJobConfig config;
-
-        public IpfsJob (string input, string target, JToken model, IpfsJobConfig config)
-        {
-            this.input = input;
-            this.target = target;
-            this.Model = model;
-            this.config = config;
-        }
-    }
-
-    public class IpfsJobConfig
-    {
-        [SerializeField] public float lr;
-
-        public IpfsJobConfig(float lr)
-        {
-            this.lr = lr;
-        }
     }
 }

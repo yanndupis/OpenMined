@@ -85,13 +85,55 @@ namespace OpenMined.Syft.Tensor
             result.Data = data.AsParallel().Select(x => (float)Math.Cos((float)x)).ToArray();
             return result;
         }
+        
+        public IntTensor Eq(IntTensor other, bool inline = false)
+        {
+            // Run argument checks on CPU
+            // Assuming broadcasting is not supported
+            if (!this.shape.SequenceEqual(other.shape))
+                throw new ArgumentException("Tensor dimensions must match");
 
-        public IntTensor View(int[] new_shape, bool inline = true, FloatTensor result = null)
+            if (other == null)
+                throw new ArgumentNullException();
+
+            if (dataOnGpu) {
+                throw new NotImplementedException();
+            }
+            else {
+                if (inline) {
+                    this.Data = data.AsParallel().Zip(other.Data.AsParallel(),
+                                                        (a, b) => a == b ? 1 : 0).ToArray();
+                    return this;
+                }
+                else {
+                    IntTensor result = factory.Create(this.shape);
+                    result.Data = data.AsParallel().Zip( other.Data.AsParallel(),
+                                                        (a, b) => a == b ? 1 : 0 ).ToArray();
+                    return result;
+                }
+            }
+        }
+
+
+        public IntTensor View(int[] new_shape, bool inline = true)
         {
             if (!IsContiguous())
             {
                 throw new InvalidOperationException("Tensor must be contiguous, call Contiguous() to convert");
             }
+            // suppport for -1 parameter value in new_shape
+            var index = Array.IndexOf(new_shape, -1);
+            if(index != -1)
+            {
+                int tempSize = 1;
+                foreach(var s in new_shape)
+                {
+                    if (s != -1)
+                        tempSize *= s;
+                }
+                new_shape[index] = size / tempSize;
+            }
+
             if (inline == true)
             {
 
@@ -112,7 +154,9 @@ namespace OpenMined.Syft.Tensor
             }
             else
             {
-                throw new NotImplementedException();
+                IntTensor result = factory.Create(new_shape);
+                result.Add(this, inline: true);
+                return result;
             }
 
         }
@@ -275,7 +319,7 @@ namespace OpenMined.Syft.Tensor
         public IntTensor Sub(IntTensor x, bool inline = false)
         {
 
-            IntTensor result = factory.Create(this.shape); ;
+            IntTensor result = factory.Create(this.shape);
 
             if (dataOnGpu)
             {
