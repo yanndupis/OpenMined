@@ -21,6 +21,19 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+        public FloatTensor Acos(bool inline = false)
+        {
+            FloatTensor result = factory.ctrl.floatTensorFactory.Create(this.shape);
+
+            if (dataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+            result.Data = data.AsParallel().Select(x => (float)Math.Acos((double)x)).ToArray();
+
+            return result;
+        }
+
         public IntTensor Add(IntTensor x, bool inline = false)
         {
 

@@ -158,6 +158,11 @@ namespace OpenMined.Syft.Tensor
                     var result = this.Abs(inline:true);
                     return result.id + "";
                 }
+                case "acos":
+                {
+                    var result = Acos();
+                    return result.Id.ToString();
+                }
                 case "lt":
                 {
                     var compareToTensor = factory.Get(int.Parse(msgObj.tensorIndexParams[0]));
