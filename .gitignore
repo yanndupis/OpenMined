@@ -9,6 +9,9 @@
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# Python
+*__pycache__*
+
 # Unity3D
 **/[Ll]ibrary/
 **/[Tt]emp/
