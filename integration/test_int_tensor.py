@@ -33,6 +33,31 @@ def test_int_abs_():
     np.testing.assert_almost_equal(a.to_numpy(), expected,
                                    decimal=decimal_accuracy, verbose=verbosity)
 
+def test_int_cos():
+    data = np.array([30, 60, 90, 180])
+    expected = np.array([.1542515, -0.952413, -0.4480736, -0.5984601])
+    a = IntTensor(data)
+    b = a.cos()
+
+    np.testing.assert_almost_equal(b.to_numpy(), expected,
+                                   decimal=decimal_accuracy, verbose=verbosity)
+    # a doesn't change (non-inline)
+    np.testing.assert_almost_equal(a.to_numpy(), data,
+                                   decimal=decimal_accuracy, verbose=verbosity)
+
+
+def test_int_acos():
+    data = np.array([-1, 0, 1, 1, 2])
+    expected = np.array([3.14159265, 1.57079633, 0, 0, np.nan])
+    a = IntTensor(data)
+    b = a.acos()
+
+    np.testing.assert_almost_equal(b.to_numpy(), expected,
+                                   decimal=decimal_accuracy, verbose=verbosity)
+    # a doesn't change
+    np.testing.assert_almost_equal(a.to_numpy(), data,
+                                   decimal=decimal_accuracy, verbose=verbosity)
+
 def test_int_lt():
     data = np.array([1,2,3,4])
     compare_data = np.array([2,2,5,1])
@@ -107,6 +132,17 @@ def test_int_shape():
     assert(a.shape() == a_expected)
     assert(b.shape() == b_expected)
 
+def test_int_sin():
+    data = np.array([15, 60, 90, 180])
+    expected = np.array([0.65028784, -0.30481062, 0.89399666, -0.80115264])
+    a = IntTensor(data)
+    b = a.sin()
+
+    np.testing.assert_almost_equal(b.to_numpy(), expected,
+                                   decimal=decimal_accuracy, verbose=verbosity)
+    # a doesn't change
+    np.testing.assert_almost_equal(a.to_numpy(), data,
+                                   decimal=decimal_accuracy, verbose=verbosity)
 
 def test_int_sqrt():
     data = np.random.rand(3,2)

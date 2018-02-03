@@ -661,12 +661,12 @@ namespace OpenMined.Syft.Tensor
                 {
                     if (msgObj.tensorIndexParams.Length > 1)
                     {
-                        var result = Random(shape, float.Parse(msgObj.tensorIndexParams[0]), float.Parse(msgObj.tensorIndexParams[1]), inline: true);
+                        var result = Random(shape, int.Parse(msgObj.tensorIndexParams[0]), int.Parse(msgObj.tensorIndexParams[1]), inline: true);
                         return result.Id.ToString();
                     }
                     else
                     {
-                        var result = Random(shape, float.Parse(msgObj.tensorIndexParams[0]), inline: true);
+                        var result = Random(shape, int.Parse(msgObj.tensorIndexParams[0]), inline: true);
                         return result.Id.ToString();
                     }
                 }

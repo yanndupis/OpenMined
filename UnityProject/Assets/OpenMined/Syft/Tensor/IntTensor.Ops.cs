@@ -21,6 +21,19 @@ namespace OpenMined.Syft.Tensor
             return result;
         }
 
+        public FloatTensor Acos(bool inline = false)
+        {
+            FloatTensor result = factory.ctrl.floatTensorFactory.Create(this.shape);
+
+            if (dataOnGpu)
+            {
+                throw new NotImplementedException();
+            }
+            result.Data = data.AsParallel().Select(x => (float)Math.Acos((double)x)).ToArray();
+
+            return result;
+        }
+
         public IntTensor Add(IntTensor x, bool inline = false)
         {
 
@@ -85,7 +98,7 @@ namespace OpenMined.Syft.Tensor
             result.Data = data.AsParallel().Select(x => (float)Math.Cos((float)x)).ToArray();
             return result;
         }
-        
+
         public IntTensor Eq(IntTensor other, bool inline = false)
         {
             // Run argument checks on CPU
@@ -96,8 +109,40 @@ namespace OpenMined.Syft.Tensor
             if (other == null)
                 throw new ArgumentNullException();
 
+            IntTensor result;
+
             if (dataOnGpu) {
-                throw new NotImplementedException();
+              if (!inline){
+                result = factory.Create(this.shape);
+
+                // assign the gpu
+                result.Gpu(shader);
+
+                // find the id corresponding to the operation
+                int kernel_id = shader.FindKernel("EqElemInt");
+
+                // associate arrays with gpu
+                shader.SetBuffer(kernel_id, "EqElemIntDataSelf", this.DataBuffer);
+                shader.SetBuffer(kernel_id, "EqElemIntDataOther", other.DataBuffer);
+                shader.SetBuffer(kernel_id, "EqElemIntDataResult", result.DataBuffer);
+
+                // launch kernel
+                shader.Dispatch(kernel_id, this.size, 1, 1);
+
+                return result;
+              }
+              else {
+                int kernel_id = shader.FindKernel("EqElemInt_");
+
+                // associate resources
+                shader.SetBuffer(kernel_id, "EqElemIntDataSelf_", this.DataBuffer);
+                shader.SetBuffer(kernel_id, "EqElemIntDataOther_", other.DataBuffer);
+
+                // launch kernel
+                shader.Dispatch(kernel_id, this.size, 1, 1);
+
+                return this;
+              }
             }
             else {
                 if (inline) {
@@ -106,7 +151,7 @@ namespace OpenMined.Syft.Tensor
                     return this;
                 }
                 else {
-                    IntTensor result = factory.Create(this.shape);
+                    result = factory.Create(this.shape);
                     result.Data = data.AsParallel().Zip( other.Data.AsParallel(),
                                                         (a, b) => a == b ? 1 : 0 ).ToArray();
                     return result;
