@@ -44,8 +44,7 @@ def test_int_cos():
     # a doesn't change (non-inline)
     np.testing.assert_almost_equal(a.to_numpy(), data,
                                    decimal=decimal_accuracy, verbose=verbosity)
-
-
+    
 def test_int_acos():
     data = np.array([-1, 0, 1, 1, 2])
     expected = np.array([3.14159265, 1.57079633, 0, 0, np.nan])
